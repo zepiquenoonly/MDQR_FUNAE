@@ -1,0 +1,225 @@
+# Sistema GRM - FUNAE
+### Plataforma Digital de Gestão de Queixas e Reclamações
+
+[![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/License-Proprietary-yellow.svg)]()
+
+## 📋 Sobre o Projeto
+
+Sistema de Gestão de Mecanismo de Queixas e Reclamações (Grievance Redress Mechanism - GRM) desenvolvido para o **Fundo de Energia de Moçambique (FUNAE)**, permitindo que comunidades e partes interessadas submetam queixas, reclamações e sugestões de forma eficiente, transparente e segura.
+
+### 🏢 Partes Envolvidas
+
+- **Desenvolvedor**: TECHSOLUTIONS, LDA
+- **Contratante**: ENABEL Belgian Development Agency
+- **Beneficiário**: Fundo de Energia de Moçambique (FUNAE)
+
+## 🎯 Funcionalidades Principais
+
+### Para Utentes
+- ✅ Submissão de reclamações/queixas/sugestões (anonimamente ou identificado)
+- 📎 Anexo de evidências (fotos, documentos)
+- 📊 Acompanhamento do estado em tempo real
+- 🔔 Notificações automáticas (Email/SMS)
+- 🌍 Interface multilingue (Português, Inglês e línguas locais)
+
+### Para Gestão
+- 📋 Visualização e análise de reclamações
+- 🏷️ Classificação e triagem automática
+- 👥 Atribuição de técnicos e departamentos
+- 📈 Dashboards e relatórios estatísticos
+- ⏱️ Controle de prazos e SLAs
+- 🔄 Monitoramento de fluxo de trabalho
+
+### Para Administração
+- 📊 Painel de estatísticas globais
+- 📑 Relatórios consolidados
+- 🎯 Indicadores de desempenho (KPIs)
+- 👁️ Visão geral do sistema
+
+## 👥 Atores do Sistema
+
+| Ator | Responsabilidades |
+|------|-------------------|
+| **Utente** | Submete e acompanha reclamações |
+| **Gestor de Reclamações** | Coordena todo o processo de gestão |
+| **Gestor Adjunto** | Apoia na triagem e acompanhamento |
+| **Técnicos** | Executam ações corretivas |
+| **Director de Departamento** | Supervisiona casos críticos |
+| **PCA** | Monitora desempenho global |
+| **Sistema** | Automação e notificações |
+
+## 🛠️ Tecnologias Utilizadas
+
+- **Framework**: Laravel 11.x ou Laravel 12.x
+- **PHP**: 8.2+
+- **Base de Dados**: MySQL 8.0 / PostgreSQL
+- **Frontend**: Blade Templates, Livewire, Alpine.js ou VueJS
+- **Notificações**: Email (SMTP), SMS Gateway
+- **Autenticação**: Laravel Sanctum
+- **Filas**: Redis/Laravel Queue
+- **Cache**: Redis
+- **Armazenamento**: Laravel Storage (Local/S3)
+
+## 📦 Requisitos do Sistema
+
+- PHP >= 8.2
+- Composer >= 2.5
+- MySQL >= 8.0 ou PostgreSQL >= 13
+- Redis >= 6.0
+- Node.js >= 18.x e NPM >= 9.x
+
+## 🚀 Instalação
+
+### 1. Clonar o Repositório
+
+```bash
+git clone https://github.com/TECHSOLUTIONS-PROJECTS/www.mdqr.co.mz
+```
+
+### 2. Instalar Dependências
+
+```bash
+# Dependências PHP
+composer install
+
+# Dependências JavaScript
+npm install
+```
+
+### 3. Configurar Ambiente
+
+```bash
+# Copiar arquivo de configuração
+cp .env.example .env
+
+# Gerar chave da aplicação
+php artisan key:generate
+```
+
+### 4. Configurar Base de Dados
+
+Edite o arquivo `.env` com suas credenciais:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=mdqr_funae
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha
+```
+
+### 5. Executar Migrações e Seeders
+
+```bash
+# Migrar base de dados
+php artisan migrate
+
+# Popular dados iniciais
+php artisan db:seed
+```
+
+### 6. Compilar Assets
+
+```bash
+# Desenvolvimento
+npm run dev
+
+# Produção
+npm run build
+```
+
+### 7. Iniciar Servidor
+
+```bash
+# Servidor de desenvolvimento
+php artisan serve
+
+# Worker de filas (em outro terminal)
+php artisan queue:work
+```
+
+Acesse: `http://localhost:8000`
+
+## ⚙️ Configuração
+
+### Notificações Email
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.exemplo.com
+MAIL_PORT=587
+MAIL_USERNAME=seu_email
+MAIL_PASSWORD=sua_senha
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@funae.co.mz
+MAIL_FROM_NAME="GRM FUNAE"
+```
+
+### Notificações SMS
+
+```env
+SMS_GATEWAY=seu_gateway
+SMS_API_KEY=sua_chave_api
+SMS_FROM=FUNAE
+```
+
+### Cache e Filas
+
+```env
+CACHE_DRIVER=redis
+QUEUE_CONNECTION=redis
+SESSION_DRIVER=redis
+```
+
+## 🔒 Segurança e Conformidade
+
+- ✅ Conformidade com Lei de Proteção de Dados Pessoais de Moçambique
+- 🔐 Encriptação de dados sensíveis
+- 👤 Suporte para submissões anónimas
+- 🔑 Autenticação multi-factor (2FA)
+- 📝 Auditoria completa de ações
+- 🛡️ Proteção contra CSRF, XSS e SQL Injection
+
+## 🌐 Suporte Multilingue
+
+O sistema suporta:
+- 🇵🇹 Português (padrão)
+- 🇬🇧 Inglês
+- 🗣️ Línguas locais de Moçambique
+
+## 📊 Relatórios e KPIs
+
+- Total de reclamações por período
+- Tempo médio de resolução
+- Taxa de conclusão
+- Reclamações por categoria/departamento
+- Análise de tendências
+- Exportação (PDF, Excel, CSV)
+
+## 🔄 Fluxo de Trabalho
+
+1. **Submissão** → Utente submete reclamação
+2. **Triagem** → Gestor classifica e atribui
+3. **Análise** → Técnico analisa e investiga
+4. **Ação** → Execução de medidas corretivas
+5. **Validação** → Gestor valida conclusão
+6. **Encerramento** → Processo concluído
+7. **Feedback** → Utente recebe resposta
+
+## 📄 Licença
+
+Este projeto é propriedade de **TECHSOLUTIONS, LDA** e foi desenvolvido para o **FUNAE**.
+Todos os direitos reservados © 2025.
+
+## 👨‍💻 Equipa de Desenvolvimento - www.techsolutions.co.mz
+
+Desenvolvido com ❤️ pela equipa TECHSOLUTIONS, LDA.
+
+---
+
+**Versão**: 0.1.0  
+**Última Atualização**: 12 de Novembro de 2025  
+**Status**: Em Desenvolvimento
