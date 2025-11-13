@@ -135,7 +135,7 @@ npm run build
 
 ```bash
 # Servidor de desenvolvimento
-php artisan serve
+composer run dev
 
 # Worker de filas (em outro terminal)
 php artisan queue:work
