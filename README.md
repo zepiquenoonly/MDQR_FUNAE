@@ -1,7 +1,7 @@
 # Sistema GRM - FUNAE
 ### Plataforma Digital de Gestão de Queixas e Reclamações
 
-[![Laravel](https://img.shields.io/badge/Laravel-11.x-red.svg)](https://laravel.com)
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![License](https://img.shields.io/badge/License-Proprietary-yellow.svg)]()
 
@@ -52,7 +52,7 @@ Sistema de Gestão de Mecanismo de Queixas e Reclamações (Grievance Redress Me
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Framework**: Laravel 11.x ou Laravel 12.x
+- **Framework**: Laravel 12.x
 - **PHP**: 8.2+
 - **Base de Dados**: MySQL 8.0 / PostgreSQL
 - **Frontend**: Blade Templates, Livewire, Alpine.js ou VueJS
@@ -220,6 +220,6 @@ Desenvolvido com ❤️ pela equipa TECHSOLUTIONS, LDA.
 
 ---
 
-**Versão**: 0.1.0  
-**Última Atualização**: 12 de Novembro de 2025  
+**Versão**: 0.2.  
+**Última Atualização**: 13 de Novembro de 2025  
 **Status**: Em Desenvolvimento
