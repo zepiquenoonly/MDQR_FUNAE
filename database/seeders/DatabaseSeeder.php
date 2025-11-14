@@ -12,14 +12,25 @@ class DatabaseSeeder extends Seeder
 
     /**
      * Seed the application's database.
+     *
+     * This seeder creates:
+     * - Roles and permissions for the GRM system
+     * - Default admin users (Gestor, Técnico, PCA)
+     * - A test user for development purposes
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Create roles and permissions first
+        $this->call(RoleSeeder::class);
 
+        // Create admin users
+        $this->call(AdminUserSeeder::class);
+
+        // Create a test user for development
         User::factory()->create([
             'name' => 'Test User',
+            'username' => 'testuser',
             'email' => 'test@example.com',
-        ]);
+        ])->assignRole('Utente');
     }
 }

@@ -85,8 +85,7 @@
                 <!-- Overlay Container -->
                 <div
                     class="overlay-container absolute top-0 left-1/2 w-1/2 h-full overflow-hidden transition-transform duration-600 ease-in-out z-30">
-                    <div
-                        class="overlay relative left-[-100%] h-full w-[200%] transform translate-x-0 
+                    <div class="overlay relative left-[-100%] h-full w-[200%] transform translate-x-0
                             transition-transform duration-[600ms] ease-in-out bg-[#F15F22]">
 
                         <!-- Overlay Left -->
@@ -98,35 +97,40 @@
                                 <div class="carousel-content relative h-40 lg:h-48 overflow-hidden">
                                     <div class="slides-container relative w-full h-full"
                                         :style="{ transform: `translateX(-${currentLeftSlide * 100}%)` }">
-                                       
+
                                         <div
-                                class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
-                                <p class="text-base leading-6 text-white text-justify text-center">
-                                    Denuncie aqui! É importante que suas reclamações sejam ouvidas e que possamos
-                                    tomar as medidas necessárias para resolver os problemas.
-                                </p>
-                            </div>
+                                            class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
+                                            <p class="text-base leading-6 text-white text-justify text-center">
+                                                Denuncie aqui! É importante que suas reclamações sejam ouvidas e que
+                                                possamos
+                                                tomar as medidas necessárias para resolver os problemas.
+                                            </p>
+                                        </div>
 
-                            <!-- Slide 2 -->
-                            <div
-                                class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
-                                <p class="text-base leading-6 text-white text-justify text-center">
-                                    Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer falha
-                                    que tenha identificado. Sua participação é fundamental para corrigirmos
-                                    rapidamente e assegurarmos o sucesso e a excelência do projeto.
-                                </p>
-                            </div>
+                                        <!-- Slide 2 -->
+                                        <div
+                                            class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
+                                            <p class="text-base leading-6 text-white text-justify text-center">
+                                                Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer
+                                                falha
+                                                que tenha identificado. Sua participação é fundamental para corrigirmos
+                                                rapidamente e assegurarmos o sucesso e a excelência do projeto.
+                                            </p>
+                                        </div>
 
-                            <!-- Slide 3 -->
-                            <div
-                                class="slide absolute top-0 left-[200%] w-full h-full flex flex-col items-center justify-center p-4">
-                                <p class="text-base leading-6 text-white text-justify text-center">
-                                    Certifique-se de que sua voz seja ouvida! Este é o espaço ideal para relatar
-                                    qualquer falha ou problema identificado no projeto. A sua opinião é fundamental,
-                                    e estamos totalmente comprometidos em ouvir suas preocupações e buscar soluções
-                                    eficazes. Juntos, podemos melhorar continuamente!
-                                </p>
-                            </div>
+                                        <!-- Slide 3 -->
+                                        <div
+                                            class="slide absolute top-0 left-[200%] w-full h-full flex flex-col items-center justify-center p-4">
+                                            <p class="text-base leading-6 text-white text-justify text-center">
+                                                Certifique-se de que sua voz seja ouvida! Este é o espaço ideal para
+                                                relatar
+                                                qualquer falha ou problema identificado no projeto. A sua opinião é
+                                                fundamental,
+                                                e estamos totalmente comprometidos em ouvir suas preocupações e buscar
+                                                soluções
+                                                eficazes. Juntos, podemos melhorar continuamente!
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -150,33 +154,38 @@
                                     <div class="slides-container relative w-full h-full"
                                         :style="{ transform: `translateX(-${currentRightSlide * 100}%)` }">
                                         <div
-                                class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
-                                <p class="text-base leading-6 text-white text-justify text-center">
-                                    Denuncie aqui! É importante que suas reclamações sejam ouvidas e que possamos
-                                    tomar as medidas necessárias para resolver os problemas.
-                                </p>
-                            </div>
+                                            class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
+                                            <p class="text-base leading-6 text-white text-justify text-center">
+                                                Denuncie aqui! É importante que suas reclamações sejam ouvidas e que
+                                                possamos
+                                                tomar as medidas necessárias para resolver os problemas.
+                                            </p>
+                                        </div>
 
-                            <!-- Slide 2 -->
-                            <div
-                                class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
-                                <p class="text-base leading-6 text-white text-justify text-center">
-                                    Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer falha
-                                    que tenha identificado. Sua participação é fundamental para corrigirmos
-                                    rapidamente e assegurarmos o sucesso e a excelência do projeto.
-                                </p>
-                            </div>
+                                        <!-- Slide 2 -->
+                                        <div
+                                            class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
+                                            <p class="text-base leading-6 text-white text-justify text-center">
+                                                Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer
+                                                falha
+                                                que tenha identificado. Sua participação é fundamental para corrigirmos
+                                                rapidamente e assegurarmos o sucesso e a excelência do projeto.
+                                            </p>
+                                        </div>
 
-                            <!-- Slide 3 -->
-                            <div
-                                class="slide absolute top-0 left-[200%] w-full h-full flex flex-col items-center justify-center p-4">
-                                <p class="text-base leading-6 text-white text-justify text-center">
-                                    Certifique-se de que sua voz seja ouvida! Este é o espaço ideal para relatar
-                                    qualquer falha ou problema identificado no projeto. A sua opinião é fundamental,
-                                    e estamos totalmente comprometidos em ouvir suas preocupações e buscar soluções
-                                    eficazes. Juntos, podemos melhorar continuamente!
-                                </p>
-                            </div>
+                                        <!-- Slide 3 -->
+                                        <div
+                                            class="slide absolute top-0 left-[200%] w-full h-full flex flex-col items-center justify-center p-4">
+                                            <p class="text-base leading-6 text-white text-justify text-center">
+                                                Certifique-se de que sua voz seja ouvida! Este é o espaço ideal para
+                                                relatar
+                                                qualquer falha ou problema identificado no projeto. A sua opinião é
+                                                fundamental,
+                                                e estamos totalmente comprometidos em ouvir suas preocupações e buscar
+                                                soluções
+                                                eficazes. Juntos, podemos melhorar continuamente!
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -290,6 +299,7 @@ const handleRegister = async (e) => {
     const form = new FormData(e.target)
     const data = {
         name: form.get('name'),
+        username: form.get('username'),
         email: form.get('email'),
         password: form.get('password'),
         password_confirmation: form.get('password_confirmation')
@@ -308,7 +318,7 @@ const handleLogin = async (e) => {
     loading.value = true
     const form = new FormData(e.target)
     const data = {
-        email: form.get('email'),
+        username: form.get('username'),
         password: form.get('password'),
         remember: form.get('remember') === 'on'
     }
@@ -377,7 +387,7 @@ onUnmounted(() => {
 .slides-container {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    width: 300%; 
+    width: 300%;
 }
 
 .slide {
