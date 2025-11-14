@@ -14,7 +14,7 @@
           :class="[
             'flex-1 px-6 py-4 text-sm font-semibold transition-colors',
             activeTab === tab.id
-              ? 'bg-teal-600 text-white'
+              ? 'bg-brand text-white'
               : 'bg-white text-gray-600 hover:bg-gray-50'
           ]"
           @click="activeTab = tab.id"

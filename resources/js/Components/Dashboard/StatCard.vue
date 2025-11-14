@@ -1,9 +1,8 @@
 <template>
   <div 
     :class="[
-      'bg-white rounded-xl shadow-sm p-6 border-l-4',
-      borderColor,
-      totalStyle ? 'bg-gradient-to-r from-blue-50 to-white' : ''
+      'bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300',
+      totalStyle ? 'bg-gradient-to-r from-blue-50 to-white ring-1 ring-blue-100' : ''
     ]"
   >
     <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ title }}</h3>
@@ -24,7 +23,6 @@ defineProps({
   title: String,
   value: [String, Number],
   description: String,
-  borderColor: String,
   totalStyle: {
     type: Boolean,
     default: false
