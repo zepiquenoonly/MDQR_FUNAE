@@ -278,11 +278,11 @@ const resetMobileInterval = () => {
 
 
 const switchToRegister = () => {
-    router.get('/auth/register')
+    router.get('/register')
 }
 
 const switchToLogin = () => {
-    router.get('/auth/login')
+    router.get('/login')
 }
 
 const handleRegister = async (e) => {
