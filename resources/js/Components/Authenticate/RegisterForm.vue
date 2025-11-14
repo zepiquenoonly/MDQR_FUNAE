@@ -5,39 +5,39 @@
         <div class="text-center">
             <img src="/images/Emblem_of_Mozambique.svg-2.png" alt="Ícone de autenticação"
                 class="h-20 w-20 md:h-24 md:w-24 mt-4 md:mt-0 mx-auto object-contain" />
-            <span class="text-base md:text-lg font-semibold block mt-3 md:mt-4 tracking-wide">Mecanismo De Diálogo, Queixas E
+            <span class="text-base md:text-lg font-semibold block mt-3 md:mt-4 tracking-wide">Mecanismo De Diálogo,
+                Queixas E
                 Reclamações</span>
         </div>
 
         <h2 class="text-lg md:text-xl"><strong>Registo de Conta</strong></h2>
         <p class="text-gray-600 text-xs md:text-sm mt-2 text-center">Crie sua conta para fazer parte da plataforma.</p>
 
-        <input type="text" name="name" placeholder="Nome de usuário" required
-            class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none 
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30 
+        <input type="text" name="name" placeholder="Nome completo" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
+                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
                 transition-all duration-200 text-sm md:text-base"
             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.name }" :disabled="loading" />
         <p v-if="errors.name" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.name }}</p>
 
-        <input 
-            type="email" 
-            name="email" 
-            placeholder="Email" 
-            required
-            class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none 
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30 
+        <input type="text" name="username" placeholder="Nome de usuário" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
+                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
                 transition-all duration-200 text-sm md:text-base"
-            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.email }"
-            :disabled="loading"
-        />
+            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.username }"
+            :disabled="loading" />
+        <p v-if="errors.username" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.username }}</p>
+
+        <input type="email" name="email" placeholder="Email" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
+                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
+                transition-all duration-200 text-sm md:text-base"
+            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.email }" :disabled="loading" />
         <p v-if="errors.email" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.email }}</p>
 
         <div class="w-full relative">
-            <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Senha" required
-                class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none 
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30 
+            <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Senha" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
+                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
                 transition-all duration-200 text-sm md:text-base"
-                :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.password }" :disabled="loading" />
+                :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.password }"
+                :disabled="loading" />
             <button type="button" @click="showPassword = !showPassword"
                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" :disabled="loading">
                 <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -47,11 +47,11 @@
 
         <div class="w-full relative">
             <input :type="showConfirmPassword ? 'text' : 'password'" name="password_confirmation"
-                placeholder="Confirmar Senha" required
-                class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none 
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30 
+                placeholder="Confirmar Senha" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
+                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
                 transition-all duration-200 text-sm md:text-base"
-                :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.password_confirmation || passwordMismatch }" :disabled="loading" />
+                :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.password_confirmation || passwordMismatch }"
+                :disabled="loading" />
             <button type="button" @click="showConfirmPassword = !showConfirmPassword"
                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" :disabled="loading">
                 <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
@@ -77,7 +77,7 @@
             Já tem uma conta?
             <button type="button" @click="$emit('switch-to-login')"
                 class="text-[#F15F22] font-medium hover:text-[#e5561a] ml-1 focus:outline-none">
-                    Login
+                Login
             </button>
         </p>
     </form>
