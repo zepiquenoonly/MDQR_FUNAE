@@ -26,11 +26,17 @@ class DatabaseSeeder extends Seeder
         // Create admin users
         $this->call(AdminUserSeeder::class);
 
-        // Create a test user for development
-        User::factory()->create([
+        // Create a test user for development (if not exists)
+        $testUser = User::firstOrCreate(
+            ['email' => 'test@example.com'],
+            [
             'name' => 'Test User',
             'username' => 'testuser',
-            'email' => 'test@example.com',
-        ])->assignRole('Utente');
+            ]
+        );
+        
+        if ($testUser->roles()->count() === 0) {
+            $testUser->assignRole('Utente');
+        }
     }
 }
