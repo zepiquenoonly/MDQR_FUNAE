@@ -1,16 +1,21 @@
 <template>
-  <div>
+  <div class="relative">
     <div
       :class="[
-        'flex items-center gap-3 px-5 py-3 text-gray-600 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-gray-50 hover:text-gray-800',
-        isOpen ? 'bg-gray-50' : ''
+        'flex items-center gap-3 px-5 py-3 text-white cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-white hover:bg-opacity-10',
+        isOpen ? 'bg-white bg-opacity-20' : ''
       ]"
-      @click="toggleDropdown"
+      @click="handleClick"
+      @mouseenter="onMouseEnter"
+      @mouseleave="onMouseLeave"
     >
-      <span class="text-lg flex-shrink-0 w-5 text-center">{{ icon }}</span>
+      <component 
+        :is="icon" 
+        class="flex-shrink-0 w-5 h-5 text-white" 
+      />
       <span 
         :class="[
-          'transition-opacity duration-300 flex-1',
+          'transition-opacity duration-300 flex-1 text-sm font-medium',
           isCollapsed ? 'opacity-0' : 'opacity-100'
         ]"
       >
@@ -21,7 +26,7 @@
       <span 
         v-if="badge"
         :class="[
-          'bg-red-500 text-white rounded-full px-2 py-1 text-xs font-bold transition-opacity duration-300',
+          'bg-white text-brand rounded-full px-2 py-1 text-xs font-bold transition-opacity duration-300',
           isCollapsed ? 'opacity-0' : 'opacity-100'
         ]"
       >
@@ -29,39 +34,61 @@
       </span>
       
       <!-- Arrow -->
-      <span 
+      <ChevronRightIcon 
         :class="[
-          'text-gray-400 transition-all duration-300 text-sm',
+          'text-white text-opacity-70 transition-all duration-300 w-4 h-4',
           isCollapsed ? 'opacity-0' : 'opacity-100',
           isOpen ? 'rotate-90' : ''
         ]"
-      >
-        ›
-      </span>
+      />
     </div>
 
-    <!-- Dropdown Items -->
+    <!-- Dropdown Items - Normal (quando sidebar aberta) -->
     <div
+      v-if="!isCollapsed && isOpen"
       :class="[
-        'bg-gray-50 overflow-hidden transition-all duration-300',
-        isOpen ? 'max-h-48' : 'max-h-0'
+        'bg-white bg-opacity-10 overflow-hidden transition-all duration-300'
       ]"
     >
       <a
         v-for="(item, index) in items"
         :key="index"
         :class="[
-          'flex items-center gap-3 py-2.5 px-5 pl-12 text-gray-600 cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-gray-100 hover:text-gray-800'
+          'flex items-center gap-3 py-2.5 px-5 pl-12 text-white cursor-pointer transition-all duration-200 border-l-3 border-transparent hover:bg-white hover:bg-opacity-20'
         ]"
         @click="handleItemClick(item)"
       >
-        <span class="text-base flex-shrink-0 w-5 text-center">{{ item.icon }}</span>
-        <span 
-          :class="[
-            'transition-opacity duration-300',
-            isCollapsed ? 'opacity-0' : 'opacity-100'
-          ]"
-        >
+        <component 
+          :is="item.icon" 
+          class="flex-shrink-0 w-4 h-4 text-white" 
+        />
+        <span class="text-sm">
+          {{ item.text }}
+        </span>
+      </a>
+    </div>
+
+    <!-- Dropdown Items - Popup (quando sidebar fechada) -->
+    <div
+      v-if="isCollapsed && showPopup"
+      class="absolute left-full top-0 ml-1 bg-orange-400 rounded-lg shadow-lg py-2 min-w-48 z-50"
+      @mouseenter="onPopupEnter"
+      @mouseleave="onPopupLeave"
+    >
+      <div class="px-4 py-2 border-b border-orange-300">
+        <span class="text-white font-semibold text-sm">{{ text }}</span>
+      </div>
+      <a
+        v-for="(item, index) in items"
+        :key="index"
+        class="flex items-center gap-3 px-4 py-2 text-white cursor-pointer transition-colors duration-200 hover:bg-orange-500"
+        @click="handleItemClick(item)"
+      >
+        <component 
+          :is="item.icon" 
+          class="flex-shrink-0 w-4 h-4 text-white" 
+        />
+        <span class="text-sm">
           {{ item.text }}
         </span>
       </a>
@@ -70,29 +97,83 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
+import { ChevronRightIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
-  icon: String,
+  id: {
+    type: String,
+    required: true
+  },
+  icon: Object,
   text: String,
   badge: [String, Number],
   isCollapsed: Boolean,
   items: {
     type: Array,
     default: () => []
+  },
+  dropdownManager: {
+    type: Object,
+    required: true
   }
 })
 
 const emit = defineEmits(['item-clicked'])
 
-const isOpen = ref(false)
+const showPopup = ref(false)
+let popupTimer = null
 
-const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
+// Computed para verificar se este dropdown está aberto
+const isOpen = computed(() => {
+  return props.dropdownManager.isDropdownOpen(props.id)
+})
+
+const handleClick = () => {
+  if (!props.isCollapsed) {
+    props.dropdownManager.toggleDropdown(props.id)
+  }
+}
+
+const onMouseEnter = () => {
+  if (props.isCollapsed) {
+    clearTimeout(popupTimer)
+    popupTimer = setTimeout(() => {
+      showPopup.value = true
+    }, 200)
+  }
+}
+
+const onMouseLeave = () => {
+  if (props.isCollapsed) {
+    clearTimeout(popupTimer)
+    popupTimer = setTimeout(() => {
+      showPopup.value = false
+    }, 300)
+  }
+}
+
+const onPopupEnter = () => {
+  clearTimeout(popupTimer)
+}
+
+const onPopupLeave = () => {
+  popupTimer = setTimeout(() => {
+    showPopup.value = false
+  }, 300)
 }
 
 const handleItemClick = (item) => {
+  // Fechar dropdown após clicar em um item
+  props.dropdownManager.closeDropdown()
+  showPopup.value = false
   emit('item-clicked', item.text)
-  isOpen.value = false
 }
+
+// Watch para fechar popup quando dropdown for fechado
+watch(isOpen, (newValue) => {
+  if (!newValue && !props.isCollapsed) {
+    showPopup.value = false
+  }
+})
 </script>

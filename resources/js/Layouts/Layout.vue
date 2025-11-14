@@ -11,6 +11,7 @@
       <Header 
         :sidebar-collapsed="sidebarCollapsed"
         @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+        :user="user"
       />
       
       <!-- Page Content -->
@@ -23,8 +24,15 @@
 
 <script setup>
 import { ref } from 'vue'
-import Sidebar from '../Components/Dashboard/Sidebar.vue'
-import Header from '../Components/Dashboard/Header.vue'
+import Sidebar from '@/Components/Dashboard/Sidebar.vue'
+import Header from '@/Components/Dashboard/Header.vue'
+
+defineProps({
+  user: {
+    type: Object,
+    required: true
+  }
+})
 
 const sidebarCollapsed = ref(false)
 </script>
