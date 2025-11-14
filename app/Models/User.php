@@ -94,4 +94,36 @@ class User extends Authenticatable
     {
         return $this->hasPermissionTo($permission);
     }
+
+    /**
+     * Get the grievances submitted by this user.
+     */
+    public function grievances(): HasMany
+    {
+        return $this->hasMany(Grievance::class);
+    }
+
+    /**
+     * Get the grievances assigned to this user.
+     */
+    public function assignedGrievances(): HasMany
+    {
+        return $this->hasMany(Grievance::class, 'assigned_to');
+    }
+
+    /**
+     * Get the grievances resolved by this user.
+     */
+    public function resolvedGrievances(): HasMany
+    {
+        return $this->hasMany(Grievance::class, 'resolved_by');
+    }
+
+    /**
+     * Get the attachments uploaded by this user.
+     */
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(Attachment::class, 'uploaded_by');
+    }
 }
