@@ -38,6 +38,11 @@ class User extends Authenticatable
         'username',
         'email',
         'password',
+        'phone',
+        'province',
+        'district',
+        'neighborhood',
+        'street',
     ];
 
     /**

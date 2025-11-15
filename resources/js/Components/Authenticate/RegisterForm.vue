@@ -13,11 +13,11 @@
         <h2 class="text-lg md:text-xl"><strong>Registo de Conta</strong></h2>
         <p class="text-gray-600 text-xs md:text-sm mt-2 text-center">Crie sua conta para fazer parte da plataforma.</p>
 
-        <input type="text" name="name" placeholder="Nome completo" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
+        <input type="email" name="email" placeholder="Email" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
                 focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
                 transition-all duration-200 text-sm md:text-base"
-            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.name }" :disabled="loading" />
-        <p v-if="errors.name" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.name }}</p>
+            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.email }" :disabled="loading" />
+        <p v-if="errors.email" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.email }}</p>
 
         <input type="text" name="username" placeholder="Nome de usuário" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
                 focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
@@ -25,12 +25,6 @@
             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.username }"
             :disabled="loading" />
         <p v-if="errors.username" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.username }}</p>
-
-        <input type="email" name="email" placeholder="Email" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
-                transition-all duration-200 text-sm md:text-base"
-            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.email }" :disabled="loading" />
-        <p v-if="errors.email" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.email }}</p>
 
         <div class="w-full relative">
             <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Senha" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
