@@ -17,6 +17,9 @@ export default {
             },
             colors: {
                 brand: '#F15F22',
+                'brand-red': '#DC2626', 
+                'brand-green': '#16A34A', 
+                'brand-blue': '#4c8fddff',
             }
         },
     },

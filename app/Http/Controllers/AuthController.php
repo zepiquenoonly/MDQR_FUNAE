@@ -66,7 +66,9 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('/home');
+            
+            // Redirecionar baseado no role
+            return $this->redirectBasedOnRole();
         }
 
         return back()->withErrors([
@@ -186,26 +188,124 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('home')->with('success', 'Conta criada com sucesso! Bem-vindo!');
+        return $this->redirectBasedOnRole()->with('success', 'Conta criada com sucesso! Bem-vindo!');
+    }
+
+    /**
+     * Redirect user based on their role
+     */
+    private function redirectBasedOnRole()
+    {
+        $user = Auth::user();
+        $role = $user->getRoleNames()->first();
+
+        switch ($role) {
+            case 'PCA':
+                return redirect()->route('admin.dashboard');
+            case 'Gestor':
+                return redirect()->route('manager.dashboard');
+            case 'Técnico':
+                return redirect()->route('technician.dashboard');
+            case 'Utente':
+            default:
+                return redirect()->route('user.dashboard');
+        }
     }
 
     /**
      * Display the home page for authenticated users.
      */
     public function home(): Response
+{
+    $user = Auth::user();
+    $role = $user->getRoleNames()->first();
+
+    // Debug: verifique se o usuário está sendo carregado
+    \Log::info('User data:', [
+        'id' => $user->id,
+        'name' => $user->name,
+        'email' => $user->email,
+        'role' => $role
+    ]);
+
+    return Inertia::render('Utente/Dashboard', [
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $role,
+            'created_at' => $user->created_at->format('d/m/Y'),
+        ]
+    ]);
+}
+
+    /**
+     * Get the appropriate dashboard based on user role
+     */
+    private function getDashboardByRole($role): Response
     {
         $user = Auth::user();
-        $role = $user->getRoleNames()->first();
-
-        return Inertia::render('Home', [
-            'user' => [
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $role,
-                'created_at' => $user->created_at->format('d/m/Y'),
-            ]
-        ]);
+        
+        switch ($role) {
+            case 'PCA':
+                return Inertia::render('Admin/Dashboard', [
+                    'user' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $role,
+                        'created_at' => $user->created_at->format('d/m/Y'),
+                    ]
+                ]);
+                
+            case 'Gestor':
+                return Inertia::render('Manager/Dashboard', [
+                    'user' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $role,
+                        'created_at' => $user->created_at->format('d/m/Y'),
+                    ]
+                ]);
+                
+            case 'Técnico':
+                return Inertia::render('Technician/Dashboard', [
+                    'user' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $role,
+                        'created_at' => $user->created_at->format('d/m/Y'),
+                    ]
+                ]);
+                
+            case 'Utente':
+            default:
+                return Inertia::render('Utente/Dashboard', [
+                    'user' => [
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $role,
+                        'created_at' => $user->created_at->format('d/m/Y'),
+                    ]
+                ]);
+        }
     }
+
+    public function showProject($projectId): Response
+{
+    $user = Auth::user();
+    $role = $user->getRoleNames()->first();
+
+    return Inertia::render('Utente/Dashboard', [
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $role,
+            'created_at' => $user->created_at->format('d/m/Y'),
+        ],
+        'projectId' => (int) $projectId
+    ]);
+}
 
     /**
      * Handle user logout.

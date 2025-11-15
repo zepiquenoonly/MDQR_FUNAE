@@ -23,5 +23,13 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
+    
+    // Rotas específicas por role - todas apontam para o método home
+    Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
+    Route::get('/gestor/dashboard', [AuthController::class, 'home'])->name('manager.dashboard');
+    Route::get('/tecnico/dashboard', [AuthController::class, 'home'])->name('technician.dashboard');
+    Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
+    Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
+    
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

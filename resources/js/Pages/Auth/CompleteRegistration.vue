@@ -1,7 +1,17 @@
 <template>
-    <div
-        class="min-h-screen bg-gradient-to-br from-[#F15F22]/10 via-white to-[#F15F22]/5 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-2xl overflow-hidden w-full max-w-4xl border border-[#F15F22]/10">
+    <header class="bg-white">
+        <div class="flex flex-col items-center justify-center py-4">
+            <div class="flex items-center">
+                <img src="/images/Emblem_of_Mozambique.svg-2.png" alt="Brasão de Moçambique"
+                    class="h-20 w-20 md:h-24 md:w-24 object-contain" />
+            </div>
+            <h1 class="mt-4 text-xl font-semibold text-gray-900"><strong>Mecanismo de Diálogo, Queixas e
+                    Reclamações</strong></h1>
+        </div>
+    </header>
+
+    <div class="min-h-screen bg-white flex items-center justify-center p-4 -mt-12">
+        <div class="bg-white overflow-hidden w-[1400px] max-w-6xl border border-gray">
             <CompleteRegistrationForm :basic-data="basicData" :loading="loading" :errors="errors"
                 @submit="handleCompleteRegistration" @back-to-basic="backToBasicRegistration" />
         </div>
