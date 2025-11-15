@@ -80,7 +80,6 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => [
@@ -98,15 +97,91 @@ class AuthController extends Controller
             return back()->withErrors($validator)->withInput();
         }
 
-        $user = User::create([
-            'name' => $request->name,
-            'username' => $request->username,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+        // Store basic registration data in session
+        session([
+            'basic_registration' => [
+                'username' => $request->username,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]
         ]);
+
+        return redirect()->route('auth.register.complete');
+    }
+
+    /**
+     * Display the complete registration form.
+     */
+    public function showCompleteRegistration(): Response
+    {
+        $basicData = session('basic_registration');
+
+        if (!$basicData) {
+            return redirect()->route('auth.register');
+        }
+
+        return Inertia::render('Auth/CompleteRegistration', [
+            'basicData' => $basicData,
+            'flash' => [
+                'success' => session('success'),
+                'error' => session('error')
+            ]
+        ]);
+    }
+
+    /**
+     * Handle complete user registration.
+     */
+    public function completeRegistration(Request $request)
+    {
+        $basicData = session('basic_registration');
+
+        if (!$basicData) {
+            return redirect()->route('auth.register');
+        }
+
+        $validator = Validator::make($request->all(), [
+            'nome' => 'required|string|max:255',
+            'apelido' => 'required|string|max:255',
+            'celular' => 'required|string|max:20',
+            'provincia' => 'required|string|max:255',
+            'distrito' => 'required|string|max:255',
+            'bairro' => 'required|string|max:255',
+            'rua' => 'required|string|max:255',
+            'documents' => 'nullable|array',
+            'documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120'
+        ]);
+
+        if ($validator->fails()) {
+            return back()->withErrors($validator)->withInput();
+        }
+
+        // Create user with complete data
+        $user = User::create([
+            'name' => $request->nome . ' ' . $request->apelido,
+            'username' => $basicData['username'],
+            'email' => $basicData['email'],
+            'password' => $basicData['password'],
+            'phone' => $request->celular,
+            'province' => $request->provincia,
+            'district' => $request->distrito,
+            'neighborhood' => $request->bairro,
+            'street' => $request->rua,
+        ]);
+
+        // Handle document uploads if any
+        if ($request->hasFile('documents')) {
+            foreach ($request->file('documents') as $document) {
+                $path = $document->store('user_documents', 'public');
+                // You might want to create an Attachment model to store these
+            }
+        }
 
         // Assign default role to new users
         $user->assignRole('Utente');
+
+        // Clear session data
+        session()->forget('basic_registration');
 
         Auth::login($user);
         $request->session()->regenerate();
