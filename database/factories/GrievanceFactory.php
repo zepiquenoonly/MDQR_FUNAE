@@ -36,7 +36,7 @@ class GrievanceFactory extends Factory
             'Sofala',
             'Manica',
             'Tete',
-            'Zambezia',
+            'Zambézia',
             'Nampula',
             'Cabo Delgado',
             'Niassa',
