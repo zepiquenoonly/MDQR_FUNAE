@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -30,11 +31,12 @@ class DatabaseSeeder extends Seeder
         $testUser = User::firstOrCreate(
             ['email' => 'test@example.com'],
             [
-            'name' => 'Test User',
-            'username' => 'testuser',
+                'name' => 'Test User',
+                'username' => 'testuser',
+                'password' => Hash::make('password'),
             ]
         );
-        
+
         if ($testUser->roles()->count() === 0) {
             $testUser->assignRole('Utente');
         }
