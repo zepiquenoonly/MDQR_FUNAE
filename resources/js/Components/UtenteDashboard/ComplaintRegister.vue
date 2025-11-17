@@ -34,7 +34,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">Descrição da queixa</label>
                     <textarea rows="6" placeholder="Digite aqui sua queixa..."
-                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent resize-none md:h-[300px]"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent resize-none md:h-[300px]"
                         v-model="formData.description"></textarea>
                 </div>
             </div>

@@ -125,9 +125,9 @@ const showPopup = ref(false)
 let popupTimer = null
 
 // Computed para verificar se este dropdown está aberto
-/*const isOpen = computed(() => {
+const isOpen = computed(() => {
   return props.dropdownManager.isDropdownOpen(props.id)
-})*/
+})
 
 const handleClick = () => {
   if (!props.isCollapsed) {
@@ -171,9 +171,9 @@ const handleItemClick = (item) => {
 }
 
 // Watch para fechar popup quando dropdown for fechado
-/*watch(isOpen, (newValue) => {
+watch(isOpen, (newValue) => {
   if (!newValue && !props.isCollapsed) {
     showPopup.value = false
   }
-})*/
+})
 </script>

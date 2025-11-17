@@ -12,21 +12,29 @@
     </div>
 
     <!-- Dropdown Menu -->
-    <div
-      v-if="isOpen"
-      class="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
-    >
-      <a
-        v-for="item in dropdownItems"
-        :key="item.text"
-        :class="[
-          'flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer',
-          item.class || 'text-gray-700 hover:bg-gray-50'
-        ]"
-        @click="handleItemClick(item)"
-      >
-        <component :is="item.icon" class="w-4 h-4" />
-        <span>{{ item.text }}</span>
+    <div v-if="isOpen"
+      class="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+
+      <!-- Perfil - Ocultar quando hideProfile for true -->
+      <Link v-if="!hideProfile" href="/profile/info"
+        class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-gray-700 hover:bg-gray-50"
+        @click="isOpen = false">
+      <UserIcon class="w-4 h-4" />
+      <span>Perfil</span>
+      </Link>
+
+      <!-- Bloqueio de Tela -->
+      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-gray-700 hover:bg-gray-50"
+        @click="handleItemClick({ text: 'Bloqueio de Tela' })">
+        <LockClosedIcon class="w-4 h-4" />
+        <span>Bloqueio de Tela</span>
+      </a>
+
+      <!-- Sair - URL direta -->
+      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-red-600 hover:bg-red-50"
+        @click="handleLogout">
+        <ArrowRightOnRectangleIcon class="w-4 h-4" />
+        <span>Sair</span>
       </a>
     </div>
   </div>
@@ -34,15 +42,14 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import { router } from '@inertiajs/vue3'
-import { 
-  UserIcon, 
-  ChevronDownIcon, 
+import { router, Link } from '@inertiajs/vue3'
+import {
+  UserIcon,
+  ChevronDownIcon,
   LockClosedIcon,
-  ArrowRightOnRectangleIcon 
+  ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
 
-// Defina um valor padrão para a prop user
 const props = defineProps({
   user: {
     type: Object,
@@ -50,29 +57,37 @@ const props = defineProps({
       name: 'Usuário',
       email: ''
     })
+  },
+  hideProfile: {
+    type: Boolean,
+    default: false
+  },
+  // Props para customizar cores
+  bgColor: {
+    type: String,
+    default: 'hover:bg-gray-50'
+  },
+  textColor: {
+    type: String,
+    default: 'text-gray-700'
   }
 })
 
 const isOpen = ref(false)
 
-const dropdownItems = [
-  { icon: UserIcon, text: 'Perfil' },
-  { icon: LockClosedIcon, text: 'Bloqueio de Tela' },
-  { icon: ArrowRightOnRectangleIcon, text: 'Sair', class: 'text-red-600 hover:bg-red-50' }
-]
-
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-const handleItemClick = (item) => {
-  if (item.text === 'Sair') {
-    if (confirm('Tem certeza que deseja sair?')) {
-      router.post(route('logout'))
-    }
-  } else {
-    console.log('Action:', item.text)
+const handleLogout = () => {
+  if (confirm('Tem certeza que deseja sair?')) {
+    router.post('/logout')
   }
+  isOpen.value = false
+}
+
+const handleItemClick = (item) => {
+  console.log('Action:', item.text)
   isOpen.value = false
 }
 

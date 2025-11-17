@@ -1,19 +1,12 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex">
     <!-- Sidebar -->
-    <Sidebar 
-      :is-collapsed="sidebarCollapsed" 
-      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-    />
-    
+    <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
-      <Header 
-        :sidebar-collapsed="sidebarCollapsed"
-        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-        :user="user"
-      />
-      
+      <Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :user="user" />
+
       <!-- Page Content -->
       <main class="flex-1 overflow-y-auto">
         <slot />
@@ -35,4 +28,8 @@ defineProps({
 })
 
 const sidebarCollapsed = ref(false)
+
+const toggleSidebar = () => {
+  sidebarCollapsed.value = !sidebarCollapsed.value
+}
 </script>

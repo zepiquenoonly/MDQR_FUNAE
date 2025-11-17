@@ -167,7 +167,14 @@ const handleItemClick = (item) => {
   // Fechar dropdown após clicar em um item
   props.dropdownManager.closeDropdown()
   showPopup.value = false
-  emit('item-clicked', item.text)
+
+  // Passar o objeto completo com ID
+  const itemWithId = {
+    text: item.text,
+    id: item.id || item.text.toLowerCase()
+  }
+
+  emit('item-clicked', itemWithId)
 }
 
 // Watch para fechar popup quando dropdown for fechado

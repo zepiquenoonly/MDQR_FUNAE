@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,6 +31,22 @@ Route::middleware('auth')->group(function () {
     Route::get('/tecnico/dashboard', [AuthController::class, 'home'])->name('technician.dashboard');
     Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
     Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
+
+    // Rotas do Perfil com prefixo /perfil
+    Route::prefix('profile')->group(function () {
+    Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::get('/info', [ProfileController::class, 'edit'])->name('profile.info');
+    Route::get('/security', [ProfileController::class, 'edit'])->name('profile.security');
+    Route::get('/notifications', [ProfileController::class, 'edit'])->name('profile.notifications');
+    Route::get('/preferences', [ProfileController::class, 'edit'])->name('profile.preferences');
     
+    // Rotas de ação - CORRIGIDAS
+    Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
+    // Remover a rota duplicada
+    // Route::patch('/info/extended', [ProfileController::class, 'updateExtended'])->name('profile.update.extended');
+    Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
+    Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

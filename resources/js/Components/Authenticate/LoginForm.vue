@@ -14,20 +14,26 @@
 
         <div class="w-full max-w-xs">
             <input type="text" name="username" placeholder="Digite o nome de usuário" required
-                class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30 transition-all duration-200 text-sm md:text-base"
-                :class="{ 'border-red-500': errors.username }" :disabled="loading" />
+                class="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
+                :class="{ 'border-red-500 bg-red-50': errors.username }" :disabled="loading" />
             <p v-if="errors.username" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.username }}</p>
 
-            <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Digite a senha" required
-                class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none mt-4 focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30 transition-all duration-200 text-sm md:text-base"
-                :class="{ 'border-red-500': errors.password }" :disabled="loading" />
+            <div class="relative mt-2">
+                <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Digite a senha" required
+                    class="w-full py-3 px-4 pr-10 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
+                    :class="{ 'border-red-500 bg-red-50': errors.password }" :disabled="loading" />
+                <button type="button" @click="showPassword = !showPassword"
+                    class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-brand transition-colors">
+                    <EyeIcon v-if="!showPassword" class="w-5 h-5" />
+                    <EyeSlashIcon v-else class="w-5 h-5" />
+                </button>
+            </div>
             <p v-if="errors.password" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.password }}</p>
 
             <div class="flex items-center justify-between w-full my-4">
                 <div class="flex items-center">
                     <input id="remember" name="remember" type="checkbox"
-                        class="h-4 w-4 text-[#F15F22] focus:ring-[#F15F22] border-gray-300 rounded"
-                        :disabled="loading" />
+                        class="h-4 w-4 text-[#F15F22] focus:ring-brand border-gray-300 rounded" :disabled="loading" />
                     <label for="remember" class="ml-2 block text-xs md:text-sm text-gray-900">Lembrar de mim</label>
                 </div>
                 <a href="#" class="text-xs md:text-sm text-gray-600 hover:text-gray-800">Esqueceu a senha?</a>
@@ -53,6 +59,11 @@
 
 <script setup>
 import { ref } from 'vue'
+import {
+    EyeIcon,
+    EyeSlashIcon
+} from '@heroicons/vue/24/outline'
+
 
 defineProps({
     loading: {

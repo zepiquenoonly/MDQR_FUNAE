@@ -8,32 +8,53 @@
 
             <!-- Progress Steps Corrigido -->
             <div class="flex justify-between items-center relative w-full max-w-4xl mt-4 mb-6">
+                <!-- Linha de fundo cinza -->
                 <div class="absolute top-4 left-[10%] right-[10%] h-0.5 bg-gray-300 z-0"></div>
-                <div class="absolute top-4 left-[10%] h-0.5 bg-brand z-1 transition-all duration-300"
+
+                <!-- Linha de progresso brand -->
+                <div class="absolute top-4 left-[10%] h-0.5 bg-brand z-10 transition-all duration-300"
                     :style="{ width: progressWidth }"></div>
 
-                <div class="flex flex-col items-center relative z-2 flex-1" :class="{ 'text-brand': currentStep >= 1 }">
-                    <div class="w-12 h-12 rounded-full bg-white border-2 flex items-center justify-center mb-2 transition-all duration-300"
-                        :class="currentStep >= 1 ? 'border-brand bg-brand text-white' : 'border-gray-300 text-gray-500'">
-                        <UserIcon class="w-6 h-6" />
+                <!-- Step 1 - CORRIGIDO -->
+                <div class="flex flex-col items-center relative z-20 flex-1 -mt-3">
+                    <div class="w-16 h-16 rounded-full border-2 flex items-center justify-center mb-2 transition-all duration-300"
+                        :class="currentStep >= 1
+                            ? 'border-brand bg-brand text-white'
+                            : 'border-gray-300 bg-white text-gray-500'">
+                        <UserIcon class="w-8 h-8" />
                     </div>
-                    <div class="text-sm text-gray-600 text-center max-w-24">Dados Pessoais</div>
+                    <div class="text-sm text-center max-w-24 transition-colors duration-300"
+                        :class="currentStep >= 1 ? 'text-brand font-medium' : 'text-gray-600'">
+                        Dados Pessoais
+                    </div>
                 </div>
 
-                <div class="flex flex-col items-center relative z-2 flex-1" :class="{ 'text-brand': currentStep >= 2 }">
-                    <div class="w-12 h-12 rounded-full bg-white border-2 flex items-center justify-center mb-2 transition-all duration-300"
-                        :class="currentStep >= 2 ? 'border-brand bg-brand text-white' : 'border-gray-300 text-gray-500'">
-                        <MapPinIcon class="w-6 h-6" />
+                <!-- Step 2 - CORRIGIDO -->
+                <div class="flex flex-col items-center relative z-20 flex-1 -ml-8">
+                    <div class="w-16 h-16 rounded-full border-2 flex items-center justify-center mb-2 transition-all duration-300 -mt-10 "
+                        :class="currentStep >= 2
+                            ? 'border-brand bg-brand text-white'
+                            : 'border-gray-300 bg-white text-gray-500'">
+                        <MapPinIcon class="w-8 h-8" />
                     </div>
-                    <div class="text-sm text-gray-600 text-center max-w-24">Endereço</div>
+                    <div class="text-sm text-center max-w-24 transition-colors duration-300"
+                        :class="currentStep >= 2 ? 'text-brand font-medium' : 'text-gray-600'">
+                        Endereço
+                    </div>
                 </div>
 
-                <div class="flex flex-col items-center relative z-2 flex-1" :class="{ 'text-brand': currentStep >= 3 }">
-                    <div class="w-12 h-12 rounded-full bg-white border-2 flex items-center justify-center mb-2 transition-all duration-300"
-                        :class="currentStep >= 3 ? 'border-brand bg-brand text-white' : 'border-gray-300 text-gray-500'">
-                        <DocumentTextIcon class="w-6 h-6" />
+                <!-- Step 3 - CORRIGIDO -->
+                <div class="flex flex-col items-center relative z-20 flex-1">
+                    <div class="w-16 h-16 rounded-full border-2 flex items-center justify-center mb-2 transition-all duration-300 -mt-10"
+                        :class="currentStep >= 3
+                            ? 'border-brand bg-brand text-white'
+                            : 'border-gray-300 bg-white text-gray-500'">
+                        <DocumentTextIcon class="w-8 h-8" />
                     </div>
-                    <div class="text-sm text-gray-600 text-center max-w-24">Documento</div>
+                    <div class="text-sm text-center max-w-24 transition-colors duration-300"
+                        :class="currentStep >= 3 ? 'text-brand font-medium' : 'text-gray-600'">
+                        Documento
+                    </div>
                 </div>
             </div>
 
@@ -51,14 +72,14 @@
                     <div class="flex flex-col">
                         <label for="nome" class="text-left text-sm font-medium text-gray-700 mb-1">Email</label>
                         <input type="email" id="email" :value="props.basicData.email" placeholder="Email"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             readonly>
                     </div>
 
                     <div class="flex flex-col">
                         <label for="nome" class="text-left text-sm font-medium text-gray-700 mb-1">Nome</label>
                         <input type="text" id="nome" v-model="formData.nome" placeholder="Digite o seu nome"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.nome }" required>
                         <p v-if="errors.nome" class="text-red-500 text-xs mt-1 text-left">{{ errors.nome }}</p>
                     </div>
@@ -66,7 +87,7 @@
                     <div class="flex flex-col">
                         <label for="nome" class="text-left text-sm font-medium text-gray-700 mb-1">Apelido</label>
                         <input type="text" id="apelido" v-model="formData.apelido" placeholder="Digite o seu apelido"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.apelido }"
                             required>
                         <p v-if="errors.apelido" class="text-red-500 text-xs mt-1 text-left">{{ errors.apelido }}</p>
@@ -76,7 +97,7 @@
                         <label for="nome" class="text-left text-sm font-medium text-gray-700 mb-1">Celular</label>
                         <input type="tel" id="celular" v-model="formData.celular"
                             placeholder="Digite o seu número de celular"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.celular }"
                             @input="formatPhoneNumber" required>
                         <p v-if="errors.celular" class="text-red-500 text-xs mt-1 text-left">{{ errors.celular }}</p>
@@ -102,7 +123,7 @@
                         <label for="provincia"
                             class="text-left text-sm font-medium text-gray-700 mb-1">Província</label>
                         <select id="provincia" v-model="formData.provincia"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.provincia }"
                             required>
                             <option value="">Selecione...</option>
@@ -124,7 +145,7 @@
                     <div class="flex flex-col">
                         <label for="distrito" class="text-left text-sm font-medium text-gray-700 mb-1">Distrito</label>
                         <select id="distrito" v-model="formData.distrito"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.distrito }"
                             required>
                             <option value="">Selecione...</option>
@@ -142,7 +163,7 @@
                     <div class="flex flex-col">
                         <label for="bairro" class="text-left text-sm font-medium text-gray-700 mb-1">Bairro</label>
                         <select id="bairro" v-model="formData.bairro"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.bairro }"
                             required>
                             <option value="">Selecione...</option>
@@ -158,7 +179,7 @@
                     <div class="flex flex-col">
                         <label for="rua" class="text-left text-sm font-medium text-gray-700 mb-1">Rua</label>
                         <input type="text" id="rua" v-model="formData.rua" placeholder="Digite a sua rua"
-                            class="w-full py-2 px-4 bg-gray-100 border border-transparent rounded-lg outline-none focus:border-brand focus:ring-2 focus:ring-brand/30 transition-all duration-200 text-sm md:text-base"
+                            class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.rua }" required>
                         <p v-if="errors.rua" class="text-red-500 text-xs mt-1 text-left">{{ errors.rua }}</p>
                     </div>

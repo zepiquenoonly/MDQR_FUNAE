@@ -12,7 +12,7 @@
         <!-- Search Bar -->
         <div class="hidden md:flex gap-0">
           <input type="text" placeholder="Pesquisar..."
-            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
+            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent">
           <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
             <MagnifyingGlassIcon class="w-4 h-4" />
           </button>
@@ -34,7 +34,7 @@
         </button>
 
         <!-- User Profile -->
-        <UserDropdown :user="safeUser" />
+        <UserDropdown :user="user" />
       </div>
     </div>
 
@@ -59,9 +59,8 @@ import {
   BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
-import { computed } from 'vue'
 
-const props = defineProps({
+defineProps({
   sidebarCollapsed: Boolean,
   user: {
     type: Object,
@@ -70,19 +69,4 @@ const props = defineProps({
 })
 
 defineEmits(['toggle-sidebar'])
-
-// Computed property - COM FALLBACK SEGURO
-const safeUser = computed(() => {
-  const userData = {
-    name: props.user?.name || 'Usuário', // ← Fallback adicionado
-    email: props.user?.email || '',
-    role: props.user?.role || 'Utente',
-    ...props.user
-  }
-  return userData
-})
-
-console.log('📦 Header - User data received:', props.user)
-console.log('📦 Header - Safe user:', safeUser.value)
-console.log('📦 Header - User name:', safeUser.value.name)
 </script>

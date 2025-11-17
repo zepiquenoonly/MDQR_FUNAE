@@ -13,42 +13,42 @@
         <h2 class="text-lg md:text-xl"><strong>Registo de Conta</strong></h2>
         <p class="text-gray-600 text-xs md:text-sm mt-2 text-center">Crie sua conta para fazer parte da plataforma.</p>
 
-        <input type="email" name="email" placeholder="Email" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
-                transition-all duration-200 text-sm md:text-base"
+        <input type="email" name="email" placeholder="Email" required
+            class="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.email }" :disabled="loading" />
         <p v-if="errors.email" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.email }}</p>
 
-        <input type="text" name="username" placeholder="Nome de usuário" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
-                transition-all duration-200 text-sm md:text-base"
+        <input type="text" name="username" placeholder="Nome de usuário" required
+            class="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.username }"
             :disabled="loading" />
         <p v-if="errors.username" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.username }}</p>
 
         <div class="w-full relative">
-            <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Senha" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
-                transition-all duration-200 text-sm md:text-base"
+            <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Senha" required
+                class="w-full py-3 px-4 pr-10 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
                 :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.password }"
                 :disabled="loading" />
             <button type="button" @click="showPassword = !showPassword"
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" :disabled="loading">
-                <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-brand transition-colors"
+                :disabled="loading">
+                <EyeIcon v-if="!showPassword" class="w-5 h-5" />
+                <EyeSlashIcon v-else class="w-5 h-5" />
             </button>
         </div>
         <p v-if="errors.password" class="text-red-500 text-xs mt-1 w-full text-left">{{ errors.password }}</p>
 
         <div class="w-full relative">
             <input :type="showConfirmPassword ? 'text' : 'password'" name="password_confirmation"
-                placeholder="Confirmar Senha" required class="w-full py-3 px-4 bg-gray-100 border border-transparent my-1 outline-none
-                focus:border-[#F15F22] focus:ring-2 focus:ring-[#F15F22]/30
-                transition-all duration-200 text-sm md:text-base"
+                placeholder="Confirmar Senha" required
+                class="w-full py-3 px-4 pr-10 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
                 :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.password_confirmation || passwordMismatch }"
                 :disabled="loading" />
             <button type="button" @click="showConfirmPassword = !showConfirmPassword"
-                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400" :disabled="loading">
-                <i :class="showConfirmPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-brand transition-colors"
+                :disabled="loading">
+                <EyeIcon v-if="!showConfirmPassword" class="w-5 h-5" />
+                <EyeSlashIcon v-else class="w-5 h-5" />
             </button>
         </div>
         <p v-if="passwordMismatch" class="text-red-500 text-xs mt-1 w-full text-left">As senhas não coincidem</p>
@@ -79,6 +79,10 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import {
+    EyeIcon,
+    EyeSlashIcon
+} from '@heroicons/vue/24/outline'
 
 const props = defineProps({
     loading: {
