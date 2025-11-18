@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,11 +21,20 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
+
+    // Tracking de reclamação - acessível sem autenticação
+    Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
+    Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+    
+    // Rota de teste (remover em produção)
+    Route::get('/test-track', function () {
+        return view('test-tracking');
+    })->name('test.track');
 });
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
-    
+
     // Rotas específicas por role - todas apontam para o método home
     Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
     Route::get('/gestor/dashboard', [AuthController::class, 'home'])->name('manager.dashboard');
@@ -39,7 +49,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/security', [ProfileController::class, 'edit'])->name('profile.security');
     Route::get('/notifications', [ProfileController::class, 'edit'])->name('profile.notifications');
     Route::get('/preferences', [ProfileController::class, 'edit'])->name('profile.preferences');
-    
+
     // Rotas de ação - CORRIGIDAS
     Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
     // Remover a rota duplicada
