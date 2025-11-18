@@ -163,6 +163,14 @@ class Grievance extends Model
     }
 
     /**
+     * Get notifications for this grievance.
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(GrievanceNotification::class);
+    }
+
+    /**
      * Scope for filtering by status.
      */
     public function scopeByStatus($query, string $status)
