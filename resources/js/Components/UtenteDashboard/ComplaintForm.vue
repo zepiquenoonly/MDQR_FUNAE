@@ -1,46 +1,60 @@
 <template>
-    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div class="bg-white rounded-lg shadow-2xl w-full max-w-[1100px] h-[90vh] flex flex-col">
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-[1200px] h-[90vh] flex flex-col">
 
             <!-- Header -->
-            <div class="border-b border-gray-200 p-6 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800 flex-1 text-center">Descrição da Reclamação</h2>
-                <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 transition-colors ml-4">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-orange-600">
+                <h2 class="flex-1 text-2xl font-bold text-center text-white">Nova Reclamação</h2>
+                <button @click="$emit('close')" class="ml-4 text-white transition-colors hover:text-gray-200">
                     <XMarkIcon class="w-6 h-6" />
                 </button>
             </div>
 
             <!-- Step Indicators -->
-            <div class="border-b border-gray-200 px-6 py-4">
-                <div class="flex items-center justify-center space-x-4">
-                    <div class="flex items-center space-x-3">
+            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center justify-center space-x-2">
+                    <!-- Step 1 -->
+                    <div class="flex items-center space-x-2">
                         <div :class="[
-                            'w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold',
-                            currentStep === 1 ? 'bg-brand text-white' : 'bg-gray-400 text-white'
+                            'w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300',
+                            currentStep === 1 ? 'bg-orange-500 text-white shadow-lg scale-110' : currentStep > 1 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
                         ]">
-                            <DocumentTextIcon class="w-6 h-6" />
+                            <DocumentTextIcon class="w-5 h-5" />
                         </div>
-                        <span :class="[
-                            'text-sm font-medium',
-                            currentStep === 1 ? 'text-brand' : 'text-gray-500'
-                        ]">
-                            Descrição
+                        <span :class="['text-xs font-medium transition-colors hidden sm:inline',
+                            currentStep === 1 ? 'text-orange-600' : currentStep > 1 ? 'text-green-600' : 'text-gray-500']">
+                            Informações
                         </span>
                     </div>
 
-                    <div class="flex-1 h-0.5 bg-gray-300 max-w-[200px]"></div>
+                    <div :class="['h-1 w-16 rounded transition-all', currentStep > 1 ? 'bg-green-500' : 'bg-gray-300']"></div>
 
-                    <div class="flex items-center space-x-3">
+                    <!-- Step 2 -->
+                    <div class="flex items-center space-x-2">
                         <div :class="[
-                            'w-12 h-12 rounded-full flex items-center justify-center text-sm font-semibold',
-                            currentStep === 2 ? 'bg-brand text-white' : 'bg-gray-400 text-white'
+                            'w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300',
+                            currentStep === 2 ? 'bg-orange-500 text-white shadow-lg scale-110' : currentStep > 2 ? 'bg-green-500 text-white' : 'bg-gray-300 text-gray-600'
                         ]">
-                            <PaperClipIcon class="w-6 h-6" />
+                            <MapPinIcon class="w-5 h-5" />
                         </div>
-                        <span :class="[
-                            'text-sm font-medium',
-                            currentStep === 2 ? 'text-brand' : 'text-gray-500'
+                        <span :class="['text-xs font-medium transition-colors hidden sm:inline',
+                            currentStep === 2 ? 'text-orange-600' : currentStep > 2 ? 'text-green-600' : 'text-gray-500']">
+                            Localização
+                        </span>
+                    </div>
+
+                    <div :class="['h-1 w-16 rounded transition-all', currentStep > 2 ? 'bg-green-500' : 'bg-gray-300']"></div>
+
+                    <!-- Step 3 -->
+                    <div class="flex items-center space-x-2">
+                        <div :class="[
+                            'w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all duration-300',
+                            currentStep === 3 ? 'bg-orange-500 text-white shadow-lg scale-110' : 'bg-gray-300 text-gray-600'
                         ]">
+                            <PaperClipIcon class="w-5 h-5" />
+                        </div>
+                        <span :class="['text-xs font-medium transition-colors hidden sm:inline',
+                            currentStep === 3 ? 'text-orange-600' : 'text-gray-500']">
                             Evidências
                         </span>
                     </div>
@@ -48,193 +62,210 @@
             </div>
 
             <!-- Content -->
-            <div class="flex-1 overflow-y-auto p-6">
+            <div class="flex-1 p-6 overflow-y-auto bg-gray-50">
+                <!-- Step 1: Informações Básicas -->
                 <template v-if="currentStep === 1">
-                    <div class="grid grid-cols-1 md:grid-cols-10 gap-6 h-full">
-                        <!-- Left Column -->
-                        <div class="space-y-6 md:col-span-3">
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-gray-700">Tipo de impacto</label>
-                                <select v-model="formData.impactType"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-0 focus:ring-brand focus:border-brand text-gray-500">
-                                    <option value="" disabled>- selecione o impacto -</option>
-                                    <option value="ambiental">Impacto Ambiental</option>
-                                    <option value="social">Impacto Social</option>
-                                    <option value="economico">Desenvolvimento dos projectos</option>
-                                </select>
-                            </div>
+                    <div class="grid max-w-4xl grid-cols-1 gap-6 mx-auto md:grid-cols-2">
+                        <div class="p-4 border border-blue-200 rounded-lg md:col-span-2 bg-blue-50">
+                            <p class="text-sm text-blue-800">
+                                <strong>Importante:</strong> Todas as informações fornecidas serão tratadas com confidencialidade.
+                            </p>
+                        </div>
 
-                            <div class="space-y-2">
-                                <label class="block text-sm font-medium text-gray-700">Prefere anonimato?</label>
-                                <div class="flex gap-4">
-                                    <label class="flex items-center">
-                                        <input type="radio" name="anonimato" value="nao" v-model="formData.anonymous"
-                                            class="mr-2 text-brand focus:ring-brand border-gray-300" />
-                                        <span class="text-gray-700">Não</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="radio" name="anonimato" value="sim" v-model="formData.anonymous"
-                                            class="mr-2 text-brand focus:ring-brand border-gray-300" />
-                                        <span class="text-gray-700">Sim</span>
-                                    </label>
-                                </div>
+                        <!-- Categoria -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                Categoria <span class="text-red-500">*</span>
+                            </label>
+                            <select v-model="formData.category" @change="formData.subcategory = ''; errors.category = ''"
+                                :class="[
+                                    'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                    errors.category ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                ]">
+                                <option value="">Selecione uma categoria</option>
+                                <option v-for="(subs, cat) in categories" :key="cat" :value="cat">{{ cat }}</option>
+                            </select>
+                            <p v-if="errors.category" class="flex items-center mt-1 text-xs text-red-500">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ errors.category }}
+                            </p>
+                        </div>
+
+                        <!-- Subcategoria -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Subcategoria</label>
+                            <select v-model="formData.subcategory" :disabled="!formData.category"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100">
+                                <option value="">Selecione uma subcategoria</option>
+                                <option v-for="sub in (categories[formData.category] || [])" :key="sub" :value="sub">{{ sub }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Anonimato -->
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700">Prefere submeter anonimamente?</label>
+                            <div class="flex gap-6">
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" :value="false" v-model="formData.is_anonymous"
+                                        class="w-5 h-5 mr-3 text-orange-500 focus:ring-orange-500" />
+                                    <span class="text-gray-700">Não, quero me identificar</span>
+                                </label>
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="radio" :value="true" v-model="formData.is_anonymous"
+                                        class="w-5 h-5 mr-3 text-orange-500 focus:ring-orange-500" />
+                                    <span class="text-gray-700">Sim, prefiro o anonimato</span>
+                                </label>
                             </div>
                         </div>
 
-                        <!-- Right Column - Editor -->
-                        <div class="space-y-3 md:col-span-7 flex flex-col">
-                            <h3 class="font-semibold text-gray-800">Descrição</h3>
-
-                            <!-- Toolbar -->
-                            <div
-                                class="border border-gray-300 rounded-t-md bg-gray-50 p-2 flex flex-wrap gap-1 items-center">
-                                <!-- Paragraph Dropdown -->
-                                <select @change="executeCommand('formatBlock', $event.target.value)"
-                                    class="px-2 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-1 focus:ring-brand w-[110px]">
-                                    <option value="p">Paragraph</option>
-                                    <option value="h1">Heading 1</option>
-                                    <option value="h2">Heading 2</option>
-                                    <option value="h3">Heading 3</option>
-                                </select>
-
-                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
-
-                                <!-- Text Formatting -->
-                                <button @click="executeCommand('bold')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Negrito">
-                                    <BoldIcon class="w-4 h-4" />
-                                </button>
-                                <button @click="executeCommand('italic')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Itálico">
-                                    <ItalicIcon class="w-4 h-4" />
-                                </button>
-                                <button @click="insertLink"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Link">
-                                    <LinkIcon class="w-4 h-4" />
-                                </button>
-
-                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
-
-                                <!-- Lists -->
-                                <button @click="executeCommand('insertUnorderedList')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Lista não ordenada">
-                                    <ListBulletIcon class="w-4 h-4" />
-                                </button>
-                                <button @click="executeCommand('insertOrderedList')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Lista ordenada">
-                                    <!-- SVG para lista ordenada -->
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M4 6h16M4 12h16M4 18h16" />
-                                    </svg>
-                                </button>
-
-                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
-
-                                <!-- Alignment -->
-                                <button @click="executeCommand('justifyLeft')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Alinhar à esquerda">
-                                    <!-- SVG para alinhar à esquerda -->
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 10h18M3 14h18M3 18h18M3 6h18" />
-                                    </svg>
-                                </button>
-                                <button @click="executeCommand('justifyCenter')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Centralizar">
-                                    <!-- SVG para centralizar -->
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 6h18M6 12h12M3 18h18" />
-                                    </svg>
-                                </button>
-                                <button @click="executeCommand('justifyRight')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Alinhar à direita">
-                                    <!-- SVG para alinhar à direita -->
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 6h18M9 12h12M3 18h18" />
-                                    </svg>
-                                </button>
-
-                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
-
-                                <!-- Insert -->
-                                <button @click="insertImage"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Inserir imagem">
-                                    <PhotoIcon class="w-4 h-4" />
-                                </button>
-                                <button @click="executeCommand('formatBlock', 'blockquote')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Citação">
-                                    <ChatBubbleLeftRightIcon class="w-4 h-4" />
-                                </button>
-                                <button @click="insertTable"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Inserir tabela">
-                                    <TableCellsIcon class="w-4 h-4" />
-                                </button>
-
-                                <div class="w-px h-6 bg-gray-300 mx-1"></div>
-
-                                <!-- Undo/Redo -->
-                                <button @click="executeCommand('undo')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Desfazer">
-                                    <ArrowUturnLeftIcon class="w-4 h-4" />
-                                </button>
-                                <button @click="executeCommand('redo')"
-                                    class="p-1.5 hover:bg-gray-200 rounded hover:text-brand transition-colors"
-                                    title="Refazer">
-                                    <ArrowUturnRightIcon class="w-4 h-4" />
-                                </button>
+                        <!-- Campos para reclamação anônima -->
+                        <template v-if="formData.is_anonymous">
+                            <div class="p-4 border border-yellow-200 rounded-lg md:col-span-2 bg-yellow-50">
+                                <p class="text-sm text-yellow-800">
+                                    <strong>Reclamação Anônima:</strong> Forneça informações de contato para atualizações.
+                                </p>
                             </div>
 
-                            <!-- Editor Area -->
-                            <div ref="editorRef" contenteditable="true" @input="updateDescription"
-                                class="flex-1 border border-t-0 border-gray-300 rounded-b-md p-3 focus:outline-none focus:ring-1 focus:ring-brand focus:border-transparent min-h-[300px] overflow-y-auto bg-white"
-                                :style="{ minHeight: '300px' }">
-                                <p class="text-gray-400">Descrição da Reclamação</p>
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">Nome <span class="text-red-500">*</span></label>
+                                <input v-model="formData.contact_name" @input="errors.contact_name = ''" type="text"
+                                    :class="[
+                                        'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                        errors.contact_name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                    ]"
+                                    placeholder="Como devemos chamá-lo?" />
+                                <p v-if="errors.contact_name" class="flex items-center mt-1 text-xs text-red-500">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ errors.contact_name }}
+                                </p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="block text-sm font-semibold text-gray-700">Email <span class="text-red-500">*</span></label>
+                                <input v-model="formData.contact_email" @input="errors.contact_email = ''" type="email"
+                                    :class="[
+                                        'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                        errors.contact_email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                    ]"
+                                    placeholder="seu@email.com" />
+                                <p v-if="errors.contact_email" class="flex items-center mt-1 text-xs text-red-500">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ errors.contact_email }}
+                                </p>
+                            </div>
+
+                            <div class="space-y-2 md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700">Telefone (Opcional)</label>
+                                <input v-model="formData.contact_phone" type="tel"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                    placeholder="+258 XX XXX XXXX" />
+                            </div>
+                        </template>
+
+                        <!-- Descrição -->
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                Descrição da Reclamação <span class="text-red-500">*</span>
+                            </label>
+                            <p class="mb-2 text-xs text-gray-500">Descreva detalhadamente a sua reclamação (mínimo 10 caracteres).</p>
+                            <textarea v-model="formData.description" @input="errors.description = ''" rows="6"
+                                :class="[
+                                    'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                    errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                ]"
+                                placeholder="Descreva sua reclamação com o máximo de detalhes possível..."></textarea>
+                            <div class="flex items-center justify-between">
+                                <p v-if="errors.description" class="flex items-center text-xs text-red-500">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                    </svg>
+                                    {{ errors.description }}
+                                </p>
+                                <p class="text-xs text-gray-500">{{ formData.description.length }} caracteres</p>
                             </div>
                         </div>
                     </div>
                 </template>
 
-                <template v-else>
-                    <div class="space-y-3">
-                        <h3 class="font-semibold text-gray-800">Evidências</h3>
-
-                        <div @drop="handleDrop" @dragover.prevent @click="triggerFileInput"
-                            class="border border-dashed border-gray-300 rounded-lg p-8 text-center bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors h-[350px]">
-                            <DocumentArrowUpIcon class="w-12 h-12 text-gray-400 mx-auto mb-3 mt-12" />
-                            <p class="text-sm text-gray-600 mb-1 mt-12">Arraste para esta área todas evidências
-                                relevantes.
+                <!-- Step 2: Localização -->
+                <template v-else-if="currentStep === 2">
+                    <div class="grid max-w-4xl grid-cols-1 gap-6 mx-auto md:grid-cols-2">
+                        <div class="p-4 border border-blue-200 rounded-lg md:col-span-2 bg-blue-50">
+                            <p class="text-sm text-blue-800">
+                                <strong>Localização:</strong> Informe onde ocorreu o problema para melhor atendimento.
                             </p>
-                            <p class="text-xs text-gray-500">PNG, JPG, PDF até 10MB</p>
+                        </div>
+
+                        <!-- Província -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Província</label>
+                            <select v-model="formData.province" @change="formData.district = ''"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                <option value="">Selecione a província</option>
+                                <option v-for="(districts, prov) in locations" :key="prov" :value="prov">{{ prov }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Distrito -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Distrito</label>
+                            <select v-model="formData.district" :disabled="!formData.province"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100">
+                                <option value="">Selecione o distrito</option>
+                                <option v-for="dist in (locations[formData.province] || [])" :key="dist" :value="dist">{{ dist }}</option>
+                            </select>
+                        </div>
+
+                        <!-- Detalhes da Localização -->
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700">Detalhes da Localização</label>
+                            <textarea v-model="formData.location_details" rows="4"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                placeholder="Ex: Rua, bairro, referências, coordenadas GPS, etc."></textarea>
+                            <p class="text-xs text-gray-500">Inclua pontos de referência ou coordenadas GPS se possível.</p>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Step 3: Evidências -->
+                <template v-else>
+                    <div class="max-w-4xl mx-auto space-y-4">
+                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                            <p class="text-sm text-blue-800">
+                                <strong>Evidências:</strong> Adicione fotos, documentos ou outros arquivos que comprovem sua reclamação (opcional).
+                            </p>
+                        </div>
+
+                        <div @drop.prevent="handleDrop" @dragover.prevent @click="triggerFileInput"
+                            class="p-12 text-center transition-all bg-white border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50">
+                            <DocumentArrowUpIcon class="w-16 h-16 mx-auto mb-4 text-gray-400" />
+                            <p class="mb-2 text-base font-semibold text-gray-700">Arraste arquivos para esta área ou clique para selecionar</p>
+                            <p class="text-sm text-gray-500">Formatos aceitos: PNG, JPG, PDF (máx. 10MB por arquivo)</p>
+                            <p class="mt-2 text-xs text-gray-400">Máximo de 5 arquivos</p>
                         </div>
 
                         <input ref="fileInputRef" type="file" multiple class="hidden" @change="handleFileUpload"
                             accept=".png,.jpg,.jpeg,.pdf" />
 
-                        <div v-if="files.length > 0" class="space-y-2 mt-4">
+                        <div v-if="files.length > 0" class="space-y-2">
+                            <h4 class="font-semibold text-gray-700">Arquivos Selecionados ({{ files.length }}/5):</h4>
                             <div v-for="(file, index) in files" :key="index"
-                                class="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded">
-                                <div class="flex items-center gap-2">
-                                    <DocumentIcon class="w-5 h-5 text-gray-500" />
-                                    <span class="text-sm text-gray-700">{{ file.name }}</span>
-                                    <span class="text-xs text-gray-500">({{ (file.size / 1024).toFixed(1) }} KB)</span>
+                                class="flex items-center justify-between p-4 transition-all bg-white border border-gray-200 rounded-lg hover:border-orange-500">
+                                <div class="flex items-center gap-3">
+                                    <DocumentIcon class="w-6 h-6 text-orange-500" />
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-700">{{ file.name }}</p>
+                                        <p class="text-xs text-gray-500">{{ (file.size / 1024).toFixed(1) }} KB</p>
+                                    </div>
                                 </div>
-                                <button @click="removeFile(index)"
-                                    class="text-red-500 hover:text-red-700 transition-colors">
+                                <button @click.stop="removeFile(index)"
+                                    class="p-2 text-red-500 transition-colors rounded hover:text-red-700 hover:bg-red-50">
                                     <XMarkIcon class="w-5 h-5" />
                                 </button>
                             </div>
@@ -244,23 +275,24 @@
             </div>
 
             <!-- Footer -->
-            <div class="border-t border-gray-200 p-6 flex justify-between">
-                <button @click="currentStep === 2 ? currentStep = 1 : $emit('close')"
-                    class="px-6 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors flex items-center gap-2">
+            <div class="flex justify-between p-6 bg-white border-t border-gray-200">
+                <button @click="previousStep"
+                    class="flex items-center gap-2 px-6 py-3 font-medium text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50">
                     <ArrowLeftIcon class="w-4 h-4" />
                     Voltar
                 </button>
 
-                <button v-if="currentStep === 1" @click="currentStep = 2"
-                    class="px-6 py-2 bg-brand text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2">
+                <button v-if="currentStep < 3" @click="nextStep"
+                    class="flex items-center gap-2 px-6 py-3 font-medium text-white transition-colors bg-orange-500 rounded-lg shadow-md hover:bg-orange-600">
                     Próximo
                     <ArrowRightIcon class="w-4 h-4" />
                 </button>
 
-                <button v-else @click="handleSubmit"
-                    class="px-6 py-2 bg-brand text-white rounded-md hover:bg-orange-600 transition-colors flex items-center gap-2">
-                    Finalizar registo
-                    <CheckIcon class="w-4 h-4" />
+                <button v-else @click="handleSubmit" :disabled="isSubmitting"
+                    class="flex items-center gap-2 px-6 py-3 font-medium text-white transition-colors bg-green-600 rounded-lg shadow-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    <span v-if="isSubmitting">Submetendo...</span>
+                    <span v-else>Submeter Reclamação</span>
+                    <CheckIcon v-if="!isSubmitting" class="w-5 h-5" />
                 </button>
             </div>
         </div>
@@ -268,115 +300,227 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import {
     XMarkIcon,
     DocumentTextIcon,
+    MapPinIcon,
     PaperClipIcon,
     DocumentArrowUpIcon,
     ArrowLeftIcon,
     ArrowRightIcon,
     CheckIcon,
-    DocumentIcon,
-    BoldIcon,
-    ItalicIcon,
-    LinkIcon,
-    ListBulletIcon,
-    PhotoIcon,
-    TableCellsIcon,
-    ArrowUturnLeftIcon,
-    ArrowUturnRightIcon,
-    ChatBubbleLeftRightIcon
+    DocumentIcon
 } from '@heroicons/vue/24/outline'
 
-const emit = defineEmits(['close', 'submit'])
+const props = defineProps({
+    isAnonymous: {
+        type: Boolean,
+        default: false
+    }
+})
+
+const emit = defineEmits(['close', 'success'])
 
 const currentStep = ref(1)
-const editorRef = ref(null)
 const fileInputRef = ref(null)
+const isSubmitting = ref(false)
 
 const formData = ref({
-    impactType: '',
-    anonymous: 'nao',
+    category: '',
+    subcategory: '',
     description: '',
-    evidence: []
+    province: '',
+    district: '',
+    location_details: '',
+    is_anonymous: props.isAnonymous,
+    contact_name: '',
+    contact_email: '',
+    contact_phone: ''
 })
 
 const files = ref([])
+const errors = ref({})
 
-const executeCommand = (command, value = null) => {
-    document.execCommand(command, false, value)
-    editorRef.value?.focus()
+const categories = ref({
+    'Serviços Públicos': ['Fornecimento de Energia', 'Qualidade do Serviço', 'Atendimento ao Cliente', 'Faturação'],
+    'Infraestrutura': ['Instalação de Equipamentos', 'Manutenção', 'Construção'],
+    'Ambiental': ['Impacto Ambiental', 'Poluição', 'Gestão de Resíduos'],
+    'Social': ['Reassentamento', 'Compensação', 'Consulta Comunitária'],
+    'Administração': ['Processos Administrativos', 'Documentação', 'Outros']
+})
+
+const locations = ref({
+    'Maputo': ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
+    'Gaza': ['Chókwè', 'Chibuto', 'Xai-Xai', 'Manjacaze', 'Bilene'],
+    'Inhambane': ['Inhambane', 'Maxixe', 'Vilankulo', 'Massinga', 'Zavala'],
+    'Sofala': ['Beira', 'Dondo', 'Nhamatanda', 'Búzi', 'Gorongosa'],
+    'Manica': ['Chimoio', 'Gondola', 'Manica', 'Báruè', 'Sussundenga'],
+    'Tete': ['Tete', 'Moatize', 'Angónia', 'Cahora-Bassa', 'Changara'],
+    'Zambézia': ['Quelimane', 'Mocuba', 'Alto Molócuè', 'Gurúè', 'Milange'],
+    'Nampula': ['Nampula', 'Nacala', 'Ilha de Moçambique', 'Angoche', 'Monapo'],
+    'Cabo Delgado': ['Pemba', 'Mocímboa da Praia', 'Palma', 'Mueda', 'Montepuez'],
+    'Niassa': ['Lichinga', 'Cuamba', 'Mandimba', 'Marrupa', 'Majune']
+})
+
+const nextStep = () => {
+    if (validateStep()) {
+        currentStep.value++
+    }
 }
 
-const insertTable = () => {
-    const rows = prompt('Número de linhas:', '3')
-    const cols = prompt('Número de colunas:', '3')
-    if (rows && cols) {
-        let tableHTML = '<table border="1" style="border-collapse: collapse; width: 100%;"><tbody>'
-        for (let i = 0; i < parseInt(rows); i++) {
-            tableHTML += '<tr>'
-            for (let j = 0; j < parseInt(cols); j++) {
-                tableHTML += `<td style="border: 1px solid #ddd; padding: 8px;">&nbsp;</td>`
-            }
-            tableHTML += '</tr>'
+const previousStep = () => {
+    if (currentStep.value === 1) {
+        emit('close')
+    } else {
+        currentStep.value--
+    }
+}
+
+const validateStep = () => {
+    errors.value = {}
+
+    if (currentStep.value === 1) {
+        if (!formData.value.category) {
+            errors.value.category = 'Selecione uma categoria'
         }
-        tableHTML += '</tbody></table>'
-        executeCommand('insertHTML', tableHTML)
+        if (!formData.value.description || formData.value.description.length < 10) {
+            errors.value.description = 'A descrição deve ter pelo menos 10 caracteres'
+        }
+        if (formData.value.is_anonymous) {
+            if (!formData.value.contact_name) {
+                errors.value.contact_name = 'Nome é obrigatório para reclamações anônimas'
+            }
+            if (!formData.value.contact_email) {
+                errors.value.contact_email = 'Email é obrigatório para reclamações anônimas'
+            }
+        }
     }
-}
 
-const insertLink = () => {
-    const url = prompt('Digite a URL:')
-    if (url) {
-        executeCommand('createLink', url)
-    }
-}
-
-const insertImage = () => {
-    const url = prompt('Digite a URL da imagem:')
-    if (url) {
-        executeCommand('insertImage', url)
-    }
-}
-
-const updateDescription = () => {
-    if (editorRef.value) {
-        formData.value.description = editorRef.value.innerHTML
-    }
+    return Object.keys(errors.value).length === 0
 }
 
 const triggerFileInput = () => {
-    fileInputRef.value?.click()
+    if (files.value.length < 5) {
+        fileInputRef.value?.click()
+    }
 }
 
 const handleFileUpload = (event) => {
     const newFiles = Array.from(event.target.files)
-    files.value = [...files.value, ...newFiles]
+    const remainingSlots = 5 - files.value.length
+    const filesToAdd = newFiles.slice(0, remainingSlots)
+
+    files.value = [...files.value, ...filesToAdd]
+    event.target.value = '' // Reset input
 }
 
 const handleDrop = (event) => {
-    event.preventDefault()
     const newFiles = Array.from(event.dataTransfer.files)
-    files.value = [...files.value, ...newFiles]
+    const remainingSlots = 5 - files.value.length
+    const filesToAdd = newFiles.slice(0, remainingSlots)
+
+    files.value = [...files.value, ...filesToAdd]
 }
 
 const removeFile = (index) => {
     files.value = files.value.filter((_, i) => i !== index)
 }
 
-const handleSubmit = () => {
-    const content = editorRef.value?.innerHTML
-    emit('submit', {
-        ...formData.value,
-        files: files.value
-    })
-}
-
-onMounted(() => {
-    // Inicializar o editor com conteúdo vazio
-    if (editorRef.value) {
-        editorRef.value.innerHTML = '<p class="text-gray-400">Descrição da Reclamação</p>'
+const handleSubmit = async () => {
+    if (!validateStep()) {
+        return
     }
-})
+
+    isSubmitting.value = true
+    errors.value = {}
+
+    try {
+        const formDataToSend = new FormData()
+
+        // Adicionar dados do formulário
+        Object.keys(formData.value).forEach(key => {
+            let value = formData.value[key]
+            if (value !== null && value !== '' && value !== undefined) {
+                // Converter boolean para "1" ou "0" para compatibilidade com Laravel
+                if (typeof value === 'boolean') {
+                    value = value ? '1' : '0'
+                }
+                formDataToSend.append(key, value)
+            }
+        })
+
+        // Adicionar arquivos
+        files.value.forEach((file, index) => {
+            formDataToSend.append(`attachments[${index}]`, file)
+        })
+
+        console.log('📤 Enviando reclamação...', {
+            category: formData.value.category,
+            is_anonymous: formData.value.is_anonymous,
+            description_length: formData.value.description?.length || 0,
+            filesCount: files.value.length,
+            contact_name: formData.value.contact_name,
+            contact_email: formData.value.contact_email
+        })
+
+        const response = await fetch('/api/grievances', {
+            method: 'POST',
+            body: formDataToSend,
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+
+        console.log('📥 Status da resposta:', response.status, response.statusText)
+
+        // Tentar parsear a resposta
+        let data
+        const contentType = response.headers.get('content-type')
+
+        if (contentType && contentType.includes('application/json')) {
+            data = await response.json()
+        } else {
+            const text = await response.text()
+            console.error('❌ Resposta não é JSON:', text)
+            throw new Error('Servidor retornou resposta inválida')
+        }
+
+        console.log('📋 Dados recebidos:', data)
+
+        if (response.ok && data.success) {
+            console.log('✅ Sucesso! Número:', data.reference_number)
+            emit('submitted', data)
+        } else {
+            console.error('❌ Erro na resposta:', data)
+
+            // Tratar erros de validação
+            if (data.errors) {
+                errors.value = data.errors
+                console.log('📋 Erros de validação:', errors.value)
+
+                // Voltar para o primeiro passo se houver erros
+                currentStep.value = 1
+
+                // Scroll para o topo do formulário para ver os erros
+                setTimeout(() => {
+                    const firstError = document.querySelector('.border-red-500')
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                    }
+                }, 100)
+            }
+        }
+    } catch (error) {
+        console.error('💥 Erro crítico ao submeter:', error)
+
+        // Mostrar erro genérico no console
+        if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            console.error('🔌 Problema de conexão - Servidor pode não estar rodando')
+        }
+    } finally {
+        isSubmitting.value = false
+    }
+}
 </script>
