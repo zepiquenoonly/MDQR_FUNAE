@@ -40,5 +40,8 @@ class DatabaseSeeder extends Seeder
         if ($testUser->roles()->count() === 0) {
             $testUser->assignRole('Utente');
         }
+
+        // Create sample grievances with different statuses
+        $this->call(GrievanceSeeder::class);
     }
 }

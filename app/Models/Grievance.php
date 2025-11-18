@@ -147,6 +147,22 @@ class Grievance extends Model
     }
 
     /**
+     * Get the updates/history for this grievance.
+     */
+    public function updates(): HasMany
+    {
+        return $this->hasMany(GrievanceUpdate::class);
+    }
+
+    /**
+     * Get public updates only.
+     */
+    public function publicUpdates(): HasMany
+    {
+        return $this->hasMany(GrievanceUpdate::class)->where('is_public', true);
+    }
+
+    /**
      * Scope for filtering by status.
      */
     public function scopeByStatus($query, string $status)
@@ -199,7 +215,7 @@ class Grievance extends Model
      */
     public function isResolved(): bool
     {
-        return in_array($this->status, ['resolved', 'closed']);
+        return $this->status === 'resolved';
     }
 
     /**
@@ -207,7 +223,24 @@ class Grievance extends Model
      */
     public function isInProgress(): bool
     {
-        return $this->status === 'in_progress';
+        return in_array($this->status, ['in_progress', 'assigned', 'under_review', 'pending_approval']);
+    }
+
+    /**
+     * Get status label in Portuguese.
+     */
+    public function getStatusLabelAttribute(): string
+    {
+        return match($this->status) {
+            'submitted' => 'Submetida',
+            'under_review' => 'Em Análise',
+            'assigned' => 'Atribuída',
+            'in_progress' => 'Em Andamento',
+            'pending_approval' => 'Pendente de Aprovação',
+            'resolved' => 'Resolvida',
+            'rejected' => 'Rejeitada',
+            default => ucfirst($this->status),
+        };
     }
 
     /**

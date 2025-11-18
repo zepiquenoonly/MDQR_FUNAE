@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GrievanceController;
 
 Route::get('/', function () {
     return inertia('Grievances/Home');
@@ -18,6 +20,15 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
+
+    // Tracking de reclamação - acessível sem autenticação
+    Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
+    Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+    
+    // Rota de teste (remover em produção)
+    Route::get('/test-track', function () {
+        return view('test-tracking');
+    })->name('test.track');
 });
 
 Route::middleware('auth')->group(function () {
@@ -49,10 +60,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-
 // Rotas de reclamações (acessíveis sem autenticação para submissões anônimas)
-use App\Http\Controllers\GrievanceController;
-
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
 Route::get('/reclamacoes/acompanhar', function () {
     return inertia('Grievances/Track');
