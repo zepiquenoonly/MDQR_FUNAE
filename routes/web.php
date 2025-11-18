@@ -4,12 +4,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GrievanceController;
 
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('home')
-        : redirect()->route('auth.login');
-});
+    return inertia('Grievances/Home');
+})->name('grievances.home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
@@ -60,3 +59,9 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+// Rotas de reclamações (acessíveis sem autenticação para submissões anônimas)
+Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
+Route::get('/reclamacoes/acompanhar', function () {
+    return inertia('Grievances/Track');
+})->name('grievances.track');

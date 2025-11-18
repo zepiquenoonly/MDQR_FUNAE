@@ -1,17 +1,17 @@
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+    <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-[1200px] h-[90vh] flex flex-col">
 
             <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-orange-500 to-orange-600">
-                <h2 class="flex-1 text-2xl font-bold text-center text-white">Nova Reclamação</h2>
-                <button @click="$emit('close')" class="ml-4 text-white transition-colors hover:text-gray-200">
+            <div class="border-b border-gray-200 p-6 flex justify-between items-center bg-gradient-to-r from-orange-500 to-orange-600">
+                <h2 class="text-2xl font-bold text-white flex-1 text-center">Nova Reclamação</h2>
+                <button @click="$emit('close')" class="text-white hover:text-gray-200 transition-colors ml-4">
                     <XMarkIcon class="w-6 h-6" />
                 </button>
             </div>
 
             <!-- Step Indicators -->
-            <div class="px-6 py-5 border-b border-gray-200 bg-gray-50">
+            <div class="border-b border-gray-200 px-6 py-5 bg-gray-50">
                 <div class="flex items-center justify-center space-x-2">
                     <!-- Step 1 -->
                     <div class="flex items-center space-x-2">
@@ -62,11 +62,11 @@
             </div>
 
             <!-- Content -->
-            <div class="flex-1 p-6 overflow-y-auto bg-gray-50">
+            <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
                 <!-- Step 1: Informações Básicas -->
                 <template v-if="currentStep === 1">
-                    <div class="grid max-w-4xl grid-cols-1 gap-6 mx-auto md:grid-cols-2">
-                        <div class="p-4 border border-blue-200 rounded-lg md:col-span-2 bg-blue-50">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                        <div class="md:col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <p class="text-sm text-blue-800">
                                 <strong>Importante:</strong> Todas as informações fornecidas serão tratadas com confidencialidade.
                             </p>
@@ -85,7 +85,7 @@
                                 <option value="">Selecione uma categoria</option>
                                 <option v-for="(subs, cat) in categories" :key="cat" :value="cat">{{ cat }}</option>
                             </select>
-                            <p v-if="errors.category" class="flex items-center mt-1 text-xs text-red-500">
+                            <p v-if="errors.category" class="text-red-500 text-xs mt-1 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                 </svg>
@@ -109,12 +109,12 @@
                             <div class="flex gap-6">
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" :value="false" v-model="formData.is_anonymous"
-                                        class="w-5 h-5 mr-3 text-orange-500 focus:ring-orange-500" />
+                                        class="mr-3 text-orange-500 focus:ring-orange-500 w-5 h-5" />
                                     <span class="text-gray-700">Não, quero me identificar</span>
                                 </label>
                                 <label class="flex items-center cursor-pointer">
                                     <input type="radio" :value="true" v-model="formData.is_anonymous"
-                                        class="w-5 h-5 mr-3 text-orange-500 focus:ring-orange-500" />
+                                        class="mr-3 text-orange-500 focus:ring-orange-500 w-5 h-5" />
                                     <span class="text-gray-700">Sim, prefiro o anonimato</span>
                                 </label>
                             </div>
@@ -122,7 +122,7 @@
 
                         <!-- Campos para reclamação anônima -->
                         <template v-if="formData.is_anonymous">
-                            <div class="p-4 border border-yellow-200 rounded-lg md:col-span-2 bg-yellow-50">
+                            <div class="md:col-span-2 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                                 <p class="text-sm text-yellow-800">
                                     <strong>Reclamação Anônima:</strong> Forneça informações de contato para atualizações.
                                 </p>
@@ -136,7 +136,7 @@
                                         errors.contact_name ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
                                     ]"
                                     placeholder="Como devemos chamá-lo?" />
-                                <p v-if="errors.contact_name" class="flex items-center mt-1 text-xs text-red-500">
+                                <p v-if="errors.contact_name" class="text-red-500 text-xs mt-1 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                     </svg>
@@ -152,7 +152,7 @@
                                         errors.contact_email ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
                                     ]"
                                     placeholder="seu@email.com" />
-                                <p v-if="errors.contact_email" class="flex items-center mt-1 text-xs text-red-500">
+                                <p v-if="errors.contact_email" class="text-red-500 text-xs mt-1 flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                     </svg>
@@ -173,15 +173,15 @@
                             <label class="block text-sm font-semibold text-gray-700">
                                 Descrição da Reclamação <span class="text-red-500">*</span>
                             </label>
-                            <p class="mb-2 text-xs text-gray-500">Descreva detalhadamente a sua reclamação (mínimo 10 caracteres).</p>
+                            <p class="text-xs text-gray-500 mb-2">Descreva detalhadamente a sua reclamação (mínimo 10 caracteres).</p>
                             <textarea v-model="formData.description" @input="errors.description = ''" rows="6"
                                 :class="[
                                     'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
                                     errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
                                 ]"
                                 placeholder="Descreva sua reclamação com o máximo de detalhes possível..."></textarea>
-                            <div class="flex items-center justify-between">
-                                <p v-if="errors.description" class="flex items-center text-xs text-red-500">
+                            <div class="flex justify-between items-center">
+                                <p v-if="errors.description" class="text-red-500 text-xs flex items-center">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
                                     </svg>
@@ -195,8 +195,8 @@
 
                 <!-- Step 2: Localização -->
                 <template v-else-if="currentStep === 2">
-                    <div class="grid max-w-4xl grid-cols-1 gap-6 mx-auto md:grid-cols-2">
-                        <div class="p-4 border border-blue-200 rounded-lg md:col-span-2 bg-blue-50">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                        <div class="md:col-span-2 bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <p class="text-sm text-blue-800">
                                 <strong>Localização:</strong> Informe onde ocorreu o problema para melhor atendimento.
                             </p>
@@ -236,18 +236,18 @@
                 <!-- Step 3: Evidências -->
                 <template v-else>
                     <div class="max-w-4xl mx-auto space-y-4">
-                        <div class="p-4 border border-blue-200 rounded-lg bg-blue-50">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                             <p class="text-sm text-blue-800">
                                 <strong>Evidências:</strong> Adicione fotos, documentos ou outros arquivos que comprovem sua reclamação (opcional).
                             </p>
                         </div>
 
                         <div @drop.prevent="handleDrop" @dragover.prevent @click="triggerFileInput"
-                            class="p-12 text-center transition-all bg-white border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:border-orange-500 hover:bg-orange-50">
-                            <DocumentArrowUpIcon class="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                            <p class="mb-2 text-base font-semibold text-gray-700">Arraste arquivos para esta área ou clique para selecionar</p>
+                            class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-white cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all">
+                            <DocumentArrowUpIcon class="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                            <p class="text-base text-gray-700 font-semibold mb-2">Arraste arquivos para esta área ou clique para selecionar</p>
                             <p class="text-sm text-gray-500">Formatos aceitos: PNG, JPG, PDF (máx. 10MB por arquivo)</p>
-                            <p class="mt-2 text-xs text-gray-400">Máximo de 5 arquivos</p>
+                            <p class="text-xs text-gray-400 mt-2">Máximo de 5 arquivos</p>
                         </div>
 
                         <input ref="fileInputRef" type="file" multiple class="hidden" @change="handleFileUpload"
@@ -256,7 +256,7 @@
                         <div v-if="files.length > 0" class="space-y-2">
                             <h4 class="font-semibold text-gray-700">Arquivos Selecionados ({{ files.length }}/5):</h4>
                             <div v-for="(file, index) in files" :key="index"
-                                class="flex items-center justify-between p-4 transition-all bg-white border border-gray-200 rounded-lg hover:border-orange-500">
+                                class="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:border-orange-500 transition-all">
                                 <div class="flex items-center gap-3">
                                     <DocumentIcon class="w-6 h-6 text-orange-500" />
                                     <div>
@@ -265,7 +265,7 @@
                                     </div>
                                 </div>
                                 <button @click.stop="removeFile(index)"
-                                    class="p-2 text-red-500 transition-colors rounded hover:text-red-700 hover:bg-red-50">
+                                    class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded transition-colors">
                                     <XMarkIcon class="w-5 h-5" />
                                 </button>
                             </div>
@@ -275,21 +275,21 @@
             </div>
 
             <!-- Footer -->
-            <div class="flex justify-between p-6 bg-white border-t border-gray-200">
+            <div class="border-t border-gray-200 p-6 flex justify-between bg-white">
                 <button @click="previousStep"
-                    class="flex items-center gap-2 px-6 py-3 font-medium text-gray-700 transition-colors border border-gray-300 rounded-lg hover:bg-gray-50">
+                    class="px-6 py-3 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2 font-medium">
                     <ArrowLeftIcon class="w-4 h-4" />
                     Voltar
                 </button>
 
                 <button v-if="currentStep < 3" @click="nextStep"
-                    class="flex items-center gap-2 px-6 py-3 font-medium text-white transition-colors bg-orange-500 rounded-lg shadow-md hover:bg-orange-600">
+                    class="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2 font-medium shadow-md">
                     Próximo
                     <ArrowRightIcon class="w-4 h-4" />
                 </button>
 
                 <button v-else @click="handleSubmit" :disabled="isSubmitting"
-                    class="flex items-center gap-2 px-6 py-3 font-medium text-white transition-colors bg-green-600 rounded-lg shadow-md hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 font-medium shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed">
                     <span v-if="isSubmitting">Submetendo...</span>
                     <span v-else>Submeter Reclamação</span>
                     <CheckIcon v-if="!isSubmitting" class="w-5 h-5" />
