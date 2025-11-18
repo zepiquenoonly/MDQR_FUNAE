@@ -5,10 +5,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('home')
-        : redirect()->route('auth.login');
-});
+    return inertia('Grievances/Home');
+})->name('grievances.home');
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
@@ -24,7 +22,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
-    
+
     // Rotas específicas por role - todas apontam para o método home
     Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
     Route::get('/gestor/dashboard', [AuthController::class, 'home'])->name('manager.dashboard');
@@ -39,7 +37,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/security', [ProfileController::class, 'edit'])->name('profile.security');
     Route::get('/notifications', [ProfileController::class, 'edit'])->name('profile.notifications');
     Route::get('/preferences', [ProfileController::class, 'edit'])->name('profile.preferences');
-    
+
     // Rotas de ação - CORRIGIDAS
     Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
     // Remover a rota duplicada
@@ -50,3 +48,12 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
+
+
+// Rotas de reclamações (acessíveis sem autenticação para submissões anônimas)
+use App\Http\Controllers\GrievanceController;
+
+Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
+Route::get('/reclamacoes/acompanhar', function () {
+    return inertia('Grievances/Track');
+})->name('grievances.track');
