@@ -216,17 +216,17 @@ class Grievance extends Model
     public function getDisplayNameAttribute(): string
     {
         if ($this->is_anonymous) {
-            return $this->contact_name ?: 'Reclamação Anónima';
+            return $this->attributes['contact_name'] ?? 'Reclamação Anónima';
         }
 
         return $this->user?->name ?: 'Utente';
     }
 
     /**
-     * Get the contact email for the grievance.
+     * Get the effective contact email for the grievance.
      */
-    public function getContactEmailAttribute(): ?string
+    public function getEffectiveEmailAttribute(): ?string
     {
-        return $this->is_anonymous ? $this->contact_email : $this->user?->email;
+        return $this->is_anonymous ? ($this->attributes['contact_email'] ?? null) : $this->user?->email;
     }
 }
