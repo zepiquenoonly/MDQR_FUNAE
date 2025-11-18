@@ -4,9 +4,17 @@ namespace App\Observers;
 
 use App\Models\Grievance;
 use App\Models\GrievanceUpdate;
+use App\Services\NotificationService;
 
 class GrievanceObserver
 {
+    protected NotificationService $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
     /**
      * Handle the Grievance "created" event.
      */
@@ -19,6 +27,9 @@ class GrievanceObserver
             description: 'Reclamação submetida com sucesso',
             isPublic: true
         );
+
+        // Enviar notificação de criação
+        $this->notificationService->notifyGrievanceCreated($grievance);
     }
 
     /**
@@ -35,7 +46,7 @@ class GrievanceObserver
             $oldStatus = $original['status'];
             $newStatus = $grievance->status;
             
-            $description = $this->getStatusChangeDescription($oldStatus, $newStatus, $grievance);
+            $description = $this->getStatusChangeDescription($oldStatus, $newStatus);
             
             GrievanceUpdate::log(
                 grievanceId: $grievance->id,
@@ -46,6 +57,17 @@ class GrievanceObserver
                 newValue: $newStatus,
                 isPublic: true
             );
+
+            // Enviar notificação de mudança de status
+            $this->notificationService->notifyStatusChanged($grievance, $oldStatus, $newStatus);
+
+            // Notificações específicas para resolved e rejected
+            if ($newStatus === 'resolved') {
+                $this->notificationService->notifyResolved($grievance);
+            } elseif ($newStatus === 'rejected') {
+                $reason = $grievance->resolution_notes ?? 'Sem justificativa fornecida';
+                $this->notificationService->notifyRejected($grievance, $reason);
+            }
         }
 
         // Track assignment changes
@@ -63,6 +85,11 @@ class GrievanceObserver
                     newValue: (string) $newAssignee,
                     isPublic: true
                 );
+
+                // Enviar notificação de atribuição
+                if ($grievance->assignedUser) {
+                    $this->notificationService->notifyAssigned($grievance, $grievance->assignedUser);
+                }
             } elseif ($oldAssignee !== null && $newAssignee !== null) {
                 // Reassignment
                 GrievanceUpdate::log(
@@ -74,6 +101,11 @@ class GrievanceObserver
                     newValue: (string) $newAssignee,
                     isPublic: true
                 );
+
+                // Enviar notificação de reatribuição
+                if ($grievance->assignedUser) {
+                    $this->notificationService->notifyAssigned($grievance, $grievance->assignedUser);
+                }
             }
         }
 
@@ -109,7 +141,7 @@ class GrievanceObserver
     /**
      * Get description for status change.
      */
-    private function getStatusChangeDescription(string $oldStatus, string $newStatus, Grievance $grievance): string
+    private function getStatusChangeDescription(string $oldStatus, string $newStatus): string
     {
         return match($newStatus) {
             'submitted' => 'Reclamação submetida',
