@@ -14,9 +14,10 @@
       </div>
     </div>
 
-    <!-- Table Content -->
+    <!-- Project Cards Content -->
     <div class="p-6">
-      <SubmissionsTable :type="activeTab" />
+      <ProjectCards :type="activeTab" :show-all-projects="showAllProjects"
+        @view-project-details="$emit('view-project-details', $event)" />
 
       <!-- Botão "Todos projectos" -->
       <div class="mt-8 flex justify-center">
@@ -37,7 +38,9 @@
 
 <script setup>
 import { ref } from 'vue'
-import SubmissionsTable from './ProjectCards.vue'
+import ProjectCards from './ProjectCards.vue'
+
+defineEmits(['view-project-details'])
 
 const activeTab = ref('andamento')
 const showAllProjects = ref(false)
@@ -60,9 +63,4 @@ const getActiveTabClass = (tabId) => {
       return 'bg-brand text-white'
   }
 }
-
-// Passe a prop showAllProjects para o componente de cards
-defineExpose({
-  showAllProjects
-})
 </script>

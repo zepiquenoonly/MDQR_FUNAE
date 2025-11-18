@@ -12,7 +12,7 @@
         <!-- Search Bar -->
         <div class="hidden md:flex gap-0">
           <input type="text" placeholder="Pesquisar..."
-            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent">
+            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-brand">
           <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
             <MagnifyingGlassIcon class="w-4 h-4" />
           </button>

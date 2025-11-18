@@ -1,77 +1,97 @@
 <template>
   <div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="(project, index) in displayedProjects" :key="project.id" :class="[
-        'bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden min-h-[230px] flex flex-col',
-        getBorderClass()
-      ]">
+    <!-- Loading State -->
+    <div v-if="loading" class="flex justify-center items-center py-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand"></div>
+    </div>
 
-        <!-- CABEÇALHO COM IMAGEM E NOME DO PROJECTO -->
-        <div class="flex items-center p-4 flex-shrink-0">
-          <!-- IMAGEM DO PROJECTO (menor, à esquerda) -->
-          <div class="w-20 h-20 flex items-center justify-center">
-            <img :src="project.image" alt="project image" class="w-20 h-20 object-contain" />
-          </div>
+    <!-- Error State -->
+    <div v-else-if="error" class="text-center py-8">
+      <p class="text-red-500">Erro ao carregar projetos: {{ error }}</p>
+      <button @click="fetchProjects" class="mt-4 bg-brand text-white px-4 py-2 rounded-lg">
+        Tentar Novamente
+      </button>
+    </div>
 
-          <!-- NOME DO PROJECTO (à direita da imagem) -->
-          <div class="ml-4 flex-1">
-            <h3 class="font-bold text-gray-800 text-lg leading-tight">
-              {{ project.name }}
-            </h3>
-          </div>
-        </div>
-
-        <!-- CONTEÚDO PRINCIPAL DA CARD -->
-        <div class="flex-1 flex flex-col">
-          <!-- BOTÃO MOSTRAR DETALHES (versão recolhida) -->
-          <div v-if="!expandedStates[project.id]" class="px-4 py-3 flex items-center justify-center flex-1">
-            <button @click="toggleDetails(project.id)" :class="[
-              'text-white w-full py-3 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors',
-              getButtonClass()
-            ]">
-              <span class="text-lg">⌄</span> Mais detalhes
-            </button>
-          </div>
-
-          <!-- DETALHES EXPANDIDOS -->
-          <transition name="slide-fade">
-            <div v-if="expandedStates[project.id]" class="px-4 py-4 space-y-3 flex-1">
-              <div class="space-y-2">
-                <p class="text-sm"><strong>Localização:</strong> {{ project.detailedLocation }}</p>
-                <p class="text-sm"><strong>Responsável do Projeto:</strong> {{ project.responsible }}</p>
-                <p class="text-sm"><strong>Data de Início:</strong> {{ project.detailedStartDate }}</p>
-                <p class="text-sm"><strong>Data de Termino:</strong> {{ project.detailedEndDate }}</p>
-                <p class="text-sm"><strong>Orçamento:</strong> {{ project.detailedBudget }}</p>
-              </div>
-
-              <div class="mt-auto space-y-2">
-                <!-- BOTÃO "VER DETALHES" (AZUL) - ATUALIZADO -->
-                <button @click="viewProjectDetails(project.id)" :class="[
-                  'text-white w-full mt-4 mb-2 py-2 rounded-lg font-semibold transition-colors',
-                  getDetailsButtonClass()
-                ]">
-                  Ver detalhes
-                </button>
-
-                <!-- BOTÃO OCULTAR -->
-                <button @click="toggleDetails(project.id)"
-                  class="bg-gray-500 hover:bg-gray-600 text-white w-full mt-4 mb-4 py-2 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors">
-                  <span class="text-lg">⌃</span> Ocultar detalhes
-                </button>
-              </div>
+    <!-- Success State -->
+    <div v-else>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-for="(project, index) in displayedProjects" :key="project.id" :class="[
+          'bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden min-h-[230px] flex flex-col',
+          getBorderClass()
+        ]">
+          <!-- CABEÇALHO COM IMAGEM E NOME DO PROJECTO -->
+          <div class="flex items-center p-4 flex-shrink-0">
+            <!-- IMAGEM DO PROJECTO -->
+            <div class="w-20 h-20 flex items-center justify-center">
+              <img :src="project.image_url || '/images/Emblem_of_Mozambique.svg-2.png'" 
+                   :alt="project.name" 
+                   class="w-20 h-20 object-contain" />
             </div>
-          </transition>
+
+            <!-- NOME DO PROJECTO -->
+            <div class="ml-4 flex-1">
+              <h3 class="font-bold text-gray-800 text-lg leading-tight">
+                {{ project.name }}
+              </h3>
+            </div>
+          </div>
+
+          <!-- CONTEÚDO PRINCIPAL DA CARD -->
+          <div class="flex-1 flex flex-col">
+            <!-- BOTÃO MOSTRAR DETALHES -->
+            <div v-if="!expandedStates[project.id]" class="px-4 py-3 flex items-center justify-center flex-1">
+              <button @click="toggleDetails(project.id)" :class="[
+                'text-white w-full py-3 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors',
+                getButtonClass()
+              ]">
+                <span class="text-lg">⌄</span> Mais detalhes
+              </button>
+            </div>
+
+            <!-- DETALHES EXPANDIDOS -->
+            <transition name="slide-fade">
+              <div v-if="expandedStates[project.id]" class="px-4 py-4 space-y-3 flex-1">
+                <div class="space-y-2">
+                  <p class="text-sm"><strong>Localização:</strong> {{ getLocation(project) }}</p>
+                  <p class="text-sm"><strong>Responsável do Projeto:</strong> {{ project.finance?.responsavel || 'N/A' }}</p>
+                  <p class="text-sm"><strong>Data de Início:</strong> {{ formatDate(project.deadline?.data_inicio) }}</p>
+                  <p class="text-sm"><strong>Data de Termino:</strong> {{ formatDate(project.deadline?.data_finalizacao) }}</p>
+                  <p class="text-sm"><strong>Orçamento:</strong> {{ project.finance?.valor_financiado || 'N/A' }}</p>
+                </div>
+
+                <div class="mt-auto space-y-2">
+                  <!-- BOTÃO "VER DETALHES" -->
+                  <button @click="viewProjectDetails(project.id)" :class="[
+                    'text-white w-full mt-4 mb-2 py-2 rounded-lg font-semibold transition-colors',
+                    getDetailsButtonClass()
+                  ]">
+                    Ver detalhes
+                  </button>
+
+                  <!-- BOTÃO OCULTAR -->
+                  <button @click="toggleDetails(project.id)"
+                    class="bg-gray-500 hover:bg-gray-600 text-white w-full mt-4 mb-4 py-2 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors">
+                    <span class="text-lg">⌃</span> Ocultar detalhes
+                  </button>
+                </div>
+              </div>
+            </transition>
+          </div>
         </div>
+      </div>
+
+      <!-- Empty State -->
+      <div v-if="displayedProjects.length === 0 && !loading" class="text-center py-8">
+        <p class="text-gray-500">Nenhum projeto encontrado.</p>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, reactive } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { ref, computed, reactive, onMounted } from 'vue'
 
-// Props para receber o tipo da tab
 const props = defineProps({
   type: {
     type: String,
@@ -83,144 +103,92 @@ const props = defineProps({
   }
 })
 
-// Estado reativo separado para controlar a expansão de cada card
+// Estados reativos
+const projectData = ref([])
+const loading = ref(false)
+const error = ref(null)
 const expandedStates = reactive({})
 
-// Dados dos projetos como ref reativa
-const projectData = ref([
-  {
-    id: 1,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'PARQUE EÓLICO DE PEMBA',
-    detailedLocation: 'Bairro Zimpeto',
-    responsible: 'FUNAE, FP',
-    detailedStartDate: '25 de Julho de 2023',
-    detailedEndDate: '23 de Janeiro de 2026',
-    detailedBudget: 'USD 15,6 Milhões',
-    category: 'andamento',
-  },
-  {
-    id: 2,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'SISTEMA DE ÁGUA POTÁVEL',
-    detailedLocation: 'Bairro Machava',
-    responsible: 'AIAS, EP',
-    detailedStartDate: '15 de Março de 2022',
-    detailedEndDate: '30 de Agosto de 2023',
-    detailedBudget: 'MT 18 Milhões',
-    category: 'finalizados',
-  },
-  {
-    id: 3,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'CENTRO DE SAÚDE COMUNITÁRIO',
-    detailedLocation: 'Bairro Khongolote',
-    responsible: 'MISAU',
-    detailedStartDate: '1 de Junho de 2024',
-    detailedEndDate: '15 de Dezembro de 2024',
-    detailedBudget: 'MT 12 Milhões',
-    category: 'andamento',
-  },
-  {
-    id: 4,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'PARQUE EÓLICO DE INHAMBANE',
-    detailedLocation: 'Bairro Central',
-    responsible: 'FUNAE, FP',
-    detailedStartDate: '10 de Agosto de 2023',
-    detailedEndDate: '30 de Março de 2026',
-    detailedBudget: 'USD 12,8 Milhões',
-    category: 'andamento',
-  },
-  {
-    id: 5,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'SISTEMA DE DRENAGEM',
-    detailedLocation: 'Bairro Urbanização',
-    responsible: 'CMCM',
-    detailedStartDate: '20 de Abril de 2022',
-    detailedEndDate: '15 de Novembro de 2023',
-    detailedBudget: 'MT 25 Milhões',
-    category: 'finalizados',
-  },
-  {
-    id: 6,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'ESCOLA PRIMÁRIA',
-    detailedLocation: 'Bairro Magoanine',
-    responsible: 'MINEDH',
-    detailedStartDate: '5 de Setembro de 2024',
-    detailedEndDate: '20 de Junho de 2025',
-    detailedBudget: 'MT 15 Milhões',
-    category: 'parados',
-  },
-  {
-    id: 7,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'USINA SOLAR DE MATOLA',
-    detailedLocation: 'Bairro Industrial',
-    responsible: 'EDM, EP',
-    detailedStartDate: '15 de Janeiro de 2023',
-    detailedEndDate: '30 de Dezembro de 2024',
-    detailedBudget: 'USD 8,5 Milhões',
-    category: 'andamento',
-  },
-  {
-    id: 8,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'PROJECTO DE HABITAÇÃO',
-    detailedLocation: 'Bairro Laulane',
-    responsible: 'IFH',
-    detailedStartDate: '1 de Março de 2022',
-    detailedEndDate: '31 de Outubro de 2023',
-    detailedBudget: 'MT 32 Milhões',
-    category: 'finalizados',
-  },
-  {
-    id: 9,
-    image: '/images/Emblem_of_Mozambique.svg-2.png',
-    name: 'PONTE SOBRE RIO INCOMATI',
-    detailedLocation: 'Distrito de Manhiça',
-    responsible: 'ANE',
-    detailedStartDate: '10 de Julho de 2024',
-    detailedEndDate: '15 de Agosto de 2025',
-    detailedBudget: 'MT 45 Milhões',
-    category: 'parados',
-  }
-])
+const emit = defineEmits(['view-project-details'])
 
-// Computed property para filtrar os projetos baseado na tab selecionada
+// Buscar projetos da API
+const fetchProjects = async () => {
+  loading.value = true
+  error.value = null
+  
+  try {
+    const response = await fetch('/api/projects', {
+      headers: {
+        'Accept': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    
+    if (!response.ok) {
+      throw new Error(`Erro ${response.status}: ${response.statusText}`)
+    }
+    
+    const data = await response.json()
+    projectData.value = data
+    console.log('Projetos carregados:', data)
+  } catch (err) {
+    console.error('Erro ao buscar projetos:', err)
+    error.value = err.message
+  } finally {
+    loading.value = false
+  }
+}
+
+// Computed property para filtrar projetos
 const displayedProjects = computed(() => {
   if (props.showAllProjects) {
-    // Mostrar todos os projetos
     return projectData.value
   } else {
-    // Mostrar apenas os primeiros 9 projetos da categoria selecionada
     return projectData.value
       .filter(project => project.category === props.type)
       .slice(0, 9)
   }
 })
 
-// Função para alternar detalhes usando o ID do projeto
+// Funções auxiliares
+const getLocation = (project) => {
+  if (project.provincia && project.distrito && project.bairro) {
+    return `${project.bairro}, ${project.distrito}, ${project.provincia}`
+  }
+  return project.detailedLocation || 'Localização não disponível'
+}
+
+const formatDate = (dateString) => {
+  if (!dateString) return 'N/A'
+  
+  try {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('pt-MZ', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    })
+  } catch {
+    return dateString
+  }
+}
+
+// Resto das funções permanecem iguais
 const toggleDetails = (projectId) => {
-  // Inicializa o estado se não existir
   if (expandedStates[projectId] === undefined) {
     expandedStates[projectId] = false
   }
-  // Alterna o estado específico da card
   expandedStates[projectId] = !expandedStates[projectId]
 }
 
 const viewProjectDetails = (projectId) => {
-  router.get(`/project/${projectId}`)
+  emit('view-project-details', projectId)
 }
 
 const getDetailsButtonClass = () => {
   return 'bg-brand-blue hover:bg-blue-600'
 }
 
-// Função para obter a classe da borda baseada no tipo
 const getBorderClass = () => {
   switch (props.type) {
     case 'andamento':
@@ -234,7 +202,6 @@ const getBorderClass = () => {
   }
 }
 
-// Função para obter a classe do botão baseada no tipo
 const getButtonClass = () => {
   switch (props.type) {
     case 'andamento':
@@ -247,6 +214,11 @@ const getButtonClass = () => {
       return 'bg-brand hover:bg-orange-600'
   }
 }
+
+// Buscar projetos quando o componente for montado
+onMounted(() => {
+  fetchProjects()
+})
 </script>
 
 <style scoped>
