@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Grievance;
+use App\Observers\GrievanceObserver;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -26,5 +28,8 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production' || config('app.env') === 'staging' || config('app.env') === 'testing') {
             URL::forceScheme('https');
         }
+
+        // Register model observers
+        Grievance::observe(GrievanceObserver::class);
     }
 }
