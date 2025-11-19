@@ -35,6 +35,15 @@
                             class="bg-brand hover:bg-orange-700 text-white px-6 py-2 rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5">
                             ENTRAR
                         </a>
+                        <a 
+                            href="/track"
+                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Acompanhar Reclamação
+                        </a>
                     </div>
                 </div>
 
@@ -64,6 +73,14 @@
                     <a href="#contactos" class="text-gray-900 hover:text-teal-600 block px-3 py-2 text-base font-medium"
                         @click="scrollToSection('contactos'); isMobileMenuOpen = false;">
                         CONTACTOS
+                    </a>
+                    <a href="/track"
+                        class="text-gray-900 hover:text-teal-600 block px-3 py-2 text-base font-medium flex items-center gap-2"
+                        @click="isMobileMenuOpen = false">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Acompanhar Reclamação
                     </a>
                     <a href="/login"
                         class="bg-teal-600 hover:bg-teal-700 text-white block px-3 py-2 rounded-full text-base font-semibold text-center mt-4"
