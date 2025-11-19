@@ -3,35 +3,20 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\GuestController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GrievanceController;
 
-// Rota principal - mostra página pública para guests, redireciona para home se autenticado
 Route::get('/', function () {
     return inertia('Grievances/Home');
 })->name('grievances.home');
 
-   /* return auth()->check()
-        ? redirect()->route('home')
-        : redirect()->route('guest.home');
-});*/
-
-// Rotas públicas (guest)
 Route::middleware('guest')->group(function () {
-    // Página inicial pública
-    Route::get('/home-public', [GuestController::class, 'home'])->name('guest.home');
-    
-    // Rotas de autenticação
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
-    
-    // Rotas de login e registro - usando nomes simples
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
     Route::get('/register/complete', [AuthController::class, 'showCompleteRegistration'])->name('auth.register.complete');
 
-    // Rotas POST para autenticação
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
@@ -46,19 +31,17 @@ Route::middleware('guest')->group(function () {
     })->name('test.track');
 });
 
-// Rotas protegidas (auth)
 Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
 
-    // Rotas específicas por role
-
+    // Rotas específicas por role - todas apontam para o método home
     Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
     Route::get('/gestor/dashboard', [AuthController::class, 'home'])->name('manager.dashboard');
     Route::get('/tecnico/dashboard', [AuthController::class, 'home'])->name('technician.dashboard');
     Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
     Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
 
-    // Rotas do Perfil
+    // Rotas do Perfil com prefixo /perfil
     Route::prefix('profile')->group(function () {
     Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::get('/info', [ProfileController::class, 'edit'])->name('profile.info');
@@ -68,19 +51,12 @@ Route::middleware('auth')->group(function () {
 
     // Rotas de ação - CORRIGIDAS
     Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
+    // Remover a rota duplicada
+    // Route::patch('/info/extended', [ProfileController::class, 'updateExtended'])->name('profile.update.extended');
     Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
     Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-    // API de projetos
-   Route::prefix('api')->group(function () {
-        Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-        Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store'); // ROTA POST ADICIONADA
-        Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-        Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
-        Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
-    });
-    // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
