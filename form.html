@@ -1536,7 +1536,132 @@
         }
       });
     }
+/*<?php
 
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\GrievanceTrackingController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\GuestController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GrievanceController;
+
+// Rota principal - mostra página pública para guests, redireciona para home se autenticado
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('home')
+<<<<<<< Updated upstream
+        : inertia('Grievances/Home');
+})->name('grievances.home');
+=======
+        : redirect()->route('guest.home');
+});
+>>>>>>> Stashed changes
+
+// Rotas públicas (guest)
+Route::middleware('guest')->group(function () {
+<<<<<<< Updated upstream
+
+        Route::get('/home-public', [GuestController::class, 'home'])->name('guest.home');
+
+
+// Rotas públicas (guest)
+    
+    // Rotas de autenticação
+    Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
+=======
+    // Página inicial pública
+    Route::get('/home-public', [GuestController::class, 'home'])->name('guest.home');
+    
+    // Rotas de autenticação
+    Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
+    
+    // Rotas de login e registro - usando nomes simples
+>>>>>>> Stashed changes
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::get('/register/complete', [AuthController::class, 'showCompleteRegistration'])->name('auth.register.complete');
+
+    // Rotas POST para autenticação
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
+
+    // Tracking de reclamação - acessível sem autenticação
+    Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
+    Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+
+    // Rota de teste (remover em produção)
+    Route::get('/test-track', function () {
+        return view('test-tracking');
+    })->name('test.track');
+});
+
+// Rotas protegidas (auth)
+Route::middleware('auth')->group(function () {
+    Route::get('/home', [AuthController::class, 'home'])->name('home');
+<<<<<<< Updated upstream
+=======
+    
+    // Rotas específicas por role
+>>>>>>> Stashed changes
+    Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
+    Route::get('/gestor/dashboard', [AuthController::class, 'home'])->name('manager.dashboard');
+    Route::get('/tecnico/dashboard', [AuthController::class, 'home'])->name('technician.dashboard');
+    Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
+    Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
+
+    // Rotas do Perfil
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('/info', [ProfileController::class, 'edit'])->name('profile.info');
+        Route::get('/security', [ProfileController::class, 'edit'])->name('profile.security');
+        Route::get('/notifications', [ProfileController::class, 'edit'])->name('profile.notifications');
+        Route::get('/preferences', [ProfileController::class, 'edit'])->name('profile.preferences');
+<<<<<<< Updated upstream
+=======
+        
+>>>>>>> Stashed changes
+        Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
+        Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    });
+<<<<<<< Updated upstream
+
+    // API de projetos
+    Route::prefix('api')->group(function () {
+        Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+        Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+        Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+        Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+        Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+    });
+
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
+
+// Rotas de reclamações (acessíveis sem autenticação para submissões anônimas)
+Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
+Route::get('/reclamacoes/acompanhar', function () {
+    return inertia('Grievances/Track');
+})->name('grievances.track');
+
+=======
+
+    // API de projetos
+   Route::prefix('api')->group(function () {
+        Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+        Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store'); // ROTA POST ADICIONADA
+        Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
+        Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+        Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+    });
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});
+>>>>>>> Stashed changes
+*/
     // initial
     init();
   </script>
