@@ -35,6 +35,15 @@
                             class="bg-brand hover:bg-orange-700 text-white px-6 py-2 rounded-full text-sm font-semibold transition-all hover:shadow-lg hover:-translate-y-0.5">
                             ENTRAR
                         </a>
+                        <a 
+                            href="/track"
+                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Acompanhar Reclamação
+                        </a>
                     </div>
                 </div>
 
