@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\GrievanceTrackingController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GrievanceController;
-use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\GuestController;
+use App\Http\Controllers\ManagerDashboardController;
+use App\Http\Controllers\ManagerGrievanceController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TechnicianDashboardController;
+use App\Http\Controllers\TechnicianGrievanceController;
+use Illuminate\Support\Facades\Route;
 
 /*Route::get('/', function () {
     return inertia('Grievances/Home');
@@ -44,10 +48,36 @@ Route::middleware('auth')->group(function () {
 
     // Rotas específicas por role
     Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
-    Route::get('/gestor/dashboard', [AuthController::class, 'home'])->name('manager.dashboard');
-    Route::get('/tecnico/dashboard', [AuthController::class, 'home'])->name('technician.dashboard');
+    Route::get('/gestor/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
+    Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
     Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
     Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
+
+    // Fluxo do técnico
+    Route::patch('/technician/grievances/{grievance}/start', [TechnicianGrievanceController::class, 'startWork'])
+        ->name('technician.grievances.start');
+    Route::post('/technician/grievances/{grievance}/updates', [TechnicianGrievanceController::class, 'storeUpdate'])
+        ->name('technician.grievances.updates.store');
+    Route::post('/technician/grievances/{grievance}/request-completion', [TechnicianGrievanceController::class, 'requestCompletion'])
+        ->name('technician.grievances.request-completion');
+
+    // Fluxo do gestor
+    Route::prefix('complaints')->name('complaints.')->group(function () {
+        Route::patch('/{grievance}/update-priority', [ManagerGrievanceController::class, 'updatePriority'])
+            ->name('update-priority');
+        Route::patch('/{grievance}/reassign', [ManagerGrievanceController::class, 'reassign'])
+            ->name('reassign');
+        Route::post('/{grievance}/escalate', [ManagerGrievanceController::class, 'escalate'])
+            ->name('escalate');
+        Route::patch('/{grievance}/complete', [ManagerGrievanceController::class, 'markComplete'])
+            ->name('complete');
+        Route::patch('/{grievance}/reject-completion', [ManagerGrievanceController::class, 'rejectCompletion'])
+            ->name('reject');
+        Route::post('/bulk-assign', [ManagerGrievanceController::class, 'bulkAssign'])
+            ->name('bulk-assign');
+        Route::get('/export', [ManagerGrievanceController::class, 'export'])
+            ->name('export');
+    });
 
     // Rotas do Perfil
     Route::prefix('profile')->group(function () {
@@ -63,6 +93,10 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Download seguro de anexos
+    Route::get('/attachments/{attachment}/download', [GrievanceController::class, 'downloadAttachment'])
+        ->name('attachments.download');
 });
 
 // Rotas de Projects (API)

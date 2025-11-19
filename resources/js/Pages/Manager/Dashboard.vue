@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref, watch } from 'vue'
-import { router, useForm } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import Layout from '@/Layouts/ManagerLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import ComplaintsList from '@/Components/GestorReclamacoes/ComplaintsList.vue'
@@ -72,7 +72,7 @@ const props = defineProps({
 })
 
 // Estado local
-const selectedComplaint = ref(null)
+const selectedComplaint = ref(props.complaints.data?.[0] ?? null)
 const localFilters = ref({ ...props.filters })
 
 // Watcher para filtros
@@ -83,6 +83,19 @@ watch(localFilters, (newFilters) => {
         replace: true
     })
 })
+
+watch(
+    () => props.complaints.data,
+    (data) => {
+        if (!data?.length) {
+            selectedComplaint.value = null
+            return
+        }
+
+        const currentId = selectedComplaint.value?.id
+        selectedComplaint.value = data.find((item) => item.id === currentId) ?? data[0]
+    }
+)
 
 // Handlers
 const selectComplaint = (complaint) => {
