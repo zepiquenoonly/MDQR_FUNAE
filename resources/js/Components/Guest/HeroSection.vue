@@ -14,7 +14,7 @@
                 <div class="flex flex-col sm:flex-row gap-4">
                     <a :href="authRoutes.register"
                         class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center">
-                        REGISTE AGORA
+                        CRIA UMA CONTA
                     </a>
                     <a href="/grievances-home"
                         class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center">
