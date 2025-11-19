@@ -13,6 +13,7 @@
             <SugestoesPanel v-if="activePanel === 'sugestoes'" />
             <QueixasPanel v-else-if="activePanel === 'queixas'" />
             <ReclamacoesPanel v-else-if="activePanel === 'reclamacoes'" />
+            <ProjectsManager v-else-if="activePanel === 'gestao-projetos'" />
             <div v-else>
                 <!-- Default Dashboard Content -->
                 <StatsGrid />
@@ -31,6 +32,7 @@ import SubmissionsSection from '@/Components/Dashboard/SubmissionsSection.vue'
 import SugestoesPanel from '@/Components/Dashboard/SuggestionsPanel.vue'
 import QueixasPanel from '@/Components/Dashboard/ComplaintsPanel.vue'
 import ReclamacoesPanel from '@/Components/Dashboard/ClaimsPanel.vue'
+import ProjectsManager from '@/Components/Dashboard/ProjectsManager.vue'
 
 // Estado local simples
 const activePanel = ref('dashboard')
