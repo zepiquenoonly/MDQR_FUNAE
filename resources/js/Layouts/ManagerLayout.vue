@@ -1,17 +1,20 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex">
-    <!-- Sidebar -->
-    <Sidebar :user="$page.props.auth.user" :stats="stats" @toggle-sidebar="handleSidebarToggle" />
+    <!-- Sidebar Fixo -->
+    <Sidebar :user="$page.props.auth.user" :stats="stats" :is-collapsed="sidebarCollapsed"
+      @toggle-sidebar="handleSidebarToggle" />
 
     <!-- Main Content Area -->
     <div class="flex-1 flex flex-col min-w-0">
-      <!-- Header -->
-      <Header :sidebar-collapsed="sidebarCollapsed" :user="$page.props.auth.user"
-        @toggle-sidebar="handleSidebarToggle" />
+      <!-- Header Fixo no Topo -->
+      <Header :sidebar-collapsed="sidebarCollapsed" :user="$page.props.auth.user" @toggle-sidebar="handleSidebarToggle"
+        class="flex-shrink-0 sticky top-0 z-30" />
 
-      <!-- Page Content -->
-      <main class="flex-1 p-6 overflow-auto">
-        <slot />
+      <!-- Page Content Scrollável -->
+      <main class="flex-1 overflow-auto">
+        <div class="p-6">
+          <slot />
+        </div>
       </main>
     </div>
   </div>
@@ -19,9 +22,10 @@
 
 <script setup>
 import { ref, provide, computed } from 'vue'
+import { useDropdownManager } from '@/Components/GestorReclamacoes/Composables/useDropdownManager'
 import { useDashboardState } from '@/Components/GestorReclamacoes/Composables/useDashboardState'
 import Sidebar from '@/Components/GestorReclamacoes/Sidebar.vue'
-import Header from '@/Components/Dashboard/Header.vue'
+import Header from '@/Components/GestorReclamacoes/Header.vue'
 
 // Props
 const props = defineProps({
@@ -34,13 +38,15 @@ const props = defineProps({
 // Estado da sidebar
 const sidebarCollapsed = ref(false)
 
-// Estado do dashboard
+// Inicializar managers
+const dropdownManager = useDropdownManager()
 const dashboardState = useDashboardState()
 
 // Computed para estatísticas
 const stats = computed(() => props.stats)
 
-// Fornecer estado do dashboard para componentes filhos
+// Fornecer estado para componentes filhos
+provide('dropdownManager', dropdownManager)
 provide('dashboardState', dashboardState)
 provide('sidebarState', {
   isCollapsed: sidebarCollapsed,
@@ -54,5 +60,10 @@ function handleSidebarToggle(isCollapsed = null) {
   } else {
     sidebarCollapsed.value = !sidebarCollapsed.value
   }
+
+  // Fechar todos os dropdowns quando a sidebar é recolhida/expandida
+  dropdownManager.closeDropdown()
+
+  console.log('Sidebar collapsed:', sidebarCollapsed.value)
 }
 </script>

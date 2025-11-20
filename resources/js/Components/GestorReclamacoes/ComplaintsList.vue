@@ -3,21 +3,25 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-lg font-semibold text-gray-800">Reclamações Recentes</h3>
-            <span class="text-gray-500 text-sm">Ordenado por mais recente</span>
+            <button @click="handleExport"
+                class="px-4 py-2 bg-brand text-white rounded text-sm font-medium hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                Ver Todos
+            </button>
         </div>
 
         <!-- Filters -->
         <div class="flex flex-wrap gap-3 mb-6">
+            <h3 class="font-semibold text-gray-800">Filtrar Por:</h3>
             <select v-model="localFilters.priority"
-                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
-                <option value="">Prioridade: Todos</option>
-                <option value="high">Alta</option>
-                <option value="medium">Média</option>
-                <option value="low">Baixa</option>
+                class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200 appearance-none bg-white cursor-pointer">
+                <option value="" disabled hidden class="text-gray-400">Prioridade: Todos</option>
+                <option value="high" class="text-gray-900">Alta</option>
+                <option value="medium" class="text-gray-900">Média</option>
+                <option value="low" class="text-gray-900">Baixa</option>
             </select>
 
             <select v-model="localFilters.status"
-                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
+                class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
                 <option value="">Status: Todos</option>
                 <option value="open">Aberto</option>
                 <option value="in_progress">Em Progresso</option>
@@ -26,7 +30,7 @@
             </select>
 
             <select v-model="localFilters.category"
-                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
+                class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
                 <option value="">Categoria: Todas</option>
                 <option value="infra">Infraestrutura</option>
                 <option value="service">Serviço</option>
@@ -34,7 +38,7 @@
             </select>
 
             <select v-model="localFilters.type"
-                class="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
+                class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
                 <option value="">Tipo: Todos</option>
                 <option value="complaint">Reclamação</option>
                 <option value="suggestion">Sugestão</option>
@@ -44,7 +48,8 @@
         <!-- Complaints List -->
         <div class="space-y-3">
             <ComplaintRow v-for="complaint in complaints" :key="complaint.id" :complaint="complaint"
-                :selected="selectedComplaint?.id === complaint.id" @select="handleSelectComplaint" />
+                :selected="selectedComplaint?.id === complaint.id" @select="handleSelectComplaint"
+                @show-details="handleShowDetails" />
         </div>
 
         <!-- Empty State -->
@@ -60,12 +65,12 @@
             </span>
             <div class="flex gap-3">
                 <button @click="handleBulkAssign"
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all duration-200">
+                    class="px-4 py-2 border border-gray-300 rounded text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all duration-200">
                     Atribuição Automática
                 </button>
                 <button @click="handleExport"
-                    class="px-4 py-2 bg-orange-500 text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
-                    Exportar Selecionados
+                    class="px-4 py-2 bg-brand text-white rounded text-sm font-medium hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
+                    Exportar Dados
                 </button>
             </div>
         </div>
@@ -89,7 +94,7 @@ const props = defineProps({
     }
 })
 
-const emit = defineEmits(['update:filters', 'select-complaint'])
+const emit = defineEmits(['update:filters', 'select-complaint', 'show-details'])
 
 const localFilters = ref({ ...props.filters })
 const selectedComplaint = ref(null)
@@ -102,6 +107,10 @@ watch(localFilters, (newFilters) => {
 const handleSelectComplaint = (complaint) => {
     selectedComplaint.value = complaint
     emit('select-complaint', complaint)
+}
+
+const handleShowDetails = (complaint) => {
+    emit('show-details', complaint)
 }
 
 const handleBulkAssign = async () => {

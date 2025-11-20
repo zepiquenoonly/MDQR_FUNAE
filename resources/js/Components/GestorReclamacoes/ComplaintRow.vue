@@ -4,11 +4,11 @@
         selected
             ? 'border-orange-500 bg-orange-50 shadow-md'
             : 'border-gray-200 hover:border-orange-300 hover:shadow-sm'
-    ]" @click="$emit('select', complaint)">
+    ]" @click="handleRowClick">
         <div class="flex items-start space-x-4">
             <!-- User Avatar -->
             <div
-                class="w-10 h-10 bg-orange-400 rounded-lg flex items-center justify-center text-white font-semibold flex-shrink-0">
+                class="w-10 h-10 bg-brand rounded-lg flex items-center justify-center text-white font-semibold flex-shrink-0">
                 {{ getUserInitials(complaint.user?.name || 'Utente') }}
             </div>
 
@@ -54,8 +54,8 @@
 
                 <!-- Actions -->
                 <div class="mt-3">
-                    <button @click.stop="$emit('select', complaint)"
-                        class="flex items-center space-x-1 px-3 py-1.5 bg-orange-500 text-white text-xs rounded-lg font-medium hover:bg-orange-600 transition-all duration-200 shadow-sm hover:shadow-md">
+                    <button @click.stop="handleDetailsClick"
+                        class="flex items-center space-x-1 px-3 py-1.5 bg-brand text-white text-xs rounded-lg font-medium hover:bg-orange-600 transition-all duration-200 shadow-sm hover:shadow-md">
                         <EyeIcon class="w-3 h-3" />
                         <span>Ver detalhes</span>
                     </button>
@@ -77,7 +77,7 @@ import {
 import PriorityBadge from './PriorityBadge.vue'
 import StatusBadge from './StatusBadge.vue'
 
-defineProps({
+const props = defineProps({
     complaint: {
         type: Object,
         required: true
@@ -85,7 +85,7 @@ defineProps({
     selected: Boolean
 })
 
-defineEmits(['select'])
+const emit = defineEmits(['select', 'show-details'])
 
 const getUserInitials = (user) => {
     return user.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
@@ -101,5 +101,13 @@ const getTypeText = (type) => {
 
 const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('pt-BR')
+}
+
+const handleRowClick = () => {
+    emit('select', props.complaint)
+}
+
+const handleDetailsClick = () => {
+    emit('show-details', props.complaint)
 }
 </script>

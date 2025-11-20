@@ -72,7 +72,7 @@ class AuthController extends Controller {
         }
 
         return back()->withErrors( [
-            'username' => 'As credenciais fornecidas não correspondem aos nossos registros.',
+            'username' => 'Falha na autenticação, usuário ou senha inválidos.',
         ] )->onlyInput( 'username' );
     }
 
@@ -199,7 +199,6 @@ class AuthController extends Controller {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
 
-      
         switch ( $role ) {
             case 'PCA':
             return redirect()->route( 'admin.dashboard' );
@@ -221,8 +220,8 @@ class AuthController extends Controller {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
 
-        if ($role === 'Técnico') {
-            return redirect()->route('technician.dashboard');
+        if ( $role === 'Técnico' ) {
+            return redirect()->route( 'technician.dashboard' );
         }
 
         return $this->getDashboardByRole( $role );

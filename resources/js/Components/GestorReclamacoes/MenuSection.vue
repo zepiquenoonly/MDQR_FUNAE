@@ -98,13 +98,13 @@ const projetosItems = computed(() => [
     href: generateUrl('/api/projects'),
     active: page.url.startsWith('/api/projects')
   },
-  {
+  /*{
     icon: Cog6ToothIcon,
     text: 'Gestão de Projetos',
     id: 'gestao-projetos',
     href: generateUrl('/projects'), // URL placeholder
     active: page.url.startsWith('/project/')
-  }
+  }*/
 ])
 
 const handleItemClick = (item) => {

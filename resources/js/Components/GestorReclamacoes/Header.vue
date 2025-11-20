@@ -1,24 +1,18 @@
 <template>
-  <header class="bg-white border-b border-gray-200 px-6 py-4">
+  <header class="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-30">
     <div class="flex items-center justify-between">
       <!-- Left Section -->
       <div class="flex items-center gap-4">
-        <!-- Botão para abrir sidebar quando fechada -->
-        <button 
-          v-if="sidebarCollapsed"
-          @click="$emit('toggle-sidebar')"
-          class="hover:text-orange-600 transition-colors"
-        >
-          <Bars3Icon class="w-5 h-5" />
+        <!-- Botão hambúrguer para alternar sidebar - APENAS QUANDO SIDEBAR ESTIVER ABERTA -->
+        <button v-if="!sidebarCollapsed" @click="$emit('toggle-sidebar')"
+          class="hover:text-orange-600 transition-colors p-1">
+          <Bars3Icon class="w-6 h-6" />
         </button>
-        
+
         <!-- Search Bar -->
         <div class="hidden md:flex gap-0">
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent"
-          >
+          <input type="text" placeholder="Pesquisar..."
+            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent">
           <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
             <MagnifyingGlassIcon class="w-4 h-4" />
           </button>
@@ -30,10 +24,11 @@
         <button class="text-gray-600 hover:text-brand transition-colors p-2">
           <MoonIcon class="w-5 h-5" />
         </button>
-        
+
         <button class="text-gray-600 hover:text-brand transition-colors p-2 relative">
           <BellIcon class="w-5 h-5" />
-          <span class="absolute -top-1 -right-1 bg-brand text-white rounded-full w-4 h-4 text-xs flex items-center justify-center font-bold">
+          <span
+            class="absolute -top-1 -right-1 bg-brand text-white rounded-full w-4 h-4 text-xs flex items-center justify-center font-bold">
             1
           </span>
         </button>
@@ -46,11 +41,8 @@
     <!-- Search Bar para mobile -->
     <div class="mt-3 md:hidden">
       <div class="flex gap-0">
-        <input
-          type="text"
-          placeholder="Pesquisar..."
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-brand"
-        >
+        <input type="text" placeholder="Pesquisar..."
+          class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring focus:ring-brand focus:border-brand">
         <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
           <MagnifyingGlassIcon class="w-4 h-4" />
         </button>
@@ -60,11 +52,11 @@
 </template>
 
 <script setup>
-import { 
+import {
   Bars3Icon,
-  MagnifyingGlassIcon, 
-  MoonIcon, 
-  BellIcon 
+  MagnifyingGlassIcon,
+  MoonIcon,
+  BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
 

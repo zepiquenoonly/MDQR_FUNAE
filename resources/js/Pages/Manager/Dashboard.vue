@@ -19,24 +19,32 @@
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Recent Complaints -->
-                <div class="lg:col-span-2">
+                <div class="lg:col-span-3">
                     <ComplaintsList :complaints="complaints.data" :filters="filters" @update:filters="updateFilters"
-                        @select-complaint="selectComplaint" />
-                </div>
-
-                <!-- Complaint Details & Actions -->
-                <div class="lg:col-span-1">
-                    <ComplaintDetails :complaint="selectedComplaint" :technicians="technicians"
-                        @update-priority="updatePriority" @reassign-technician="reassignTechnician"
-                        @send-to-director="sendToDirector" @mark-complete="markComplete" />
+                        @select-complaint="selectComplaint" @show-details="showDetailsModal" />
                 </div>
             </div>
 
-            <!-- Charts & Indicators -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ChartsSection :stats="stats" />
-                <QuickActions :complaint="selectedComplaint" />
+            <!-- Complaint Details Modal -->
+            <div v-if="showModal"
+                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                    <div
+                        class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+                        <h3 class="text-lg font-semibold text-gray-800">Detalhes da Reclamação</h3>
+                        <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
+                            <XMarkIcon class="w-6 h-6" />
+                        </button>
+                    </div>
+                    <div class="p-6">
+                        <ComplaintDetails :complaint="selectedComplaint" :technicians="technicians"
+                            @close="showModal = false" @update-priority="updatePriority"
+                            @reassign-technician="reassignTechnician" @send-to-director="sendToDirector"
+                            @mark-complete="markComplete" />
+                    </div>
+                </div>
             </div>
+           
         </div>
     </Layout>
 </template>
@@ -44,12 +52,12 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { XMarkIcon } from '@heroicons/vue/24/outline'
 import Layout from '@/Layouts/ManagerLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import ComplaintsList from '@/Components/GestorReclamacoes/ComplaintsList.vue'
 import ComplaintDetails from '@/Components/GestorReclamacoes/ComplaintDetails.vue'
 import ChartsSection from '@/Components/GestorReclamacoes/ChartsSection.vue'
-import QuickActions from '@/Components/GestorReclamacoes/QuickActions.vue'
 
 // Props do backend
 const props = defineProps({
@@ -74,6 +82,7 @@ const props = defineProps({
 // Estado local
 const selectedComplaint = ref(props.complaints.data?.[0] ?? null)
 const localFilters = ref({ ...props.filters })
+const showModal = ref(false)
 
 // Watcher para filtros
 watch(localFilters, (newFilters) => {
@@ -100,6 +109,15 @@ watch(
 // Handlers
 const selectComplaint = (complaint) => {
     selectedComplaint.value = complaint
+}
+
+const showDetailsModal = (complaint) => {
+    selectedComplaint.value = complaint
+    showModal.value = true
+}
+
+const closeModal = () => {
+    showModal.value = false
 }
 
 const updateFilters = (newFilters) => {
