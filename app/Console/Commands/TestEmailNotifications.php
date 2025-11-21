@@ -151,10 +151,14 @@ class TestEmailNotifications extends Command
         }
 
         // Criar técnico
-        $technician = User::factory()->create([
-            'name' => 'João Técnico',
-            'email' => 'tecnico@example.com',
-        ]);
+        $technician = User::firstOrCreate(
+            ['email' => 'tecnico@example.com'],
+            [
+                'name' => 'João Técnico',
+                'username' => 'tecnico_test',
+                'password' => bcrypt('password'),
+            ]
+        );
 
         // Criar reclamação
         $grievance = Grievance::factory()->identified()->create([
