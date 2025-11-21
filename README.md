@@ -117,9 +117,51 @@ DB_PASSWORD=sua_senha
 # Migrar base de dados
 php artisan migrate
 
-# Popular dados iniciais
+# Popular dados iniciais (roles, usuários admin, dados de exemplo)
 php artisan db:seed
 ```
+
+### 5.1. Popular Dados para Testes de Performance
+
+Para realizar testes de performance e usabilidade com grandes volumes de dados, utilize o comando dedicado:
+
+```bash
+# Popular com valores padrão (500 utentes, 20 técnicos, 5 gestores, 2000 reclamações)
+php artisan db:seed-performance
+
+# Personalizar volumes de dados
+php artisan db:seed-performance --utentes=1000 --tecnicos=50 --gestores=10 --reclamacoes=5000
+
+# Opções disponíveis:
+# --utentes=N     : Número de utentes a criar (padrão: 500)
+# --tecnicos=N    : Número de técnicos a criar (padrão: 20)
+# --gestores=N    : Número de gestores a criar (padrão: 5)
+# --reclamacoes=N : Número de reclamações a criar (padrão: 2000)
+# --fresh         : Executar migrate:fresh antes (⚠️ apaga todos os dados existentes)
+```
+
+**Distribuição Realista de Dados:**
+
+O seeder cria dados com distribuição realista:
+- **Status das Reclamações**: 15% submetidas, 20% em análise, 10% atribuídas, 25% em andamento, 5% pendentes, 20% resolvidas, 5% rejeitadas
+- **Prioridades**: 30% baixa, 40% média, 25% alta, 5% urgente
+- **Tipo**: 30% anônimas, 70% identificadas
+- **Histórico**: Cada reclamação possui histórico completo de atualizações conforme seu status
+
+**Exemplo de Uso:**
+
+```bash
+# Ambiente de desenvolvimento completo
+php artisan migrate:fresh
+php artisan db:seed --class=RoleSeeder
+php artisan db:seed --class=AdminUserSeeder
+php artisan db:seed-performance --utentes=500 --reclamacoes=2000
+
+# Ou tudo de uma vez (com --fresh)
+php artisan db:seed-performance --fresh --utentes=500 --reclamacoes=2000
+```
+
+**Nota**: O seeder de performance utiliza inserção em batch para otimizar o tempo de execução, mas volumes muito grandes podem levar alguns minutos para completar.
 
 ### 6. Compilar Assets
 
