@@ -212,9 +212,14 @@ class EmailNotificationTest extends TestCase
     public function test_does_not_send_email_when_private_comment_added(): void
     {
         $user = User::factory()->create(['email' => 'utente@example.com']);
-        $grievance = Grievance::factory()->identified()->create([
-            'user_id' => $user->id,
-        ]);
+        
+        // Criar reclamação sem disparar Observer (usando withoutEvents)
+        // para evitar que o email de criação seja enviado
+        $grievance = Grievance::withoutEvents(function () use ($user) {
+            return Grievance::factory()->identified()->create([
+                'user_id' => $user->id,
+            ]);
+        });
 
         $update = GrievanceUpdate::create([
             'grievance_id' => $grievance->id,
