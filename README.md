@@ -262,6 +262,6 @@ Desenvolvido com ❤️ pela equipa TECHSOLUTIONS, LDA.
 
 ---
 
-**Versão**: 0.2.  
-**Última Atualização**: 13 de Novembro de 2025  
+**Versão**: 2.0.0  
+**Última Atualização**: 20 de Novembro de 2025  
 **Status**: Em Desenvolvimento
