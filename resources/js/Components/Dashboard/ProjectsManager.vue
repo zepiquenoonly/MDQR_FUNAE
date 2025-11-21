@@ -1,7 +1,7 @@
 <template>
     <div class="min-h-screen bg-gray-50 p-4 -mt-6 relative">
         <!-- Overlay do Formulário -->
-        <div v-if="showRegisterForm"
+        <div v-if="showRegisterForm && canEdit"
             class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div class="bg-white rounded-lg shadow-xl w-full max-w-6xl max-h-[95vh] overflow-y-auto">
                 <div class="p-6">
@@ -17,23 +17,61 @@
         </div>
 
         <!-- CARDS SUPERIORES -->
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+            <!-- Card Finalizados -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                <p class="text-lg font-bold text-green-700">Finalizados</p>
-                <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.finished }}</p>
-                <p class="text-gray-600 mt-1">Projectos Finalizados</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-lg font-bold text-green-700">Finalizados</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.finished }}</p>
+                        <p class="text-gray-600 mt-1">Projectos Finalizados</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <CheckCircleIcon class="w-6 h-6 text-green-600" />
+                    </div>
+                </div>
             </div>
 
+            <!-- Card Em Andamento -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                <p class="text-lg font-bold text-yellow-700">Em Andamento</p>
-                <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.progress }}</p>
-                <p class="text-gray-600 mt-1">Projectos em Andamento</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-lg font-bold text-yellow-700">Em Andamento</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.progress }}</p>
+                        <p class="text-gray-600 mt-1">Projectos em Andamento</p>
+                    </div>
+                    <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <ClockIcon class="w-6 h-6 text-yellow-600" />
+                    </div>
+                </div>
             </div>
 
+            <!-- Card Parados -->
             <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-                <p class="text-lg font-bold text-red-700">Parados</p>
-                <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.suspended }}</p>
-                <p class="text-gray-600 mt-1">Projectos Parados</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-lg font-bold text-red-700">Parados</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.suspended }}</p>
+                        <p class="text-gray-600 mt-1">Projectos Parados</p>
+                    </div>
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <PauseCircleIcon class="w-6 h-6 text-red-600" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Total -->
+            <div class="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-lg font-bold text-blue-700">Total</p>
+                        <p class="text-4xl font-bold text-gray-900 mt-2">{{ stats.total }}</p>
+                        <p class="text-gray-600 mt-1">Todos Projectos</p>
+                    </div>
+                    <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                        <FolderIcon class="w-6 h-6 text-blue-600" />
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -52,7 +90,7 @@
                     <MagnifyingGlassIcon class="w-5 h-5 text-gray-500 absolute right-3 top-2.5" />
                 </div>
 
-                <button @click="openRegisterForm"
+                <button v-if="canEdit" @click="openRegisterForm"
                     class="bg-brand hover:bg-orange-600 text-white px-6 py-2 rounded font-semibold flex items-center gap-2 transition-colors">
                     <PlusIcon class="w-5 h-5" />
                     Registar
@@ -112,7 +150,6 @@
                                     <EyeIcon class="w-4 h-4" />
                                     Detalhes
                                 </button>
-
                             </td>
                         </tr>
                     </tbody>
@@ -135,9 +172,25 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { MagnifyingGlassIcon, EyeIcon, PlusIcon, XMarkIcon } from '@heroicons/vue/24/outline'
+import {
+    MagnifyingGlassIcon,
+    EyeIcon,
+    PlusIcon,
+    XMarkIcon,
+    CheckCircleIcon,
+    ClockIcon,
+    PauseCircleIcon,
+    FolderIcon
+} from '@heroicons/vue/24/outline'
 import ProjectRegister from './ProjectRegister.vue'
 import ProjectDetailsPopup from './ProjectDetailsPopup.vue'
+
+const props = defineProps({
+    canEdit: {
+        type: Boolean,
+        default: false
+    }
+})
 
 const showRegisterForm = ref(false)
 const showDetailsPopup = ref(false)
@@ -183,12 +236,18 @@ const handleProjectDeleted = (projectId) => {
     projects.value = projects.value.filter(p => p.id !== projectId)
 }
 
-// Estatísticas dos cards
+// Estatísticas dos cards - CORRIGIDO
 const stats = computed(() => {
+    const finished = projects.value.filter(p => p.category === 'finalizados').length
+    const progress = projects.value.filter(p => p.category === 'andamento').length
+    const suspended = projects.value.filter(p => p.category === 'parados').length
+    const total = projects.value.length
+
     return {
-        finished: projects.value.filter(p => p.category === 'finalizados').length,
-        progress: projects.value.filter(p => p.category === 'andamento').length,
-        suspended: projects.value.filter(p => p.category === 'parados').length
+        finished,
+        progress,
+        suspended,
+        total
     }
 })
 
@@ -269,4 +328,7 @@ onMounted(() => {
     loadProjects()
 })
 </script>
-<style scoped></style>
+
+<style scoped>
+/* Estilos adicionais se necessário */
+</style>

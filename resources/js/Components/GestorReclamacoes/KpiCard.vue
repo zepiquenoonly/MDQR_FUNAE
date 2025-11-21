@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-gray-500 text-sm font-medium">{{ title }}</h3>
-                <div class="text-3xl font-bold text-brand mt-2">{{ value }}</div>
+                <div class="text-3xl font-bold text-black mt-2">{{ value }}</div>
                 <p class="text-gray-400 text-sm mt-1">{{ description }}</p>
             </div>
 

@@ -1,6 +1,13 @@
 <template>
     <Layout :stats="stats">
-        <div class="space-y-6">
+        <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
+        <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
+
+        <!-- Renderizar TecnicoList quando o panel for 'tecnicos' -->
+        <TecnicoList v-else-if="activePanel === 'tecnicos'" />
+
+        <!-- Conteúdo normal do dashboard para outros casos -->
+        <div v-else class="space-y-6">
             <!-- KPIs Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <KpiCard title="Total em Aberto" :value="stats.pending_complaints || 0"
@@ -37,27 +44,28 @@
                         </button>
                     </div>
                     <div class="p-6">
-                        <ComplaintDetails :complaint="selectedComplaint" :technicians="technicians"
+                        <!-- Passar prop para ocultar botões no ComplaintDetails -->
+                        <ComplaintDetails :complaint="selectedComplaint" :technicians="technicians" :hide-buttons="true"
                             @close="showModal = false" @update-priority="updatePriority"
                             @reassign-technician="reassignTechnician" @send-to-director="sendToDirector"
                             @mark-complete="markComplete" />
                     </div>
                 </div>
             </div>
-           
         </div>
     </Layout>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import Layout from '@/Layouts/ManagerLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import ComplaintsList from '@/Components/GestorReclamacoes/ComplaintsList.vue'
 import ComplaintDetails from '@/Components/GestorReclamacoes/ComplaintDetails.vue'
-import ChartsSection from '@/Components/GestorReclamacoes/ChartsSection.vue'
+import ProjectsManager from '@/Components/Dashboard/ProjectsManager.vue'
+import TecnicoList from '@/Components/GestorReclamacoes/TecnicoList.vue' // ← CORRIGIDO
 
 // Props do backend
 const props = defineProps({
@@ -76,7 +84,23 @@ const props = defineProps({
     filters: {
         type: Object,
         default: () => ({})
+    },
+    canEdit: {
+        type: Boolean,
+        default: false
     }
+})
+
+// Determinar o panel ativo baseado APENAS na URL
+const activePanel = computed(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const panelFromUrl = urlParams.get('panel')
+    console.log('🔍 Panel ativo:', panelFromUrl) // Debug
+
+    // Suportar múltiplos painéis
+    if (panelFromUrl === 'projectos') return 'projectos'
+    if (panelFromUrl === 'tecnicos') return 'tecnicos'
+    return 'dashboard'
 })
 
 // Estado local

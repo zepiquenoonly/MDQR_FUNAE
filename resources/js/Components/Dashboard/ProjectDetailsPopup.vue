@@ -88,7 +88,8 @@
                                         placeholder="Província"
                                         class="p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
                                     <template v-else>
-                                        <span class="text-gray-600">{{ project?.bairro || 'N/A' }}, {{ project?.distrito || 'N/A' }}, {{
+                                        <span class="text-gray-600">{{ project?.bairro || 'N/A' }}, {{ project?.distrito
+                                            || 'N/A' }}, {{
                                             project?.provincia || 'N/A' }}</span>
                                     </template>
                                 </div>
@@ -142,10 +143,10 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- Empty state para objetivos -->
-                            <div v-if="!isEditing && (!project?.objectives || project.objectives.length === 0)" 
-                                 class="text-center py-4 text-gray-500">
+                            <div v-if="!isEditing && (!project?.objectives || project.objectives.length === 0)"
+                                class="text-center py-4 text-gray-500">
                                 Nenhum objectivo definido
                             </div>
                         </div>
@@ -172,7 +173,8 @@
                                     <label class="block text-sm text-gray-600 mb-1">Valor Financiado</label>
                                     <input v-if="isEditing" v-model="editForm.finance.valor_financiado" type="text"
                                         class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                    <p v-else class="text-gray-800">{{ project?.finance?.valor_financiado || 'N/A' }}</p>
+                                    <p v-else class="text-gray-800">{{ project?.finance?.valor_financiado || 'N/A' }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -195,8 +197,8 @@
                 <!-- Error State -->
                 <div v-else-if="!loading" class="text-center py-8">
                     <p class="text-red-600">Erro ao carregar detalhes do projecto.</p>
-                    <button @click="loadProjectDetails(props.projectId)" 
-                            class="mt-4 bg-brand hover:bg-orange-600 text-white px-4 py-2 rounded">
+                    <button @click="loadProjectDetails(props.projectId)"
+                        class="mt-4 bg-brand hover:bg-orange-600 text-white px-4 py-2 rounded">
                         Tentar Novamente
                     </button>
                 </div>
@@ -212,19 +214,19 @@
                 </div>
 
                 <div class="flex gap-3">
-                    <button v-if="!isEditing && project" @click="startEditing"
+                    <button v-if="!isEditing && project && canEdit" @click="startEditing"
                         class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-semibold flex items-center gap-2 transition-colors">
                         <PencilIcon class="w-4 h-4" />
                         Editar
                     </button>
 
-                    <button v-if="!isEditing && project" @click="deleteProject"
+                    <button v-if="!isEditing && project && canEdit" @click="deleteProject"
                         class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded font-semibold flex items-center gap-2 transition-colors">
                         <TrashIcon class="w-4 h-4" />
                         Eliminar
                     </button>
 
-                    <button v-if="isEditing" @click="saveProject" :disabled="saving"
+                    <button v-if="isEditing && canEdit" @click="saveProject" :disabled="saving"
                         class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded font-semibold flex items-center gap-2 transition-colors disabled:opacity-50">
                         <CheckIcon class="w-4 h-4" />
                         {{ saving ? 'A guardar...' : 'Guardar' }}
@@ -248,7 +250,11 @@ import {
 
 const props = defineProps({
     show: Boolean,
-    projectId: Number
+    projectId: Number,
+    canEdit: { 
+        type: Boolean,
+        default: false
+    }
 })
 
 const emit = defineEmits(['close', 'project-updated', 'project-deleted'])

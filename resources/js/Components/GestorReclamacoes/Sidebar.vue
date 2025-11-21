@@ -30,25 +30,6 @@
         <div class="flex-1 overflow-y-auto overflow-x-hidden">
             <!-- Gestão de Casos Section -->
             <MenuSection :is-collapsed="isCollapsed" :stats="stats" @item-clicked="handleMenuItemClick" />
-
-            <!-- Administrative Section -->
-            <nav class="py-4 border-t border-orange-400 overflow-hidden">
-                <div :class="[
-                    'px-5 py-4 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300 overflow-hidden',
-                    isCollapsed ? 'opacity-0' : 'opacity-100'
-                ]">
-                    <span class="whitespace-nowrap">Administrativo</span>
-                </div>
-
-                <MenuItem :active="activePanel === 'tecnicos'" :icon="UserGroupIcon" :text="'Técnicos'"
-                    :is-collapsed="isCollapsed" @click="handleItemClick('tecnicos')" />
-
-                <MenuItem :active="activePanel === 'projetos'" :icon="FolderIcon" :text="'Projetos'"
-                    :is-collapsed="isCollapsed" @click="handleItemClick('projetos')" />
-
-                <MenuItem :active="activePanel === 'configuracoes'" :icon="Cog6ToothIcon" :text="'Configurações'"
-                    :is-collapsed="isCollapsed" @click="handleItemClick('configuracoes')" />
-            </nav>
         </div>
     </aside>
 </template>
@@ -103,18 +84,28 @@ const toggleSidebar = () => {
 const handleMenuItemClick = (item) => {
     console.log('Menu item clicked:', item)
 
-    // Navegar para a rota correspondente
-    if (item.id) {
+    // Navegar para a rota correspondente usando Inertia (que ativará o loading)
+    if (item.href) {
+        router.visit(item.href)
+    } else if (item.id) {
+        // Fallback para IDs de rota
         router.visit(route(`dashboard.${item.id}`))
     }
 }
 
 const handleItemClick = (panelId) => {
+    // Usar Inertia para navegação com o parâmetro panel
+    if (panelId === 'tecnicos') {
+        router.visit('/gestor/dashboard?panel=tecnicos')
+    } else if (panelId === 'projetos') {
+        router.visit('/gestor/dashboard?panel=projectos')
+    } else {
+        router.visit(route(`dashboard.${panelId}`))
+    }
+
+    // Atualizar estado local se necessário
     if (dashboardState?.setActivePanel) {
         dashboardState.setActivePanel(panelId)
     }
-
-    // Navegar para a rota
-    router.visit(route(`dashboard.${panelId}`))
 }
 </script>
