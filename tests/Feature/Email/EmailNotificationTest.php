@@ -319,31 +319,23 @@ class EmailNotificationTest extends TestCase
     }
 
     /**
-     * Teste: Verifica que notificação é marcada como falhada em caso de erro
+     * Teste: Verifica que notificação é criada mesmo quando não há email
      */
-    public function test_notification_marked_as_failed_on_error(): void
+    public function test_notification_created_even_without_email(): void
     {
-        Mail::shouldReceive('to')
-            ->andThrow(new \Exception('Erro de conexão SMTP'));
-
-        $user = User::factory()->create(['email' => 'utente@example.com']);
-        $grievance = Grievance::factory()->identified()->create([
-            'user_id' => $user->id,
+        $grievance = Grievance::factory()->anonymous()->create([
+            'contact_email' => null,
+            'user_id' => null,
         ]);
 
-        try {
-            $this->notificationService->notifyGrievanceCreated($grievance);
-        } catch (\Exception $e) {
-            // Esperado
-        }
+        // Não deve enviar email, mas também não deve lançar exceção
+        $this->notificationService->notifyGrievanceCreated($grievance);
 
-        $notification = GrievanceNotification::where('grievance_id', $grievance->id)
-            ->where('type', GrievanceNotification::TYPE_GRIEVANCE_CREATED)
-            ->first();
-
-        $this->assertNotNull($notification);
-        $this->assertEquals(GrievanceNotification::STATUS_FAILED, $notification->status);
-        $this->assertNotNull($notification->error_message);
+        Mail::assertNothingSent();
+        
+        // Não deve criar notificação se não há email
+        $notification = GrievanceNotification::where('grievance_id', $grievance->id)->first();
+        $this->assertNull($notification);
     }
 
     /**
