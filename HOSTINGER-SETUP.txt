@@ -108,18 +108,18 @@ Ou manual:
 
 1. VERIFICAR CRON:
    ps aux | grep schedule
-   
+
    Se não retornar nada, cron não está configurado!
 
 2. VERIFICAR JOBS NA FILA:
    php artisan tinker
    >>> DB::table('jobs')->count()
-   
+
    Se > 0, há jobs pendentes esperando processamento.
 
 3. PROCESSAR MANUALMENTE (TESTE):
    php artisan queue:work --stop-when-empty
-   
+
    Isso processa todos os jobs pendentes.
 
 4. VER ERROS:

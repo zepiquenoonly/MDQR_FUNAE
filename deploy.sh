@@ -50,7 +50,7 @@ composer install --no-dev --optimize-autoloader --no-interaction
 if [ -f "package.json" ]; then
     log_info "Instalando dependências do NPM..."
     npm ci --production
-    
+
     log_info "Compilando assets..."
     npm run build
 fi
