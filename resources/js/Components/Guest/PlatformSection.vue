@@ -13,7 +13,7 @@
                         A plataforma oferece um fluxo simples para que os munícipes possam interagir com os projetos do
                         seu município. O processo começa com o login ou cadastro do perfil, após o qual o utilizador tem
                         acesso a uma lista de projetos disponíveis. Para cada projeto, é possível adicionar uma
-                        reclamação, denúncia ou sugestão através de um formulário simples. Após a submissão, a
+                        reclamação, queixa ou sugestão através de um formulário simples. Após a submissão, a
                         solicitação fica pendente e o utilizador pode acompanhar seu progresso por meio de uma linha do
                         tempo, que mostra o status da reclamação, como "recebida", "em análise" e "resolvida". Quando a
                         reclamação for resolvida, o utilizador é convidado a avaliar a resposta e informar se está
