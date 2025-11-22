@@ -141,7 +141,7 @@
 
             <!-- Form Card -->
             <div class="bg-white rounded-2xl shadow-lg p-8">
-                <form method="POST" action="{{ route('email-test.send') }}" class="space-y-6">
+                <form method="POST" action="{{ route('email-test.send') }}" class="space-y-6" id="emailTestForm">
                     @csrf
                     
                     <div>
@@ -169,12 +169,17 @@
 
                     <button 
                         type="submit" 
-                        class="w-full bg-brand hover:bg-[#d94f1a] text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg"
+                        id="submitBtn"
+                        class="w-full bg-brand hover:bg-[#d94f1a] text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0"
                     >
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg id="iconDefault" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        Enviar Todos os Emails de Teste
+                        <svg id="iconLoading" class="w-6 h-6 animate-spin hidden" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span id="btnText">Enviar Todos os Emails de Teste</span>
                     </button>
                 </form>
             </div>
@@ -206,5 +211,25 @@
             animation: fade-in 0.3s ease-out;
         }
     </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('emailTestForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const iconDefault = document.getElementById('iconDefault');
+            const iconLoading = document.getElementById('iconLoading');
+
+            form.addEventListener('submit', function() {
+                // Desabilitar botão
+                submitBtn.disabled = true;
+                
+                // Trocar texto e ícone
+                btnText.textContent = 'Enviando emails...';
+                iconDefault.classList.add('hidden');
+                iconLoading.classList.remove('hidden');
+            });
+        });
+    </script>
 </body>
 </html>
