@@ -110,6 +110,8 @@ class EmailTestController extends Controller
         $grievance->province = 'Maputo';
         $grievance->district = 'Maputo';
         $grievance->submitted_at = now();
+        $grievance->resolved_at = now();
+        $grievance->resolution_notes = 'Reclamação resolvida com sucesso após análise e implementação das medidas corretivas necessárias.';
         $grievance->is_anonymous = false;
 
         // Não salva no BD, apenas cria objeto em memória
