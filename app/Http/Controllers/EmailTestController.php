@@ -3,13 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Mail\GrievanceAssigned;
-use App\Mail\GrievanceCommentAdded;
 use App\Mail\GrievanceCreated;
 use App\Mail\GrievanceRejected;
 use App\Mail\GrievanceResolved;
 use App\Mail\GrievanceStatusChanged;
 use App\Models\Grievance;
-use App\Models\GrievanceUpdate;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -48,12 +46,13 @@ class EmailTestController extends Controller
             Mail::to($email)->send(new GrievanceCreated($grievance));
             $emailsSent[] = '✅ Reclamação Criada';
 
-            // 2. Email de Status Alterado (para cada status)
+            // 2. Email de Status Alterado (para cada status único)
             $statuses = [
                 'under_review' => 'Em Análise',
-                'assigned' => 'Atribuída',
                 'in_progress' => 'Em Andamento',
-                'pending_approval' => 'Pendente de Aprovação',
+                'resolved' => 'Resolvida',
+                'closed' => 'Fechada',
+                'rejected' => 'Rejeitada',
             ];
 
             foreach ($statuses as $newStatus => $label) {
@@ -72,11 +71,6 @@ class EmailTestController extends Controller
             // 5. Email de Reclamação Rejeitada
             Mail::to($email)->send(new GrievanceRejected($grievance, 'Esta reclamação foi rejeitada após análise detalhada. O motivo não se enquadra nos critérios estabelecidos.'));
             $emailsSent[] = '✅ Reclamação Rejeitada';
-
-            // 6. Email de Comentário Adicionado
-            $testUpdate = $this->createTestUpdate($grievance, $testUser);
-            Mail::to($email)->send(new GrievanceCommentAdded($grievance, $testUpdate));
-            $emailsSent[] = '✅ Comentário Adicionado';
 
             return back()->with('success', [
                 'message' => "Todos os emails de teste foram enviados para: {$email}",
@@ -129,23 +123,5 @@ class EmailTestController extends Controller
         
         // Não salva no BD, apenas cria objeto em memória
         return $user;
-    }
-
-    /**
-     * Criar uma atualização fictícia para teste
-     */
-    private function createTestUpdate(Grievance $grievance, User $user): GrievanceUpdate
-    {
-        $update = new GrievanceUpdate();
-        $update->grievance_id = $grievance->id ?? 1;
-        $update->user_id = $user->id ?? 1;
-        $update->action_type = 'comment';
-        $update->comment = 'Este é um comentário de teste sobre o progresso da sua reclamação.';
-        $update->description = 'Comentário de teste adicionado';
-        $update->is_public = true;
-        $update->created_at = now();
-        
-        // Não salva no BD, apenas cria objeto em memória
-        return $update;
     }
 }
