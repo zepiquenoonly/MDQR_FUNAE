@@ -3,7 +3,7 @@ Atualização de Status
 
 Prezado(a),
 
-O estado da sua reclamação foi atualizado.
+O estado da sua {{ $grievance->type_label_lowercase }} foi atualizado.
 
 @php
     $statusLabels = [
@@ -24,23 +24,25 @@ Status Anterior: {{ $oldStatusLabel }}
 Novo Status: {{ $newStatusLabel }}
 
 @if($newStatus === 'under_review')
-✅ A sua reclamação está a ser analisada pela nossa equipa técnica.
+A sua {{ $grievance->type_label_lowercase }} está a ser analisada pela nossa equipa técnica.
+@elseif($newStatus === 'assigned')
+A sua {{ $grievance->type_label_lowercase }} foi atribuída a um técnico especializado.
 @elseif($newStatus === 'in_progress')
-✅ O processamento da sua reclamação está em andamento.
+O processamento da sua {{ $grievance->type_label_lowercase }} está em andamento.
+@elseif($newStatus === 'pending_approval')
+A resolução da sua {{ $grievance->type_label_lowercase }} está pendente de aprovação.
 @elseif($newStatus === 'resolved')
-✅ A sua reclamação foi resolvida com sucesso!
-@elseif($newStatus === 'closed')
-✅ A sua reclamação foi fechada.
+A sua {{ $grievance->type_label_lowercase }} foi resolvida com sucesso!
 @elseif($newStatus === 'rejected')
-ℹ️ A sua reclamação foi considerada não procedente após análise.
+A sua {{ $grievance->type_label_lowercase }} foi considerada não procedente após análise.
 @else
-O status da sua reclamação foi atualizado.
+O status da sua {{ $grievance->type_label_lowercase }} foi atualizado.
 @endif
 
 Para ver os detalhes completos, aceda a:
 {{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
 
-Pode continuar a acompanhar o progresso da sua reclamação online a qualquer momento usando o número de referência acima.
+Pode continuar a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} online a qualquer momento usando o número de referência acima.
 
 Atenciosamente,
 Equipa FUNAE

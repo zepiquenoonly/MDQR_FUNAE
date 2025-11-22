@@ -1,9 +1,9 @@
-Reclamação Recebida
+{{ $grievance->type_label }} Recebida
 ====================
 
 Prezado(a),
 
-A sua reclamação foi recebida com sucesso pelo sistema de gestão de reclamações da FUNAE.
+A sua {{ $grievance->type_label_lowercase }} foi recebida com sucesso pelo sistema de gestão de reclamações da FUNAE.
 
 Número de Referência: {{ $grievance->reference_number }}
 
@@ -13,11 +13,11 @@ Estado Atual: {{ $grievance->status_label }}
 
 Guarde este número de referência para poder acompanhar o progresso da sua reclamação.
 
-Para acompanhar a sua reclamação online, aceda a:
+Para acompanhar a sua {{ $grievance->type_label_lowercase }} online, aceda a:
 {{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
 
 Próximos Passos:
-- A sua reclamação será analisada pela nossa equipa
+- A sua {{ $grievance->type_label_lowercase }} será analisada pela nossa equipa
 - Receberá notificações por email sobre cada atualização
 - Pode acompanhar o progresso online a qualquer momento
 

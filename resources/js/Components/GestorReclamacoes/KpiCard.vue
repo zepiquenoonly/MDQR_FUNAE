@@ -1,23 +1,24 @@
 <template>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 hover:shadow-md transition-all duration-200">
+    <div
+        class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all duration-200">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-gray-500 text-sm font-medium">{{ title }}</h3>
-                <div class="text-3xl font-bold text-black mt-2">{{ value }}</div>
-                <p class="text-gray-400 text-sm mt-1">{{ description }}</p>
+                <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">{{ title }}</h3>
+                <div class="text-3xl font-bold text-black dark:text-dark-text-primary mt-2">{{ value }}</div>
+                <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">{{ description }}</p>
             </div>
 
             <!-- Icon & Trend -->
             <div class="flex flex-col items-end">
-                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                    <component :is="dynamicIcon" class="w-6 h-6 text-orange-500" />
+                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
+                    <component :is="dynamicIcon" class="w-6 h-6 text-orange-500 dark:text-orange-400" />
                 </div>
 
                 <!-- Trend Indicator -->
                 <div v-if="trend" :class="[
                     'flex items-center gap-1 mt-2 text-xs font-medium',
-                    trend === 'up' ? 'text-green-500' :
-                        trend === 'down' ? 'text-red-500' : 'text-gray-500'
+                    trend === 'up' ? 'text-green-500 dark:text-green-400' :
+                        trend === 'down' ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'
                 ]">
                     <ArrowTrendingUpIcon v-if="trend === 'up'" class="w-4 h-4" />
                     <ArrowTrendingDownIcon v-else-if="trend === 'down'" class="w-4 h-4" />

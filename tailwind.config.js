@@ -10,6 +10,8 @@ export default {
         './resources/js/**/*.vue',
     ],
 
+    darkMode: 'class', // ← ADICIONAR ESTA LINHA
+
     theme: {
         extend: {
             fontFamily: {
@@ -20,6 +22,16 @@ export default {
                 'brand-red': '#DC2626', 
                 'brand-green': '#16A34A', 
                 'brand-blue': '#4c8fddff',
+                dark: {
+                    primary: '#1a202c',
+                    secondary: '#2d3748',
+                    accent: '#4a5568',
+                    text: {
+                        primary: '#f7fafc',
+                        secondary: '#e2e8f0',
+                        muted: '#a0aec0'
+                    }
+                }
             }
         },
     },
