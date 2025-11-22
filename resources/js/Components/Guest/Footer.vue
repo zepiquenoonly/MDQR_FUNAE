@@ -35,7 +35,7 @@
                     <li>
                         <a href="#"
                             class="text-white/80 hover:text-white transition-colors duration-200 text-sm md:text-base block py-1">
-                            Denúncia
+                            Queixa
                         </a>
                     </li>
                 </ul>

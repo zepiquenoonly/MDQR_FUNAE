@@ -88,56 +88,55 @@
     <div class="header">
         <h1>🔄 Atualização de Status</h1>
     </div>
-    
+
     <div class="content">
         <p>Prezado(a),</p>
-        
-        <p>O estado da sua reclamação foi atualizado.</p>
-        
+
+        <p>O estado da sua {{ $grievance->type_label_lowercase }} foi atualizado.</p>
+
         <div class="reference">
             {{ $grievance->reference_number }}
         </div>
-        
         <div class="status-change">
-            <span class="status-badge status-old">{{ ucfirst(str_replace('_', ' ', $oldStatus)) }}</span>
+            <span class="status-badge status-old">{{ $oldStatusLabel }}</span>
             <span class="arrow">→</span>
-            <span class="status-badge status-new">{{ $grievance->status_label }}</span>
+            <span class="status-badge status-new">{{ $newStatusLabel }}</span>
         </div>
-        
+
         <div class="info-box">
             @if($newStatus === 'under_review')
-                <p>✅ A sua reclamação está a ser analisada pela nossa equipa técnica.</p>
+                <p>✅ A sua {{ $grievance->type_label_lowercase }} está a ser analisada pela nossa equipa técnica.</p>
             @elseif($newStatus === 'assigned')
-                <p>✅ A sua reclamação foi atribuída a um técnico especializado.</p>
+                <p>✅ A sua {{ $grievance->type_label_lowercase }} foi atribuída a um técnico especializado.</p>
             @elseif($newStatus === 'in_progress')
-                <p>✅ O processamento da sua reclamação está em andamento.</p>
+                <p>✅ O processamento da sua {{ $grievance->type_label_lowercase }} está em andamento.</p>
             @elseif($newStatus === 'pending_approval')
-                <p>✅ A resolução da sua reclamação está pendente de aprovação.</p>
+                <p>✅ A resolução da sua {{ $grievance->type_label_lowercase }} está pendente de aprovação.</p>
             @elseif($newStatus === 'resolved')
-                <p>✅ A sua reclamação foi resolvida com sucesso!</p>
+                <p>✅ A sua {{ $grievance->type_label_lowercase }} foi resolvida com sucesso!</p>
             @elseif($newStatus === 'rejected')
-                <p>ℹ️ A sua reclamação foi considerada não procedente após análise.</p>
+                <p>ℹ️ A sua {{ $grievance->type_label_lowercase }} foi considerada não procedente após análise.</p>
             @else
-                <p>O status da sua reclamação foi atualizado.</p>
+                <p>O status da sua {{ $grievance->type_label_lowercase }} foi atualizado.</p>
             @endif
         </div>
-        
+
         <p style="text-align: center;">
             <a href="{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}" class="button">
                 Ver Detalhes Completos
             </a>
         </p>
-        
+
         <p>
-            Pode continuar a acompanhar o progresso da sua reclamação online a qualquer momento usando o número de referência acima.
+            Pode continuar a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} online a qualquer momento usando o número de referência acima.
         </p>
-        
+
         <p>
             Atenciosamente,<br>
             <strong>Equipa FUNAE</strong>
         </p>
     </div>
-    
+
     <div class="footer">
         <p>
             Esta é uma mensagem automática. Por favor não responda a este email.<br>

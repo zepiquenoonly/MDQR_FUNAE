@@ -1,13 +1,14 @@
 <template>
     <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[94vh] overflow-hidden">
+        <div class="bg-white dark:bg-dark-secondary rounded-lg shadow-xl w-full max-w-4xl max-h-[94vh] overflow-hidden">
             <!-- Header -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-200">
-                <h2 class="text-2xl font-bold text-gray-800">
+            <div class="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-dark-text-primary">
                     {{ isEditing ? 'Editar Projecto' : 'Detalhes do Projecto' }}
                 </h2>
                 <div class="flex items-center gap-2">
-                    <button @click="closePopup" class="text-gray-500 hover:text-gray-700 transition-colors">
+                    <button @click="closePopup"
+                        class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                         <XMarkIcon class="w-6 h-6" />
                     </button>
                 </div>
@@ -18,7 +19,7 @@
                 <!-- Loading State -->
                 <div v-if="loading" class="text-center py-8">
                     <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"></div>
-                    <p class="text-gray-600 mt-2">A carregar detalhes...</p>
+                    <p class="text-gray-600 dark:text-gray-400 mt-2">A carregar detalhes...</p>
                 </div>
 
                 <!-- Project Details -->
@@ -33,7 +34,7 @@
                                 <div v-if="isEditing"
                                     class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-lg">
                                     <button @click="triggerImageUpload"
-                                        class="bg-white text-gray-800 px-4 py-2 rounded font-semibold flex items-center gap-2">
+                                        class="bg-white dark:bg-dark-accent text-gray-800 dark:text-dark-text-primary px-4 py-2 rounded font-semibold flex items-center gap-2">
                                         <PhotoIcon class="w-4 h-4" />
                                         Alterar Imagem
                                     </button>
@@ -46,17 +47,20 @@
                         <!-- Basic Info -->
                         <div class="lg:w-2/3 space-y-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Nome do Projecto</label>
+                                <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Nome do
+                                    Projecto</label>
                                 <input v-if="isEditing" v-model="editForm.name" type="text"
-                                    class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                <p v-else class="text-lg font-semibold text-gray-800">{{ project?.name || 'N/A' }}</p>
+                                    class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                <p v-else class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">{{
+                                    project?.name || 'N/A' }}</p>
                             </div>
 
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Categoria</label>
+                                    <label
+                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Categoria</label>
                                     <select v-if="isEditing" v-model="editForm.category"
-                                        class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
                                         <option value="andamento">Em Andamento</option>
                                         <option value="parados">Parados</option>
                                         <option value="finalizados">Finalizados</option>
@@ -68,29 +72,34 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-1">Data de
+                                    <label
+                                        class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Data
+                                        de
                                         Criação</label>
                                     <input v-if="isEditing" v-model="editForm.data_criacao" type="date"
-                                        class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                    <p v-else class="text-gray-600">{{ formatDate(project?.data_criacao) }}</p>
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                    <p v-else class="text-gray-600 dark:text-gray-400">{{
+                                        formatDate(project?.data_criacao) }}</p>
                                 </div>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Localização</label>
+                                <label
+                                    class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Localização</label>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                                     <input v-if="isEditing" v-model="editForm.bairro" type="text" placeholder="Bairro"
-                                        class="p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
+                                        class="p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
                                     <input v-if="isEditing" v-model="editForm.distrito" type="text"
                                         placeholder="Distrito"
-                                        class="p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
+                                        class="p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
                                     <input v-if="isEditing" v-model="editForm.provincia" type="text"
                                         placeholder="Província"
-                                        class="p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
+                                        class="p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
                                     <template v-else>
-                                        <span class="text-gray-600">{{ project?.bairro || 'N/A' }}, {{ project?.distrito
-                                            || 'N/A' }}, {{
-                                            project?.provincia || 'N/A' }}</span>
+                                        <span class="text-gray-600 dark:text-gray-400">{{ project?.bairro || 'N/A' }},
+                                            {{ project?.distrito
+                                                || 'N/A' }}, {{
+                                                project?.provincia || 'N/A' }}</span>
                                     </template>
                                 </div>
                             </div>
@@ -99,17 +108,19 @@
 
                     <!-- Description -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Descrição</label>
+                        <label
+                            class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">Descrição</label>
                         <textarea v-if="isEditing" v-model="editForm.description" rows="4"
-                            class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0"
+                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary"
                             placeholder="Descrição do projecto..."></textarea>
-                        <p v-else class="text-gray-600 whitespace-pre-line">{{ project?.description || 'N/A' }}</p>
+                        <p v-else class="text-gray-600 dark:text-gray-400 whitespace-pre-line">{{ project?.description
+                            || 'N/A' }}</p>
                     </div>
 
                     <!-- Objectives -->
                     <div>
                         <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-semibold text-gray-800">Objectivos</h3>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Objectivos</h3>
                             <button v-if="isEditing" @click="addObjective"
                                 class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-sm flex items-center gap-1">
                                 <PlusIcon class="w-4 h-4" />
@@ -119,34 +130,41 @@
 
                         <div class="space-y-4">
                             <div v-for="(objective, index) in (isEditing ? editForm.objectives : (project?.objectives || []))"
-                                :key="index" class="border border-gray-200 rounded-lg p-4">
+                                :key="index" class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                                 <div class="flex justify-between items-start mb-2">
-                                    <h4 class="font-semibold text-gray-700">Objectivo {{ index + 1 }}</h4>
+                                    <h4 class="font-semibold text-gray-700 dark:text-gray-300">Objectivo {{ index + 1 }}
+                                    </h4>
                                     <button v-if="isEditing && editForm.objectives.length > 1"
-                                        @click="removeObjective(index)" class="text-red-500 hover:text-red-700">
+                                        @click="removeObjective(index)"
+                                        class="text-red-500 hover:text-red-700 dark:hover:text-red-400">
                                         <TrashIcon class="w-4 h-4" />
                                     </button>
                                 </div>
 
                                 <div class="space-y-3">
                                     <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Título</label>
+                                        <label
+                                            class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Título</label>
                                         <input v-if="isEditing" v-model="objective.title" type="text"
-                                            class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                        <p v-else class="font-medium text-gray-800">{{ objective?.title || 'N/A' }}</p>
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                        <p v-else class="font-medium text-gray-800 dark:text-dark-text-primary">{{
+                                            objective?.title || 'N/A'
+                                            }}</p>
                                     </div>
                                     <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Descrição</label>
+                                        <label
+                                            class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Descrição</label>
                                         <textarea v-if="isEditing" v-model="objective.description" rows="2"
-                                            class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0"></textarea>
-                                        <p v-else class="text-gray-600">{{ objective?.description || 'N/A' }}</p>
+                                            class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary"></textarea>
+                                        <p v-else class="text-gray-600 dark:text-gray-400">{{ objective?.description ||
+                                            'N/A' }}</p>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Empty state para objetivos -->
                             <div v-if="!isEditing && (!project?.objectives || project.objectives.length === 0)"
-                                class="text-center py-4 text-gray-500">
+                                class="text-center py-4 text-gray-500 dark:text-gray-400">
                                 Nenhum objectivo definido
                             </div>
                         </div>
@@ -155,38 +173,50 @@
                     <!-- Finance Information -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Financiamento</h3>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-4">
+                                Financiamento</h3>
                             <div class="space-y-3">
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Financiador</label>
+                                    <label
+                                        class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Financiador</label>
                                     <input v-if="isEditing" v-model="editForm.finance.financiador" type="text"
-                                        class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                    <p v-else class="text-gray-800">{{ project?.finance?.financiador || 'N/A' }}</p>
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                    <p v-else class="text-gray-800 dark:text-dark-text-primary">{{
+                                        project?.finance?.financiador || 'N/A' }}
+                                    </p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Beneficiário</label>
+                                    <label
+                                        class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Beneficiário</label>
                                     <input v-if="isEditing" v-model="editForm.finance.beneficiario" type="text"
-                                        class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                    <p v-else class="text-gray-800">{{ project?.finance?.beneficiario || 'N/A' }}</p>
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                    <p v-else class="text-gray-800 dark:text-dark-text-primary">{{
+                                        project?.finance?.beneficiario || 'N/A'
+                                        }}</p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Valor Financiado</label>
+                                    <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">Valor
+                                        Financiado</label>
                                     <input v-if="isEditing" v-model="editForm.finance.valor_financiado" type="text"
-                                        class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                    <p v-else class="text-gray-800">{{ project?.finance?.valor_financiado || 'N/A' }}
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                    <p v-else class="text-gray-800 dark:text-dark-text-primary">{{
+                                        project?.finance?.valor_financiado ||
+                                        'N/A' }}
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Prazos</h3>
+                            <h3 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-4">Prazos</h3>
                             <div class="space-y-3">
                                 <div v-for="dateField in dateFields" :key="dateField.key">
-                                    <label class="block text-sm text-gray-600 mb-1">{{ dateField.label }}</label>
+                                    <label class="block text-sm text-gray-600 dark:text-gray-400 mb-1">{{
+                                        dateField.label }}</label>
                                     <input v-if="isEditing" v-model="editForm.deadline[dateField.key]" type="date"
-                                        class="w-full p-2 border border-gray-300 rounded focus:ring-brand focus:border-brand focus:ring-0">
-                                    <p v-else class="text-gray-800">{{ formatDate(project?.deadline?.[dateField.key]) }}
+                                        class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded focus:ring-brand focus:border-brand focus:ring-0 dark:bg-dark-accent dark:text-dark-text-primary">
+                                    <p v-else class="text-gray-800 dark:text-dark-text-primary">{{
+                                        formatDate(project?.deadline?.[dateField.key]) }}
                                     </p>
                                 </div>
                             </div>
@@ -196,7 +226,7 @@
 
                 <!-- Error State -->
                 <div v-else-if="!loading" class="text-center py-8">
-                    <p class="text-red-600">Erro ao carregar detalhes do projecto.</p>
+                    <p class="text-red-600 dark:text-red-400">Erro ao carregar detalhes do projecto.</p>
                     <button @click="loadProjectDetails(props.projectId)"
                         class="mt-4 bg-brand hover:bg-orange-600 text-white px-4 py-2 rounded">
                         Tentar Novamente
@@ -205,7 +235,8 @@
             </div>
 
             <!-- Footer -->
-            <div class="flex justify-between items-center p-6 border-t border-gray-200 bg-gray-50">
+            <div
+                class="flex justify-between items-center p-6 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-dark-accent">
                 <div>
                     <button v-if="isEditing" @click="cancelEditing"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded font-semibold transition-colors">
@@ -251,7 +282,7 @@ import {
 const props = defineProps({
     show: Boolean,
     projectId: Number,
-    canEdit: { 
+    canEdit: {
         type: Boolean,
         default: false
     }
@@ -311,7 +342,7 @@ watch(() => props.projectId, async (newId) => {
 // Carregar detalhes do projeto
 const loadProjectDetails = async (projectId) => {
     if (!projectId) return
-    
+
     loading.value = true
     try {
         const response = await axios.get(`/api/projects/${projectId}`)
@@ -327,7 +358,7 @@ const loadProjectDetails = async (projectId) => {
 // Iniciar edição
 const startEditing = () => {
     if (!project.value) return
-    
+
     isEditing.value = true
     // Preencher formulário de edição com dados atuais
     Object.assign(editForm, {
@@ -460,7 +491,7 @@ const saveProject = async () => {
 // Eliminar projeto
 const deleteProject = async () => {
     if (!props.projectId) return
-    
+
     if (confirm('Tem certeza que deseja eliminar este projecto? Esta acção não pode ser desfeita.')) {
         try {
             await axios.delete(`/api/projects/${props.projectId}`)
@@ -502,17 +533,17 @@ const formatDate = (dateString) => {
     if (!dateString) return 'N/A'
     try {
         const date = new Date(dateString)
-        
+
         // Verificar se a data é válida
         if (isNaN(date.getTime())) {
             return 'Data inválida'
         }
-        
+
         // Formatar para dd/MM/yyyy
         const day = String(date.getDate()).padStart(2, '0')
         const month = String(date.getMonth() + 1).padStart(2, '0') // Meses são 0-based
         const year = date.getFullYear()
-        
+
         return `${day}/${month}/${year}`
     } catch (error) {
         return 'Data inválida'
@@ -527,19 +558,19 @@ const closePopup = () => {
 }
 
 const getStatusClass = (category) => {
-    if (!category) return 'bg-gray-200 text-gray-600'
-    
+    if (!category) return 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+
     const classes = {
-        'finalizados': 'bg-green-100 text-green-700',
-        'andamento': 'bg-yellow-100 text-yellow-700',
-        'parados': 'bg-red-100 text-red-700'
+        'finalizados': 'bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300',
+        'andamento': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300',
+        'parados': 'bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300'
     }
-    return classes[category] || 'bg-gray-200 text-gray-600'
+    return classes[category] || 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
 }
 
 const getStatusLabel = (category) => {
     if (!category) return 'N/A'
-    
+
     const labels = {
         'finalizados': 'Finalizado',
         'andamento': 'Em Andamento',
@@ -549,5 +580,4 @@ const getStatusLabel = (category) => {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

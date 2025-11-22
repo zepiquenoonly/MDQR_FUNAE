@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Mail\GrievanceAssigned;
-use App\Mail\GrievanceCommentAdded;
 use App\Mail\GrievanceCreated;
 use App\Mail\GrievanceRejected;
 use App\Mail\GrievanceResolved;
 use App\Mail\GrievanceStatusChanged;
 use App\Models\Grievance;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -36,6 +36,9 @@ class EmailTestController extends Controller
         // Buscar uma grievance de teste ou criar uma fictícia
         $grievance = Grievance::first() ?? $this->createTestGrievance();
 
+        // Buscar ou criar um usuário de teste
+        $testUser = User::first() ?? $this->createTestUser();
+
         $emailsSent = [];
 
         try {
@@ -43,12 +46,13 @@ class EmailTestController extends Controller
             Mail::to($email)->send(new GrievanceCreated($grievance));
             $emailsSent[] = '✅ Reclamação Criada';
 
-            // 2. Email de Status Alterado (para cada status)
+            // 2. Email de Status Alterado (para cada status único)
             $statuses = [
                 'under_review' => 'Em Análise',
-                'assigned' => 'Atribuída',
                 'in_progress' => 'Em Andamento',
-                'pending_approval' => 'Pendente de Aprovação',
+                'resolved' => 'Resolvida',
+                'closed' => 'Fechada',
+                'rejected' => 'Rejeitada',
             ];
 
             foreach ($statuses as $newStatus => $label) {
@@ -57,7 +61,7 @@ class EmailTestController extends Controller
             }
 
             // 3. Email de Reclamação Atribuída
-            Mail::to($email)->send(new GrievanceAssigned($grievance, 'Técnico de Teste'));
+            Mail::to($email)->send(new GrievanceAssigned($grievance, $testUser));
             $emailsSent[] = '✅ Reclamação Atribuída';
 
             // 4. Email de Reclamação Resolvida
@@ -65,12 +69,8 @@ class EmailTestController extends Controller
             $emailsSent[] = '✅ Reclamação Resolvida';
 
             // 5. Email de Reclamação Rejeitada
-            Mail::to($email)->send(new GrievanceRejected($grievance));
+            Mail::to($email)->send(new GrievanceRejected($grievance, 'Esta reclamação foi rejeitada após análise detalhada. O motivo não se enquadra nos critérios estabelecidos.'));
             $emailsSent[] = '✅ Reclamação Rejeitada';
-
-            // 6. Email de Comentário Adicionado
-            Mail::to($email)->send(new GrievanceCommentAdded($grievance, 'Este é um comentário de teste sobre o progresso da sua reclamação.'));
-            $emailsSent[] = '✅ Comentário Adicionado';
 
             return back()->with('success', [
                 'message' => "Todos os emails de teste foram enviados para: {$email}",
@@ -91,11 +91,14 @@ class EmailTestController extends Controller
      */
     private function createTestGrievance(): Grievance
     {
+        $types = ['complaint', 'grievance', 'suggestion'];
+        $categories = ['ambiental', 'social', 'economico'];
+
         $grievance = new Grievance();
         $grievance->reference_number = 'GRM-2025-TEST' . strtoupper(substr(md5(time()), 0, 8));
-        // $grievance->type = 'complaint'; // Pode testar: 'complaint', 'grievance', 'suggestion'
+        $grievance->type = $types[array_rand($types)];
         $grievance->description = 'Esta é uma reclamação de teste para validação dos templates de email do sistema GRM FUNAE.';
-        $grievance->category = 'ambiental';
+        $grievance->category = $categories[array_rand($categories)];
         $grievance->subcategory = 'Teste';
         $grievance->status = 'submitted';
         $grievance->priority = 'medium';
@@ -104,9 +107,24 @@ class EmailTestController extends Controller
         $grievance->province = 'Maputo';
         $grievance->district = 'Maputo';
         $grievance->submitted_at = now();
+        $grievance->resolved_at = now();
+        $grievance->resolution_notes = 'Reclamação resolvida com sucesso após análise e implementação das medidas corretivas necessárias.';
         $grievance->is_anonymous = false;
 
         // Não salva no BD, apenas cria objeto em memória
         return $grievance;
+    }
+
+    /**
+     * Criar um usuário fictício para teste
+     */
+    private function createTestUser(): User
+    {
+        $user = new User();
+        $user->name = 'Técnico de Teste';
+        $user->email = 'tecnico.teste@funae.co.mz';
+
+        // Não salva no BD, apenas cria objeto em memória
+        return $user;
     }
 }

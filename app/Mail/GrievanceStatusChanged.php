@@ -37,9 +37,22 @@ class GrievanceStatusChanged extends Mailable
      */
     public function content(): Content
     {
+        $statusLabels = [
+            'submitted' => 'Submetida',
+            'under_review' => 'Em Análise',
+            'in_progress' => 'Em Andamento',
+            'resolved' => 'Resolvida',
+            'closed' => 'Fechada',
+            'rejected' => 'Rejeitada',
+        ];
+
         return new Content(
             view: 'emails.grievances.status-changed',
             text: 'emails.grievances.status-changed-text',
+            with: [
+                'oldStatusLabel' => $statusLabels[$this->oldStatus] ?? $this->oldStatus,
+                'newStatusLabel' => $statusLabels[$this->newStatus] ?? $this->newStatus,
+            ]
         );
     }
 

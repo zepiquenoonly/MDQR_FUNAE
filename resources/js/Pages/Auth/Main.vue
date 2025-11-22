@@ -24,7 +24,7 @@
                             <div
                                 class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
                                 <p class="text-base leading-6 text-white text-justify text-center">
-                                    Denuncie aqui! É importante que suas reclamações sejam ouvidas e que possamos
+                                    Queixe-se aqui! É importante que suas reclamações sejam ouvidas e que possamos
                                     tomar as medidas necessárias para resolver os problemas.
                                 </p>
                             </div>
@@ -33,7 +33,7 @@
                             <div
                                 class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
                                 <p class="text-base leading-6 text-white text-justify text-center">
-                                    Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer falha
+                                    Percebeu algum problema? Estamos aqui para ouvir você! Queixe-se de qualquer falha
                                     que tenha identificado. Sua participação é fundamental para corrigirmos
                                     rapidamente e assegurarmos o sucesso e a excelência do projeto.
                                 </p>
@@ -101,7 +101,7 @@
                                         <div
                                             class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Denuncie aqui! É importante que suas reclamações sejam ouvidas e que
+                                                Queixe-se aqui! É importante que suas reclamações sejam ouvidas e que
                                                 possamos
                                                 tomar as medidas necessárias para resolver os problemas.
                                             </p>
@@ -111,7 +111,7 @@
                                         <div
                                             class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer
+                                                Percebeu algum problema? Estamos aqui para ouvir você! Queixe-se de qualquer
                                                 falha
                                                 que tenha identificado. Sua participação é fundamental para corrigirmos
                                                 rapidamente e assegurarmos o sucesso e a excelência do projeto.
@@ -156,7 +156,7 @@
                                         <div
                                             class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Denuncie aqui! É importante que suas reclamações sejam ouvidas e que
+                                                Queixe-se aqui! É importante que suas reclamações sejam ouvidas e que
                                                 possamos
                                                 tomar as medidas necessárias para resolver os problemas.
                                             </p>
@@ -166,7 +166,7 @@
                                         <div
                                             class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer
+                                                Percebeu algum problema? Estamos aqui para ouvir você! Queixe-se de qualquer
                                                 falha
                                                 que tenha identificado. Sua participação é fundamental para corrigirmos
                                                 rapidamente e assegurarmos o sucesso e a excelência do projeto.

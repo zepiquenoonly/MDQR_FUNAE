@@ -10,8 +10,8 @@
                         class="w-36 h-36 border-8 border-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl font-bold text-orange-500 animate-pulse">
                         85%
                     </div>
-                    <h4 class="text-xl font-semibold text-gray-900 mb-4">DENÚNCIAS RESOLVIDAS</h4>
-                    <p class="text-gray-600">Mais de 85% das denúncias foram tratadas com sucesso.</p>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">QUEIXAS RESOLVIDAS</h4>
+                    <p class="text-gray-600">Mais de 85% das queixas foram tratadas com sucesso.</p>
                 </div>
 
                 <!-- Stat 2 -->
