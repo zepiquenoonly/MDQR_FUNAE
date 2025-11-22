@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmailTestController;
 use App\Http\Controllers\GrievanceController;
 use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\GuestController;
@@ -17,6 +18,10 @@ use Illuminate\Support\Facades\Route;
 })->name('grievances.home');*/
 
 Route::get('/', [GuestController::class, 'home'])->name('home');
+
+// Rotas de teste de emails (acessível sem autenticação para facilitar testes)
+Route::get('/email-test', [EmailTestController::class, 'showForm'])->name('email-test.form');
+Route::post('/email-test/send', [EmailTestController::class, 'sendTestEmails'])->name('email-test.send');
 
 // Mantenha a rota antiga com um nome diferente para evitar conflitos
 Route::get('/grievances-home', function () {
