@@ -49,15 +49,14 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance1->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance1->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance1->id, 'action_type' => 'created'],
+            [
                 'user_id' => null,
-                'action_type' => 'created',
                 'description' => 'Reclamação criada e submetida ao sistema',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 2. Reclamação Em Análise
         $grievance2 = Grievance::updateOrCreate(
@@ -83,23 +82,23 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance2->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance2->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance2->id, 'action_type' => 'created'],
+            [
                 'user_id' => null,
-                'action_type' => 'created',
                 'description' => 'Reclamação criada e submetida ao sistema',
                 'is_public' => true,
-            ]);
+            ]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance2->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance2->id, 'action_type' => 'assigned'],
+            [
                 'user_id' => $gestor?->id,
-                'action_type' => 'assigned',
                 'description' => 'Reclamação atribuída ao técnico para análise',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 3. Reclamação Em Andamento
         $grievance3 = Grievance::updateOrCreate(
@@ -125,34 +124,26 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance3->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance3->id,
-                'user_id' => null,
-                'action_type' => 'created',
-                'description' => 'Reclamação anónima criada',
-                'is_public' => true,
-            ]);
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance3->id, 'action_type' => 'created'],
+            ['user_id' => null, 'description' => 'Reclamação anónima criada', 'is_public' => true]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance3->id,
-                'user_id' => $gestor?->id,
-                'action_type' => 'assigned',
-                'description' => 'Reclamação atribuída ao técnico',
-                'is_public' => true,
-            ]);
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance3->id, 'action_type' => 'assigned'],
+            ['user_id' => $gestor?->id, 'description' => 'Reclamação atribuída ao técnico', 'is_public' => true]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance3->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance3->id, 'action_type' => 'status_changed', 'new_value' => 'in_progress'],
+            [
                 'user_id' => $tecnico?->id,
-                'action_type' => 'status_changed',
                 'old_value' => 'under_review',
-                'new_value' => 'in_progress',
                 'description' => 'Iniciada investigação no local',
                 'comment' => 'Visitei o local e confirmo a situação reportada. Já contactei o supervisor da obra para tomar medidas imediatas. Será agendada uma formação sobre segurança no trabalho.',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 4. Reclamação Pendente de Aprovação
         $grievance4 = Grievance::updateOrCreate(
@@ -178,37 +169,32 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance4->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance4->id,
-                'user_id' => null,
-                'action_type' => 'created',
-                'description' => 'Reclamação criada',
-                'is_public' => true,
-            ]);
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance4->id, 'action_type' => 'created'],
+            ['user_id' => null, 'description' => 'Reclamação criada', 'is_public' => true]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance4->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance4->id, 'action_type' => 'status_changed', 'new_value' => 'in_progress'],
+            [
                 'user_id' => $tecnico?->id,
-                'action_type' => 'status_changed',
                 'old_value' => 'under_review',
-                'new_value' => 'in_progress',
                 'description' => 'Análise técnica iniciada',
                 'comment' => 'Realizei inspeção técnica no local. Os postes estão com altura de 5.2m quando o regulamento exige mínimo de 6m. Necessário substituição de 8 postes.',
                 'is_public' => true,
-            ]);
+            ]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance4->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance4->id, 'action_type' => 'status_changed', 'new_value' => 'pending_approval'],
+            [
                 'user_id' => $tecnico?->id,
-                'action_type' => 'status_changed',
                 'old_value' => 'in_progress',
-                'new_value' => 'pending_approval',
                 'description' => 'Solicitada aprovação para conclusão',
                 'comment' => 'Já foram encomendados os postes novos com altura correcta. A instalação está agendada para a próxima semana. Aguardo aprovação do gestor para fechar o caso.',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 5. Reclamação Resolvida
         $grievance5 = Grievance::updateOrCreate(
@@ -237,44 +223,41 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance5->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance5->id,
-                'user_id' => null,
-                'action_type' => 'created',
-                'description' => 'Reclamação criada',
-                'is_public' => true,
-            ]);
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance5->id, 'action_type' => 'created'],
+            ['user_id' => null, 'description' => 'Reclamação criada', 'is_public' => true]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance5->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance5->id, 'action_type' => 'status_changed', 'new_value' => 'in_progress'],
+            [
                 'user_id' => $tecnico?->id,
-                'action_type' => 'status_changed',
                 'old_value' => 'submitted',
-                'new_value' => 'in_progress',
                 'description' => 'Emergência confirmada - ação imediata',
                 'comment' => 'Equipas deslocadas ao local. Transformador isolado e área cordoada por segurança.',
                 'is_public' => true,
-            ]);
+            ]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance5->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance5->id, 'action_type' => 'comment_added'],
+            [
                 'user_id' => $tecnico?->id,
-                'action_type' => 'comment_added',
                 'comment' => 'Novo transformador instalado. Processo de limpeza ambiental em curso.',
                 'is_public' => true,
-            ]);
+            ]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance5->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance5->id, 'action_type' => 'resolved'],
+            [
                 'user_id' => $gestor?->id,
-                'action_type' => 'resolved',
                 'old_value' => 'in_progress',
                 'new_value' => 'resolved',
                 'description' => 'Caso resolvido com sucesso',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 6. Reclamação Rejeitada
         $grievance6 = Grievance::updateOrCreate(
@@ -303,37 +286,33 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance6->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance6->id,
-                'user_id' => null,
-                'action_type' => 'created',
-                'description' => 'Reclamação criada',
-                'is_public' => true,
-            ]);
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance6->id, 'action_type' => 'created'],
+            ['user_id' => null, 'description' => 'Reclamação criada', 'is_public' => true]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance6->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance6->id, 'action_type' => 'status_changed', 'new_value' => 'in_progress'],
+            [
                 'user_id' => $tecnico?->id,
-                'action_type' => 'status_changed',
                 'old_value' => 'submitted',
-                'new_value' => 'in_progress',
                 'description' => 'Investigação iniciada',
                 'comment' => 'A verificar situação no local',
                 'is_public' => true,
-            ]);
+            ]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance6->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance6->id, 'action_type' => 'rejected'],
+            [
                 'user_id' => $gestor?->id,
-                'action_type' => 'rejected',
                 'old_value' => 'in_progress',
                 'new_value' => 'rejected',
                 'description' => 'Reclamação fora do âmbito',
                 'comment' => 'Caso encaminhado para a entidade competente (EDM)',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 7. Reclamação Atribuída (prioridade alta)
         $grievance7 = Grievance::updateOrCreate(
@@ -359,24 +338,20 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance7->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance7->id,
-                'user_id' => null,
-                'action_type' => 'created',
-                'description' => 'EMERGÊNCIA - Reclamação criada',
-                'is_public' => true,
-            ]);
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance7->id, 'action_type' => 'created'],
+            ['user_id' => null, 'description' => 'EMERGÊNCIA - Reclamação criada', 'is_public' => true]
+        );
 
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance7->id,
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance7->id, 'action_type' => 'assigned'],
+            [
                 'user_id' => $gestor?->id,
-                'action_type' => 'assigned',
                 'description' => 'Atribuído com prioridade máxima',
                 'comment' => 'Equipas de emergência activadas',
                 'is_public' => true,
-            ]);
-        }
+            ]
+        );
 
         // 8. Reclamação Anónima Submetida
         $grievance8 = Grievance::updateOrCreate(
@@ -400,15 +375,10 @@ class GrievanceSeeder extends Seeder
             ]
         );
 
-        if ($grievance8->wasRecentlyCreated) {
-            GrievanceUpdate::create([
-                'grievance_id' => $grievance8->id,
-                'user_id' => null,
-                'action_type' => 'created',
-                'description' => 'Denúncia anónima recebida',
-                'is_public' => false,
-            ]);
-        }
+        GrievanceUpdate::firstOrCreate(
+            ['grievance_id' => $grievance8->id, 'action_type' => 'created'],
+            ['user_id' => null, 'description' => 'Denúncia anónima recebida', 'is_public' => false]
+        );
 
         $this->command->info('✅ Criadas 8 reclamações fictícias com diferentes estados');
         $this->command->info('📋 Estados: Submetida (2), Em Análise (1), Em Andamento (1), Pendente (1), Resolvida (1), Rejeitada (1), Atribuída (1)');
