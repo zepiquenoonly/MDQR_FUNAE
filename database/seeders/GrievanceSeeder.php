@@ -32,7 +32,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-R20UUE0R'],
             [
                 'user_id' => $utente?->id,
-                'type' => 'complaint',
+                // 'type' => 'complaint',
                 'description' => 'Verificamos que o projeto de construção da linha de transmissão está a causar desflorestação excessiva na área de Moamba. As árvores centenárias estão a ser cortadas sem autorização ambiental adequada.',
             'category' => 'ambiental',
             'subcategory' => 'Desflorestação',
@@ -62,7 +62,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-38INYZQH'],
             [
                 'user_id' => $utente?->id,
-                'type' => 'grievance',
+                // 'type' => 'grievance',
                 'description' => 'As obras de construção do posto de transformação estão a ser realizadas durante a noite, causando ruído excessivo que perturba o sono dos moradores locais. Já reclamamos várias vezes mas nada foi feito.',
             'category' => 'social',
             'subcategory' => 'Poluição Sonora',
@@ -102,7 +102,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-7ILUPSHQ'],
             [
                 'user_id' => null,
-                'type' => 'complaint',
+                // 'type' => 'complaint',
                 'description' => 'Quero reportar que os trabalhadores da FUNAE não estão a usar equipamento de segurança adequado. Vejo-os a trabalhar em postes de alta tensão sem capacetes ou arneses de segurança. Isto é muito perigoso.',
             'category' => 'social',
             'subcategory' => 'Condições de Trabalho',
@@ -153,7 +153,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-Z50UL6DN'],
             [
                 'user_id' => $utente?->id,
-                'type' => 'suggestion',
+                // 'type' => 'suggestion',
                 'description' => 'Os postes de electricidade instalados na nossa comunidade estão muito baixos e representam um perigo, especialmente para os camiões que passam. Já houve dois acidentes onde os cabos foram arrancados.',
             'category' => 'social',
             'subcategory' => 'Segurança Pública',
@@ -207,7 +207,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-LXEHZZGL'],
             [
                 'user_id' => $utente?->id,
-                'type' => 'grievance',
+                // 'type' => 'grievance',
                 'description' => 'O transformador instalado na nossa rua está a fazer um ruído muito alto e a vazar óleo. Há risco de explosão e contaminação do solo.',
             'category' => 'ambiental',
             'subcategory' => 'Contaminação do Solo',
@@ -271,7 +271,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-5TSZY14N'],
             [
                 'user_id' => null,
-                'type' => 'complaint',
+                // 'type' => 'complaint',
                 'description' => 'Quero reclamar que a luz vai sempre abaixo na minha casa. Isto acontece porque os meus vizinhos estão a roubar electricidade e a sobrecarregar o sistema.',
             'category' => 'economico',
             'subcategory' => 'Ligações Ilegais',
@@ -328,7 +328,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-3TDNOZNZ'],
             [
                 'user_id' => $utente?->id,
-                'type' => 'grievance',
+                // 'type' => 'grievance',
                 'description' => 'URGENTE: Cabo de alta tensão partido a cair sobre a estrada. Representa perigo iminente de electrocussão. Já chamamos a linha de emergência mas ninguém apareceu.',
             'category' => 'social',
             'subcategory' => 'Segurança Pública',
@@ -369,7 +369,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-CIADSGG4'],
             [
                 'user_id' => null,
-                'type' => 'suggestion',
+                // 'type' => 'suggestion',
                 'description' => 'Gostaria de reportar que existe corrupção no processo de ligação eléctrica. Os técnicos estão a pedir subornos para fazer as ligações mais rapidamente.',
                 'category' => 'economico',
                 'subcategory' => 'Má Conduta',
