@@ -228,6 +228,224 @@ Os testes verificam:
 - Registros de notificações no banco de dados
 - Tratamento de erros e falhas
 
+### 🚀 Configuração em Produção (Hostinger/Sevalla)
+
+#### 1. Variáveis de Ambiente (.env)
+
+Edite o arquivo `.env` no servidor de produção via SSH ou File Manager:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://seu-dominio.com
+
+# Timezone correto para Moçambique
+APP_TIMEZONE=Africa/Maputo
+
+# Database
+DB_CONNECTION=mysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_DATABASE=seu_database
+DB_USERNAME=seu_usuario
+DB_PASSWORD=sua_senha_segura
+
+# Queue - IMPORTANTE: Use database em produção
+QUEUE_CONNECTION=database
+
+# Email - Hostinger SMTP
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.hostinger.com
+MAIL_PORT=587
+MAIL_USERNAME=noreply@seu-dominio.com
+MAIL_PASSWORD=sua-senha-email-segura
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@seu-dominio.com
+MAIL_FROM_NAME="Sistema GRM FUNAE"
+```
+
+#### 2. Criar Cron Job para Queue Worker
+
+**Via Hostinger/Sevalla Dashboard:**
+
+1. Acesse **Advanced → Cron Jobs**
+2. Adicione um novo Cron Job:
+
+```bash
+* * * * * cd /home/seu-usuario/domains/seu-dominio.com/public_html && php artisan schedule:run >> /dev/null 2>&1
+```
+
+**Frequência:** A cada minuto (`* * * * *`)
+
+#### 3. Configurar o Scheduler
+
+Edite `app/Console/Kernel.php`:
+
+```php
+protected function schedule(Schedule $schedule): void
+{
+    // Processar fila de emails a cada minuto
+    $schedule->command('queue:work --stop-when-empty --tries=3 --timeout=60')
+             ->everyMinute()
+             ->withoutOverlapping()
+             ->runInBackground();
+}
+```
+
+#### 4. Comandos de Deploy
+
+Execute via SSH:
+
+```bash
+# Navegar para o diretório do projeto
+cd /home/seu-usuario/domains/seu-dominio.com/public_html
+
+# Atualizar código do repositório
+git pull origin main
+
+# Instalar dependências
+composer install --no-dev --optimize-autoloader
+
+# Limpar e otimizar cache
+php artisan config:clear
+php artisan cache:clear
+php artisan route:cache
+php artisan view:cache
+php artisan config:cache
+
+# Executar migrações
+php artisan migrate --force
+
+# Compilar assets (se necessário)
+npm run build
+
+# Definir permissões corretas
+chmod -R 755 storage bootstrap/cache
+```
+
+#### 5. Testar Sistema de Notificações
+
+```bash
+# Testar envio de email
+php artisan email:test created --email=seu-email@teste.com
+
+# Verificar jobs na fila
+php artisan queue:monitor
+
+# Ver logs
+tail -f storage/logs/laravel.log
+```
+
+#### 6. Monitoramento e Troubleshooting
+
+**Verificar se o cron está a funcionar:**
+```bash
+# Ver logs do cron
+tail -f /var/log/cron.log
+
+# Verificar jobs pendentes
+php artisan tinker
+>>> DB::table('jobs')->count()
+```
+
+**Se emails não estão a ser enviados:**
+
+1. **Verificar configuração do timezone:**
+   ```bash
+   php artisan tinker
+   >>> config('app.timezone')
+   # Deve retornar: "Africa/Maputo"
+   ```
+
+2. **Verificar jobs falhados:**
+   ```bash
+   php artisan queue:failed
+   php artisan queue:retry all
+   ```
+
+3. **Testar conexão SMTP:**
+   ```bash
+   php artisan email:test created
+   ```
+
+4. **Verificar logs:**
+   ```bash
+   tail -100 storage/logs/laravel.log | grep -i "error\|exception"
+   ```
+
+#### 7. Alternativa: Supervisor (Servidores com Acesso Root)
+
+Se tiver acesso root, use Supervisor para gerenciar o queue worker:
+
+```bash
+# Instalar Supervisor
+sudo apt-get install supervisor
+
+# Criar configuração
+sudo nano /etc/supervisor/conf.d/laravel-worker.conf
+```
+
+Conteúdo:
+```ini
+[program:laravel-worker]
+process_name=%(program_name)s_%(process_num)02d
+command=php /home/seu-usuario/domains/seu-dominio.com/public_html/artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=seu-usuario
+numprocs=2
+redirect_stderr=true
+stdout_logfile=/home/seu-usuario/domains/seu-dominio.com/storage/logs/worker.log
+stopwaitsecs=3600
+```
+
+```bash
+# Recarregar Supervisor
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start laravel-worker:*
+```
+
+#### 8. Otimizações de Produção
+
+**Para melhor performance:**
+
+```env
+# Cache
+CACHE_DRIVER=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+# Redis (se disponível)
+REDIS_HOST=127.0.0.1
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+```
+
+**Comandos de otimização:**
+```bash
+php artisan optimize
+php artisan event:cache
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+#### ⚠️ Checklist Final de Produção
+
+- [ ] Timezone configurado como `Africa/Maputo` em `config/app.php`
+- [ ] `.env` configurado com `APP_ENV=production` e `APP_DEBUG=false`
+- [ ] Cron job criado para `schedule:run`
+- [ ] Scheduler configurado para processar queue
+- [ ] Email SMTP testado e funcional
+- [ ] Permissões corretas em `storage/` e `bootstrap/cache/`
+- [ ] Cache otimizado (config, route, view)
+- [ ] SSL/HTTPS configurado
+- [ ] Backups automáticos configurados
+- [ ] Monitoramento de logs ativo
+
 ### Notificações SMS
 
 ```env
@@ -294,30 +512,6 @@ Desenvolvido com ❤️ pela equipa TECHSOLUTIONS, LDA.
 
 #### 🎨 Atualização de Branding e Terminologia
 Atualização completa da terminologia utilizada no sistema, substituindo "denúncia" por "queixa" para melhor alinhar com a natureza do mecanismo de diálogo e reclamações:
-
-**Commits realizados:**
-
-1. **`3df181a`** - Atualizar terminologia na landing page estática
-   - Alteração do título principal de "DENUNCIE, SUGIRA, RECLAME!" para "RECLAME, SUGIRA, QUEIXA!"
-   - Atualização do botão CTA de "DENUNCIE JÁ" para "RECLAME JÁ"
-   - Modificação da seção de cards de "DENÚNCIAS" para "QUEIXAS"
-   - Ajuste nas estatísticas: "DENÚNCIAS RESOLVIDAS" → "QUEIXAS RESOLVIDAS"
-   - Revisão completa das FAQs com nova terminologia
-   - Atualização do link do footer de "Denúncia" para "Queixa"
-
-2. **`86dd1b4`** - Atualizar terminologia nos componentes principais da landing page
-   - `HeroSection.vue`: Título e CTA atualizados
-   - `CardsSection.vue`: Card de "DENÚNCIAS" alterado para "QUEIXAS"
-   - `StatsSection.vue`: Estatísticas alinhadas com nova terminologia
-
-3. **`e2edd2f`** - Atualizar terminologia nos componentes de suporte da landing page
-   - `FaqSection.vue`: Perguntas e respostas atualizadas
-   - `Footer.vue`: Link de serviço atualizado
-   - `PlatformSection.vue`: Descrição do fluxo revisada
-
-4. **`750c1d6`** - Atualizar terminologia nos carrosséis de autenticação
-   - `Main.vue`: Todos os carrosséis (mobile, overlay esquerdo e direito) atualizados
-   - Mudança de "Denuncie aqui" para "Queixe-se aqui" em todos os slides
 
 **Impacto:**
 - ✅ Consistência de branding em toda a aplicação
