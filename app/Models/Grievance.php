@@ -268,6 +268,7 @@ class Grievance extends Model
      */
     public function getEffectiveEmailAttribute(): ?string
     {
-        return $this->is_anonymous ? ($this->attributes['contact_email'] ?? null) : $this->user?->email;
+        // Use attributes array to avoid recursion
+        return $this->is_anonymous ? $this->attributes['contact_email'] ?? null : $this->user?->email;
     }
 }

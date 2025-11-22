@@ -147,6 +147,29 @@ Acesse: `http://localhost:8000`
 
 ### Notificações Email
 
+#### Configuração com Hostinger
+
+Para configurar o envio de emails usando o servidor SMTP da Hostinger, adicione as seguintes variáveis no arquivo `.env`:
+
+```env
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.hostinger.com
+MAIL_PORT=587
+MAIL_USERNAME=seu-email@seu-dominio.com
+MAIL_PASSWORD=sua-senha-de-email
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=seu-email@seu-dominio.com
+MAIL_FROM_NAME="Sistema GRM FUNAE"
+```
+
+**Notas importantes:**
+- Use a porta **587** com **TLS** ou a porta **465** com **SSL** (altere `MAIL_ENCRYPTION` para `ssl` neste caso)
+- O `MAIL_USERNAME` deve ser o endereço de email completo (ex: `noreply@funae.co.mz`)
+- O `MAIL_PASSWORD` é a senha da conta de email, não a senha do painel da Hostinger
+- Certifique-se de que o email está ativado e configurado corretamente no painel da Hostinger
+
+#### Configuração Genérica (Outros Provedores)
+
 ```env
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.exemplo.com
@@ -157,6 +180,53 @@ MAIL_ENCRYPTION=tls
 MAIL_FROM_ADDRESS=noreply@funae.co.mz
 MAIL_FROM_NAME="GRM FUNAE"
 ```
+
+#### Testando o Envio de Emails
+
+O sistema inclui um comando Artisan para testar todos os cenários de envio de email:
+
+```bash
+# Testar todos os tipos de email
+php artisan email:test
+
+# Testar um tipo específico
+php artisan email:test created
+php artisan email:test status-changed
+php artisan email:test assigned
+php artisan email:test comment
+php artisan email:test resolved
+php artisan email:test rejected
+
+# Especificar email de destino
+php artisan email:test all --email=teste@example.com
+
+# Usar uma reclamação existente
+php artisan email:test all --grievance=1
+```
+
+**Tipos de email testados:**
+- `created` - Reclamação criada
+- `status-changed` - Mudança de status
+- `assigned` - Reclamação atribuída a técnico
+- `comment` - Comentário público adicionado
+- `resolved` - Reclamação resolvida
+- `rejected` - Reclamação rejeitada
+- `all` - Todos os tipos (padrão)
+
+#### Testes Automatizados
+
+Execute os testes automatizados de email:
+
+```bash
+php artisan test --filter=EmailNotificationTest
+```
+
+Os testes verificam:
+- Envio correto de todos os 6 tipos de email
+- Destinatários corretos (usuário autenticado vs anônimo)
+- Assuntos e conteúdos dos emails
+- Registros de notificações no banco de dados
+- Tratamento de erros e falhas
 
 ### Notificações SMS
 

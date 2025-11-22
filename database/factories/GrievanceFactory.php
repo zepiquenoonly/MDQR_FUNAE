@@ -62,9 +62,10 @@ class GrievanceFactory extends Factory
             'status' => $this->faker->randomElement([
                 'submitted',
                 'under_review',
+                'assigned',
                 'in_progress',
+                'pending_approval',
                 'resolved',
-                'closed',
                 'rejected'
             ]),
             'priority' => $this->faker->randomElement([
