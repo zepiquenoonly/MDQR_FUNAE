@@ -15,6 +15,20 @@ class GrievanceSeeder extends Seeder
      */
     public function run(): void
     {
+        // Deletar grievances de teste existentes para evitar duplicação
+        $testReferenceCodes = [
+            'GRM-2025-R20UUE0R',
+            'GRM-2025-38INYZQH',
+            'GRM-2025-7ILUPSHQ',
+            'GRM-2025-Z50UL6DN',
+            'GRM-2025-LXEHZZGL',
+            'GRM-2025-5TSZY14N',
+            'GRM-2025-3TDNOZNZ',
+            'GRM-2025-CIADSGG4',
+        ];
+        
+        Grievance::whereIn('reference_number', $testReferenceCodes)->delete();
+
         $utente = User::whereHas('roles', function ($query) {
             $query->where('name', 'Utente');
         })->first();
@@ -31,6 +45,7 @@ class GrievanceSeeder extends Seeder
         $grievance1 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-R20UUE0R',
+            'type' => 'complaint',
             'description' => 'Verificamos que o projeto de construção da linha de transmissão está a causar desflorestação excessiva na área de Moamba. As árvores centenárias estão a ser cortadas sem autorização ambiental adequada.',
             'category' => 'ambiental',
             'subcategory' => 'Desflorestação',
@@ -58,6 +73,7 @@ class GrievanceSeeder extends Seeder
         $grievance2 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-38INYZQH',
+            'type' => 'grievance',
             'description' => 'As obras de construção do posto de transformação estão a ser realizadas durante a noite, causando ruído excessivo que perturba o sono dos moradores locais. Já reclamamos várias vezes mas nada foi feito.',
             'category' => 'social',
             'subcategory' => 'Poluição Sonora',
@@ -95,6 +111,7 @@ class GrievanceSeeder extends Seeder
         $grievance3 = Grievance::create([
             'user_id' => null,
             'reference_number' => 'GRM-2025-7ILUPSHQ',
+            'type' => 'complaint',
             'description' => 'Quero reportar que os trabalhadores da FUNAE não estão a usar equipamento de segurança adequado. Vejo-os a trabalhar em postes de alta tensão sem capacetes ou arneses de segurança. Isto é muito perigoso.',
             'category' => 'social',
             'subcategory' => 'Condições de Trabalho',
@@ -143,6 +160,7 @@ class GrievanceSeeder extends Seeder
         $grievance4 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-Z50UL6DN',
+            'type' => 'suggestion',
             'description' => 'Os postes de electricidade instalados na nossa comunidade estão muito baixos e representam um perigo, especialmente para os camiões que passam. Já houve dois acidentes onde os cabos foram arrancados.',
             'category' => 'social',
             'subcategory' => 'Segurança Pública',
@@ -194,6 +212,7 @@ class GrievanceSeeder extends Seeder
         $grievance5 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-LXEHZZGL',
+            'type' => 'grievance',
             'description' => 'O transformador instalado na nossa rua está a fazer um ruído muito alto e a vazar óleo. Há risco de explosão e contaminação do solo.',
             'category' => 'ambiental',
             'subcategory' => 'Contaminação do Solo',
@@ -309,6 +328,7 @@ class GrievanceSeeder extends Seeder
         $grievance7 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-3TDNOZNZ',
+            'type' => 'grievance',
             'description' => 'URGENTE: Cabo de alta tensão partido a cair sobre a estrada. Representa perigo iminente de electrocussão. Já chamamos a linha de emergência mas ninguém apareceu.',
             'category' => 'social',
             'subcategory' => 'Segurança Pública',
@@ -347,6 +367,7 @@ class GrievanceSeeder extends Seeder
         $grievance8 = Grievance::create([
             'user_id' => null,
             'reference_number' => 'GRM-2025-CIADSGG4',
+            'type' => 'suggestion',
             'description' => 'Gostaria de reportar que existe corrupção no processo de ligação eléctrica. Os técnicos estão a pedir subornos para fazer as ligações mais rapidamente.',
             'category' => 'economico',
             'subcategory' => 'Má Conduta',
