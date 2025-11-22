@@ -216,11 +216,10 @@
             <h4>📧 Templates que serão testados:</h4>
             <ul>
                 <li>Reclamação/Queixa/Sugestão Criada</li>
-                <li>Status Alterado (4 cenários)</li>
+                <li>Status Alterado (5 cenários: Em Análise, Em Andamento, Resolvida, Fechada, Rejeitada)</li>
                 <li>Reclamação Atribuída</li>
                 <li>Reclamação Resolvida</li>
                 <li>Reclamação Rejeitada</li>
-                <li>Comentário Adicionado</li>
             </ul>
         </div>
 
