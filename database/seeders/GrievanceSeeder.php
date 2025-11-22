@@ -28,7 +28,7 @@ class GrievanceSeeder extends Seeder
         })->first();
 
         // 1. Reclamação Submetida (recente)
-        $grievance1 = Grievance::create([
+        $grievance1 = $this->upsertGrievance([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-R20UUE0R',
             'description' => 'Verificamos que o projeto de construção da linha de transmissão está a causar desflorestação excessiva na área de Moamba. As árvores centenárias estão a ser cortadas sem autorização ambiental adequada.',
@@ -55,7 +55,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 2. Reclamação Em Análise
-        $grievance2 = Grievance::create([
+        $grievance2 = $this->upsertGrievance([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-38INYZQH',
             'description' => 'As obras de construção do posto de transformação estão a ser realizadas durante a noite, causando ruído excessivo que perturba o sono dos moradores locais. Já reclamamos várias vezes mas nada foi feito.',
@@ -92,7 +92,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 3. Reclamação Em Andamento
-        $grievance3 = Grievance::create([
+        $grievance3 = $this->upsertGrievance([
             'user_id' => null,
             'reference_number' => 'GRM-2025-7ILUPSHQ',
             'description' => 'Quero reportar que os trabalhadores da FUNAE não estão a usar equipamento de segurança adequado. Vejo-os a trabalhar em postes de alta tensão sem capacetes ou arneses de segurança. Isto é muito perigoso.',
@@ -140,7 +140,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 4. Reclamação Pendente de Aprovação
-        $grievance4 = Grievance::create([
+        $grievance4 = $this->upsertGrievance([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-Z50UL6DN',
             'description' => 'Os postes de electricidade instalados na nossa comunidade estão muito baixos e representam um perigo, especialmente para os camiões que passam. Já houve dois acidentes onde os cabos foram arrancados.',
@@ -191,7 +191,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 5. Reclamação Resolvida
-        $grievance5 = Grievance::create([
+        $grievance5 = $this->upsertGrievance([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-LXEHZZGL',
             'description' => 'O transformador instalado na nossa rua está a fazer um ruído muito alto e a vazar óleo. Há risco de explosão e contaminação do solo.',
@@ -252,7 +252,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 6. Reclamação Rejeitada
-        $grievance6 = Grievance::create([
+        $grievance6 = $this->upsertGrievance([
             'user_id' => null,
             'reference_number' => 'GRM-2025-5TSZY14N',
             'description' => 'Quero reclamar que a luz vai sempre abaixo na minha casa. Isto acontece porque os meus vizinhos estão a roubar electricidade e a sobrecarregar o sistema.',
@@ -306,7 +306,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 7. Reclamação Atribuída (prioridade alta)
-        $grievance7 = Grievance::create([
+        $grievance7 = $this->upsertGrievance([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-3TDNOZNZ',
             'description' => 'URGENTE: Cabo de alta tensão partido a cair sobre a estrada. Representa perigo iminente de electrocussão. Já chamamos a linha de emergência mas ninguém apareceu.',
@@ -344,7 +344,7 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 8. Reclamação Anónima Submetida
-        $grievance8 = Grievance::create([
+        $grievance8 = $this->upsertGrievance([
             'user_id' => null,
             'reference_number' => 'GRM-2025-CIADSGG4',
             'description' => 'Gostaria de reportar que existe corrupção no processo de ligação eléctrica. Os técnicos estão a pedir subornos para fazer as ligações mais rapidamente.',
@@ -372,5 +372,19 @@ class GrievanceSeeder extends Seeder
 
         $this->command->info('✅ Criadas 8 reclamações fictícias com diferentes estados');
         $this->command->info('📋 Estados: Submetida (2), Em Análise (1), Em Andamento (1), Pendente (1), Resolvida (1), Rejeitada (1), Atribuída (1)');
+    }
+
+    /**
+     * Cria ou actualiza uma reclamação mantendo o número de referência fixo.
+     */
+    private function upsertGrievance(array $attributes): Grievance
+    {
+        $reference = $attributes['reference_number'] ?? Grievance::generateReferenceNumber();
+        $attributes['reference_number'] = $reference;
+
+        return Grievance::updateOrCreate(
+            ['reference_number' => $reference],
+            $attributes
+        );
     }
 }
