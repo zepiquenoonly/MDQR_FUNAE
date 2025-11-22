@@ -1,9 +1,9 @@
-Reclamação Não Procedente
-=========================
+{{ $grievance->type_label }} Não Procedente
+====================
 
 Prezado(a),
 
-Após análise detalhada, informamos que a sua reclamação foi considerada não procedente.
+Após análise detalhada, informamos que a sua {{ $grievance->type_label_lowercase }} foi considerada não procedente.
 
 Número de Referência: {{ $grievance->reference_number }}
 
