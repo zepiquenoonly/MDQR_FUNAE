@@ -3,33 +3,46 @@ Atualização de Status
 
 Prezado(a),
 
-O estado da sua reclamação foi atualizado.
+O estado da sua {{ $grievance->type_label_lowercase }} foi atualizado.
+
+@php
+    $statusLabels = [
+        'submitted' => 'Submetida',
+        'under_review' => 'Em Análise',
+        'in_progress' => 'Em Andamento',
+        'resolved' => 'Resolvida',
+        'closed' => 'Fechada',
+        'rejected' => 'Rejeitada',
+    ];
+    $oldStatusLabel = $statusLabels[$oldStatus] ?? ucfirst(str_replace('_', ' ', $oldStatus));
+    $newStatusLabel = $statusLabels[$newStatus] ?? ucfirst(str_replace('_', ' ', $newStatus));
+@endphp
 
 Número de Referência: {{ $grievance->reference_number }}
 
-Status Anterior: {{ ucfirst(str_replace('_', ' ', $oldStatus)) }}
-Novo Status: {{ $grievance->status_label }}
+Status Anterior: {{ $oldStatusLabel }}
+Novo Status: {{ $newStatusLabel }}
 
 @if($newStatus === 'under_review')
-✅ A sua reclamação está a ser analisada pela nossa equipa técnica.
+A sua {{ $grievance->type_label_lowercase }} está a ser analisada pela nossa equipa técnica.
 @elseif($newStatus === 'assigned')
-✅ A sua reclamação foi atribuída a um técnico especializado.
+A sua {{ $grievance->type_label_lowercase }} foi atribuída a um técnico especializado.
 @elseif($newStatus === 'in_progress')
-✅ O processamento da sua reclamação está em andamento.
+O processamento da sua {{ $grievance->type_label_lowercase }} está em andamento.
 @elseif($newStatus === 'pending_approval')
-✅ A resolução da sua reclamação está pendente de aprovação.
+A resolução da sua {{ $grievance->type_label_lowercase }} está pendente de aprovação.
 @elseif($newStatus === 'resolved')
-✅ A sua reclamação foi resolvida com sucesso!
+A sua {{ $grievance->type_label_lowercase }} foi resolvida com sucesso!
 @elseif($newStatus === 'rejected')
-ℹ️ A sua reclamação foi considerada não procedente após análise.
+A sua {{ $grievance->type_label_lowercase }} foi considerada não procedente após análise.
 @else
-O status da sua reclamação foi atualizado.
+O status da sua {{ $grievance->type_label_lowercase }} foi atualizado.
 @endif
 
 Para ver os detalhes completos, aceda a:
 {{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
 
-Pode continuar a acompanhar o progresso da sua reclamação online a qualquer momento usando o número de referência acima.
+Pode continuar a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} online a qualquer momento usando o número de referência acima.
 
 Atenciosamente,
 Equipa FUNAE

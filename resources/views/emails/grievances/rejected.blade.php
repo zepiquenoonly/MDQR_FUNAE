@@ -66,57 +66,57 @@
 </head>
 <body>
     <div class="header">
-        <h1>ℹ️ Reclamação Não Procedente</h1>
+        <h1>ℹ️ {{ $grievance->type_label }} Não Procedente</h1>
     </div>
-    
+
     <div class="content">
         <p>Prezado(a),</p>
-        
-        <p>Após análise detalhada, informamos que a sua reclamação foi considerada não procedente.</p>
-        
+
+        <p>Após análise detalhada, informamos que a sua {{ $grievance->type_label_lowercase }} foi considerada não procedente.</p>
+
         <div class="reference">
             {{ $grievance->reference_number }}
         </div>
-        
+
         <div class="warning-box">
             <h3 style="margin-top: 0; color: #dc2626;">Status: Rejeitada</h3>
             <p style="margin: 0;">
-                A sua reclamação foi analisada pela nossa equipa técnica e considerada não procedente.
+                A sua {{ $grievance->type_label_lowercase }} foi analisada pela nossa equipa técnica e considerada não procedente.
             </p>
         </div>
-        
+
         @if($reason)
         <div class="info-box">
             <strong>Justificativa:</strong>
             <p style="margin: 10px 0 0 0;">{{ $reason }}</p>
         </div>
         @endif
-        
+
         <p style="text-align: center;">
             <a href="{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}" class="button">
                 Ver Detalhes Completos
             </a>
         </p>
-        
+
         <div class="info-box">
             <p><strong>O que fazer agora?</strong></p>
             <ul>
                 <li>Pode rever os detalhes da análise através do link acima</li>
-                <li>Se discordar da decisão, pode submeter uma nova reclamação com informações adicionais</li>
+                <li>Se discordar da decisão, pode submeter uma nova {{ $grievance->type_label_lowercase }} com informações adicionais</li>
                 <li>Para esclarecimentos, pode entrar em contacto através dos nossos canais habituais</li>
             </ul>
         </div>
-        
+
         <p>
             Agradecemos a sua compreensão e continuamos ao seu dispor.
         </p>
-        
+
         <p>
             Atenciosamente,<br>
             <strong>Equipa FUNAE</strong>
         </p>
     </div>
-    
+
     <div class="footer">
         <p>
             Esta é uma mensagem automática. Por favor não responda a este email.<br>

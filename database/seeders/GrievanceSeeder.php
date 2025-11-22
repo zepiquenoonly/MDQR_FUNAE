@@ -31,6 +31,7 @@ class GrievanceSeeder extends Seeder
         $grievance1 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-R20UUE0R',
+            'type' => 'complaint', // Reclamação
             'description' => 'Verificamos que o projeto de construção da linha de transmissão está a causar desflorestação excessiva na área de Moamba. As árvores centenárias estão a ser cortadas sem autorização ambiental adequada.',
             'category' => 'ambiental',
             'subcategory' => 'Desflorestação',
@@ -44,7 +45,8 @@ class GrievanceSeeder extends Seeder
             'priority' => 'high',
             'is_anonymous' => false,
             'submitted_at' => now()->subHours(2),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance1->id,
@@ -58,6 +60,7 @@ class GrievanceSeeder extends Seeder
         $grievance2 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-38INYZQH',
+            'type' => 'grievance', // Queixa
             'description' => 'As obras de construção do posto de transformação estão a ser realizadas durante a noite, causando ruído excessivo que perturba o sono dos moradores locais. Já reclamamos várias vezes mas nada foi feito.',
             'category' => 'social',
             'subcategory' => 'Poluição Sonora',
@@ -73,7 +76,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subDays(1),
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(3),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance2->id,
@@ -95,6 +99,7 @@ class GrievanceSeeder extends Seeder
         $grievance3 = Grievance::create([
             'user_id' => null,
             'reference_number' => 'GRM-2025-7ILUPSHQ',
+            'type' => 'complaint', // Reclamação
             'description' => 'Quero reportar que os trabalhadores da FUNAE não estão a usar equipamento de segurança adequado. Vejo-os a trabalhar em postes de alta tensão sem capacetes ou arneses de segurança. Isto é muito perigoso.',
             'category' => 'social',
             'subcategory' => 'Condições de Trabalho',
@@ -110,7 +115,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subDays(5),
             'is_anonymous' => true,
             'submitted_at' => now()->subDays(7),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance3->id,
@@ -143,6 +149,7 @@ class GrievanceSeeder extends Seeder
         $grievance4 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-Z50UL6DN',
+            'type' => 'suggestion', // Sugestão
             'description' => 'Os postes de electricidade instalados na nossa comunidade estão muito baixos e representam um perigo, especialmente para os camiões que passam. Já houve dois acidentes onde os cabos foram arrancados.',
             'category' => 'social',
             'subcategory' => 'Segurança Pública',
@@ -158,7 +165,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subDays(10),
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(15),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance4->id,
@@ -194,6 +202,7 @@ class GrievanceSeeder extends Seeder
         $grievance5 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-LXEHZZGL',
+            'type' => 'grievance', // Queixa
             'description' => 'O transformador instalado na nossa rua está a fazer um ruído muito alto e a vazar óleo. Há risco de explosão e contaminação do solo.',
             'category' => 'ambiental',
             'subcategory' => 'Contaminação do Solo',
@@ -212,7 +221,8 @@ class GrievanceSeeder extends Seeder
             'resolution_notes' => 'O transformador defeituoso foi substituído por um novo. A área contaminada foi limpa e o solo tratado. Foram realizados testes e os níveis de contaminação estão agora dentro dos parâmetros aceitáveis.',
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(25),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance5->id,
@@ -252,10 +262,12 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 6. Reclamação Rejeitada
-        $grievance6 = Grievance::create([
-            'user_id' => null,
-            'reference_number' => 'GRM-2025-5TSZY14N',
-            'description' => 'Quero reclamar que a luz vai sempre abaixo na minha casa. Isto acontece porque os meus vizinhos estão a roubar electricidade e a sobrecarregar o sistema.',
+        $grievance6 = Grievance::updateOrCreate(
+            ['reference_number' => 'GRM-2025-5TSZY14N'],
+            [
+                'user_id' => null,
+                // 'type' => 'complaint',
+                'description' => 'Quero reclamar que a luz vai sempre abaixo na minha casa. Isto acontece porque os meus vizinhos estão a roubar electricidade e a sobrecarregar o sistema.',
             'category' => 'economico',
             'subcategory' => 'Ligações Ilegais',
             'contact_name' => 'António Santos',
@@ -273,7 +285,8 @@ class GrievanceSeeder extends Seeder
             'resolution_notes' => 'Após investigação técnica, verificou-se que o problema não está relacionado com ligações ilegais mas sim com a subestação eléctrica local. Este caso foi encaminhado para a EDM para resolução. Não se enquadra no âmbito do GRM da FUNAE.',
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(14),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance6->id,
@@ -309,6 +322,7 @@ class GrievanceSeeder extends Seeder
         $grievance7 = Grievance::create([
             'user_id' => $utente?->id,
             'reference_number' => 'GRM-2025-3TDNOZNZ',
+            'type' => 'grievance', // Queixa
             'description' => 'URGENTE: Cabo de alta tensão partido a cair sobre a estrada. Representa perigo iminente de electrocussão. Já chamamos a linha de emergência mas ninguém apareceu.',
             'category' => 'social',
             'subcategory' => 'Segurança Pública',
@@ -324,7 +338,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subHour(),
             'is_anonymous' => false,
             'submitted_at' => now()->subHours(2),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance7->id,
@@ -347,6 +362,7 @@ class GrievanceSeeder extends Seeder
         $grievance8 = Grievance::create([
             'user_id' => null,
             'reference_number' => 'GRM-2025-CIADSGG4',
+            'type' => 'suggestion', // Sugestão
             'description' => 'Gostaria de reportar que existe corrupção no processo de ligação eléctrica. Os técnicos estão a pedir subornos para fazer as ligações mais rapidamente.',
             'category' => 'economico',
             'subcategory' => 'Má Conduta',

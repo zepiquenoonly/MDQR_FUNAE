@@ -73,22 +73,22 @@
     <div class="header">
         <h1>💬 Nova Atualização</h1>
     </div>
-    
+
     <div class="content">
         <p>Prezado(a),</p>
-        
-        <p>Foi adicionado um novo comentário à sua reclamação.</p>
-        
+
+        <p>Foi adicionado um novo comentário à sua {{ $grievance->type_label_lowercase }}.</p>
+
         <div class="reference">
             {{ $grievance->reference_number }}
         </div>
-        
+
         <div class="comment-box">
             <div class="comment-meta">
                 <strong>{{ $update->user ? $update->user->name : 'Sistema' }}</strong>
                 • {{ $update->created_at->format('d/m/Y H:i') }}
             </div>
-            
+
             @if($update->comment)
             <div class="comment-text">
                 {{ $update->comment }}
@@ -99,23 +99,23 @@
             </div>
             @endif
         </div>
-        
+
         <p style="text-align: center;">
             <a href="{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}" class="button">
                 Ver Todas as Atualizações
             </a>
         </p>
-        
+
         <p>
-            Continue a acompanhar o progresso da sua reclamação através do link acima.
+            Continue a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} através do link acima.
         </p>
-        
+
         <p>
             Atenciosamente,<br>
             <strong>Equipa FUNAE</strong>
         </p>
     </div>
-    
+
     <div class="footer">
         <p>
             Esta é uma mensagem automática. Por favor não responda a este email.<br>

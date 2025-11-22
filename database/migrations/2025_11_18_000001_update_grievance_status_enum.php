@@ -3,7 +3,6 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -12,16 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Para MySQL, precisamos alterar a coluna usando raw SQL
-        DB::statement("ALTER TABLE grievances MODIFY COLUMN status ENUM(
-            'submitted',
-            'under_review',
-            'assigned',
-            'in_progress',
-            'pending_approval',
-            'resolved',
-            'rejected'
-        ) DEFAULT 'submitted'");
+        // Usando Schema::table para ser compatível com diferentes databases
+        Schema::table('grievances', function (Blueprint $table) {
+            // Para SQLite, precisamos usar change() mas primeiro precisamos
+            // garantir que a coluna pode ser alterada
+            $table->enum('status', [
+                'submitted',
+                'under_review', 
+                'assigned',
+                'in_progress',
+                'pending_approval',
+                'resolved',
+                'rejected'
+            ])->default('submitted')->change();
+        });
     }
 
     /**
@@ -29,14 +32,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Reverter para os estados antigos
-        DB::statement("ALTER TABLE grievances MODIFY COLUMN status ENUM(
-            'submitted',
-            'under_review',
-            'in_progress',
-            'resolved',
-            'closed',
-            'rejected'
-        ) DEFAULT 'submitted'");
+        Schema::table('grievances', function (Blueprint $table) {
+            // Reverter para os estados antigos
+            $table->enum('status', [
+                'submitted',
+                'under_review',
+                'in_progress',
+                'resolved',
+                'closed',
+                'rejected'
+            ])->default('submitted')->change();
+        });
     }
 };

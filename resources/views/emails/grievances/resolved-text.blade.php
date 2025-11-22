@@ -1,15 +1,17 @@
-Reclamação Resolvida
+{{ $grievance->type_label }} Resolvida
 ====================
 
 Prezado(a),
 
-Temos o prazer de informar que a sua reclamação foi resolvida com sucesso!
+Temos o prazer de informar que a sua {{ $grievance->type_label_lowercase }} foi resolvida com sucesso!
 
 Número de Referência: {{ $grievance->reference_number }}
 
 ✓ Reclamação Resolvida
 
+@if($grievance->resolved_at)
 Data de Resolução: {{ $grievance->resolved_at->format('d/m/Y H:i') }}
+@endif
 @if($grievance->resolvedBy)
 Resolvida por: {{ $grievance->resolvedBy->name }}
 @endif
