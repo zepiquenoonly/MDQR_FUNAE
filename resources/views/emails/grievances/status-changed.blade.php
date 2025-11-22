@@ -98,23 +98,34 @@
             {{ $grievance->reference_number }}
         </div>
         
+        @php
+            $statusLabels = [
+                'submitted' => 'Submetida',
+                'under_review' => 'Em Análise',
+                'in_progress' => 'Em Andamento',
+                'resolved' => 'Resolvida',
+                'closed' => 'Fechada',
+                'rejected' => 'Rejeitada',
+            ];
+            $oldStatusLabel = $statusLabels[$oldStatus] ?? ucfirst(str_replace('_', ' ', $oldStatus));
+            $newStatusLabel = $statusLabels[$newStatus] ?? ucfirst(str_replace('_', ' ', $newStatus));
+        @endphp
+        
         <div class="status-change">
-            <span class="status-badge status-old">{{ ucfirst(str_replace('_', ' ', $oldStatus)) }}</span>
+            <span class="status-badge status-old">{{ $oldStatusLabel }}</span>
             <span class="arrow">→</span>
-            <span class="status-badge status-new">{{ $grievance->status_label }}</span>
+            <span class="status-badge status-new">{{ $newStatusLabel }}</span>
         </div>
         
         <div class="info-box">
             @if($newStatus === 'under_review')
                 <p>✅ A sua reclamação está a ser analisada pela nossa equipa técnica.</p>
-            @elseif($newStatus === 'assigned')
-                <p>✅ A sua reclamação foi atribuída a um técnico especializado.</p>
             @elseif($newStatus === 'in_progress')
                 <p>✅ O processamento da sua reclamação está em andamento.</p>
-            @elseif($newStatus === 'pending_approval')
-                <p>✅ A resolução da sua reclamação está pendente de aprovação.</p>
             @elseif($newStatus === 'resolved')
                 <p>✅ A sua reclamação foi resolvida com sucesso!</p>
+            @elseif($newStatus === 'closed')
+                <p>✅ A sua reclamação foi fechada.</p>
             @elseif($newStatus === 'rejected')
                 <p>ℹ️ A sua reclamação foi considerada não procedente após análise.</p>
             @else
