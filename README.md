@@ -288,8 +288,50 @@ Todos os direitos reservados © 2025.
 
 Desenvolvido com ❤️ pela equipa TECHSOLUTIONS, LDA.
 
+## 📝 Changelog Recente
+
+### Versão 0.3 - 22 de Novembro de 2025
+
+#### 🎨 Atualização de Branding e Terminologia
+Atualização completa da terminologia utilizada no sistema, substituindo "denúncia" por "queixa" para melhor alinhar com a natureza do mecanismo de diálogo e reclamações:
+
+**Commits realizados:**
+
+1. **`3df181a`** - Atualizar terminologia na landing page estática
+   - Alteração do título principal de "DENUNCIE, SUGIRA, RECLAME!" para "RECLAME, SUGIRA, QUEIXA!"
+   - Atualização do botão CTA de "DENUNCIE JÁ" para "RECLAME JÁ"
+   - Modificação da seção de cards de "DENÚNCIAS" para "QUEIXAS"
+   - Ajuste nas estatísticas: "DENÚNCIAS RESOLVIDAS" → "QUEIXAS RESOLVIDAS"
+   - Revisão completa das FAQs com nova terminologia
+   - Atualização do link do footer de "Denúncia" para "Queixa"
+
+2. **`86dd1b4`** - Atualizar terminologia nos componentes principais da landing page
+   - `HeroSection.vue`: Título e CTA atualizados
+   - `CardsSection.vue`: Card de "DENÚNCIAS" alterado para "QUEIXAS"
+   - `StatsSection.vue`: Estatísticas alinhadas com nova terminologia
+
+3. **`e2edd2f`** - Atualizar terminologia nos componentes de suporte da landing page
+   - `FaqSection.vue`: Perguntas e respostas atualizadas
+   - `Footer.vue`: Link de serviço atualizado
+   - `PlatformSection.vue`: Descrição do fluxo revisada
+
+4. **`750c1d6`** - Atualizar terminologia nos carrosséis de autenticação
+   - `Main.vue`: Todos os carrosséis (mobile, overlay esquerdo e direito) atualizados
+   - Mudança de "Denuncie aqui" para "Queixe-se aqui" em todos os slides
+
+**Impacto:**
+- ✅ Consistência de branding em toda a aplicação
+- ✅ Melhor alinhamento com a natureza do mecanismo de diálogo
+- ✅ Linguagem mais acolhedora e menos punitiva
+- ✅ Experiência de usuário mais positiva
+
+#### 🔧 Outras Melhorias
+- Simplificação do `GrievanceSeeder` com pattern `firstOrCreate`
+- Correção de variáveis indefinidas em templates de email (`$oldStatusLabel`, `$newStatusLabel`)
+- Sistema de notificações por email totalmente operacional com `GrievanceObserver` e `NotificationService`
+
 ---
 
-**Versão**: 0.2.  
-**Última Atualização**: 13 de Novembro de 2025  
+**Versão**: 0.3  
+**Última Atualização**: 22 de Novembro de 2025  
 **Status**: Em Desenvolvimento
