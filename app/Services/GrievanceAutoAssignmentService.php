@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\GrievanceAutoAssigned;
 use App\Models\Grievance;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -34,6 +35,9 @@ class GrievanceAutoAssignmentService
 
             Log::info("Grievance {$grievance->reference_number} assigned to {$technician->name}");
         });
+
+        // Dispatch event to notify technician
+        event(new GrievanceAutoAssigned($grievance->fresh(), $technician));
 
         return $technician;
     }
@@ -91,7 +95,7 @@ class GrievanceAutoAssignmentService
         // 3. Location match score
         if ($grievance->province && $technician->province === $grievance->province) {
             $score += 20;
-            
+
             if ($grievance->district && $technician->district === $grievance->district) {
                 $score += 10;
             }
@@ -154,7 +158,7 @@ class GrievanceAutoAssignmentService
     public function rebalanceWorkload(): void
     {
         $technicians = User::role('Técnico')->get();
-        
+
         foreach ($technicians as $technician) {
             $technician->updateWorkload();
         }
