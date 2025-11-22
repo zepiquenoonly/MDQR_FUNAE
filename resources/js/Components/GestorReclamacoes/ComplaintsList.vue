@@ -1,268 +1,248 @@
 <template>
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-lg font-semibold text-gray-800">Reclamações Recentes</h3>
-            <button @click="showAllComplaints = true"
-                class="px-4 py-2 bg-brand text-white rounded text-sm font-medium hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
-                Ver Todos
-            </button>
-        </div>
-
-        <!-- Filtros e lista normal (quando não está na visualização completa) -->
-        <div v-if="!showAllComplaints">
-            <!-- Filters -->
-            <div class="flex flex-wrap gap-3 mb-6">
-                <h3 class="font-semibold text-gray-800 mt-5">Filtrar Por:</h3>
-                <div class="flex flex-col">
-                    <label for="priority" class="mb-1 text-sm font-medium text-gray-700">
-                        Prioridade
-                    </label>
-                    <select id="priority" v-model="localFilters.priority"
-                        class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200 appearance-none bg-white cursor-pointer">
-                        <option value="" disabled hidden class="text-gray-400">Prioridade: Todos</option>
-                        <option value="high" class="text-gray-900">Alta</option>
-                        <option value="medium" class="text-gray-900">Média</option>
-                        <option value="low" class="text-gray-900">Baixa</option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col">
-                    <label for="priority" class="mb-1 text-sm font-medium text-gray-700">
-                        Estado
-                    </label>
-                    <select v-model="localFilters.status"
-                        class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
-                        <option value="">Todos</option>
-                        <option value="open">Aberto</option>
-                        <option value="in_progress">Em Progresso</option>
-                        <option value="pending_completion">Solicitado Conclusão</option>
-                        <option value="closed">Concluído</option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col">
-                    <label for="priority" class="mb-1 text-sm font-medium text-gray-700">
-                        Categoria
-                    </label>
-                    <select v-model="localFilters.category"
-                        class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
-                        <option value="">Todas</option>
-                        <option value="infra">Infraestrutura</option>
-                        <option value="service">Serviço</option>
-                        <option value="attendance">Atendimento</option>
-                    </select>
-                </div>
-
-                <div class="flex flex-col">
-                    <label for="priority" class="mb-1 text-sm font-medium text-gray-700">
-                        Tipo
-                    </label>
-                    <select v-model="localFilters.type"
-                        class="px-3 py-2 border border-gray-300 rounded text-sm focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200">
-                        <option value="">Todos</option>
-                        <option value="complaint">Reclamação</option>
-                        <option value="suggestion">Sugestão</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Complaints List -->
-            <div class="space-y-3">
-                <ComplaintRow v-for="complaint in complaints" :key="complaint.id" :complaint="complaint"
-                    :selected="selectedComplaint?.id === complaint.id" @select="handleSelectComplaint"
-                    @show-details="handleShowDetails" />
-            </div>
-
-            <!-- Empty State -->
-            <div v-if="complaints.length === 0" class="text-center py-8">
-                <DocumentMagnifyingGlassIcon class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                <p class="text-gray-500">Nenhuma reclamação encontrada</p>
-            </div>
-
-            <!-- Footer -->
-            <div class="flex justify-between items-center mt-6">
-                <span class="text-gray-500 text-sm">
-                    Mostrando {{ complaints.length }} reclamações
-                </span>
-                <div class="flex gap-3">
-                    <button @click="handleBulkAssign"
-                        class="px-4 py-2 border border-gray-300 rounded text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all duration-200">
-                        Atribuição Automática
-                    </button>
-                    <button @click="handleExport"
-                        class="px-4 py-2 bg-brand text-white rounded text-sm font-medium hover:bg-orange-600 transition-all duration-200 shadow-md hover:shadow-lg">
-                        Exportar Dados
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Visualização Completa com Tabs -->
-        <div v-else class="space-y-6">
-            <!-- Header da visualização completa -->
-            <div class="flex justify-between items-center">
-                <h3 class="text-xl font-semibold text-gray-800">Todas as Reclamações e Sugestões</h3>
-                <button @click="showAllComplaints = false"
-                    class="px-4 py-2 border border-gray-300 rounded text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all duration-200">
-                    Voltar
+    <div
+        class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
+        <!-- Header compacto -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
+            <h3 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Reclamações Recentes</h3>
+            <div class="flex gap-2 self-end sm:self-auto">
+                <button @click="toggleAllComplaints" class="text-brand hover:text-orange-600 text-sm font-medium">
+                    {{ showAllComplaints ? 'Ver Resumo' : 'Ver Todos' }}
                 </button>
             </div>
+        </div>
 
-            <!-- Tabs -->
-            <div class="border-b border-gray-200">
-                <nav class="-mb-px flex space-x-8">
-                    <button @click="activeTab = 'complaints'" :class="[
-                        activeTab === 'complaints'
-                            ? 'border-brand text-brand'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
-                    ]">
-                        Reclamações
-                        <span class="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
-                            {{ complaintsCount }}
-                        </span>
-                    </button>
-                    <button @click="activeTab = 'suggestions'" :class="[
-                        activeTab === 'suggestions'
-                            ? 'border-brand text-brand'
-                            : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                        'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm'
-                    ]">
-                        Sugestões
-                        <span class="ml-2 bg-gray-100 text-gray-900 py-0.5 px-2 rounded-full text-xs">
-                            {{ suggestionsCount }}
-                        </span>
-                    </button>
-                </nav>
-            </div>
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-8">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"></div>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Carregando dados...</p>
+        </div>
 
-            <!-- Tabela de Dados -->
-            <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-                <table class="min-w-full divide-y divide-gray-300">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                ID
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Título
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Tipo
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <!-- Conteúdo principal -->
+        <div v-else>
+            <!-- Filtros empilhados no mobile -->
+            <div v-if="!showAllComplaints">
+                <!-- Filters melhorados para mobile -->
+                <div class="space-y-3 mb-4 sm:mb-6">
+                    <h3 class="font-semibold text-gray-800 dark:text-dark-text-primary text-sm">Filtrar Por:</h3>
+                    <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
+                        <div class="flex flex-col">
+                            <label for="priority" class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
                                 Prioridade
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Estado
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Categoria
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Data
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Ações
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="item in currentTabData" :key="item.id" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                #{{ item.id }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 max-w-xs truncate">
-                                {{ item.title }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="[
-                                    item.type === 'complaint'
-                                        ? 'bg-red-100 text-red-800'
-                                        : 'bg-blue-100 text-blue-800',
-                                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-                                ]">
-                                    {{ item.type === 'complaint' ? 'Reclamação' : 'Sugestão' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="[
-                                    item.priority === 'high'
-                                        ? 'bg-red-100 text-red-800'
-                                        : item.priority === 'medium'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : 'bg-green-100 text-green-800',
-                                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-                                ]">
-                                    {{ getPriorityLabel(item.priority) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="[
-                                    item.status === 'open'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : item.status === 'in_progress'
-                                            ? 'bg-yellow-100 text-yellow-800'
-                                            : item.status === 'closed'
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-gray-100 text-gray-800',
-                                    'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium'
-                                ]">
-                                    {{ getStatusLabel(item.status) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ getCategoryLabel(item.category) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                {{ formatDate(item.created_at) }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button @click="handleShowDetails(item)" class="text-brand hover:text-orange-700 mr-3">
-                                    Detalhes
-                                </button>
-                                <button @click="handleSelectComplaint(item)" class="text-gray-600 hover:text-gray-900">
-                                    Selecionar
-                                </button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                            </label>
+                            <select id="priority" v-model="localFilters.priority"
+                                class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 appearance-none bg-white dark:bg-dark-accent cursor-pointer dark:text-dark-text-primary">
+                                <option value="">Todos</option>
+                                <option value="high">Alta</option>
+                                <option value="medium">Média</option>
+                                <option value="low">Baixa</option>
+                            </select>
+                        </div>
 
-                <!-- Empty State para tabela -->
-                <div v-if="currentTabData.length === 0" class="text-center py-8">
-                    <DocumentMagnifyingGlassIcon class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-                    <p class="text-gray-500">Nenhum dado encontrado</p>
+                        <div class="flex flex-col">
+                            <label for="status" class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                                Estado
+                            </label>
+                            <select v-model="localFilters.status"
+                                class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary">
+                                <option value="">Todos</option>
+                                <option value="open">Aberto</option>
+                                <option value="in_progress">Em Progresso</option>
+                                <option value="pending_completion">Solicitado Conclusão</option>
+                                <option value="closed">Concluído</option>
+                            </select>
+                        </div>
+
+                        <div class="flex flex-col col-span-2">
+                            <label for="category" class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                                Categoria
+                            </label>
+                            <select v-model="localFilters.category"
+                                class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary">
+                                <option value="">Todas</option>
+                                <option value="infra">Infraestrutura</option>
+                                <option value="service">Serviço</option>
+                                <option value="attendance">Atendimento</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container com rolagem interna para lista de reclamações -->
+                <div class="complaints-scroll-container">
+                    <!-- Complaints List -->
+                    <div class="space-y-2">
+                        <ComplaintRow v-for="complaint in complaints" :key="complaint.id" :complaint="complaint"
+                            :selected="selectedComplaint?.id === complaint.id" @select="handleSelectComplaint"
+                            @show-details="handleShowDetails" />
+                    </div>
+
+                    <!-- Empty State -->
+                    <div v-if="complaints.length === 0" class="text-center py-8">
+                        <DocumentMagnifyingGlassIcon class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                        <p class="text-gray-500 dark:text-gray-400">Nenhuma reclamação encontrada</p>
+                    </div>
+                </div>
+
+                <!-- Footer compacto -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mt-4">
+                    <span class="text-gray-500 dark:text-gray-400 text-xs sm:text-sm">
+                        Mostrando {{ complaints.length }} reclamações
+                    </span>
+                    <div class="flex gap-2 self-end">
+                        <button @click="handleBulkAssign"
+                            class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200">
+                            Atribuição Auto.
+                        </button>
+                        <button @click="handleExport"
+                            class="px-3 py-1.5 bg-brand text-white rounded text-xs font-medium hover:bg-orange-600 transition-all duration-200 shadow-md">
+                            Exportar
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Paginação (opcional) -->
-            <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
-                <div class="flex flex-1 justify-between items-center">
-                    <div>
-                        <p class="text-sm text-gray-700">
-                            Mostrando
-                            <span class="font-medium">{{ currentTabData.length }}</span>
-                            resultados
-                        </p>
+            <!-- Visualização Completa otimizada para mobile -->
+            <div v-else class="space-y-4">
+                <!-- Header da visualização completa -->
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-dark-text-primary">Todas as
+                        Reclamações e Sugestões</h3>
+                    <button @click="toggleAllComplaints"
+                        class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs sm:text-sm font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200 self-start">
+                        Voltar
+                    </button>
+                </div>
+
+                <!-- Tabs melhoradas para mobile -->
+                <div class="border-b border-gray-200 dark:border-gray-700">
+                    <nav class="-mb-px flex space-x-4 overflow-x-auto">
+                        <button @click="activeTab = 'complaints'" :class="[
+                            activeTab === 'complaints'
+                                ? 'border-brand text-brand dark:text-orange-400'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
+                            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1'
+                        ]">
+                            Reclamações
+                            <span
+                                class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs">
+                                {{ complaintsCount }}
+                            </span>
+                        </button>
+                        <button @click="activeTab = 'suggestions'" :class="[
+                            activeTab === 'suggestions'
+                                ? 'border-brand text-brand dark:text-orange-400'
+                                : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
+                            'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1'
+                        ]">
+                            Sugestões
+                            <span
+                                class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs">
+                                {{ suggestionsCount }}
+                            </span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Container com rolagem interna para tabela -->
+                <div class="table-scroll-container">
+                    <!-- Tabela de Dados com scroll horizontal -->
+                    <div class="overflow-x-auto -mx-4 sm:mx-0">
+                        <div class="min-w-full inline-block align-middle">
+                            <table class="min-w-full divide-y divide-gray-300 dark:divide-gray-600 text-xs sm:text-sm">
+                                <thead class="bg-gray-50 dark:bg-dark-accent">
+                                    <tr>
+                                        <th scope="col"
+                                            class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            ID
+                                        </th>
+                                        <th scope="col"
+                                            class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-32">
+                                            Descrição
+                                        </th>
+                                        <th scope="col"
+                                            class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Tipo
+                                        </th>
+                                        <th scope="col"
+                                            class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Estado
+                                        </th>
+                                        <th scope="col"
+                                            class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                                            Ações
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-gray-700">
+                                    <tr v-for="item in currentTabData" :key="item.id"
+                                        class="hover:bg-gray-50 dark:hover:bg-dark-accent">
+                                        <td
+                                            class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 dark:text-dark-text-primary">
+                                            #{{ item.id }}
+                                        </td>
+                                        <td
+                                            class="px-3 py-2 text-gray-900 dark:text-dark-text-primary max-w-32 truncate">
+                                            {{ item.description || item.title }}
+                                        </td>
+                                        <td class="px-3 py-2 whitespace-nowrap">
+                                            <span :class="[
+                                                item.type === 'complaint'
+                                                    ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
+                                                    : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300',
+                                                'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium'
+                                            ]">
+                                                {{ item.type === 'complaint' ? 'Recl.' : 'Sug.' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-2 whitespace-nowrap">
+                                            <span :class="[
+                                                item.status === 'open'
+                                                    ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300'
+                                                    : item.status === 'in_progress'
+                                                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300'
+                                                        : item.status === 'closed'
+                                                            ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+                                                'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium'
+                                            ]">
+                                                {{ getStatusLabel(item.status) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-3 py-2 whitespace-nowrap font-medium">
+                                            <button @click="handleShowDetails(item)"
+                                                class="text-brand hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 text-xs">
+                                                Detalhes
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Empty State para tabela -->
+                            <div v-if="currentTabData.length === 0" class="text-center py-8">
+                                <DocumentMagnifyingGlassIcon
+                                    class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                                <p class="text-gray-500 dark:text-gray-400">Nenhum dado encontrado</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="flex gap-2">
+                </div>
+
+                <!-- Paginação compacta -->
+                <div
+                    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <p class="text-xs text-gray-700 dark:text-gray-300">
+                        Mostrando <span class="font-medium">{{ currentTabData.length }}</span> resultados
+                    </p>
+                    <div class="flex gap-2 self-end">
                         <button @click="handleExport"
-                            class="px-4 py-2 bg-brand text-white rounded text-sm font-medium hover:bg-orange-600 transition-all duration-200">
+                            class="px-3 py-1.5 bg-brand text-white rounded text-xs font-medium hover:bg-orange-600 transition-all duration-200">
                             Exportar {{ activeTab === 'complaints' ? 'Reclamações' : 'Sugestões' }}
                         </button>
                         <button @click="handleBulkAssign"
-                            class="px-4 py-2 border border-gray-300 rounded text-gray-700 text-sm font-medium hover:bg-gray-50 transition-all duration-200">
-                            Atribuição Automática
+                            class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200">
+                            Atribuição Auto.
                         </button>
                     </div>
                 </div>
@@ -286,11 +266,12 @@ const props = defineProps({
         type: Object,
         default: () => ({})
     },
-    allComplaints: {
+    allComplaints: { 
         type: Array,
         default: () => []
     }
 })
+
 
 const emit = defineEmits(['update:filters', 'select-complaint', 'show-details'])
 
@@ -298,17 +279,21 @@ const localFilters = ref({ ...props.filters })
 const selectedComplaint = ref(null)
 const showAllComplaints = ref(false)
 const activeTab = ref('complaints')
+const loading = ref(false)
 
 // Computed properties para os dados das tabs
-const complaintsData = computed(() =>
-    props.allComplaints.filter(item => item.type === 'complaint')
-)
+const complaintsData = computed(() => {
+    if (!props.allComplaints || !Array.isArray(props.allComplaints)) return []
+    return props.allComplaints.filter(item => item.type === 'complaint' || !item.type)
+})
 
-const suggestionsData = computed(() =>
-    props.allComplaints.filter(item => item.type === 'suggestion')
-)
+const suggestionsData = computed(() => {
+    if (!props.allComplaints || !Array.isArray(props.allComplaints)) return []
+    return props.allComplaints.filter(item => item.type === 'suggestion')
+})
 
 const currentTabData = computed(() => {
+    if (!props.allComplaints || !Array.isArray(props.allComplaints)) return []
     return activeTab.value === 'complaints' ? complaintsData.value : suggestionsData.value
 })
 
@@ -319,6 +304,27 @@ const suggestionsCount = computed(() => suggestionsData.value.length)
 watch(localFilters, (newFilters) => {
     emit('update:filters', newFilters)
 }, { deep: true })
+
+// Watcher para mostrar/ocultar visualização completa
+watch(showAllComplaints, (newValue) => {
+    if (newValue && (!props.allComplaints || props.allComplaints.length === 0)) {
+        reloadData()
+    }
+})
+
+const toggleAllComplaints = () => {
+    showAllComplaints.value = !showAllComplaints.value
+}
+
+const reloadData = () => {
+    loading.value = true
+    router.reload({
+        preserveState: true,
+        onFinish: () => {
+            loading.value = false
+        }
+    })
+}
 
 // Métodos auxiliares
 const getPriorityLabel = (priority) => {
@@ -335,7 +341,8 @@ const getStatusLabel = (status) => {
         open: 'Aberto',
         in_progress: 'Em Progresso',
         pending_completion: 'Solicitado Conclusão',
-        closed: 'Concluído'
+        closed: 'Concluído',
+        submitted: 'Submetido'
     }
     return labels[status] || status
 }
@@ -344,16 +351,21 @@ const getCategoryLabel = (category) => {
     const labels = {
         infra: 'Infraestrutura',
         service: 'Serviço',
-        attendance: 'Atendimento'
+        attendance: 'Atendimento',
+        'Serviços Públicos': 'Serviços Públicos',
+        'Infraestrutura': 'Infraestrutura',
+        'Ambiental': 'Ambiental',
+        'Social': 'Social',
+        'Administração': 'Administração'
     }
     return labels[category] || category
 }
 
 const formatDate = (dateString) => {
+    if (!dateString) return 'N/A'
     return new Date(dateString).toLocaleDateString('pt-BR')
 }
 
-// Métodos existentes
 const handleSelectComplaint = (complaint) => {
     selectedComplaint.value = complaint
     emit('select-complaint', complaint)
@@ -368,9 +380,6 @@ const handleBulkAssign = async () => {
         await router.post(route('complaints.bulk-assign'), {}, {
             preserveScroll: true,
             preserveState: true,
-            onSuccess: () => {
-                // Feedback será mostrado via notificação do backend
-            }
         })
     } catch (error) {
         console.error('Error in bulk assign:', error)
@@ -378,11 +387,104 @@ const handleBulkAssign = async () => {
 }
 
 const handleExport = () => {
-    const queryParams = new URLSearchParams({
-        ...localFilters.value,
-        type: showAllComplaints.value ? activeTab.value === 'complaints' ? 'complaint' : 'suggestion' : localFilters.value.type
-    }).toString()
-
+    const queryParams = new URLSearchParams(localFilters.value).toString()
     window.open(route('complaints.export') + '?' + queryParams, '_blank')
 }
 </script>
+
+<style scoped>
+/* Container de rolagem para lista de reclamações */
+.complaints-scroll-container {
+    max-height: 60vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Container de rolagem para tabela */
+.table-scroll-container {
+    max-height: 50vh;
+    overflow-y: auto;
+    overflow-x: auto;
+}
+
+/* Scrollbar personalizada para ambos os containers */
+.complaints-scroll-container::-webkit-scrollbar,
+.table-scroll-container::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.complaints-scroll-container::-webkit-scrollbar-track,
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 3px;
+}
+
+.complaints-scroll-container::-webkit-scrollbar-thumb,
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}
+
+.complaints-scroll-container::-webkit-scrollbar-thumb:hover,
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* Dark mode para scrollbar */
+.dark .complaints-scroll-container::-webkit-scrollbar-track,
+.dark .table-scroll-container::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+.dark .complaints-scroll-container::-webkit-scrollbar-thumb,
+.dark .table-scroll-container::-webkit-scrollbar-thumb {
+    background: #6b7280;
+}
+
+.dark .complaints-scroll-container::-webkit-scrollbar-thumb:hover,
+.dark .table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Responsividade para diferentes tamanhos de tela */
+@media (min-width: 640px) {
+    .complaints-scroll-container {
+        max-height: 65vh;
+    }
+
+    .table-scroll-container {
+        max-height: 55vh;
+    }
+}
+
+@media (min-width: 768px) {
+    .complaints-scroll-container {
+        max-height: 70vh;
+    }
+
+    .table-scroll-container {
+        max-height: 60vh;
+    }
+}
+
+@media (min-width: 1024px) {
+    .complaints-scroll-container {
+        max-height: 500px;
+    }
+
+    .table-scroll-container {
+        max-height: 500px;
+    }
+}
+
+@media (min-width: 1280px) {
+    .complaints-scroll-container {
+        max-height: 600px;
+    }
+
+    .table-scroll-container {
+        max-height: 550px;
+    }
+}
+</style>

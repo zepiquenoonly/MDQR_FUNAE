@@ -49,6 +49,7 @@ Route::middleware('auth')->group(function () {
     // Rotas específicas por role
     Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
     Route::get('/gestor/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
+    
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
     Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
     Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
@@ -77,7 +78,12 @@ Route::middleware('auth')->group(function () {
             ->name('bulk-assign');
         Route::get('/export', [ManagerGrievanceController::class, 'export'])
             ->name('export');
+
+            Route::post('/grievances/bulk-assign', [GrievanceController::class, 'bulkAssign'])->name('complaints.bulk-assign');
+Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('complaints.export');
+
     });
+
 
     // Rotas do Perfil
     Route::prefix('profile')->group(function () {
