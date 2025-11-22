@@ -1,9 +1,9 @@
-Reclamação Atribuída
+{{ $grievance->type_label }} Atribuída
 ====================
 
 Prezado(a),
 
-A sua reclamação foi atribuída a um técnico especializado da nossa equipa.
+A sua {{ $grievance->type_label_lowercase }} foi atribuída a um técnico especializado da nossa equipa.
 
 Número de Referência: {{ $grievance->reference_number }}
 

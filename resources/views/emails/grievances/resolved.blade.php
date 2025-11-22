@@ -66,20 +66,20 @@
 </head>
 <body>
     <div class="header">
-        <h1>✅ Reclamação Resolvida</h1>
+        <h1>✅ {{ $grievance->type_label }} Resolvida</h1>
     </div>
-    
+
     <div class="content">
         <p>Prezado(a),</p>
-        
-        <p>Temos o prazer de informar que a sua reclamação foi resolvida com sucesso!</p>
-        
+
+        <p>Temos o prazer de informar que a sua {{ $grievance->type_label_lowercase }} foi resolvida com sucesso!</p>
+
         <div class="reference">
             {{ $grievance->reference_number }}
         </div>
-        
+
         <div class="success-box">
-            <h3 style="margin-top: 0; color: #059669;">✓ Reclamação Resolvida</h3>
+            <h3 style="margin-top: 0; color: #059669;">✓ {{ $grievance->type_label }} Resolvida</h3>
             <p style="margin: 0;">
                 <strong>Data de Resolução:</strong> {{ $grievance->resolved_at->format('d/m/Y H:i') }}
             </p>
@@ -89,38 +89,38 @@
             </p>
             @endif
         </div>
-        
+
         @if($grievance->resolution_notes)
         <div class="info-box">
             <strong>Detalhes da Resolução:</strong>
             <p style="margin: 10px 0 0 0;">{{ $grievance->resolution_notes }}</p>
         </div>
         @endif
-        
+
         <p style="text-align: center;">
             <a href="{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}" class="button">
                 Ver Todos os Detalhes
             </a>
         </p>
-        
+
         <div class="info-box">
             <p><strong>Agradecemos a sua colaboração!</strong></p>
             <p>
-                Se tiver alguma dúvida sobre a resolução ou se o problema persistir, 
+                Se tiver alguma dúvida sobre a resolução ou se o problema persistir,
                 não hesite em entrar em contacto connosco.
             </p>
         </div>
-        
+
         <p>
             Obrigado por utilizar o nosso sistema de reclamações.
         </p>
-        
+
         <p>
             Atenciosamente,<br>
             <strong>Equipa FUNAE</strong>
         </p>
     </div>
-    
+
     <div class="footer">
         <p>
             Esta é uma mensagem automática. Por favor não responda a este email.<br>
