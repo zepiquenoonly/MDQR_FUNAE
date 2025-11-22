@@ -79,17 +79,6 @@ class User extends Authenticatable
     }
 
     /**
-     * Check if user has a specific role.
-     *
-     * @param string $role
-     * @return bool
-     */
-    public function hasRole(string $role): bool
-    {
-        return $this->hasRole($role);
-    }
-
-    /**
      * Check if user has a specific permission.
      *
      * @param string $permission

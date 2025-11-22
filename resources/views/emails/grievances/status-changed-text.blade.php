@@ -5,10 +5,23 @@ Prezado(a),
 
 O estado da sua {{ $grievance->type_label_lowercase }} foi atualizado.
 
+@php
+    $statusLabels = [
+        'submitted' => 'Submetida',
+        'under_review' => 'Em Análise',
+        'in_progress' => 'Em Andamento',
+        'resolved' => 'Resolvida',
+        'closed' => 'Fechada',
+        'rejected' => 'Rejeitada',
+    ];
+    $oldStatusLabel = $statusLabels[$oldStatus] ?? ucfirst(str_replace('_', ' ', $oldStatus));
+    $newStatusLabel = $statusLabels[$newStatus] ?? ucfirst(str_replace('_', ' ', $newStatus));
+@endphp
+
 Número de Referência: {{ $grievance->reference_number }}
 
-Status Anterior: {{ ucfirst(str_replace('_', ' ', $oldStatus)) }}
-Novo Status: {{ $grievance->status_label }}
+Status Anterior: {{ $oldStatusLabel }}
+Novo Status: {{ $newStatusLabel }}
 
 @if($newStatus === 'under_review')
 A sua {{ $grievance->type_label_lowercase }} está a ser analisada pela nossa equipa técnica.

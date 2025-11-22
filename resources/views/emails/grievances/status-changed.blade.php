@@ -97,11 +97,10 @@
         <div class="reference">
             {{ $grievance->reference_number }}
         </div>
-
         <div class="status-change">
-            <span class="status-badge status-old">{{ ucfirst(str_replace('_', ' ', $oldStatus)) }}</span>
+            <span class="status-badge status-old">{{ $oldStatusLabel }}</span>
             <span class="arrow">→</span>
-            <span class="status-badge status-new">{{ $grievance->status_label }}</span>
+            <span class="status-badge status-new">{{ $newStatusLabel }}</span>
         </div>
 
         <div class="info-box">

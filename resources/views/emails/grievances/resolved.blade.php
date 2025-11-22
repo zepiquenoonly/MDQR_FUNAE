@@ -80,9 +80,11 @@
 
         <div class="success-box">
             <h3 style="margin-top: 0; color: #059669;">✓ {{ $grievance->type_label }} Resolvida</h3>
+            @if($grievance->resolved_at)
             <p style="margin: 0;">
                 <strong>Data de Resolução:</strong> {{ $grievance->resolved_at->format('d/m/Y H:i') }}
             </p>
+            @endif
             @if($grievance->resolvedBy)
             <p style="margin: 10px 0 0 0;">
                 <strong>Resolvida por:</strong> {{ $grievance->resolvedBy->name }}

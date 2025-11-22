@@ -45,7 +45,8 @@ class GrievanceSeeder extends Seeder
             'priority' => 'high',
             'is_anonymous' => false,
             'submitted_at' => now()->subHours(2),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance1->id,
@@ -75,7 +76,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subDays(1),
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(3),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance2->id,
@@ -113,7 +115,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subDays(5),
             'is_anonymous' => true,
             'submitted_at' => now()->subDays(7),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance3->id,
@@ -162,7 +165,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subDays(10),
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(15),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance4->id,
@@ -217,7 +221,8 @@ class GrievanceSeeder extends Seeder
             'resolution_notes' => 'O transformador defeituoso foi substituído por um novo. A área contaminada foi limpa e o solo tratado. Foram realizados testes e os níveis de contaminação estão agora dentro dos parâmetros aceitáveis.',
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(25),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance5->id,
@@ -257,10 +262,12 @@ class GrievanceSeeder extends Seeder
         ]);
 
         // 6. Reclamação Rejeitada
-        $grievance6 = Grievance::create([
-            'user_id' => null,
-            'reference_number' => 'GRM-2025-' . strtoupper(Str::random(8)),
-            'description' => 'Quero reclamar que a luz vai sempre abaixo na minha casa. Isto acontece porque os meus vizinhos estão a roubar electricidade e a sobrecarregar o sistema.',
+        $grievance6 = Grievance::updateOrCreate(
+            ['reference_number' => 'GRM-2025-5TSZY14N'],
+            [
+                'user_id' => null,
+                // 'type' => 'complaint',
+                'description' => 'Quero reclamar que a luz vai sempre abaixo na minha casa. Isto acontece porque os meus vizinhos estão a roubar electricidade e a sobrecarregar o sistema.',
             'category' => 'economico',
             'subcategory' => 'Ligações Ilegais',
             'contact_name' => 'António Santos',
@@ -278,7 +285,8 @@ class GrievanceSeeder extends Seeder
             'resolution_notes' => 'Após investigação técnica, verificou-se que o problema não está relacionado com ligações ilegais mas sim com a subestação eléctrica local. Este caso foi encaminhado para a EDM para resolução. Não se enquadra no âmbito do GRM da FUNAE.',
             'is_anonymous' => false,
             'submitted_at' => now()->subDays(14),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance6->id,
@@ -330,7 +338,8 @@ class GrievanceSeeder extends Seeder
             'assigned_at' => now()->subHour(),
             'is_anonymous' => false,
             'submitted_at' => now()->subHours(2),
-        ]);
+            ]
+        );
 
         GrievanceUpdate::create([
             'grievance_id' => $grievance7->id,

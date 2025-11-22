@@ -42,6 +42,7 @@
 
 <script setup>
 import { ref, inject } from 'vue'
+import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
 
 const props = defineProps({
   active: {
@@ -55,6 +56,8 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
+const { closeDropdown } = useDashboardState()
+
 // Obter o gerenciador de dropdowns do contexto
 const dropdownManager = inject('dropdownManager')
 
@@ -62,10 +65,15 @@ const showPopup = ref(false)
 let popupTimer = null
 
 const handleClick = () => {
-  // Fechar todos os dropdowns ao clicar em um item regular
+  console.log('MenuItem clicked:', props.text)
+
+  // Fechar todos os dropdowns e resetar estado ao clicar em um item regular
   if (dropdownManager) {
     dropdownManager.closeDropdown()
   }
+  closeDropdown()
+
+  // Emitir o evento click para o MenuSection
   emit('click')
 }
 
