@@ -93,7 +93,7 @@ class EmailTestController extends Controller
     {
         $grievance = new Grievance();
         $grievance->reference_number = 'GRM-2025-TEST' . strtoupper(substr(md5(time()), 0, 8));
-        $grievance->type = 'complaint'; // Pode testar: 'complaint', 'grievance', 'suggestion'
+        // $grievance->type = 'complaint'; // Pode testar: 'complaint', 'grievance', 'suggestion'
         $grievance->description = 'Esta é uma reclamação de teste para validação dos templates de email do sistema GRM FUNAE.';
         $grievance->category = 'ambiental';
         $grievance->subcategory = 'Teste';
