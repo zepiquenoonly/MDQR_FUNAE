@@ -35,7 +35,7 @@ class EmailTestController extends Controller
 
         // Buscar uma grievance de teste ou criar uma fictícia
         $grievance = Grievance::first() ?? $this->createTestGrievance();
-        
+
         // Buscar ou criar um usuário de teste
         $testUser = User::first() ?? $this->createTestUser();
 
@@ -91,11 +91,14 @@ class EmailTestController extends Controller
      */
     private function createTestGrievance(): Grievance
     {
+        $types = ['complaint', 'grievance', 'suggestion'];
+        $categories = ['ambiental', 'social', 'economico'];
+
         $grievance = new Grievance();
         $grievance->reference_number = 'GRM-2025-TEST' . strtoupper(substr(md5(time()), 0, 8));
-        // $grievance->type = 'complaint'; // Pode testar: 'complaint', 'grievance', 'suggestion'
+        $grievance->type = $types[array_rand($types)];
         $grievance->description = 'Esta é uma reclamação de teste para validação dos templates de email do sistema GRM FUNAE.';
-        $grievance->category = 'ambiental';
+        $grievance->category = $categories[array_rand($categories)];
         $grievance->subcategory = 'Teste';
         $grievance->status = 'submitted';
         $grievance->priority = 'medium';
@@ -120,7 +123,7 @@ class EmailTestController extends Controller
         $user = new User();
         $user->name = 'Técnico de Teste';
         $user->email = 'tecnico.teste@funae.co.mz';
-        
+
         // Não salva no BD, apenas cria objeto em memória
         return $user;
     }
