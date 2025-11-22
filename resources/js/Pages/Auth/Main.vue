@@ -4,7 +4,7 @@
         <div class="md:hidden w-full h-screen flex flex-col">
             <!-- Login Form (Mobile) -->
             <div v-if="!isRightPanelActive" class="bg-white flex-1 flex flex-col">
-                <LoginForm :loading="loading" :errors="errors" @submit="handleLogin"
+                <LoginForm :loading="loading" :errors="errors" :success="success" @submit="handleLogin"
                     @switch-to-register="switchToRegister" />
             </div>
 
@@ -55,7 +55,7 @@
                     <!-- Dots Indicator Mobile -->
                     <div class="carousel-dots flex justify-center space-x-3 py-4">
                         <button v-for="i in 3" :key="i" @click="setMobileSlide(i - 1)"
-                            class="w-3 h-3 rounded-full transition-all duration-300 cursor-pointer"
+                            class="w-1 h-1 rounded-full transition-all duration-300 cursor-pointer"
                             :class="currentMobileSlide === i - 1 ? 'bg-white scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-75'">
                         </button>
                     </div>
@@ -137,7 +137,7 @@
                                 <!-- Dots Indicator Left -->
                                 <div class="carousel-dots flex justify-center space-x-3 mt-4 lg:mt-6">
                                     <button v-for="i in 3" :key="i" @click="setLeftSlide(i - 1)"
-                                        class="w-2 h-2 lg:w-3 lg:h-3 rounded-full transition-all duration-300 cursor-pointer"
+                                        class="w-2 h-2 lg:w-2 lg:h-2 rounded-full transition-all duration-300 cursor-pointer"
                                         :class="currentLeftSlide === i - 1 ? 'bg-white scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-75'">
                                     </button>
                                 </div>
@@ -192,7 +192,7 @@
                                 <!-- Dots Indicator Right -->
                                 <div class="carousel-dots flex justify-center space-x-3 mt-4 lg:mt-6">
                                     <button v-for="i in 3" :key="i" @click="setRightSlide(i - 1)"
-                                        class="w-2 h-2 lg:w-3 lg:h-3 rounded-full transition-all duration-300 cursor-pointer"
+                                        class="w-2 h-2 lg:w-2 lg:h-2 rounded-full transition-all duration-300 cursor-pointer"
                                         :class="currentRightSlide === i - 1 ? 'bg-white scale-125' : 'bg-white bg-opacity-50 hover:bg-opacity-75'">
                                     </button>
                                 </div>
@@ -202,11 +202,30 @@
                 </div>
             </div>
         </div>
+        <div v-if="showSuccessPopup"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-auto shadow-xl">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Sucesso!</h3>
+                    <p class="text-gray-600 mb-4">Login realizado com sucesso</p>
+                    <button @click="showSuccessPopup = false"
+                        class="w-full bg-[#F15F22] text-white py-2 px-4 rounded-lg hover:bg-[#e5561a] transition-colors">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
 import LoginForm from '../../Components/Authenticate/LoginForm.vue'
 import RegisterForm from '../../Components/Authenticate/RegisterForm.vue'
@@ -217,11 +236,51 @@ const loading = ref(false)
 const currentLeftSlide = ref(0)
 const currentRightSlide = ref(0)
 const currentMobileSlide = ref(0)
+const showSuccessPopup = ref(false)
 
+// Watch para detectar login bem-sucedido
+watch(() => usePage().props.auth.user, (newUser) => {
+    if (newUser) {
+        showSuccessPopup.value = true
+        // Fechar popup automaticamente após 3 segundos e redirecionar
+        setTimeout(() => {
+            showSuccessPopup.value = false
+        }, 3000)
+    }
+}, { deep: true })
+const success = ref(false)
 
 const errors = computed(() => {
     return usePage().props.errors || {}
 })
+
+// Atualize o handleLogin para detectar sucesso:
+const handleLogin = async (e) => {
+    loading.value = true
+    const form = new FormData(e.target)
+    const data = {
+        username: form.get('username'),
+        password: form.get('password'),
+        remember: form.get('remember') === 'on'
+    }
+
+    try {
+        await router.post('/login', data, {
+            onSuccess: () => {
+                success.value = true
+                // O popup será mostrado automaticamente pelo watch no LoginForm
+            },
+            onError: (errors) => {
+                success.value = false
+            }
+        })
+    } catch (err) {
+        console.error("Erro de login:", err)
+        success.value = false
+    } finally {
+        loading.value = false
+    }
+}
 
 
 let leftSlideInterval
@@ -247,7 +306,6 @@ const stopSlideRotation = () => {
     if (rightSlideInterval) clearInterval(rightSlideInterval)
     if (mobileSlideInterval) clearInterval(mobileSlideInterval)
 }
-
 
 const setLeftSlide = (index) => {
     currentLeftSlide.value = index
@@ -285,7 +343,6 @@ const resetMobileInterval = () => {
     }, 10000)
 }
 
-
 const switchToRegister = () => {
     router.get('/register')
 }
@@ -314,23 +371,6 @@ const handleRegister = async (e) => {
     }
 }
 
-const handleLogin = async (e) => {
-    loading.value = true
-    const form = new FormData(e.target)
-    const data = {
-        username: form.get('username'),
-        password: form.get('password'),
-        remember: form.get('remember') === 'on'
-    }
-
-    try {
-        await router.post('/login', data)
-    } catch (err) {
-        console.error("Erro de login:", err)
-    } finally {
-        loading.value = false
-    }
-}
 
 onMounted(() => {
     startSlideRotation()
@@ -339,6 +379,7 @@ onMounted(() => {
 onUnmounted(() => {
     stopSlideRotation()
 })
+
 </script>
 
 <style scoped>

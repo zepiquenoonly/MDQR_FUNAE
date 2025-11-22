@@ -3,7 +3,32 @@
     <span>Página Inicial</span>
     <span class="text-gray-400">→</span>
     <span class="bg-brand text-white px-3 py-1 rounded-lg text-xs font-medium">
-      Projectos
+      {{ currentPage }}
     </span>
   </div>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
+
+const { activePanel, activeDropdown } = useDashboardState()
+
+const currentPage = computed(() => {
+  const pages = {
+    'dashboard': 'Dashboard',
+    'projectos': 'Projectos',
+    'mdqr': 'MDQR',
+    'sugestoes': 'Minhas Sugestões',
+    'queixas': 'Minhas Queixas',
+    'reclamacoes': 'Minhas Reclamações'
+  }
+
+  // Se houver um dropdown ativo dentro do MDQR, mostrar ele
+  if (activePanel.value === 'mdqr' && activeDropdown.value) {
+    return pages[activeDropdown.value] || 'MDQR'
+  }
+
+  return pages[activePanel.value] || 'Dashboard'
+})
+</script>

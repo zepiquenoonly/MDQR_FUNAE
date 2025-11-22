@@ -3,15 +3,11 @@
         class="bg-white flex justify-center items-center flex-col text-center h-full py-0 px-4 md:px-12">
 
         <div class="text-center">
-            <img src="/images/Emblem_of_Mozambique.svg-2.png" alt="Ícone de autenticação"
-                class="h-20 w-20 md:h-24 md:w-24 mt-4 md:mt-0 mx-auto object-contain" />
-            <span class="text-base md:text-lg font-semibold block mt-3 md:mt-4 tracking-wide">Mecanismo De Diálogo,
-                Queixas E
-                Reclamações</span>
+            <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
+                class="md:h-20 md:w-44 object-contain mx-auto" />
         </div>
 
-        <h2 class="text-lg md:text-xl"><strong>Registo de Conta</strong></h2>
-        <p class="text-gray-600 text-xs md:text-sm mt-2 text-center">Crie sua conta para fazer parte da plataforma.</p>
+        <h2 class="text-lg md:text-xl mt-6 mb-4"><strong>Ainda não tem Conta?</strong></h2>
 
         <input type="email" name="email" placeholder="Email" required
             class="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"

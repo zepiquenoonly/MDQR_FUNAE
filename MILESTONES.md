@@ -4,7 +4,8 @@
 
 **Total de Milestones**: 3  
 **Total de Issues**: 17  
-**Repositório**: https://github.com/TECHSOLUTIONS-PROJECTS/www.mdqr.co.mz
+**Repositório**: https://github.com/TECHSOLUTIONS-PROJECTS/www.mdqr.co.mz  
+**Stack Tecnológica**: Laravel + Inertia.js + Vue.js 3
 
 ---
 
@@ -53,14 +54,14 @@ Criar os Models (ex: Grievance, User, Attachment) e as respetivas migrações pa
 **Label**: `enhancement`  
 
 **Descrição**:
-Desenvolver a interface (Livewire Component) para o Utente preencher e submeter a reclamação. O formulário deve suportar submissão anónima e identificada.
+Desenvolver a interface (Vue Component com Inertia.js) para o Utente preencher e submeter a reclamação. O formulário deve suportar submissão anónima e identificada.
 
 **Critérios de Aceitação**:
 - [ ] O formulário front-end está completo e validado (requerimentos obrigatórios)
-- [ ] Submissão de dados via Livewire para a BD é bem-sucedida
+- [ ] Submissão de dados via Inertia.js para o backend Laravel é bem-sucedida
 - [ ] A submissão cria um registo na BD com o status inicial 'Submetida'
 
-**Tags**: `livewire` `frontend` `forms` `validation`
+**Tags**: `inertia` `vue` `frontend` `forms` `validation`
 
 ---
 
@@ -118,18 +119,18 @@ Desenvolver a lógica de negócio que, após a submissão, classifica a queixa e
 
 ---
 
-#### 🔹 Issue #7: P2 - Painel Básico do Técnico (Livewire)
+#### 🔹 Issue #7: P2 - Painel Básico do Técnico (Inertia + Vue)
 **Atribuído**: Programador 2  
 **Label**: `enhancement`  
 
 **Descrição**:
-Criar a interface de gestão (Livewire Component) para o Técnico. Deve exibir apenas a lista de reclamações que lhe foram atribuídas.
+Criar a interface de gestão (Vue Component com Inertia.js) para o Técnico. Deve exibir apenas a lista de reclamações que lhe foram atribuídas.
 
 **Critérios de Aceitação**:
 - [ ] O Técnico pode aceder ao seu painel e visualizar as queixas que lhe foram alocadas
 - [ ] A lista exibe informações cruciais (ID, Título, Status)
 
-**Tags**: `livewire` `frontend` `dashboard` `technician`
+**Tags**: `inertia` `vue` `frontend` `dashboard` `technician`
 
 ---
 
@@ -223,13 +224,13 @@ Criar a interface e a lógica para o Gestor de Reclamações receber e visualiza
 **Label**: `enhancement`  
 
 **Descrição**:
-Desenvolver a interface para o Utente aceder, através do seu número de acompanhamento, ao status em tempo real da sua queixa e visualizar o histórico de submissões.
+Desenvolver a interface (Vue Component com Inertia.js) para o Utente aceder, através do seu número de acompanhamento, ao status em tempo real da sua queixa e visualizar o histórico de submissões.
 
 **Critérios de Aceitação**:
 - [ ] O Utente pode pesquisar e ver o status atual da sua queixa
 - [ ] O Utente pode ver o histórico de atualizações inseridas pelo Técnico/Sistema
 
-**Tags**: `livewire` `frontend` `tracking` `user-dashboard`
+**Tags**: `inertia` `vue` `frontend` `tracking` `user-dashboard`
 
 ---
 
@@ -253,13 +254,13 @@ Implementar o envio da notificação por Email/SMS (se aplicável) para o Utente
 **Label**: `enhancement`  
 
 **Descrição**:
-Implementar a consulta e a visualização simples (Livewire Component) para o PCA, focada no indicador 'Queixas Abertas vs. Fechadas'.
+Implementar a consulta e a visualização simples (Vue Component com Inertia.js) para o PCA, focada no indicador 'Queixas Abertas vs. Fechadas'.
 
 **Critérios de Aceitação**:
 - [ ] O PCA pode aceder ao painel básico
 - [ ] O painel exibe o contador e/ou gráfico simples dos indicadores Abertas/Fechadas
 
-**Tags**: `livewire` `reports` `statistics` `dashboard`
+**Tags**: `inertia` `vue` `reports` `statistics` `dashboard`
 
 ---
 

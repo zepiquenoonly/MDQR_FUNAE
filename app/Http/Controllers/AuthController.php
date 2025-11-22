@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -71,7 +72,7 @@ class AuthController extends Controller {
         }
 
         return back()->withErrors( [
-            'username' => 'As credenciais fornecidas não correspondem aos nossos registros.',
+            'username' => 'Falha na autenticação, usuário ou senha inválidos.',
         ] )->onlyInput( 'username' );
     }
 
@@ -198,7 +199,6 @@ class AuthController extends Controller {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
 
-      
         switch ( $role ) {
             case 'PCA':
             return redirect()->route( 'admin.dashboard' );
@@ -216,9 +216,13 @@ class AuthController extends Controller {
     * Display the home page for authenticated users.
     */
 
-    public function home(): Response {
+    public function home(): Response|RedirectResponse {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
+
+        if ( $role === 'Técnico' ) {
+            return redirect()->route( 'technician.dashboard' );
+        }
 
         return $this->getDashboardByRole( $role );
     }
@@ -227,7 +231,7 @@ class AuthController extends Controller {
     * Get the appropriate dashboard based on user role
     */
 
-    private function getDashboardByRole( $role ): Response {
+    private function getDashboardByRole( $role ): Response|RedirectResponse {
         $user = Auth::user();
 
         switch ( $role ) {
@@ -252,14 +256,7 @@ class AuthController extends Controller {
             ] );
 
             case 'Técnico':
-            return Inertia::render( 'Technician/Dashboard', [
-                'user' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $role,
-                    'created_at' => $user->created_at->format( 'd/m/Y' ),
-                ]
-            ] );
+            return redirect()->route( 'technician.dashboard' );
 
             case 'Utente':
             default:

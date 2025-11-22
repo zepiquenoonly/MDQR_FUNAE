@@ -1,19 +1,14 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex">
     <!-- Sidebar -->
-    <Sidebar 
-      :is-collapsed="sidebarCollapsed" 
-      @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-    />
-    
+    <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+      @change-view="$emit('change-view', $event)" />
+
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden">
-      <Header 
-        :sidebar-collapsed="sidebarCollapsed"
-        @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
-        :user="user"
-      />
-      
+      <Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="sidebarCollapsed = !sidebarCollapsed"
+        :user="user" />
+
       <!-- Page Content -->
       <main class="flex-1 overflow-y-auto">
         <slot />
@@ -34,9 +29,8 @@ const props = defineProps({
   }
 })
 
-console.log('📦 Layout - User data received:', props.user)
-console.log('📦 Layout - User name:', props.user?.name)
-console.log('📦 Layout - User email:', props.user?.email)
+defineEmits(['change-view'])
 
 const sidebarCollapsed = ref(false)
+
 </script>

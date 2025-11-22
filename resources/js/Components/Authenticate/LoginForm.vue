@@ -1,17 +1,12 @@
 <template>
     <form @submit.prevent="$emit('submit', $event)"
         class="bg-white flex justify-center items-center flex-col text-center h-full w-full py-8 px-6 md:px-12">
-        <div class="mb-6 text-center">
-            <img src="/images/Emblem_of_Mozambique.svg-2.png" alt="Ícone de autenticação"
-                class="h-20 w-20 md:h-24 md:w-24 mx-auto object-contain" />
-            <span class="text-base md:text-lg font-semibold block mt-4 tracking-wide">Mecanismo De Diálogo, Queixas E
-                Reclamações</span>
+        <div class="mb-6 mt-4 text-center">
+            <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
+                class="md:h-20 md:w-44 object-contain mx-auto" />
         </div>
 
-        <h2 class="text-lg md:text-xl mb-2"><strong>Autenticação</strong></h2>
-        <p class="text-gray-600 text-xs md:text-sm mb-6 text-center">Introduza os teus dados para continuar na
-            plataforma.</p>
-
+        <h2 class="text-lg md:text-xl mb-2"><strong>Já tem conta?</strong></h2>
         <div class="w-full max-w-xs">
             <input type="text" name="username" placeholder="Digite o nome de usuário" required
                 class="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
@@ -53,15 +48,14 @@
                     Cadastre-se agora
                 </button>
             </p>
-            
+
             <!-- Link para acompanhar reclamação -->
             <div class="mt-4 pt-4 border-t border-gray-200">
-                <a 
-                    href="/track"
-                    class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2"
-                >
+                <a href="/track"
+                    class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                     Acompanhar Reclamação
                 </a>
