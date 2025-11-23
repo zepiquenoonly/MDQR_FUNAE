@@ -222,12 +222,11 @@ class AuthController extends Controller {
     public function home(): Response|RedirectResponse {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
-
-        if ( $role === 'Técnico' ) {
-            return redirect()->route( 'technician.dashboard' );
-        }
-
-        return $this->getDashboardByRole( $role );
+        // Render the correct dashboard for the current role. Using
+        // `getDashboardByRole` avoids redirect loops (e.g. `/utente/dashboard`
+        // mapped to this same method) and ensures the appropriate Inertia
+        // page is returned for each role.
+        return $this->getDashboardByRole($role);
     }
 
     /**

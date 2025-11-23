@@ -67,16 +67,16 @@
                 </button>
             </p>
 
-            <!-- Link para acompanhar reclamação -->
+            <!-- Link para voltar à página principal -->
             <div class="mt-4 pt-4 border-t border-gray-200">
-                <a href="/track"
+                <a href="/"
                     class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2"
                     :class="{ 'pointer-events-none opacity-50': loading }">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
-                    Acompanhar Reclamação
+                    Voltar à Página Principal
                 </a>
             </div>
         </div>

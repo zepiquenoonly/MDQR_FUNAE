@@ -57,15 +57,6 @@
                             </svg>
                             Acompanhar Reclamação
                         </a>
-
-                        <a @click="navigateToEmailTest" :disabled="isLoadingEmailTest"
-                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            Teste Emails
-                        </a>
                     </div>
                 </div>
 
@@ -151,15 +142,6 @@
                             </svg>
                             Acompanhar Reclamação
                         </a>
-
-                        <a @click="handleMobileEmailTestClick" :disabled="isLoadingEmailTest"
-                            class="text-gray-900 hover:text-brand hover:bg-gray-50 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            Teste Emails
-                        </a>
                     </div>
 
                     <div class="pt-2">
@@ -184,7 +166,7 @@
         </nav>
 
         <!-- Loading Overlay -->
-        <div v-if="isLoadingLogin || isLoadingDashboard || isLoadingTrack || isLoadingEmailTest"
+        <div v-if="isLoadingLogin || isLoadingDashboard || isLoadingTrack"
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
                 <div class="text-center">
@@ -204,12 +186,30 @@ import { ref, computed } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router, usePage } from '@inertiajs/vue3'
 
+const props = defineProps({
+    hideTrackLink: {
+        type: Boolean,
+        default: false
+    }
+})
+
 const page = usePage()
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
+const isLoading = ref(false)
+const isLoadingDashboard = ref(false)
+const isLoadingTrack = ref(false)
+const isLoadingLogin = ref(false)
 
 const user = computed(() => page.props.auth?.user || null)
 const isAuthenticated = computed(() => !!user.value)
+
+const getUserInitials = (name) => {
+    if (!name) return '?'
+    const names = name.trim().split(' ')
+    if (names.length === 1) return names[0].charAt(0).toUpperCase()
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
+}
 
 const getDashboardRoute = () => {
     if (!user.value) return '/login'
@@ -245,18 +245,10 @@ const getDashboardLabel = () => {
     return 'MEU DASHBOARD'
 }
 
-// Loading state refs
-const isLoading = ref(false)
-const isLoadingDashboard = ref(false)
-const isLoadingTrack = ref(false)
-const isLoadingEmailTest = ref(false)
-const isLoadingLogin = ref(false)
-
-// Navegação para o dashboard, com estado de loading
 const navigateToDashboard = () => {
-    // marcar ambos estados para cobrir desktop e mobile templates
     isLoading.value = true
     isLoadingDashboard.value = true
+    
     setTimeout(() => {
         router.visit(getDashboardRoute(), {
             onFinish: () => {
@@ -271,18 +263,61 @@ const navigateToDashboard = () => {
     }, 500)
 }
 
-const navigateToTrack = () => {
-    isLoadingTrack.value = true
+const navigateToLogin = () => {
+    isLoadingLogin.value = true
+    
     setTimeout(() => {
-        router.visit('/track')
+        router.visit('/login', {
+            onFinish: () => {
+                isLoadingLogin.value = false
+            },
+            onError: () => {
+                isLoadingLogin.value = false
+            }
+        })
     }, 500)
 }
 
-const navigateToEmailTest = () => {
-    isLoadingEmailTest.value = true
+const navigateToTrack = () => {
+    isLoadingTrack.value = true
     setTimeout(() => {
-        router.visit('/email-test')
+        router.visit('/track', {
+            onFinish: () => {
+                isLoadingTrack.value = false
+            },
+            onError: () => {
+                isLoadingTrack.value = false
+            }
+        })
     }, 500)
+}
+
+const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+        const offsetTop = element.offsetTop - 100
+        window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+        })
+    }
+}
+
+const handleScroll = () => {
+    const sections = ['inicio', 'sobre', 'faq', 'contactos']
+    const scrollPosition = window.scrollY + 150
+
+    sections.forEach(section => {
+        const element = document.getElementById(section)
+        if (element) {
+            const offsetTop = element.offsetTop
+            const offsetBottom = offsetTop + element.offsetHeight
+
+            if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+                activeSection.value = section
+            }
+        }
+    })
 }
 
 // Funções para links mobile que fecham o menu
@@ -291,8 +326,11 @@ const handleMobileTrackClick = () => {
     isMobileMenuOpen.value = false
 }
 
-const handleMobileEmailTestClick = () => {
-    navigateToEmailTest()
-    isMobileMenuOpen.value = false
-}
+onMounted(() => {
+    window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+})
 </script>
