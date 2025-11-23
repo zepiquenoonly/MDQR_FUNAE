@@ -54,6 +54,13 @@ class UtenteDashboardController extends Controller
             'rejected' => (clone $baseQuery)->where('status', 'rejected')->count(),
         ];
 
+        // Estatísticas por tipo
+        $statsByType = [
+            'complaints' => (clone $baseQuery)->where('type', 'complaint')->count(),
+            'grievances' => (clone $baseQuery)->where('type', 'grievance')->count(),
+            'suggestions' => (clone $baseQuery)->where('type', 'suggestion')->count(),
+        ];
+
         // Aplicar filtros
         $grievancesQuery = clone $baseQuery;
 
@@ -124,6 +131,7 @@ class UtenteDashboardController extends Controller
                 'created_at' => $user->created_at->format(self::DATE_FORMAT),
             ],
             'stats' => $stats,
+            'statsByType' => $statsByType,
             'grievances' => $grievances,
             'notifications' => $notifications,
             'filters' => $filters,
