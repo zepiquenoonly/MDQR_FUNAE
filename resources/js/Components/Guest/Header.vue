@@ -32,7 +32,7 @@
                             @click="scrollToSection('contactos')">
                             CONTACTOS
                         </a>
-                        <button @click="navigateToLogin" :disabled="isLoading"
+                        <button @click="navigateToDashboard" :disabled="isLoading"
                             class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
                             <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white"
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -42,7 +42,10 @@
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>
                             </svg>
-                            {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
+                            <svg v-if="!isLoading && isAuthenticated" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            {{ isLoading ? 'A CARREGAR...' : getDashboardLabel() }}
                         </button>
                         <a href="/track"
                             class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
@@ -131,7 +134,7 @@
                     </div>
 
                     <div class="pt-2">
-                        <button @click="navigateToLogin" :disabled="isLoading"
+                        <button @click="navigateToDashboard" :disabled="isLoading"
                             class="w-full bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-lg text-base font-semibold text-center transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
                             <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white"
                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -141,7 +144,10 @@
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>
                             </svg>
-                            {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
+                            <svg v-if="!isLoading && isAuthenticated" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            {{ isLoading ? 'A CARREGAR...' : getDashboardLabel() }}
                         </button>
                     </div>
                 </div>
@@ -171,20 +177,58 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 
+const page = usePage()
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
 const isLoading = ref(false)
 
-const navigateToLogin = () => {
+const user = computed(() => page.props.auth?.user || null)
+const isAuthenticated = computed(() => !!user.value)
+
+const getDashboardRoute = () => {
+    if (!user.value) return '/login'
+    
+    const roles = user.value.roles || []
+    const roleNames = roles.map(r => r.name.toLowerCase())
+    
+    // PCA (Ponto Central de Atendimento)
+    if (roleNames.includes('pca')) {
+        return '/pca/dashboard'
+    }
+    // Gestor
+    if (roleNames.includes('gestor')) {
+        return '/gestor/dashboard'
+    }
+    // Técnico
+    if (roleNames.includes('técnico') || roleNames.includes('tecnico')) {
+        return '/tecnico/dashboard'
+    }
+    // Utente (padrão)
+    return '/utente/dashboard'
+}
+
+const getDashboardLabel = () => {
+    if (!user.value) return 'ENTRAR'
+    
+    const roles = user.value.roles || []
+    const roleNames = roles.map(r => r.name.toLowerCase())
+    
+    if (roleNames.includes('pca')) return 'DASHBOARD PCA'
+    if (roleNames.includes('gestor')) return 'DASHBOARD GESTOR'
+    if (roleNames.includes('técnico') || roleNames.includes('tecnico')) return 'DASHBOARD TÉCNICO'
+    return 'MEU DASHBOARD'
+}
+
+const navigateToDashboard = () => {
     isLoading.value = true
 
     // Simula um pequeno delay para mostrar o loading
     setTimeout(() => {
-        router.visit('/login', {
+        router.visit(getDashboardRoute(), {
             onFinish: () => {
                 isLoading.value = false
             },
