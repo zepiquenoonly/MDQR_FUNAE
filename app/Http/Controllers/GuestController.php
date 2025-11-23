@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Route;
+use Inertia\Response;
 
 class GuestController extends Controller
 {
     /**
-     * Mostra a página inicial pública
+     * Display the home page for guests
      */
-    public function home()
+    public function home(): Response
     {
         return Inertia::render('Guest/Home', [
             'authRoutes' => [
