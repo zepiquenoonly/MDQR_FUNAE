@@ -300,7 +300,7 @@ class AuthController extends Controller {
         $request->session()->regenerateToken();
 
         // Use a rota correta que existe no seu web.php
-        return redirect()->route( 'auth.login' );
-        // ou '/auth' se preferir
+        return redirect()->route( 'auth.main' );
+        // ou 'auth.login'
     }
 }

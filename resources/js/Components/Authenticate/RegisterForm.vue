@@ -2,12 +2,12 @@
     <form @submit.prevent="handleSubmit"
         class="bg-white flex justify-center items-center flex-col text-center h-full py-0 px-4 md:px-12">
 
-        <div class="text-center">
+        <div class="mb-6 mt-4 text-center">
             <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
-                class="md:h-20 md:w-44 object-contain mx-auto" />
+                class="max-w-[180px] w-full h-auto md:max-w-none md:h-20 md:w-44 object-contain mx-auto" />
         </div>
 
-        <h2 class="text-lg md:text-xl mt-6 mb-4"><strong>Ainda não tem Conta?</strong></h2>
+        <h2 class="text-lg text-brand md:text-xl mb-4"><strong>Ainda não tem Conta?</strong></h2>
 
         <!-- Campo Email -->
         <div class="w-full">
@@ -98,7 +98,7 @@
             <p v-if="passwordMismatch || validationErrors.password_confirmation || errors.password_confirmation"
                 class="text-red-500 text-xs mt-1 text-left min-h-[16px]">
                 {{ passwordMismatch ? 'As senhas não coincidem' : (validationErrors.password_confirmation ||
-                    errors.password_confirmation) }}
+                errors.password_confirmation) }}
             </p>
         </div>
 

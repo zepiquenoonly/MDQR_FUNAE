@@ -1,17 +1,20 @@
 <template>
-    <header class="bg-white">
-        <div class="flex flex-col items-center justify-center py-4 mt-4">
-            <div class="flex items-center">
-                <img src="/images/Logotipo-scaled.png" alt="Brasão de Moçambique"
-                    class="h-24 w-48 md:h-24 md:w-48 object-contain" />
+    <div class="min-h-screen bg-white">
+        <header class="bg-white">
+            <div class="flex flex-col items-center justify-center py-4 px-4">
+                <div class="flex items-center">
+                    <img src="/images/Logotipo-scaled.png" alt="Brasão de Moçambique"
+                        class="h-16 w-32 sm:h-20 sm:w-40 md:h-24 md:w-48 object-contain" />
+                </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <div class="min-h-screen bg-white flex items-center justify-center p-4 -mt-24">
-        <div class="bg-white overflow-hidden w-[1400px] max-w-6xl border border-gray">
-            <CompleteRegistrationForm :basic-data="basicData" :loading="loading" :errors="errors"
-                @submit="handleCompleteRegistration" @back-to-basic="backToBasicRegistration" />
+        <div class="flex items-center justify-center p-4">
+            <div
+                class="bg-white w-full max-w-6xl border border-gray-200 rounded-lg sm:rounded-xl overflow-hidden shadow-sm sm:shadow-md">
+                <CompleteRegistrationForm :basic-data="basicData" :loading="loading" :errors="errors"
+                    @submit="handleCompleteRegistration" @back-to-basic="backToBasicRegistration" />
+            </div>
         </div>
     </div>
 </template>

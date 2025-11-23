@@ -3,10 +3,10 @@
         class="bg-white flex justify-center items-center flex-col text-center h-full w-full py-8 px-6 md:px-12">
         <div class="mb-6 mt-4 text-center">
             <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
-                class="md:h-20 md:w-44 object-contain mx-auto" />
+                class="max-w-[180px] w-full h-auto md:max-w-none md:h-20 md:w-44 object-contain mx-auto" />
         </div>
 
-        <h2 class="text-lg md:text-xl mb-2"><strong>Já tem conta?</strong></h2>
+        <h2 class="text-lg text-brand md:text-xl mb-2"><strong>Já tem conta?</strong></h2>
         <div class="w-full max-w-xs">
             <!-- Campo Username -->
             <div class="w-full">

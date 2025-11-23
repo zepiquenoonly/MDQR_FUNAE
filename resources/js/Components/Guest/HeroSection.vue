@@ -4,7 +4,7 @@
             <!-- Content -->
             <div class="text-white">
                 <p class="text-sm uppercase tracking-wider mb-4 opacity-90">FAÇA SUA VOZ SER OUVIDA!</p>
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 leading-tight">
+                <h1 class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-8 leading-tight">
                     RECLAME, SUGIRA, QUEIXA!
                 </h1>
                 <p class="text-lg md:text-xl mb-10 leading-relaxed opacity-95">

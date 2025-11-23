@@ -4,32 +4,34 @@
             <div class="flex justify-between items-center h-full">
                 <!-- Logo - Tamanho menor em mobile -->
                 <div class="flex-shrink-0">
-                    <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
-                        class="h-12 w-24 md:h-24 md:w-40 object-contain" />
+                    <a href="/">
+                        <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
+                            class="h-12 w-24 md:h-24 md:w-40 object-contain cursor-pointer" />
+                    </a>
                 </div>
 
                 <!-- Desktop Menu -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-8">
-                        <a href="#inicio"
+                        <!-- Links que redirecionam para a página principal com âncoras -->
+                        <a href="/#inicio"
                             class="text-black hover:text-brand px-3 py-2 text-sm font-medium transition-colors duration-200"
-                            :class="{ 'text-brand': activeSection === 'inicio' }" @click="scrollToSection('inicio')">
+                            :class="{ 'text-brand': activeSection === 'inicio' }">
                             INÍCIO
                         </a>
-                        <a href="#sobre"
+                        <a href="/#sobre"
                             class="text-black hover:text-brand px-3 py-2 text-sm font-medium transition-colors duration-200"
-                            :class="{ 'text-brand': activeSection === 'sobre' }" @click="scrollToSection('sobre')">
+                            :class="{ 'text-brand': activeSection === 'sobre' }">
                             SOBRE
                         </a>
-                        <a href="#faq"
+                        <a href="/#faq"
                             class="text-black hover:text-brand px-3 py-2 text-sm font-medium transition-colors duration-200"
-                            :class="{ 'text-brand': activeSection === 'faq' }" @click="scrollToSection('faq')">
+                            :class="{ 'text-brand': activeSection === 'faq' }">
                             PERGUNTAS FREQUENTES
                         </a>
-                        <a href="#contactos"
+                        <a href="/#contactos"
                             class="text-black hover:text-brand px-3 py-2 text-sm font-medium transition-colors duration-200"
-                            :class="{ 'text-brand': activeSection === 'contactos' }"
-                            @click="scrollToSection('contactos')">
+                            :class="{ 'text-brand': activeSection === 'contactos' }">
                             CONTACTOS
                         </a>
 
@@ -44,34 +46,35 @@
                                     </div>
                                     <span>{{ $page.props.auth.user.name }}</span>
                                 </div>
-                                <button @click="navigateToDashboard" :disabled="isLoading"
+                                <button @click="navigateToDashboard" :disabled="isLoadingDashboard"
                                     class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                    <div v-if="isLoading"
+                                    <div v-if="isLoadingDashboard"
                                         class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
-                                    {{ isLoading ? 'A ENTRAR...' : 'IR AO PAINEL' }}
+                                    {{ isLoadingDashboard ? 'A ENTRAR...' : 'IR AO PAINEL' }}
                                 </button>
                             </div>
                         </template>
                         <template v-else>
                             <!-- Usuário não autenticado -->
-                            <button @click="navigateToLogin" :disabled="isLoading"
+                            <button @click="navigateToLogin" :disabled="isLoadingLogin"
                                 class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                <div v-if="isLoading"
+                                <div v-if="isLoadingLogin"
                                     class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
-                                {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
+                                {{ isLoadingLogin ? 'A ENTRAR...' : 'ENTRAR' }}
                             </button>
                         </template>
 
-                        <a href="/track"
-                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
+                        <a v-if="!hideTrackLink" @click="navigateToTrack" :disabled="isLoadingTrack"
+                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             Acompanhar Reclamação
                         </a>
-                        <a href="/email-test"
-                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
+
+                        <a @click="navigateToEmailTest" :disabled="isLoadingEmailTest"
+                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -84,7 +87,8 @@
                 <!-- Mobile menu button -->
                 <div class="md:hidden flex items-center gap-4">
                     <!-- Botão Acompanhar Reclamação em mobile -->
-                    <a href="/track" class="text-gray-700 hover:text-brand transition-colors duration-200 p-2">
+                    <a v-if="!hideTrackLink" @click="navigateToTrack" :disabled="isLoadingTrack"
+                        class="text-gray-700 hover:text-brand transition-colors duration-200 p-2 cursor-pointer disabled:opacity-50">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -98,20 +102,22 @@
                                 class="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-white text-xs font-bold">
                                 {{ getUserInitials($page.props.auth.user.name) }}
                             </div>
-                            <button @click="navigateToDashboard" :disabled="isLoading"
-                                class="text-xs bg-brand text-white px-3 py-1 rounded flex items-center gap-1">
-                                <div v-if="isLoading" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white">
+                            <button @click="navigateToDashboard" :disabled="isLoadingDashboard"
+                                class="text-xs bg-brand text-white px-3 py-1 rounded flex items-center gap-1 disabled:opacity-50">
+                                <div v-if="isLoadingDashboard"
+                                    class="animate-spin rounded-full h-3 w-3 border-b-2 border-white">
                                 </div>
-                                {{ isLoading ? '' : 'PAINEL' }}
+                                {{ isLoadingDashboard ? '' : 'PAINEL' }}
                             </button>
                         </div>
                     </template>
                     <template v-else>
-                        <button @click="navigateToLogin" :disabled="isLoading"
-                            class="text-xs bg-brand text-white px-3 py-1 rounded flex items-center gap-1">
-                            <div v-if="isLoading" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white">
+                        <button @click="navigateToLogin" :disabled="isLoadingLogin"
+                            class="text-xs bg-brand text-white px-3 py-1 rounded flex items-center gap-1 disabled:opacity-50">
+                            <div v-if="isLoadingLogin"
+                                class="animate-spin rounded-full h-3 w-3 border-b-2 border-white">
                             </div>
-                            {{ isLoading ? '' : 'ENTRAR' }}
+                            {{ isLoadingLogin ? '' : 'ENTRAR' }}
                         </button>
                     </template>
 
@@ -126,44 +132,43 @@
             <div v-show="isMobileMenuOpen"
                 class="md:hidden absolute top-16 left-0 right-0 bg-white shadow-lg border-t border-gray-200">
                 <div class="px-4 pt-2 pb-4 space-y-3">
-                    <a href="#inicio"
+                    <!-- Links mobile que redirecionam para a página principal -->
+                    <a href="/#inicio"
                         class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
                         :class="{ 'text-brand bg-gray-50': activeSection === 'inicio' }"
-                        @click="scrollToSection('inicio'); isMobileMenuOpen = false;">
+                        @click="isMobileMenuOpen = false">
                         INÍCIO
                     </a>
-                    <a href="#sobre"
+                    <a href="/#sobre"
                         class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
                         :class="{ 'text-brand bg-gray-50': activeSection === 'sobre' }"
-                        @click="scrollToSection('sobre'); isMobileMenuOpen = false;">
+                        @click="isMobileMenuOpen = false">
                         SOBRE
                     </a>
-                    <a href="#faq"
+                    <a href="/#faq"
                         class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
-                        :class="{ 'text-brand bg-gray-50': activeSection === 'faq' }"
-                        @click="scrollToSection('faq'); isMobileMenuOpen = false;">
+                        :class="{ 'text-brand bg-gray-50': activeSection === 'faq' }" @click="isMobileMenuOpen = false">
                         PERGUNTAS FREQUENTES
                     </a>
-                    <a href="#contactos"
+                    <a href="/#contactos"
                         class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200"
                         :class="{ 'text-brand bg-gray-50': activeSection === 'contactos' }"
-                        @click="scrollToSection('contactos'); isMobileMenuOpen = false;">
+                        @click="isMobileMenuOpen = false">
                         CONTACTOS
                     </a>
 
                     <div class="pt-2 border-t border-gray-200">
-                        <a href="/track"
-                            class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3"
-                            @click="isMobileMenuOpen = false">
+                        <a v-if="!hideTrackLink" @click="handleMobileTrackClick" :disabled="isLoadingTrack"
+                            class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             Acompanhar Reclamação
                         </a>
-                        <a href="/email-test"
-                            class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3"
-                            @click="isMobileMenuOpen = false">
+
+                        <a @click="handleMobileEmailTestClick" :disabled="isLoadingEmailTest"
+                            class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -186,20 +191,21 @@
                                         <p class="text-xs text-gray-600">{{ $page.props.auth.user.email }}</p>
                                     </div>
                                 </div>
-                                <button @click="navigateToDashboard" :disabled="isLoading"
+                                <button @click="navigateToDashboard" :disabled="isLoadingDashboard"
                                     class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                    <div v-if="isLoading"
+                                    <div v-if="isLoadingDashboard"
                                         class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    {{ isLoading ? '' : 'PAINEL' }}
+                                    {{ isLoadingDashboard ? '' : 'PAINEL' }}
                                 </button>
                             </div>
                         </template>
                         <template v-else>
-                            <button @click="navigateToLogin" :disabled="isLoading"
+                            <button @click="navigateToLogin" :disabled="isLoadingLogin"
                                 class="w-full bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-lg text-base font-semibold text-center transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                                <div v-if="isLoading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white">
+                                <div v-if="isLoadingLogin"
+                                    class="animate-spin rounded-full h-5 w-5 border-b-2 border-white">
                                 </div>
-                                {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
+                                {{ isLoadingLogin ? 'A ENTRAR...' : 'ENTRAR' }}
                             </button>
                         </template>
                     </div>
@@ -208,7 +214,8 @@
         </nav>
 
         <!-- Loading Overlay -->
-        <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div v-if="isLoadingLogin || isLoadingDashboard || isLoadingTrack || isLoadingEmailTest"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
                 <div class="text-center">
                     <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -223,13 +230,25 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router } from '@inertiajs/vue3'
 
+const props = defineProps({
+    hideTrackLink: {
+        type: Boolean,
+        default: false
+    }
+})
+
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
-const isLoading = ref(false)
+
+// Estados de loading separados para cada ação
+const isLoadingLogin = ref(false)
+const isLoadingDashboard = ref(false)
+const isLoadingTrack = ref(false)
+const isLoadingEmailTest = ref(false)
 
 // Método para obter iniciais do usuário
 const getUserInitials = (name) => {
@@ -241,67 +260,43 @@ const getUserInitials = (name) => {
     return name.substring(0, 2).toUpperCase()
 }
 
+// Funções para navegação
 const navigateToLogin = () => {
-    isLoading.value = true
+    isLoadingLogin.value = true
     setTimeout(() => {
-        router.visit('/login', {
-            onFinish: () => {
-                isLoading.value = false
-            },
-            onError: () => {
-                isLoading.value = false
-            }
-        })
+        router.visit('/login')
     }, 500)
 }
 
 const navigateToDashboard = () => {
-    isLoading.value = true
+    isLoadingDashboard.value = true
     setTimeout(() => {
-        router.visit('/home', {
-            onFinish: () => {
-                isLoading.value = false
-            },
-            onError: () => {
-                isLoading.value = false
-            }
-        })
+        router.visit('/home')
     }, 500)
 }
 
-const scrollToSection = (sectionId) => {
-    const element = document.getElementById(sectionId)
-    if (element) {
-        const offsetTop = element.offsetTop - 100
-        window.scrollTo({
-            top: offsetTop,
-            behavior: 'smooth'
-        })
-    }
+const navigateToTrack = () => {
+    isLoadingTrack.value = true
+    setTimeout(() => {
+        router.visit('/track')
+    }, 500)
 }
 
-const handleScroll = () => {
-    const sections = ['inicio', 'sobre', 'faq', 'contactos']
-    const scrollPosition = window.scrollY + 150
-
-    sections.forEach(section => {
-        const element = document.getElementById(section)
-        if (element) {
-            const offsetTop = element.offsetTop
-            const offsetBottom = offsetTop + element.offsetHeight
-
-            if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
-                activeSection.value = section
-            }
-        }
-    })
+const navigateToEmailTest = () => {
+    isLoadingEmailTest.value = true
+    setTimeout(() => {
+        router.visit('/email-test')
+    }, 500)
 }
 
-onMounted(() => {
-    window.addEventListener('scroll', handleScroll)
-})
+// Funções para links mobile que fecham o menu
+const handleMobileTrackClick = () => {
+    navigateToTrack()
+    isMobileMenuOpen.value = false
+}
 
-onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll)
-})
+const handleMobileEmailTestClick = () => {
+    navigateToEmailTest()
+    isMobileMenuOpen.value = false
+}
 </script>

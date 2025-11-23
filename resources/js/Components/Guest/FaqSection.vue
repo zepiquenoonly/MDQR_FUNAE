@@ -1,11 +1,13 @@
 <template>
     <section id="faq" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div class="max-w-4xl mx-auto">
-            <h2 class="text-4xl font-bold text-center text-brand mb-16">PERGUNTAS FREQUENTES</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-brand mb-8 sm:mb-12 md:mb-16">
+                PERGUNTAS FREQUENTES
+                </h2>
 
-            <div class="space-y-4">
-                <FaqItem v-for="(faq, index) in faqs" :key="index" :question="faq.question" :answer="faq.answer" />
-            </div>
+                <div class="space-y-4">
+                    <FaqItem v-for="(faq, index) in faqs" :key="index" :question="faq.question" :answer="faq.answer" />
+                </div>
         </div>
     </section>
 </template>

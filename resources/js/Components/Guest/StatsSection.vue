@@ -1,7 +1,9 @@
 <template>
     <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">O NOSSO IMPACTO EM NÚMEROS</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8 sm:mb-12 md:mb-16">
+                O NOSSO IMPACTO EM NÚMEROS
+            </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
                 <!-- Stat 1 -->
