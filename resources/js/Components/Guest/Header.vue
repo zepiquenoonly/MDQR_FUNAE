@@ -34,38 +34,23 @@
                             :class="{ 'text-brand': activeSection === 'contactos' }">
                             CONTACTOS
                         </a>
-
-                        <!-- Estado de Autenticação -->
-                        <template v-if="$page.props.auth.user">
-                            <!-- Usuário autenticado -->
-                            <div class="flex items-center gap-4">
-                                <div class="flex items-center gap-2 text-sm text-gray-700">
-                                    <div
-                                        class="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-white text-xs font-bold">
-                                        {{ getUserInitials($page.props.auth.user.name) }}
-                                    </div>
-                                    <span>{{ $page.props.auth.user.name }}</span>
-                                </div>
-                                <button @click="navigateToDashboard" :disabled="isLoadingDashboard"
-                                    class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                    <div v-if="isLoadingDashboard"
-                                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
-                                    {{ isLoadingDashboard ? 'A ENTRAR...' : 'IR AO PAINEL' }}
-                                </button>
-                            </div>
-                        </template>
-                        <template v-else>
-                            <!-- Usuário não autenticado -->
-                            <button @click="navigateToLogin" :disabled="isLoadingLogin"
-                                class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                <div v-if="isLoadingLogin"
-                                    class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
-                                {{ isLoadingLogin ? 'A ENTRAR...' : 'ENTRAR' }}
-                            </button>
-                        </template>
-
-                        <a v-if="!hideTrackLink" @click="navigateToTrack" :disabled="isLoadingTrack"
-                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        <button @click="navigateToDashboard" :disabled="isLoading"
+                            class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <svg v-if="!isLoading && isAuthenticated" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            {{ isLoading ? 'A CARREGAR...' : getDashboardLabel() }}
+                        </button>
+                        <a href="/track"
+                            class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -178,36 +163,21 @@
                     </div>
 
                     <div class="pt-2">
-                        <template v-if="$page.props.auth.user">
-                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                                <div class="flex items-center gap-3">
-                                    <div
-                                        class="w-10 h-10 bg-brand rounded-full flex items-center justify-center text-white text-sm font-bold">
-                                        {{ getUserInitials($page.props.auth.user.name) }}
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-medium text-gray-900">{{ $page.props.auth.user.name }}
-                                        </p>
-                                        <p class="text-xs text-gray-600">{{ $page.props.auth.user.email }}</p>
-                                    </div>
-                                </div>
-                                <button @click="navigateToDashboard" :disabled="isLoadingDashboard"
-                                    class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                                    <div v-if="isLoadingDashboard"
-                                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    {{ isLoadingDashboard ? '' : 'PAINEL' }}
-                                </button>
-                            </div>
-                        </template>
-                        <template v-else>
-                            <button @click="navigateToLogin" :disabled="isLoadingLogin"
-                                class="w-full bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-lg text-base font-semibold text-center transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                                <div v-if="isLoadingLogin"
-                                    class="animate-spin rounded-full h-5 w-5 border-b-2 border-white">
-                                </div>
-                                {{ isLoadingLogin ? 'A ENTRAR...' : 'ENTRAR' }}
-                            </button>
-                        </template>
+                        <button @click="navigateToDashboard" :disabled="isLoading"
+                            class="w-full bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-lg text-base font-semibold text-center transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white"
+                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            <svg v-if="!isLoading && isAuthenticated" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                            </svg>
+                            {{ isLoading ? 'A CARREGAR...' : getDashboardLabel() }}
+                        </button>
                     </div>
                 </div>
             </div>
@@ -230,48 +200,65 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
-import { router } from '@inertiajs/vue3'
+import { router, usePage } from '@inertiajs/vue3'
 
-const props = defineProps({
-    hideTrackLink: {
-        type: Boolean,
-        default: false
-    }
-})
-
+const page = usePage()
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
 
-// Estados de loading separados para cada ação
-const isLoadingLogin = ref(false)
-const isLoadingDashboard = ref(false)
-const isLoadingTrack = ref(false)
-const isLoadingEmailTest = ref(false)
+const user = computed(() => page.props.auth?.user || null)
+const isAuthenticated = computed(() => !!user.value)
 
-// Método para obter iniciais do usuário
-const getUserInitials = (name) => {
-    if (!name) return 'U'
-    const names = name.split(' ')
-    if (names.length >= 2) {
-        return (names[0][0] + names[names.length - 1][0]).toUpperCase()
+const getDashboardRoute = () => {
+    if (!user.value) return '/login'
+    
+    const roles = user.value.roles || []
+    const roleNames = roles.map(r => r.name.toLowerCase())
+    
+    // PCA (Ponto Central de Atendimento)
+    if (roleNames.includes('pca')) {
+        return '/pca/dashboard'
     }
-    return name.substring(0, 2).toUpperCase()
+    // Gestor
+    if (roleNames.includes('gestor')) {
+        return '/gestor/dashboard'
+    }
+    // Técnico
+    if (roleNames.includes('técnico') || roleNames.includes('tecnico')) {
+        return '/tecnico/dashboard'
+    }
+    // Utente (padrão)
+    return '/utente/dashboard'
 }
 
-// Funções para navegação
-const navigateToLogin = () => {
-    isLoadingLogin.value = true
-    setTimeout(() => {
-        router.visit('/login')
-    }, 500)
+const getDashboardLabel = () => {
+    if (!user.value) return 'ENTRAR'
+    
+    const roles = user.value.roles || []
+    const roleNames = roles.map(r => r.name.toLowerCase())
+    
+    if (roleNames.includes('pca')) return 'DASHBOARD PCA'
+    if (roleNames.includes('gestor')) return 'DASHBOARD GESTOR'
+    if (roleNames.includes('técnico') || roleNames.includes('tecnico')) return 'DASHBOARD TÉCNICO'
+    return 'MEU DASHBOARD'
 }
+
+const navigateToDashboard = () => {
+    isLoading.value = true
 
 const navigateToDashboard = () => {
     isLoadingDashboard.value = true
     setTimeout(() => {
-        router.visit('/home')
+        router.visit(getDashboardRoute(), {
+            onFinish: () => {
+                isLoading.value = false
+            },
+            onError: () => {
+                isLoading.value = false
+            }
+        })
     }, 500)
 }
 

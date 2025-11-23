@@ -25,7 +25,8 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'username' => $user->username,
-                    'role' => $user->getRoleNames()->first() ?? 'Utente',
+                    'roles' => $user->roles()->get(['id', 'name'])->toArray(),
+                  //  'role' => $user->getRoleNames()->first() ?? 'Utente',
                 ] : null,
             ],
             'flash' => [
