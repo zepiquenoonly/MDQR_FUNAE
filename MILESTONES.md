@@ -345,5 +345,187 @@ Preparar o ambiente de produção (Deployment) e realizar a transferência do c�
 
 ---
 
-**Última Atualização**: 12 de Janeiro, 2025  
+## 🚀 Features Implementadas Recentemente
+
+### Novembro 2025
+
+#### ✅ Sistema Completo de Notificações por Email
+**Commits**: `#28` a `#34`, `e3bfa8b`, `02663b7`, `a9256b5`, `f343658`, `559065e`  
+**Status**: ✅ Concluído
+
+**Funcionalidades:**
+- Sistema completo de notificações automáticas por email
+- 6 tipos de emails implementados:
+  - ✉️ Reclamação criada (GrievanceCreated)
+  - 🔄 Status alterado (GrievanceStatusChanged)
+  - 👤 Atribuída a técnico (GrievanceAssigned)
+  - 💬 Comentário adicionado (GrievanceCommentAdded)
+  - ✅ Reclamação resolvida (GrievanceResolved)
+  - ❌ Reclamação rejeitada (GrievanceRejected)
+- Templates HTML e texto para todos os emails
+- Observer pattern (GrievanceObserver) para disparo automático
+- Service layer (NotificationService) para lógica de notificação
+- Sistema de tracking de notificações (grievance_notifications table)
+
+**Melhorias Técnicas:**
+- Labels de status traduzidos em português
+- Data de resolução nos emails de conclusão
+- Validação de destinatários (user_id vs contact_email)
+- Tratamento de erros e logging
+
+#### ✅ Sistema de Teste de Emails
+**Commits**: `1b7b41c`, `b8effd1`, `264da76`, `cb87ebb`, `6cc8b41`, `02663b7`, `559065e`  
+**Status**: ✅ Concluído
+
+**Funcionalidades:**
+- Interface web para testar todos os tipos de emails
+- Comando Artisan para testes via terminal
+- Criação automática de grievances de teste
+- Seleção de tipo de email específico ou todos
+- Feedback visual de sucesso/erro
+- Estados de loading durante envio
+- Link de acesso nos menus mobile e desktop
+
+**Comandos Disponíveis:**
+```bash
+# Testar todos os emails
+php artisan email:test
+
+# Testar tipo específico
+php artisan email:test created
+php artisan email:test status-changed
+php artisan email:test assigned
+php artisan email:test resolved
+php artisan email:test rejected
+
+# Especificar destinatário
+php artisan email:test --email=teste@example.com
+
+# Usar grievance existente
+php artisan email:test --grievance=1
+```
+
+#### ✅ Sistema de Tipos de Grievances
+**Commits**: `718c6ef`, `2d77438`, `47ac8e0`  
+**Status**: ✅ Concluído
+
+**Funcionalidades:**
+- 3 tipos distintos de submissões:
+  - 🔴 Queixa (Grievance)
+  - 📋 Reclamação (Complaint)
+  - 💡 Sugestão (Suggestion)
+- Campo enum na base de dados
+- Validação de tipo no backend
+- Interface de seleção no formulário
+- Lógica específica por tipo quando necessário
+
+#### ✅ Atualização de Branding e Terminologia
+**Commits**: `3df181a`, `86dd1b4`, `e2edd2f`, `750c1d6`  
+**Data**: 22 de Novembro de 2025  
+**Status**: ✅ Concluído
+
+**Alterações:**
+- Mudança de "denúncia" para "queixa" em toda aplicação
+- Landing page estática (landingpage.html):
+  - Hero: "DENUNCIE, SUGIRA, RECLAME!" → "RECLAME, SUGIRA, QUEIXA!"
+  - CTA: "DENUNCIE JÁ" → "RECLAME JÁ"
+  - Cards: "DENÚNCIAS" → "QUEIXAS"
+  - Stats: "DENÚNCIAS RESOLVIDAS" → "QUEIXAS RESOLVIDAS"
+  - FAQs atualizadas
+  - Footer: "Denúncia" → "Queixa"
+
+- Componentes Vue (landing page):
+  - HeroSection.vue
+  - CardsSection.vue
+  - StatsSection.vue
+  - FaqSection.vue
+  - Footer.vue
+  - PlatformSection.vue
+
+- Página de Autenticação (Main.vue):
+  - Carrossel mobile
+  - Overlays desktop (esquerdo e direito)
+  - "Denuncie aqui" → "Queixe-se aqui"
+
+**Impacto:**
+- ✅ Consistência de branding
+- ✅ Linguagem mais acolhedora
+- ✅ Melhor alinhamento com propósito do sistema
+- ✅ Experiência de usuário aprimorada
+
+#### ✅ Correções e Melhorias no Seeder
+**Commits**: `df6bc38`, `b944b70`, `d3b8472`, `426d9f1`, `044c77e`  
+**Status**: ✅ Concluído
+
+**Melhorias:**
+- Uso de `firstOrCreate` para evitar duplicação de updates
+- Uso de `updateOrCreate` para garantir idempotência
+- Limpeza de dados duplicados
+- Validação de campo `type` em todos os grievances
+- 8 grievances de exemplo com diferentes estados:
+  - Submetida (recente e anônima)
+  - Em Análise
+  - Em Andamento
+  - Pendente de Aprovação
+  - Resolvida
+  - Rejeitada
+  - Atribuída (prioridade alta)
+
+#### ✅ Correção de Templates de Email
+**Commits**: `e0dd0a6`, `c1b172b`  
+**Status**: ✅ Concluído
+
+**Correções:**
+- Variáveis `$oldStatusLabel` e `$newStatusLabel` definidas
+- Array de statusLabels passado via método `content()`
+- Remoção de código redundante
+- Templates limpos e consistentes
+
+#### ✅ Melhorias de Dashboard
+**Commit**: `f35bbaf`  
+**Status**: ✅ Concluído
+
+**Correções:**
+- Problemas no dashboard do gestor corrigidos
+- Melhor visualização de estatísticas
+- Performance otimizada
+
+---
+
+## 📈 Progresso Geral
+
+### Features Core Implementadas (v0.3)
+- ✅ Sistema de autenticação completo
+- ✅ Gestão de roles e permissões (Spatie)
+- ✅ Submissão de queixas/reclamações/sugestões
+- ✅ Upload de anexos (Storage)
+- ✅ Sistema de tipos (Queixa, Reclamação, Sugestão)
+- ✅ Alocação automática de técnicos
+- ✅ Dashboard de técnico
+- ✅ Dashboard de gestor
+- ✅ Dashboard de PCA
+- ✅ Sistema completo de notificações por email
+- ✅ Templates de email (HTML + texto)
+- ✅ Observer pattern para automação
+- ✅ Sistema de teste de emails
+- ✅ Tracking de status em tempo real
+- ✅ Histórico de atualizações
+- ✅ Landing page responsiva
+- ✅ Branding atualizado
+
+### Próximas Features (Backlog)
+- 🔄 Notificações SMS
+- 🔄 Sistema de feedback do utente
+- 🔄 Avaliação de satisfação
+- 🔄 Relatórios avançados e exportação
+- 🔄 Dashboard analítico completo
+- 🔄 API REST para integrações
+- 🔄 App mobile (Flutter/React Native)
+- 🔄 Chat em tempo real (WebSockets)
+- 🔄 Sistema de escalação automática
+
+---
+
+**Última Atualização**: 22 de Novembro, 2025  
+**Versão Atual**: 0.3  
 **Equipa**: TECHSOLUTIONS, LDA

@@ -110,7 +110,7 @@ const categoryLabels = {
     <Head title="Acompanhar Reclamação" />
 
     <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
-        <Header :auth-routes="authRoutes" />
+        <Header hide-track-link />
 
         <!-- Hero Section -->
         <div class="bg-brand text-white mt-16">

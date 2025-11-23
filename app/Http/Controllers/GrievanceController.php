@@ -16,31 +16,78 @@ class GrievanceController extends Controller
     /**
      * Display a listing of grievances for the authenticated user.
      */
-    public function index()
-    {
-        $user = auth()->user();
+ public function index(Request $request)
+{
+    $user = auth()->user();
+    $filters = $request->only(['priority', 'status', 'category', 'type']);
 
-        // Se o usuário for utente, mostrar apenas suas reclamações
-        if ($user->hasRole('utente')) {
-            $grievances = Grievance::where('user_id', $user->id)
-                ->orWhere(function ($query) use ($user) {
-                    $query->where('is_anonymous', false)
-                        ->where('contact_email', $user->email);
-                })
-                ->with(['attachments'])
-                ->orderBy('submitted_at', 'desc')
-                ->paginate(10);
-        } else {
-            // Para outros roles, mostrar todas as reclamações
-            $grievances = Grievance::with(['user', 'assignedUser', 'attachments'])
-                ->orderBy('submitted_at', 'desc')
-                ->paginate(10);
-        }
+    // Query base
+    $query = Grievance::query();
 
-        return Inertia::render('Grievances/Index', [
-            'grievances' => $grievances
-        ]);
+    // Se o usuário for utente, mostrar apenas suas reclamações
+    if ($user->hasRole('utente')) {
+        $query->where('user_id', $user->id)
+            ->orWhere(function ($query) use ($user) {
+                $query->where('is_anonymous', false)
+                    ->where('contact_email', $user->email);
+            });
     }
+
+    // Aplicar filtros para a visualização normal
+    foreach ($filters as $field => $value) {
+        if ($value) {
+            $query->where($field, $value);
+        }
+    }
+
+    // Dados filtrados para a visualização normal
+    $grievances = $query->with(['attachments'])
+        ->orderBy('submitted_at', 'desc')
+        ->get();
+
+    // Query para TODOS os dados (sem filtros)
+    $allGrievancesQuery = Grievance::query();
+    
+    if ($user->hasRole('utente')) {
+        $allGrievancesQuery->where('user_id', $user->id)
+            ->orWhere(function ($query) use ($user) {
+                $query->where('is_anonymous', false)
+                    ->where('contact_email', $user->email);
+            });
+    }
+
+    $allComplaints = $allGrievancesQuery->with(['user', 'assignedUser', 'attachments'])
+        ->orderBy('submitted_at', 'desc')
+        ->get()
+        ->map(function ($grievance) {
+            return [
+                'id' => $grievance->id,
+                'title' => $grievance->description, // Usando description como título
+                'description' => $grievance->description,
+                'type' => 'complaint', // Defina conforme seu modelo
+                'priority' => $grievance->priority,
+                'status' => $grievance->status,
+                'category' => $grievance->category,
+                'subcategory' => $grievance->subcategory,
+                'created_at' => $grievance->created_at,
+                'submitted_at' => $grievance->submitted_at,
+                // Adicione outros campos necessários do seu modelo
+                'reference_number' => $grievance->reference_number,
+                'province' => $grievance->province,
+                'district' => $grievance->district,
+                'location_details' => $grievance->location_details,
+                'assigned_user' => $grievance->assignedUser ? [
+                    'name' => $grievance->assignedUser->name,
+                ] : null,
+            ];
+        });
+
+    return Inertia::render('Grievances/Index', [
+        'grievances' => $grievances,
+        'allComplaints' => $allComplaints, // ← AGORA ESTÁ SENDO USADA
+        'filters' => $filters,
+    ]);
+}
 
     /**
      * Show the form for creating a new grievance.
@@ -317,5 +364,84 @@ class GrievanceController extends Controller
         ];
 
         return response()->json($locations);
+    }
+
+    /**
+     * Bulk assign grievances to technicians
+     */
+    public function bulkAssign()
+    {
+        try {
+            // Lógica de atribuição em massa
+            $unassignedGrievances = Grievance::whereNull('assigned_to')
+                ->where('status', 'submitted')
+                ->get();
+
+            $technicians = User::role('Técnico')->get();
+
+            if ($technicians->isEmpty()) {
+                return back()->with('error', 'Nenhum técnico disponível para atribuição.');
+            }
+
+            $assignedCount = 0;
+            $technicianIndex = 0;
+
+            foreach ($unassignedGrievances as $grievance) {
+                $technician = $technicians[$technicianIndex];
+                
+                $grievance->update([
+                    'assigned_to' => $technician->id,
+                    'status' => 'in_progress',
+                    'assigned_at' => now()
+                ]);
+
+                $assignedCount++;
+                $technicianIndex = ($technicianIndex + 1) % $technicians->count();
+            }
+
+            return back()->with('success', "{$assignedCount} reclamações atribuídas automaticamente.");
+
+        } catch (\Exception $e) {
+            Log::error('Erro na atribuição em massa: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao realizar atribuição automática.');
+        }
+    }
+
+    /**
+     * Export grievances data
+     */
+    public function export(Request $request)
+    {
+        try {
+            $filters = $request->only(['priority', 'status', 'category', 'type']);
+            
+            $query = Grievance::query();
+            
+            // Aplicar filtros
+            foreach ($filters as $field => $value) {
+                if ($value) {
+                    $query->where($field, $value);
+                }
+            }
+
+            $grievances = $query->with(['user', 'assignedUser'])
+                ->orderBy('submitted_at', 'desc')
+                ->get();
+
+            // Aqui você pode implementar a lógica de exportação para CSV, Excel, etc.
+            // Por enquanto, retornamos JSON
+            return response()->json([
+                'success' => true,
+                'data' => $grievances,
+                'filters' => $filters
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error('Erro ao exportar dados: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao exportar dados.'
+            ], 500);
+        }
     }
 }

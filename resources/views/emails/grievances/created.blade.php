@@ -59,53 +59,53 @@
 </head>
 <body>
     <div class="header">
-        <h1>📝 Reclamação Recebida</h1>
+        <h1>📝 {{ $grievance->type_label }} Recebida</h1>
     </div>
-    
+
     <div class="content">
         <p>Prezado(a),</p>
-        
-        <p>A sua reclamação foi recebida com sucesso pelo sistema de gestão de reclamações da FUNAE.</p>
-        
+
+        <p>A sua {{ $grievance->type_label_lowercase }} foi recebida com sucesso pelo sistema de gestão de reclamações da FUNAE.</p>
+
         <div class="reference">
             {{ $grievance->reference_number }}
         </div>
-        
+
         <div class="info-box">
             <strong>Categoria:</strong> {{ $grievance->category }}<br>
             <strong>Data de Submissão:</strong> {{ $grievance->submitted_at->format('d/m/Y H:i') }}<br>
             <strong>Estado Atual:</strong> {{ $grievance->status_label }}
         </div>
-        
+
         <p>
             Guarde este número de referência para poder acompanhar o progresso da sua reclamação.
         </p>
-        
+
         <p style="text-align: center;">
             <a href="{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}" class="button">
-                Acompanhar Reclamação
+                Acompanhar {{ $grievance->type_label }}
             </a>
         </p>
-        
+
         <div class="info-box">
             <strong>Próximos Passos:</strong>
             <ul>
-                <li>A sua reclamação será analisada pela nossa equipa</li>
+                <li>A sua {{ $grievance->type_label_lowercase }} será analisada pela nossa equipa</li>
                 <li>Receberá notificações por email sobre cada atualização</li>
                 <li>Pode acompanhar o progresso online a qualquer momento</li>
             </ul>
         </div>
-        
+
         <p>
             Se tiver alguma dúvida, pode entrar em contacto connosco através dos canais habituais.
         </p>
-        
+
         <p>
             Atenciosamente,<br>
             <strong>Equipa FUNAE</strong>
         </p>
     </div>
-    
+
     <div class="footer">
         <p>
             Esta é uma mensagem automática. Por favor não responda a este email.<br>

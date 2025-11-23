@@ -1,7 +1,9 @@
 <template>
     <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
         <div class="max-w-7xl mx-auto">
-            <h2 class="text-4xl font-bold text-center text-gray-900 mb-16">O NOSSO IMPACTO EM NÚMEROS</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-8 sm:mb-12 md:mb-16">
+                O NOSSO IMPACTO EM NÚMEROS
+            </h2>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-16">
                 <!-- Stat 1 -->
@@ -10,8 +12,8 @@
                         class="w-36 h-36 border-8 border-orange-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl font-bold text-orange-500 animate-pulse">
                         85%
                     </div>
-                    <h4 class="text-xl font-semibold text-gray-900 mb-4">DENÚNCIAS RESOLVIDAS</h4>
-                    <p class="text-gray-600">Mais de 85% das denúncias foram tratadas com sucesso.</p>
+                    <h4 class="text-xl font-semibold text-gray-900 mb-4">QUEIXAS RESOLVIDAS</h4>
+                    <p class="text-gray-600">Mais de 85% das queixas foram tratadas com sucesso.</p>
                 </div>
 
                 <!-- Stat 2 -->

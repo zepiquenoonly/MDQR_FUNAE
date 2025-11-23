@@ -4,8 +4,93 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "c868c8e563d6f64a98710e01a309eac9",
+    "content-hash": "b4443af727f41046856ee133709bd1c5",
     "packages": [
+        {
+            "name": "arnaldotomo/laravel-lusophone",
+            "version": "1.0.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/arnaldo-tomo/laravel-lusophone.git",
+                "reference": "9791b35c402080a6ccba76c311bdb946ccfaf5ed"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/arnaldo-tomo/laravel-lusophone/zipball/9791b35c402080a6ccba76c311bdb946ccfaf5ed",
+                "reference": "9791b35c402080a6ccba76c311bdb946ccfaf5ed",
+                "shasum": ""
+            },
+            "require": {
+                "ext-bcmath": "*",
+                "ext-json": "*",
+                "laravel/framework": "^10.0|^11.0|^12.0",
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "laravel/pint": "^1.0",
+                "mockery/mockery": "^1.4.4",
+                "orchestra/testbench": "^8.0|^9.0",
+                "phpstan/phpstan": "^1.0",
+                "phpunit/phpunit": "^10.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "aliases": {
+                        "Lusophone": "ArnaldoTomo\\LaravelLusophone\\Facades\\Lusophone"
+                    },
+                    "providers": [
+                        "ArnaldoTomo\\LaravelLusophone\\LaravelLusophoneServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "ArnaldoTomo\\LaravelLusophone\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Arnaldo Tomo",
+                    "email": "arnaldotomo.dev@gmail.com",
+                    "homepage": "https://arnaldotomo.dev",
+                    "role": "Developer"
+                }
+            ],
+            "description": "The complete Portuguese localization package for Laravel applications. Automatically translates ALL application text and adapts to all Lusophone countries with smart region detection, cultural context awareness, and comprehensive validation rules. Now with universal translation system!",
+            "homepage": "https://github.com/arnaldo-tomo/laravel-lusophone",
+            "keywords": [
+                "Authentication",
+                "NIF",
+                "angola",
+                "brasil",
+                "breeze",
+                "cabo-verde",
+                "cpf",
+                "i18n",
+                "jetstream",
+                "l10n",
+                "laravel",
+                "localization",
+                "lusophone",
+                "mozambique",
+                "nuit",
+                "portugal",
+                "portuguese",
+                "translation",
+                "validation"
+            ],
+            "support": {
+                "docs": "https://github.com/arnaldo-tomo/laravel-lusophone#readme",
+                "issues": "https://github.com/arnaldo-tomo/laravel-lusophone/issues",
+                "source": "https://github.com/arnaldo-tomo/laravel-lusophone"
+            },
+            "time": "2025-07-23T15:17:04+00:00"
+        },
         {
             "name": "brick/math",
             "version": "0.14.0",

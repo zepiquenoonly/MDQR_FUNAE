@@ -1,11 +1,13 @@
 <template>
     <section id="faq" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
         <div class="max-w-4xl mx-auto">
-            <h2 class="text-4xl font-bold text-center text-brand mb-16">PERGUNTAS FREQUENTES</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-brand mb-8 sm:mb-12 md:mb-16">
+                PERGUNTAS FREQUENTES
+                </h2>
 
-            <div class="space-y-4">
-                <FaqItem v-for="(faq, index) in faqs" :key="index" :question="faq.question" :answer="faq.answer" />
-            </div>
+                <div class="space-y-4">
+                    <FaqItem v-for="(faq, index) in faqs" :key="index" :question="faq.question" :answer="faq.answer" />
+                </div>
         </div>
     </section>
 </template>
@@ -15,8 +17,8 @@ import FaqItem from './FaqItem.vue'
 
 const faqs = [
     {
-        question: 'Como posso fazer uma denúncia na plataforma?',
-        answer: 'Para fazer uma denúncia, basta acessar o sistema, criar ou entrar no seu perfil e selecionar o projeto relacionado à denúncia. Depois, preencha o formulário com os detalhes necessários e envie sua solicitação.'
+        question: 'Como posso fazer uma queixa na plataforma?',
+        answer: 'Para fazer uma queixa, basta acessar o sistema, criar ou entrar no seu perfil e selecionar o projeto relacionado à queixa. Depois, preencha o formulário com os detalhes necessários e envie sua solicitação.'
     },
     {
         question: 'É possível acompanhar o status da minha reclamação?',
@@ -28,11 +30,11 @@ const faqs = [
     },
     {
         question: 'Como posso enviar documentos ou provas anexas?',
-        answer: 'Durante o preenchimento do formulário, você pode anexar documentos, fotos ou outros arquivos relevantes para apoiar sua denúncia ou sugestão.'
+        answer: 'Durante o preenchimento do formulário, você pode anexar documentos, fotos ou outros arquivos relevantes para apoiar sua queixa ou sugestão.'
     },
     {
-        question: 'Quem tem acesso às denúncias enviadas?',
-        answer: 'Apenas os gestores e técnicos autorizados têm acesso às denúncias para garantir a privacidade e segurança das informações.'
+        question: 'Quem tem acesso às queixas enviadas?',
+        answer: 'Apenas os gestores e técnicos autorizados têm acesso às queixas para garantir a privacidade e segurança das informações.'
     },
     {
         question: 'Como posso alterar as informações do meu perfil?',

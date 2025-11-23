@@ -1,110 +1,212 @@
 <template>
-    <Layout :stats="stats">
-        <div class="space-y-6">
-            <!-- KPIs Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <KpiCard title="Total em Aberto" :value="stats.pending_complaints || 0"
+    <Layout :stats="safeStats">
+        <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
+        <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
+
+        <!-- Renderizar TecnicoList quando o panel for 'tecnicos' -->
+        <TecnicoList v-else-if="activePanel === 'tecnicos'" />
+
+        <!-- Conteúdo normal do dashboard para outros casos -->
+        <div v-else class="space-y-3 sm:space-y-6">
+            <!-- KPIs Grid - Melhorado para mobile -->
+            <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
+                <KpiCard title="Total em Aberto" :value="safeStats.pending_complaints || 0"
                     description="Reclamações não resolvidas" icon="ExclamationTriangleIcon" trend="up" />
 
-                <KpiCard title="Em Progresso" :value="stats.in_progress || 0" description="Com técnicos atribuídos"
+                <KpiCard title="Em Progresso" :value="safeStats.in_progress || 0" description="Com técnicos atribuídos"
                     icon="ClockIcon" trend="stable" />
 
-                <KpiCard title="Urgentes (Alta)" :value="stats.high_priority || 0"
-                    description="Encaminhar ao Director se crítico" icon="ExclamationCircleIcon" trend="up" />
+                <KpiCard title="Urgentes (Alta)" :value="safeStats.high_priority || 0"
+                    description="Encaminhar se crítico" icon="ExclamationCircleIcon" trend="up" />
 
-                <KpiCard title="Solicitações de Conclusão" :value="stats.pending_completion_requests || 0"
+                <KpiCard title="Solicitações" :value="safeStats.pending_completion_requests || 0"
                     description="Aguardando aprovação" icon="CheckCircleIcon" trend="down" />
             </div>
 
             <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 gap-3 sm:gap-6">
                 <!-- Recent Complaints -->
-                <div class="lg:col-span-3">
-                    <ComplaintsList :complaints="complaints.data" :filters="filters" @update:filters="updateFilters"
+                <div>
+                    <ComplaintsList :complaints="safeComplaints.data || []" :filters="safeFilters"
+                        :all-complaints="safeAllComplaints" @update:filters="updateFilters"
                         @select-complaint="selectComplaint" @show-details="showDetailsModal" />
                 </div>
             </div>
 
-            <!-- Complaint Details Modal -->
+            <!-- Complaint Details Modal - Melhorado para mobile -->
             <div v-if="showModal"
-                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                <div class="bg-white rounded-xl shadow-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-1 sm:p-4 z-50">
+                <div
+                    class="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-lg w-full h-full sm:h-auto sm:max-w-4xl sm:max-h-[90vh] overflow-y-auto">
                     <div
-                        class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-                        <h3 class="text-lg font-semibold text-gray-800">Detalhes da Reclamação</h3>
-                        <button @click="closeModal" class="text-gray-400 hover:text-gray-600 transition-colors">
-                            <XMarkIcon class="w-6 h-6" />
+                        class="sticky top-0 bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-gray-700 px-3 sm:px-6 py-2 sm:py-4 flex justify-between items-center">
+                        <h3 class="text-sm sm:text-lg font-semibold text-gray-800 dark:text-dark-text-primary">
+                            Detalhes da Reclamação</h3>
+                        <button @click="closeModal"
+                            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors p-1">
+                            <XMarkIcon class="w-5 h-5 sm:w-6 sm:h-6" />
                         </button>
                     </div>
-                    <div class="p-6">
-                        <ComplaintDetails :complaint="selectedComplaint" :technicians="technicians"
-                            @close="showModal = false" @update-priority="updatePriority"
+                    <div class="p-3 sm:p-6">
+                        <ComplaintDetails :complaint="selectedComplaint" :technicians="safeTechnicians"
+                            :hide-buttons="true" @close="showModal = false" @update-priority="updatePriority"
                             @reassign-technician="reassignTechnician" @send-to-director="sendToDirector"
                             @mark-complete="markComplete" />
                     </div>
                 </div>
             </div>
-           
         </div>
     </Layout>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
 import Layout from '@/Layouts/ManagerLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import ComplaintsList from '@/Components/GestorReclamacoes/ComplaintsList.vue'
 import ComplaintDetails from '@/Components/GestorReclamacoes/ComplaintDetails.vue'
-import ChartsSection from '@/Components/GestorReclamacoes/ChartsSection.vue'
+import ProjectsManager from '@/Components/Dashboard/ProjectsManager.vue'
+import TecnicoList from '@/Components/GestorReclamacoes/TecnicoList.vue'
 
-// Props do backend
+// Usar usePage() para acessar as props de forma reativa
+const page = usePage()
+
+// Props do backend com valores padrão seguros - agora reativos via usePage()
 const props = defineProps({
     complaints: {
-        type: Object,
+        type: [Object, null],
         default: () => ({ data: [] })
     },
+    allComplaints: {
+        type: [Array, null],
+        default: () => []
+    },
     stats: {
-        type: Object,
+        type: [Object, null],
         default: () => ({})
     },
     technicians: {
-        type: Array,
+        type: [Array, null],
         default: () => []
     },
     filters: {
-        type: Object,
+        type: [Object, null],
         default: () => ({})
+    },
+    canEdit: {
+        type: Boolean,
+        default: false
     }
 })
 
+// Computed properties seguras para evitar null errors - agora reativas
+const safeComplaints = computed(() => page.props.complaints || props.complaints || { data: [] })
+const safeAllComplaints = computed(() => page.props.allComplaints || props.allComplaints || [])
+const safeStats = computed(() => page.props.stats || props.stats || {})
+const safeTechnicians = computed(() => page.props.technicians || props.technicians || [])
+const safeFilters = computed(() => page.props.filters || props.filters || {})
+
 // Estado local
-const selectedComplaint = ref(props.complaints.data?.[0] ?? null)
-const localFilters = ref({ ...props.filters })
+const selectedComplaint = ref(null)
+const localFilters = ref({ ...safeFilters.value })
 const showModal = ref(false)
+const dataLoaded = ref(false)
+
+// Determinar o panel ativo baseado na URL
+const activePanel = computed(() => {
+    const urlParams = new URLSearchParams(window.location.search)
+    const panelFromUrl = urlParams.get('panel')
+    console.log('🔍 Panel ativo:', panelFromUrl)
+
+    if (panelFromUrl === 'projectos') return 'projectos'
+    if (panelFromUrl === 'tecnicos') return 'tecnicos'
+    return 'dashboard'
+})
+
+// Inicializar selectedComplaint quando os dados estiverem disponíveis
+const initializeSelectedComplaint = () => {
+    if (safeComplaints.value.data?.length && !selectedComplaint.value) {
+        selectedComplaint.value = safeComplaints.value.data[0]
+        dataLoaded.value = true
+    }
+}
+
+// Watcher para detectar mudanças no panel
+watch(activePanel, (newPanel, oldPanel) => {
+    console.log('🔄 Mudança de panel:', { de: oldPanel, para: newPanel })
+
+    // Se estamos voltando para o dashboard, garantir que os dados estão atualizados
+    if (newPanel === 'dashboard' && oldPanel !== 'dashboard') {
+        console.log('🔄 Voltando para dashboard - recarregando dados...')
+        reloadDashboardData()
+    }
+})
+
+// Watcher para complaints data - mais robusto
+watch(
+    () => safeComplaints.value.data,
+    (newData) => {
+        console.log('📊 Dados de complaints atualizados:', newData?.length)
+        if (newData?.length && !selectedComplaint.value) {
+            selectedComplaint.value = newData[0]
+            dataLoaded.value = true
+        }
+    },
+    { immediate: true, deep: true }
+)
+
+// Watcher para detectar quando as props são atualizadas via Inertia
+watch(
+    () => page.props.complaints,
+    (newComplaints) => {
+        console.log('🔄 Props atualizadas via Inertia:', newComplaints?.data?.length)
+        if (newComplaints?.data?.length && !selectedComplaint.value) {
+            selectedComplaint.value = newComplaints.data[0]
+            dataLoaded.value = true
+        }
+    },
+    { deep: true }
+)
 
 // Watcher para filtros
 watch(localFilters, (newFilters) => {
-    router.reload({
-        data: newFilters,
-        preserveState: true,
-        replace: true
-    })
-})
-
-watch(
-    () => props.complaints.data,
-    (data) => {
-        if (!data?.length) {
-            selectedComplaint.value = null
-            return
-        }
-
-        const currentId = selectedComplaint.value?.id
-        selectedComplaint.value = data.find((item) => item.id === currentId) ?? data[0]
+    if (activePanel.value === 'dashboard') {
+        console.log('🔍 Aplicando filtros:', newFilters)
+        router.reload({
+            data: newFilters,
+            preserveState: true,
+            replace: true,
+            only: ['complaints', 'stats', 'filters', 'allComplaints', 'technicians']
+        })
     }
-)
+}, { deep: true })
+
+// Função para recarregar dados do dashboard
+const reloadDashboardData = () => {
+    console.log('🔄 Recarregando dados do dashboard...')
+    dataLoaded.value = false
+    selectedComplaint.value = null
+
+    router.reload({
+        preserveState: true,
+        preserveScroll: true,
+        only: ['complaints', 'stats', 'allComplaints', 'technicians', 'filters'],
+        onSuccess: () => {
+            console.log('✅ Dados recarregados com sucesso')
+            // Pequeno delay para garantir que o DOM foi atualizado
+            nextTick(() => {
+                initializeSelectedComplaint()
+                dataLoaded.value = true
+            })
+        },
+        onError: (errors) => {
+            console.error('❌ Erro ao recarregar dados:', errors)
+            dataLoaded.value = true
+        }
+    })
+}
 
 // Handlers
 const selectComplaint = (complaint) => {
@@ -130,7 +232,10 @@ const updatePriority = async ({ complaintId, priority }) => {
             priority
         }, {
             preserveScroll: true,
-            preserveState: true
+            preserveState: true,
+            onSuccess: () => {
+                reloadDashboardData()
+            }
         })
     } catch (error) {
         console.error('Error updating priority:', error)
@@ -143,7 +248,10 @@ const reassignTechnician = async ({ complaintId, technicianId }) => {
             technician_id: technicianId
         }, {
             preserveScroll: true,
-            preserveState: true
+            preserveState: true,
+            onSuccess: () => {
+                reloadDashboardData()
+            }
         })
     } catch (error) {
         console.error('Error reassigning technician:', error)
@@ -154,10 +262,13 @@ const sendToDirector = async (complaintId) => {
     try {
         await router.post(route('complaints.escalate', complaintId), {}, {
             preserveScroll: true,
-            preserveState: true
+            preserveState: true,
+            onSuccess: () => {
+                reloadDashboardData()
+            }
         })
     } catch (error) {
-        console.error('Error escalating to director:', error)
+        console.error('Error sending to director:', error)
     }
 }
 
@@ -165,10 +276,55 @@ const markComplete = async (complaintId) => {
     try {
         await router.patch(route('complaints.complete', complaintId), {}, {
             preserveScroll: true,
-            preserveState: true
+            preserveState: true,
+            onSuccess: () => {
+                reloadDashboardData()
+            }
         })
     } catch (error) {
-        console.error('Error marking as complete:', error)
+        console.error('Error marking complete:', error)
     }
+}
+
+// Recarregar dados quando o componente for montado
+onMounted(() => {
+    console.log('🚀 Dashboard montado - Panel atual:', activePanel.value)
+    console.log('📊 Dados iniciais:', {
+        complaints: safeComplaints.value?.data?.length,
+        stats: safeStats.value,
+        allComplaints: safeAllComplaints.value?.length,
+        technicians: safeTechnicians.value?.length
+    })
+
+    // Inicializar selected complaint
+    initializeSelectedComplaint()
+
+    // Se estamos no dashboard, garantir que os dados estão carregados
+    if (activePanel.value === 'dashboard') {
+        // Verificar se os dados já estão carregados, se não, recarregar
+        if (!safeComplaints.value.data?.length) {
+            console.log('📊 Dados vazios - recarregando...')
+            reloadDashboardData()
+        }
+    }
+})
+
+// Adicionar listener para popstate (navegação pelo browser)
+onMounted(() => {
+    window.addEventListener('popstate', handlePopState)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('popstate', handlePopState)
+})
+
+const handlePopState = () => {
+    // Pequeno delay para garantir que a URL já foi atualizada
+    setTimeout(() => {
+        if (activePanel.value === 'dashboard') {
+            console.log('🔙 Navegação do browser - recarregando dados')
+            reloadDashboardData()
+        }
+    }, 100)
 }
 </script>

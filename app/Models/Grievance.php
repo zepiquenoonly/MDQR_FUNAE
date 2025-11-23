@@ -46,6 +46,7 @@ class Grievance extends Model
     protected $fillable = [
         'user_id',
         'reference_number',
+        'type',
         'description',
         'category',
         'subcategory',
@@ -235,6 +236,39 @@ class Grievance extends Model
     }
 
     /**
+     * Tipos de grievance
+     */
+    public const TYPE_GRIEVANCE = 'grievance';    // Queixa
+    public const TYPE_COMPLAINT = 'complaint';     // Reclamação
+    public const TYPE_SUGGESTION = 'suggestion';   // Sugestão
+
+    /**
+     * Get type label in Portuguese.
+     */
+    public function getTypeLabelAttribute(): string
+    {
+        return match($this->type) {
+            self::TYPE_GRIEVANCE => 'Queixa',
+            self::TYPE_COMPLAINT => 'Reclamação',
+            self::TYPE_SUGGESTION => 'Sugestão',
+            default => 'Reclamação',
+        };
+    }
+
+    /**
+     * Get type label in lowercase for use in sentences.
+     */
+    public function getTypeLabelLowercaseAttribute(): string
+    {
+        return match($this->type) {
+            self::TYPE_GRIEVANCE => 'queixa',
+            self::TYPE_COMPLAINT => 'reclamação',
+            self::TYPE_SUGGESTION => 'sugestão',
+            default => 'reclamação',
+        };
+    }
+
+    /**
      * Get status label in Portuguese.
      */
     public function getStatusLabelAttribute(): string
@@ -268,6 +302,7 @@ class Grievance extends Model
      */
     public function getEffectiveEmailAttribute(): ?string
     {
-        return $this->is_anonymous ? ($this->attributes['contact_email'] ?? null) : $this->user?->email;
+        // Use attributes array to avoid recursion
+        return $this->is_anonymous ? $this->attributes['contact_email'] ?? null : $this->user?->email;
     }
 }

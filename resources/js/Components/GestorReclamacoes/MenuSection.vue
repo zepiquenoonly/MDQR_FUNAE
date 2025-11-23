@@ -11,17 +11,20 @@
     <!-- Menu Items -->
     <MenuItem
       :active="$page.url === '/home' || $page.url === '/admin/dashboard' || $page.url === '/gestor/dashboard' || $page.url === '/tecnico/dashboard' || $page.url === '/utente/dashboard'"
-      :icon="HomeIcon" :text="'Dashboard'" :is-collapsed="isCollapsed"
+      :icon="HomeIcon" :text="'Home'" :is-collapsed="isCollapsed"
       :href="$page.url.startsWith('/home') ? '/home' : '/admin/dashboard'" />
 
-    <!-- Casos Dropdown -->
+    <!-- Casos Dropdown
     <MenuDropdown id="casos" :icon="DocumentTextIcon" :text="'Casos'" :badge="stats.pending_complaints || 0"
       :is-collapsed="isCollapsed" :items="casosItems" :dropdown-manager="dropdownManager"
-      @item-clicked="handleItemClick" />
+      @item-clicked="handleItemClick" /> -->
 
     <!-- Projetos Dropdown -->
-    <MenuDropdown id="projetos" :icon="FolderIcon" :text="'Projetos'" :is-collapsed="isCollapsed" :items="projetosItems"
-      :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
+    <MenuDropdown id="projectos" :icon="FolderIcon" :text="'Projectos'" :is-collapsed="isCollapsed"
+      :items="projetosItems" :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
+
+    <MenuItem :active="$page.url.includes('tecnicos')" :icon="UserGroupIcon" :text="'Ver Técnicos'"
+      :is-collapsed="isCollapsed" href="/gestor/dashboard?panel=tecnicos" />
 
     <MenuItem :active="$page.url.startsWith('/profile')" :icon="UserIcon" :text="'Perfil'" :is-collapsed="isCollapsed"
       href="/profile" />
@@ -39,6 +42,7 @@ import {
   ExclamationTriangleIcon,
   LightBulbIcon,
   EyeIcon,
+  UserGroupIcon,
   Cog6ToothIcon
 } from '@heroicons/vue/24/outline'
 import { useDropdownManager } from './Composables/useDropdownManager.js'
@@ -59,57 +63,51 @@ const emit = defineEmits(['item-clicked'])
 const dropdownManager = useDropdownManager()
 const page = usePage()
 
-// Função helper para gerar URLs
-const generateUrl = (path) => {
-  return path
-}
-
 // Itens do menu com base nas suas rotas reais
 const casosItems = computed(() => [
   {
     icon: ExclamationTriangleIcon,
     text: 'Nova Reclamação',
     id: 'nova-reclamacao',
-    href: generateUrl('/reclamacoes/nova'),
+    href: '/reclamacoes/nova',
     active: page.url === '/reclamacoes/nova'
   },
   {
     icon: EyeIcon,
     text: 'Acompanhar Reclamação',
     id: 'acompanhar-reclamacao',
-    href: generateUrl('/reclamacoes/acompanhar'),
+    href: '/reclamacoes/acompanhar',
     active: page.url === '/reclamacoes/acompanhar'
   },
   {
     icon: LightBulbIcon,
     text: 'Tracking',
     id: 'tracking',
-    href: generateUrl('/track'),
+    href: '/track',
     active: page.url === '/track'
   }
 ])
 
-// Itens de projetos
+// Itens de projetos - CORRIGIDO para usar navigateToProjectos
 const projetosItems = computed(() => [
   {
     icon: FolderIcon,
-    text: 'Lista de Projetos',
-    id: 'lista-projetos',
-    href: generateUrl('/api/projects'),
-    active: page.url.startsWith('/api/projects')
-  },
-  /*{
-    icon: Cog6ToothIcon,
-    text: 'Gestão de Projetos',
-    id: 'gestao-projetos',
-    href: generateUrl('/projects'), // URL placeholder
-    active: page.url.startsWith('/project/')
-  }*/
+    text: 'Lista de Projectos',
+    id: 'lista-projectos',
+    href: '/gestor/dashboard?panel=projectos',
+    active: window.location.search.includes('panel=projectos')
+  }
 ])
 
 const handleItemClick = (item) => {
   // Fechar todos os dropdowns ao clicar em um item
   dropdownManager.closeDropdown()
+
+  // Navegação especial para "Lista de Projectos"
+  if (item.id === 'lista-projectos') {
+    navigateToProjectos()
+    return
+  }
 
   // Se o item tem href, navegar para a URL
   if (item.href && item.href !== '#') {
@@ -117,5 +115,10 @@ const handleItemClick = (item) => {
   }
 
   emit('item-clicked', item)
+}
+
+// Função específica para navegar para a lista de projetos
+const navigateToProjectos = () => {
+  router.visit('/gestor/dashboard?panel=projectos')
 }
 </script>
