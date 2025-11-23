@@ -33,9 +33,13 @@ class UserFactory extends Factory
             'KaTembe', 'Beira', 'Nampula', 'Quelimane', 'Xai-Xai'
         ];
 
+        // Generate a more unique username by combining faker username with a random string
+        // This ensures uniqueness even for large batches
+        $username = fake()->userName() . '_' . Str::random(6);
+
         return [
             'name' => fake()->name(),
-            'username' => fake()->unique()->userName(),
+            'username' => $username,
             'email' => fake()->unique()->safeEmail(),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
