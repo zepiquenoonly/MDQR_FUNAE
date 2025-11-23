@@ -44,4 +44,15 @@ class DatabaseSeeder extends Seeder
         // Create sample grievances with different statuses
         $this->call(GrievanceSeeder::class);
     }
+
+    /**
+     * Run performance test seeder (optional - use with caution).
+     * 
+     * To seed with large volumes of test data, use the artisan command:
+     * php artisan db:seed-performance --utentes=500 --tecnicos=20 --gestores=5 --reclamacoes=2000
+     */
+    public function runPerformanceTest(): void
+    {
+        $this->call(PerformanceTestSeeder::class);
+    }
 }

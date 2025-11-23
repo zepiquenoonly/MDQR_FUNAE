@@ -23,6 +23,16 @@ class UserFactory extends Factory
      */
     public function definition(): array
     {
+        $provinces = [
+            'Maputo', 'Gaza', 'Inhambane', 'Sofala', 'Manica',
+            'Tete', 'Zambézia', 'Nampula', 'Cabo Delgado', 'Niassa'
+        ];
+
+        $districts = [
+            'KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana',
+            'KaTembe', 'Beira', 'Nampula', 'Quelimane', 'Xai-Xai'
+        ];
+
         return [
             'name' => fake()->name(),
             'username' => fake()->unique()->userName(),
@@ -30,6 +40,11 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            'phone' => fake()->optional(0.8)->phoneNumber(),
+            'province' => fake()->optional(0.7)->randomElement($provinces),
+            'district' => fake()->optional(0.6)->randomElement($districts),
+            'neighborhood' => fake()->optional(0.5)->word(),
+            'street' => fake()->optional(0.3)->streetAddress(),
         ];
     }
 
