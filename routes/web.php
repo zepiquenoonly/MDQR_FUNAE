@@ -11,6 +11,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TechnicianDashboardController;
 use App\Http\Controllers\TechnicianGrievanceController;
+use App\Http\Controllers\UtenteDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*Route::get('/', function () {
@@ -54,9 +55,18 @@ Route::middleware('auth')->group(function () {
     // Rotas específicas por role
     Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
     Route::get('/gestor/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
-    
+
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
-    Route::get('/utente/dashboard', [AuthController::class, 'home'])->name('user.dashboard');
+
+    // Dashboard do Utente com funcionalidades completas
+    Route::get('/utente/dashboard', [UtenteDashboardController::class, 'index'])->name('user.dashboard');
+    Route::get('/utente/grievances/history', [UtenteDashboardController::class, 'history'])->name('user.grievances.history');
+    Route::get('/utente/grievances/{grievance}', [UtenteDashboardController::class, 'show'])->name('user.grievances.show');
+    Route::get('/utente/grievances/{grievance}/status-updates', [UtenteDashboardController::class, 'getStatusUpdates'])
+        ->name('user.grievances.status-updates');
+    Route::post('/utente/notifications/read', [UtenteDashboardController::class, 'markNotificationsRead'])
+        ->name('user.notifications.read');
+
     Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
 
     // Fluxo do técnico
@@ -169,7 +179,7 @@ Route::get('/api/tecnicos', function () {
 Route::get('/api/tecnicos/{tecnicoId}/desempenho', function ($tecnicoId) {
     try {
         $tecnico = \App\Models\User::findOrFail($tecnicoId);
-        
+
         // Dados de desempenho (exemplo - implemente conforme sua lógica de negócio)
         $desempenho = [
             'estatisticas_gerais' => [

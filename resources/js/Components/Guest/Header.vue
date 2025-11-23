@@ -182,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router, usePage } from '@inertiajs/vue3'
 
@@ -215,7 +215,7 @@ const getDashboardRoute = () => {
     if (!user.value) return '/login'
     
     const roles = user.value.roles || []
-    const roleNames = roles.map(r => r.name.toLowerCase())
+    const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
     
     // PCA (Ponto Central de Atendimento)
     if (roleNames.includes('pca')) {
@@ -237,7 +237,7 @@ const getDashboardLabel = () => {
     if (!user.value) return 'ENTRAR'
     
     const roles = user.value.roles || []
-    const roleNames = roles.map(r => r.name.toLowerCase())
+    const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
     
     if (roleNames.includes('pca')) return 'DASHBOARD PCA'
     if (roleNames.includes('gestor')) return 'DASHBOARD GESTOR'

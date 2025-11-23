@@ -24,12 +24,12 @@ class NotificationService
     {
         // Obter email do utente
         $recipientEmail = $this->getRecipientEmail($grievance);
-        
+
         if (!$recipientEmail) {
             return;
         }
 
-        // Criar registro de notificação
+        // Criar registro de notificação EMAIL
         $notification = GrievanceNotification::create([
             'grievance_id' => $grievance->id,
             'user_id' => $grievance->user_id,
@@ -49,6 +49,11 @@ class NotificationService
         $this->sendEmail($notification, function() use ($grievance, $recipientEmail) {
             Mail::to($recipientEmail)->send(new GrievanceCreated($grievance));
         });
+
+        // Enviar SMS se disponível
+        $this->sendSMSIfEnabled($grievance,
+            "FUNAE: Reclamacao {$grievance->reference_number} recebida com sucesso. Acompanhe em " . route('grievance.track')
+        );
     }
 
     /**
@@ -57,7 +62,7 @@ class NotificationService
     public function notifyStatusChanged(Grievance $grievance, string $oldStatus, string $newStatus): void
     {
         $recipientEmail = $this->getRecipientEmail($grievance);
-        
+
         if (!$recipientEmail) {
             return;
         }
@@ -90,7 +95,7 @@ class NotificationService
     public function notifyAssigned(Grievance $grievance, User $assignedUser): void
     {
         $recipientEmail = $this->getRecipientEmail($grievance);
-        
+
         if (!$recipientEmail) {
             return;
         }
@@ -128,7 +133,7 @@ class NotificationService
         }
 
         $recipientEmail = $this->getRecipientEmail($grievance);
-        
+
         if (!$recipientEmail) {
             return;
         }
@@ -161,7 +166,7 @@ class NotificationService
     public function notifyResolved(Grievance $grievance): void
     {
         $recipientEmail = $this->getRecipientEmail($grievance);
-        
+
         if (!$recipientEmail) {
             return;
         }
@@ -194,7 +199,7 @@ class NotificationService
     public function notifyRejected(Grievance $grievance, string $reason = ''): void
     {
         $recipientEmail = $this->getRecipientEmail($grievance);
-        
+
         if (!$recipientEmail) {
             return;
         }
@@ -227,9 +232,9 @@ class NotificationService
     {
         try {
             $sendCallback();
-            
+
             $notification->markAsSent();
-            
+
             Log::info("Notificação enviada com sucesso", [
                 'notification_id' => $notification->id,
                 'type' => $notification->type,
@@ -237,7 +242,7 @@ class NotificationService
             ]);
         } catch (\Exception $e) {
             $notification->markAsFailed($e->getMessage());
-            
+
             Log::error("Falha ao enviar notificação", [
                 'notification_id' => $notification->id,
                 'type' => $notification->type,
@@ -311,39 +316,160 @@ class NotificationService
     protected function resendNotification(GrievanceNotification $notification): void
     {
         $grievance = $notification->grievance;
-        
+
         if (!$grievance) {
             throw new \Exception("Reclamação não encontrada");
         }
 
         // Enviar baseado no tipo
         match($notification->type) {
-            GrievanceNotification::TYPE_GRIEVANCE_CREATED => 
+            GrievanceNotification::TYPE_GRIEVANCE_CREATED =>
                 $this->sendEmail($notification, fn() => Mail::to($notification->recipient_email)->send(new GrievanceCreated($grievance))),
-            
-            GrievanceNotification::TYPE_STATUS_CHANGED => 
+
+            GrievanceNotification::TYPE_STATUS_CHANGED =>
                 $this->sendEmail($notification, fn() => Mail::to($notification->recipient_email)->send(
                     new GrievanceStatusChanged(
-                        $grievance, 
-                        $notification->data['old_status'] ?? '', 
+                        $grievance,
+                        $notification->data['old_status'] ?? '',
                         $notification->data['new_status'] ?? ''
                     )
                 )),
-            
-            GrievanceNotification::TYPE_ASSIGNED => 
+
+            GrievanceNotification::TYPE_ASSIGNED =>
                 $this->sendEmail($notification, fn() => Mail::to($notification->recipient_email)->send(
                     new GrievanceAssigned($grievance, $grievance->assignedUser)
                 )),
-            
-            GrievanceNotification::TYPE_RESOLVED => 
+
+            GrievanceNotification::TYPE_RESOLVED =>
                 $this->sendEmail($notification, fn() => Mail::to($notification->recipient_email)->send(new GrievanceResolved($grievance))),
-            
-            GrievanceNotification::TYPE_REJECTED => 
+
+            GrievanceNotification::TYPE_REJECTED =>
                 $this->sendEmail($notification, fn() => Mail::to($notification->recipient_email)->send(
                     new GrievanceRejected($grievance, $notification->data['reason'] ?? '')
                 )),
-            
+
             default => throw new \Exception("Tipo de notificação desconhecido: {$notification->type}")
         };
+    }
+
+    /**
+     * Enviar SMS se telefone disponível e SMS habilitado
+     */
+    protected function sendSMSIfEnabled(Grievance $grievance, string $message): void
+    {
+        $recipientPhone = $this->getRecipientPhone($grievance);
+
+        if (!$recipientPhone || !$this->isSMSEnabled()) {
+            return;
+        }
+
+        // Criar registro de notificação SMS
+        $notification = GrievanceNotification::create([
+            'grievance_id' => $grievance->id,
+            'user_id' => $grievance->user_id,
+            'type' => GrievanceNotification::TYPE_STATUS_CHANGED,
+            'channel' => GrievanceNotification::CHANNEL_SMS,
+            'recipient_phone' => $recipientPhone,
+            'message' => $message,
+            'data' => [
+                'reference_number' => $grievance->reference_number,
+            ],
+        ]);
+
+        try {
+            // Aqui você pode integrar com um provedor de SMS
+            // Por exemplo: Twilio, Nexmo, Africas Talking, etc.
+            $this->sendSMS($recipientPhone, $message);
+
+            $notification->markAsSent();
+
+            Log::info("SMS enviado com sucesso", [
+                'notification_id' => $notification->id,
+                'recipient' => $recipientPhone,
+            ]);
+        } catch (\Exception $e) {
+            $notification->markAsFailed($e->getMessage());
+
+            Log::error("Falha ao enviar SMS", [
+                'notification_id' => $notification->id,
+                'recipient' => $recipientPhone,
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Enviar SMS através do provedor configurado
+     */
+    protected function sendSMS(string $phoneNumber, string $message): void
+    {
+        // TODO: Implementar integração com provedor de SMS
+        // Exemplos de provedores em Moçambique:
+        // - Africas Talking
+        // - Twilio
+        // - Nexmo
+        // - mCel SMS Gateway
+        // - Vodacom SMS Gateway
+
+        Log::info("SMS seria enviado (provedor não configurado)", [
+            'phone' => $phoneNumber,
+            'message' => $message,
+        ]);
+
+        // Exemplo de implementação com Africas Talking:
+        /*
+        $gateway = new \AfricasTalking\SDK\AfricasTalking(
+            config('services.africastalking.username'),
+            config('services.africastalking.api_key')
+        );
+
+        $sms = $gateway->sms();
+        $result = $sms->send([
+            'to' => $phoneNumber,
+            'message' => $message,
+        ]);
+        */
+    }
+
+    /**
+     * Obter telefone do destinatário
+     */
+    protected function getRecipientPhone(Grievance $grievance): ?string
+    {
+        // Se a reclamação tem usuário associado, usar o telefone do usuário
+        if ($grievance->user_id && $grievance->user && $grievance->user->phone) {
+            return $this->formatPhoneNumber($grievance->user->phone);
+        }
+
+        // Se é reclamação com telefone de contato, usar esse
+        if ($grievance->contact_phone) {
+            return $this->formatPhoneNumber($grievance->contact_phone);
+        }
+
+        return null;
+    }
+
+    /**
+     * Formatar número de telefone para formato internacional
+     */
+    protected function formatPhoneNumber(string $phone): string
+    {
+        // Remover caracteres não numéricos
+        $phone = preg_replace('/[^0-9]/', '', $phone);
+
+        // Se não começa com código do país, adicionar código de Moçambique (+258)
+        if (!str_starts_with($phone, '258')) {
+            $phone = '258' . ltrim($phone, '0');
+        }
+
+        return '+' . $phone;
+    }
+
+    /**
+     * Verificar se SMS está habilitado
+     */
+    protected function isSMSEnabled(): bool
+    {
+        return config('services.sms.enabled', false);
     }
 }

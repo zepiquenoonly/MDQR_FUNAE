@@ -63,14 +63,42 @@ const checkMobile = () => {
 const handleMenuItemClick = (item) => {
   console.log('Menu item clicked:', item)
 
-  // Emitir evento de mudança de view baseado no item clicado
-  if (item === 'inicio') {
-    emit('change-view', 'dashboard')
-  } else if (item === 'projectos') {
-    emit('change-view', 'projectos')
+  // Mapeamento direto de ids do MenuSection para views/rotas
+  const map = {
+    dashboard: 'dashboard',
+    reclamacoes: 'reclamacoes',
+    perfil: 'profile'
   }
 
-  // Em mobile, fechar sidebar ao clicar em um item
+  const view = map[item] || item
+
+  // Emitir para o layout/página
+  emit('change-view', view)
+
+  // Tentar navegação via Inertia/route se disponíveis (não obrigatório)
+  try {
+    if (typeof route === 'function') {
+      const nameMap = {
+        dashboard: 'dashboard.index',
+        reclamacoes: 'complaints.index',
+        perfil: 'profile.show'
+      }
+      const routeName = nameMap[view]
+      if (routeName) {
+        if (window.Inertia && typeof window.Inertia.visit === 'function') {
+          window.Inertia.visit(route(routeName))
+        } else if (typeof window.visit === 'function') {
+          window.visit(route(routeName))
+        } else {
+          window.location.href = route(routeName)
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('Routing helper not available or navigation failed', e)
+  }
+
+  // Fechar sidebar em mobile
   if (isMobile.value) {
     emit('toggle-sidebar')
   }
