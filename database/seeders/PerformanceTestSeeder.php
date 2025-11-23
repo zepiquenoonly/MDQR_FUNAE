@@ -319,10 +319,10 @@ class PerformanceTestSeeder extends Seeder
         $count = 0;
 
         foreach ($grievances as $grievance) {
-            // Sempre criar update de criação
+            // Sempre criar update de criação (usar o user_id da grievance)
             $updates[] = [
                 'grievance_id' => $grievance->id,
-                'user_id' => null,
+                'user_id' => $grievance->user_id, // Usar o criador da reclamação
                 'action_type' => 'created',
                 'description' => 'Reclamação criada e submetida ao sistema',
                 'is_public' => true,
@@ -443,6 +443,7 @@ class PerformanceTestSeeder extends Seeder
                         'grievance_id' => $grievance->id,
                         'user_id' => $grievance->assigned_to,
                         'action_type' => 'comment_added',
+                        'description' => 'Comentário adicionado',
                         'comment' => fake()->sentence(),
                         'is_public' => true,
                         'created_at' => $commentTime,
