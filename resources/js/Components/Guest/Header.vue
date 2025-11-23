@@ -207,9 +207,21 @@ import { router, usePage } from '@inertiajs/vue3'
 const page = usePage()
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
+const isLoading = ref(false)
+const isLoadingDashboard = ref(false)
+const isLoadingTrack = ref(false)
+const isLoadingEmailTest = ref(false)
+const isLoadingLogin = ref(false)
 
 const user = computed(() => page.props.auth?.user || null)
 const isAuthenticated = computed(() => !!user.value)
+
+const getUserInitials = (name) => {
+    if (!name) return '?'
+    const names = name.trim().split(' ')
+    if (names.length === 1) return names[0].charAt(0).toUpperCase()
+    return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
+}
 
 const getDashboardRoute = () => {
     if (!user.value) return '/login'
@@ -247,16 +259,32 @@ const getDashboardLabel = () => {
 
 const navigateToDashboard = () => {
     isLoading.value = true
-
-const navigateToDashboard = () => {
     isLoadingDashboard.value = true
+    
     setTimeout(() => {
         router.visit(getDashboardRoute(), {
             onFinish: () => {
                 isLoading.value = false
+                isLoadingDashboard.value = false
             },
             onError: () => {
                 isLoading.value = false
+                isLoadingDashboard.value = false
+            }
+        })
+    }, 500)
+}
+
+const navigateToLogin = () => {
+    isLoadingLogin.value = true
+    
+    setTimeout(() => {
+        router.visit('/login', {
+            onFinish: () => {
+                isLoadingLogin.value = false
+            },
+            onError: () => {
+                isLoadingLogin.value = false
             }
         })
     }, 500)
@@ -265,15 +293,57 @@ const navigateToDashboard = () => {
 const navigateToTrack = () => {
     isLoadingTrack.value = true
     setTimeout(() => {
-        router.visit('/track')
+        router.visit('/track', {
+            onFinish: () => {
+                isLoadingTrack.value = false
+            },
+            onError: () => {
+                isLoadingTrack.value = false
+            }
+        })
     }, 500)
 }
 
 const navigateToEmailTest = () => {
     isLoadingEmailTest.value = true
     setTimeout(() => {
-        router.visit('/email-test')
+        router.visit('/email-test', {
+            onFinish: () => {
+                isLoadingEmailTest.value = false
+            },
+            onError: () => {
+                isLoadingEmailTest.value = false
+            }
+        })
     }, 500)
+}
+
+const scrollToSection = (sectionId) => {
+    const element = document.getElementById(sectionId)
+    if (element) {
+        const offsetTop = element.offsetTop - 100
+        window.scrollTo({
+            top: offsetTop,
+            behavior: 'smooth'
+        })
+    }
+}
+
+const handleScroll = () => {
+    const sections = ['inicio', 'sobre', 'faq', 'contactos']
+    const scrollPosition = window.scrollY + 150
+
+    sections.forEach(section => {
+        const element = document.getElementById(section)
+        if (element) {
+            const offsetTop = element.offsetTop
+            const offsetBottom = offsetTop + element.offsetHeight
+
+            if (scrollPosition >= offsetTop && scrollPosition < offsetBottom) {
+                activeSection.value = section
+            }
+        }
+    })
 }
 
 // Funções para links mobile que fecham o menu
@@ -286,4 +356,12 @@ const handleMobileEmailTestClick = () => {
     navigateToEmailTest()
     isMobileMenuOpen.value = false
 }
+
+onMounted(() => {
+    window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('scroll', handleScroll)
+})
 </script>
