@@ -27,8 +27,7 @@
                     <!-- Stats Grid -->
                     <StatsGrid />
 
-                    <!-- Recent Submissions -->
-                    <SubmissionsSection />
+                    <!-- Recent Submissions removed per request -->
                 </div>
 
                 <!-- Projectos View -->
@@ -59,7 +58,6 @@ import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useD
 import Layout from '@/Layouts/UtenteDashboardLayout.vue'
 import StatsGrid from '@/Components/UtenteDashboard/StatsGrid.vue'
 import Breadcrumb from '@/Components/UtenteDashboard/Breadcrumb.vue'
-import SubmissionsSection from '@/Components/UtenteDashboard/SubmissionsSection.vue'
 import NotificationWidget from '@/Components/UtenteDashboard/NotificationWidget.vue'
 import QuickActions from '@/Components/UtenteDashboard/QuickActions.vue'
 import ProjectDetails from '@/Components/UtenteDashboard/ProjectDetails.vue'
