@@ -72,11 +72,12 @@
         <div class="max-w-7xl mx-auto mt-10 pt-6 border-t border-white/20">
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <p class="text-white/70 text-sm text-center md:text-left">
-                    © 2024 Gestor de Reclamações. Todos os direitos reservados.
+                    © 2025 FUNAE. Todos os direitos reservados.
                 </p>
                 <div class="flex space-x-6">
                     <a class="text-white/70 hover:text-white text-sm">Termos de Serviço</a>
                     <a class="text-white/70 hover:text-white text-sm">Política de Privacidade</a>
+                    <a href="/email-test" class="text-white/50 hover:text-white/70 text-xs opacity-50">Teste</a>
                 </div>
             </div>
         </div>
