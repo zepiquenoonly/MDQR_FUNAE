@@ -37,10 +37,14 @@ class UserFactory extends Factory
         // This ensures uniqueness even for large batches
         $username = fake()->userName() . '_' . Str::random(6);
 
+        // normalize username to build a deterministic unique email
+        $localPart = Str::lower(preg_replace('/[^A-Za-z0-9._-]/', '', $username));
+        $email = $localPart . '@example.org';
+
         return [
             'name' => fake()->name(),
             'username' => $username,
-            'email' => fake()->unique()->safeEmail(),
+            'email' => $email,
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
