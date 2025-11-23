@@ -29,6 +29,10 @@ Route::get('/grievances-home', function () {
     return inertia('Grievances/Home');
 })->name('grievances.home');
 
+// Tracking de reclamação - acessível para todos (logados ou não)
+Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
+Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
@@ -38,11 +42,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
-
-    // Tracking de reclamação
-    Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
-    Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
-
+    
     // Rota de teste
     Route::get('/test-track', function () {
         return view('test-tracking');

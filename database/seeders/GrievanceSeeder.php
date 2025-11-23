@@ -383,4 +383,18 @@ class GrievanceSeeder extends Seeder
         $this->command->info('✅ Criadas 8 reclamações fictícias com diferentes estados');
         $this->command->info('📋 Estados: Submetida (2), Em Análise (1), Em Andamento (1), Pendente (1), Resolvida (1), Rejeitada (1), Atribuída (1)');
     }
+
+    /**
+     * Cria ou actualiza uma reclamação mantendo o número de referência fixo.
+     */
+    private function upsertGrievance(array $attributes): Grievance
+    {
+        $reference = $attributes['reference_number'] ?? Grievance::generateReferenceNumber();
+        $attributes['reference_number'] = $reference;
+
+        return Grievance::updateOrCreate(
+            ['reference_number' => $reference],
+            $attributes
+        );
+    }
 }
