@@ -21,6 +21,26 @@ class PerformanceTestSeeder extends Seeder
     private int $updatesPerGrievance = 3; // Média de atualizações por reclamação
 
     /**
+     * Helper para output seguro
+     */
+    private function output(string $message, string $type = 'info'): void
+    {
+        if ($this->command) {
+            $this->command->{$type}($message);
+        }
+    }
+
+    /**
+     * Helper para nova linha segura
+     */
+    private function newLine(): void
+    {
+        if ($this->command) {
+            $this->command->newLine();
+        }
+    }
+
+    /**
      * Configurar os volumes de dados
      */
     public function configure(int $utentes = 500, int $tecnicos = 20, int $gestores = 5, int $grievances = 2000): self
@@ -37,8 +57,8 @@ class PerformanceTestSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->command->info('🚀 Iniciando seed de performance...');
-        $this->command->newLine();
+        $this->output('🚀 Iniciando seed de performance...');
+        $this->newLine();
 
         // Criar roles se não existirem
         $this->ensureRolesExist();
@@ -49,7 +69,7 @@ class PerformanceTestSeeder extends Seeder
         $gestorRole = Role::where('name', 'Gestor')->first();
 
         if (!$utenteRole || !$tecnicoRole || !$gestorRole) {
-            $this->command->error('❌ Roles não encontradas. Execute primeiro: php artisan db:seed --class=RoleSeeder');
+            $this->output('❌ Roles não encontradas. Execute primeiro: php artisan db:seed --class=RoleSeeder', 'error');
             return;
         }
 
@@ -64,14 +84,14 @@ class PerformanceTestSeeder extends Seeder
         // Criar atualizações/histórico
         $this->createGrievanceUpdates($grievances, $tecnicos, $gestores);
 
-        $this->command->newLine();
-        $this->command->info('✅ Seed de performance concluído!');
-        $this->command->info("📊 Estatísticas:");
-        $this->command->info("   - Utentes criados: {$utentes->count()}");
-        $this->command->info("   - Técnicos criados: {$tecnicos->count()}");
-        $this->command->info("   - Gestores criados: {$gestores->count()}");
-        $this->command->info("   - Reclamações criadas: {$grievances->count()}");
-        $this->command->info("   - Total de atualizações: " . GrievanceUpdate::count());
+        $this->newLine();
+        $this->output('✅ Seed de performance concluído!');
+        $this->output("📊 Estatísticas:");
+        $this->output("   - Utentes criados: {$utentes->count()}");
+        $this->output("   - Técnicos criados: {$tecnicos->count()}");
+        $this->output("   - Gestores criados: {$gestores->count()}");
+        $this->output("   - Reclamações criadas: {$grievances->count()}");
+        $this->output("   - Total de atualizações: " . GrievanceUpdate::count());
     }
 
     /**
@@ -90,7 +110,7 @@ class PerformanceTestSeeder extends Seeder
      */
     private function createUtentes(Role $role)
     {
-        $this->command->info("👥 Criando {$this->totalUtentes} utentes...");
+        $this->output("👥 Criando {$this->totalUtentes} utentes...");
 
         $utentes = collect();
         $batchSize = 50;
@@ -106,11 +126,11 @@ class PerformanceTestSeeder extends Seeder
             }
 
             if (($i + $currentBatch) % 100 === 0) {
-                $this->command->info("   ✓ Criados " . ($i + $currentBatch) . " utentes...");
+                $this->output("   ✓ Criados " . ($i + $currentBatch) . " utentes...");
             }
         }
 
-        $this->command->info("   ✅ {$utentes->count()} utentes criados");
+        $this->output("   ✅ {$utentes->count()} utentes criados");
         return $utentes;
     }
 
@@ -119,7 +139,7 @@ class PerformanceTestSeeder extends Seeder
      */
     private function createTecnicos(Role $role)
     {
-        $this->command->info("🔧 Criando {$this->totalTecnicos} técnicos...");
+        $this->output("🔧 Criando {$this->totalTecnicos} técnicos...");
 
         $tecnicos = collect();
         $batch = User::factory($this->totalTecnicos)->create();
@@ -129,7 +149,7 @@ class PerformanceTestSeeder extends Seeder
             $tecnicos->push($user);
         }
 
-        $this->command->info("   ✅ {$tecnicos->count()} técnicos criados");
+        $this->output("   ✅ {$tecnicos->count()} técnicos criados");
         return $tecnicos;
     }
 
@@ -138,7 +158,7 @@ class PerformanceTestSeeder extends Seeder
      */
     private function createGestores(Role $role)
     {
-        $this->command->info("👔 Criando {$this->totalGestores} gestores...");
+        $this->output("👔 Criando {$this->totalGestores} gestores...");
 
         $gestores = collect();
         $batch = User::factory($this->totalGestores)->create();
@@ -148,7 +168,7 @@ class PerformanceTestSeeder extends Seeder
             $gestores->push($user);
         }
 
-        $this->command->info("   ✅ {$gestores->count()} gestores criados");
+        $this->output("   ✅ {$gestores->count()} gestores criados");
         return $gestores;
     }
 
@@ -157,7 +177,7 @@ class PerformanceTestSeeder extends Seeder
      */
     private function createGrievances($utentes, $tecnicos, $gestores)
     {
-        $this->command->info("📋 Criando {$this->totalGrievances} reclamações...");
+        $this->output("📋 Criando {$this->totalGrievances} reclamações...");
 
         $grievances = collect();
         $batchSize = 100;
@@ -280,11 +300,11 @@ class PerformanceTestSeeder extends Seeder
             $grievances = $grievances->merge($insertedGrievances);
 
             if (($i + $currentBatch) % 500 === 0) {
-                $this->command->info("   ✓ Criadas " . ($i + $currentBatch) . " reclamações...");
+                $this->output("   ✓ Criadas " . ($i + $currentBatch) . " reclamações...");
             }
         }
 
-        $this->command->info("   ✅ {$grievances->count()} reclamações criadas");
+        $this->output("   ✅ {$grievances->count()} reclamações criadas");
         return $grievances;
     }
 
@@ -293,7 +313,7 @@ class PerformanceTestSeeder extends Seeder
      */
     private function createGrievanceUpdates($grievances, $tecnicos, $gestores)
     {
-        $this->command->info("📝 Criando histórico de atualizações...");
+        $this->output("📝 Criando histórico de atualizações...");
 
         $updates = [];
         $count = 0;
@@ -333,7 +353,7 @@ class PerformanceTestSeeder extends Seeder
             $count += count($updates);
         }
 
-        $this->command->info("   ✅ {$count} atualizações criadas");
+        $this->output("   ✅ {$count} atualizações criadas");
     }
 
     /**
