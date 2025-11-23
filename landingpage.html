@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MDQR - Mecanismo De Diálogo, Queixas E Reclamações</title>
+    <title>Sistema de Autenticação</title>
     <style>
+        /* Reset e estilos base */
         * {
             margin: 0;
             padding: 0;
@@ -12,856 +13,558 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-        }
-
-        /* Header */
-        .header {
-            background: white;
-            padding: 20px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        /* Container do formulário de login */
+        .login-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px 30px;
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #d32f2f, #f44336, #ffeb3b);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-inner {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, #1b5e20, #2e7d32, #43a047);
-            border-radius: 50%;
-            position: relative;
-        }
-
-        .logo-star {
-            position: absolute;
-            top: 5px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #ffd700;
-            font-size: 20px;
-        }
-
-        .nav-menu {
-            display: flex;
-            list-style: none;
-            gap: 30px;
-            align-items: center;
-        }
-
-        .nav-link {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-link:hover,
-        .nav-link.active {
-            color: #009688;
-        }
-
-        .btn-entrar {
-            background: #009688;
-            color: white;
-            padding: 10px 30px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-entrar:hover {
-            background: #00796b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,150,136,0.3);
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #009688, #00796b);
-            padding: 140px 20px 80px;
-            margin-top: 80px;
-        }
-
-        .hero-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-        }
-
-        .hero-content h1 {
-            color: white;
-            font-size: 48px;
-            font-weight: 700;
+            text-align: center;
             margin-bottom: 30px;
-            line-height: 1.2;
         }
 
-        .hero-subtitle {
-            color: white;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
+        .logo img {
+            max-width: 180px;
+            height: auto;
         }
 
-        .hero-description {
-            color: white;
-            font-size: 18px;
-            margin-bottom: 40px;
-            line-height: 1.8;
-        }
-
-        .btn-denuncie {
-            background: white;
-            color: #009688;
-            padding: 15px 40px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 16px;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .btn-denuncie:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-        }
-
-        .hero-image {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-        }
-
-        .hero-image img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-        }
-
-        /* Cards Section */
-        .cards-section {
-            padding: 80px 20px;
-            background: #f5f5f5;
-        }
-
-        .cards-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 40px;
-        }
-
-        .card {
-            background: white;
-            padding: 40px 30px;
-            border-radius: 15px;
+        .login-title {
             text-align: center;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 10px;
         }
 
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-        }
-
-        .card-icon {
-            width: 100px;
-            height: 100px;
-            background: #009688;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 30px;
-        }
-
-        .card-icon svg {
-            width: 50px;
-            height: 50px;
-            color: white;
-        }
-
-        .card h3 {
-            font-size: 24px;
+        /* Campos do formulário */
+        .form-group {
             margin-bottom: 20px;
-            color: #333;
         }
 
-        .card p {
-            color: #666;
-            line-height: 1.8;
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            background-color: #f9fafb;
         }
 
-        /* Platform Section */
-        .platform-section {
-            padding: 80px 20px;
-            background: white;
+        .form-input:focus {
+            outline: none;
+            border-color: #f15f22;
+            background-color: white;
+            box-shadow: 0 0 0 3px rgba(241, 95, 34, 0.1);
         }
 
-        .platform-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            text-align: center;
+        .form-input.error {
+            border-color: #ef4444;
         }
 
-        .section-title {
-            font-size: 36px;
-            font-weight: 700;
-            margin-bottom: 60px;
-            color: #333;
+        .form-input.success {
+            border-color: #10b981;
         }
 
-        .platform-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
+        .error-message {
+            color: #ef4444;
+            font-size: 12px;
+            margin-top: 5px;
             text-align: left;
         }
 
-        .platform-content h2 {
-            font-size: 32px;
-            margin-bottom: 30px;
-        }
-
-        .platform-content h2 span {
-            color: #009688;
-        }
-
-        .platform-content p {
-            color: #666;
-            line-height: 1.8;
-            font-size: 16px;
-        }
-
-        .platform-image {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
-        }
-
-        .platform-image img {
+        /* Botão de login */
+        .login-btn {
             width: 100%;
-            height: 400px;
-            object-fit: cover;
-        }
-
-        /* Stats Section */
-        .stats-section {
-            padding: 80px 20px;
-            background: #f5f5f5;
-        }
-
-        .stats-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 60px;
-            margin-top: 60px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            border: 8px solid #ff9800;
+            background: #f15f22;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 36px;
-            font-weight: 700;
-            color: #ff9800;
-            position: relative;
+            gap: 8px;
         }
 
-        .stat-item h4 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #333;
+        .login-btn:hover:not(:disabled) {
+            background: #e5561a;
+            transform: translateY(-1px);
         }
 
-        .stat-item p {
-            color: #666;
-            font-size: 15px;
+        .login-btn:active:not(:disabled) {
+            transform: translateY(0);
         }
 
-        /* FAQ Section */
-        .faq-section {
-            padding: 80px 20px;
-            background: white;
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        .faq-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            background: #e8f5e9;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .faq-question {
-            padding: 20px 30px;
+        /* Link esqueceu senha */
+        .forgot-password-link {
+            color: #6b7280;
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s ease;
+            background: none;
+            border: none;
             cursor: pointer;
+        }
+
+        .forgot-password-link:hover {
+            color: #374151;
+        }
+
+        .forgot-password-link:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Modal de recuperação de senha */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 440px;
+            padding: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
             font-weight: 600;
-            color: #2e7d32;
-            transition: all 0.3s;
+            color: #1f2937;
         }
 
-        .faq-question:hover {
-            background: #c8e6c9;
+        .modal-close {
+            background: none;
+            border: none;
+            color: #6b7280;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
         }
 
-        .faq-icon {
-            transition: transform 0.3s;
+        .modal-close:hover {
+            color: #374151;
+            background: #f3f4f6;
         }
 
-        .faq-item.active .faq-icon {
-            transform: rotate(180deg);
+        .modal-description {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
         }
 
-        .faq-answer {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            padding: 0 30px;
+        /* Botões do modal */
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
         }
 
-        .faq-item.active .faq-answer {
-            max-height: 300px;
-            padding: 20px 30px;
-        }
-
-        .faq-answer p {
-            color: #555;
-            line-height: 1.8;
-        }
-
-        /* Footer */
-        .footer {
-            background: #1b5e20;
-            color: white;
-            padding: 60px 20px 30px;
-        }
-
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr;
-            gap: 60px;
-        }
-
-        .footer-logo {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #d32f2f, #f44336, #ffeb3b);
-            border-radius: 50%;
+        .modal-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 20px;
+            gap: 6px;
         }
 
-        .footer-logo-inner {
-            width: 65px;
-            height: 65px;
-            background: linear-gradient(135deg, #1b5e20, #2e7d32, #43a047);
-            border-radius: 50%;
+        .modal-btn-cancel {
+            background: white;
+            border: 1px solid #d1d5db;
+            color: #374151;
         }
 
-        .footer h3 {
-            margin-bottom: 20px;
-            font-size: 18px;
+        .modal-btn-cancel:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
         }
 
-        .footer p {
-            line-height: 1.8;
-            color: #c8e6c9;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 12px;
-        }
-
-        .footer-links a {
-            color: #c8e6c9;
-            text-decoration: none;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover {
+        .modal-btn-submit {
+            background: #f15f22;
+            border: 1px solid #f15f22;
             color: white;
         }
 
-        .contact-item {
+        .modal-btn-submit:hover:not(:disabled) {
+            background: #e5561a;
+            border-color: #e5561a;
+        }
+
+        .modal-btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Mensagem de sucesso */
+        .success-message {
+            background: #ecfdf5;
+            border: 1px solid #d1fae5;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 16px;
+            display: none;
+        }
+
+        .success-message.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .success-text {
+            color: #065f46;
+            font-size: 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-            color: #c8e6c9;
+            gap: 8px;
         }
 
-        .footer-bottom {
-            max-width: 1200px;
-            margin: 40px auto 0;
-            padding-top: 30px;
-            border-top: 1px solid #2e7d32;
-            text-align: center;
-            color: #c8e6c9;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        /* Mobile Menu */
-        .mobile-menu-btn {
-            display: none;
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #333;
+        /* Spinner */
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        /* Animations */
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        @keyframes countUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .nav-menu {
-                display: none;
-                position: absolute;
-                top: 80px;
-                left: 0;
-                right: 0;
-                background: white;
-                flex-direction: column;
-                padding: 20px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            }
-
-            .nav-menu.active {
-                display: flex;
-            }
-
-            .mobile-menu-btn {
-                display: block;
-            }
-
-            .hero-container,
-            .platform-content {
-                grid-template-columns: 1fr;
-            }
-
-            .cards-container,
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-container {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-content h1 {
-                font-size: 32px;
-            }
-        }
+        /* Utilitários */
+        .text-left { text-align: left; }
+        .text-center { text-align: center; }
+        .w-full { width: 100%; }
+        .mb-4 { margin-bottom: 16px; }
+        .mt-4 { margin-top: 16px; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-between { justify-content: space-between; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <nav class="nav-container">
-            <div class="logo">
-                <div class="logo-inner">
-                    <span class="logo-star">⭐</span>
-                </div>
+    <!-- Formulário de Login -->
+    <div class="login-container">
+        <div class="logo">
+            <img src="https://via.placeholder.com/180x60?text=LOGO" alt="Logo do Sistema">
+        </div>
+
+        <h1 class="login-title">Já tem conta?</h1>
+
+        <form id="loginForm" class="w-full">
+            <div class="form-group">
+                <input type="text" id="username" class="form-input" placeholder="Digite o nome de usuário" required>
+                <div id="usernameError" class="error-message"></div>
             </div>
 
-            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            <div class="form-group">
+                <input type="password" id="password" class="form-input" placeholder="Digite a senha" required>
+                <div id="passwordError" class="error-message"></div>
+            </div>
 
-            <ul class="nav-menu" id="navMenu">
-                <li><a href="#inicio" class="nav-link active">INÍCIO</a></li>
-                <li><a href="#sobre" class="nav-link">SOBRE</a></li>
-                <li><a href="#faq" class="nav-link">PERGUNTAS FREQUENTES</a></li>
-                <li><a href="#contactos" class="nav-link">CONTACTOS</a></li>
-                <li><a href="#" class="btn-entrar">ENTRAR</a></li>
-            </ul>
-        </nav>
-    </header>
+            <div class="flex items-center justify-between mb-4">
+                <button type="button" id="forgotPasswordBtn" class="forgot-password-link">
+                    Esqueceu a senha?
+                </button>
+            </div>
 
-    <!-- Hero Section -->
-    <section class="hero" id="inicio">
-        <div class="hero-container">
-            <div class="hero-content">
-                <p class="hero-subtitle">FAÇA SUA VOZ SER OUVIDA!</p>
-                <h1>DENUNCIE, SUGIRA, RECLAME!</h1>
-                <p class="hero-description">
-                    Estamos aqui para acolher as suas ideias e resolver problemas. Participe e ajude a construir um futuro melhor!
+            <button type="submit" id="loginBtn" class="login-btn">
+                <span id="loginText">Entrar</span>
+            </button>
+        </form>
+    </div>
+
+    <!-- Modal de Recuperação de Senha -->
+    <div id="forgotPasswordModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">Recuperar Senha</h2>
+                <button id="closeModal" class="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+
+            <p class="modal-description text-left">
+                Digite seu email ou nome de usuário para receber instruções de recuperação de senha.
+            </p>
+
+            <div class="form-group">
+                <input type="text" id="recoveryIdentifier" class="form-input" 
+                       placeholder="Email ou nome de usuário">
+                <div id="recoveryError" class="error-message"></div>
+            </div>
+
+            <!-- Mensagem de sucesso -->
+            <div id="successMessage" class="success-message">
+                <p class="success-text">
+                    <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    Instruções de recuperação enviadas para o email associado à sua conta.
                 </p>
-                <a href="#" class="btn-denuncie">DENUNCIE JÁ</a>
             </div>
-            <div class="hero-image">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f0f0f0' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999' font-size='24' font-family='Arial' dy='.3em'%3EImagem de escavadeira%3C/text%3E%3C/svg%3E" alt="Construção">
+
+            <div class="modal-actions">
+                <button id="cancelRecovery" class="modal-btn modal-btn-cancel">
+                    Cancelar
+                </button>
+                <button id="submitRecovery" class="modal-btn modal-btn-submit">
+                    <span id="recoveryText">Enviar</span>
+                </button>
             </div>
         </div>
-    </section>
-
-    <!-- Cards Section -->
-    <section class="cards-section">
-        <div class="cards-container">
-            <div class="card">
-                <div class="card-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                    </svg>
-                </div>
-                <h3>DENÚNCIAS</h3>
-                <p>Através deste sistema, os munícipes podem fazer denúncias de forma segura ou até anónima sobre obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.</p>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
-                    </svg>
-                </div>
-                <h3>SUGESTÕES</h3>
-                <p>Através deste sistema, os munícipes podem fazer sugestões de forma segura ou até anónima sobre obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.</p>
-            </div>
-
-            <div class="card">
-                <div class="card-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                    </svg>
-                </div>
-                <h3>RECLAMAÇÕES</h3>
-                <p>Através deste sistema, os munícipes podem fazer reclamações de forma segura ou até anónima sobre obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Platform Section -->
-    <section class="platform-section" id="sobre">
-        <div class="platform-container">
-            <h2 class="section-title">PLATAFORMA FÁCIL E ACESSÍVEL</h2>
-            <div class="platform-content">
-                <div>
-                    <h2>COMO USAR A <span>PLATAFORMA?</span></h2>
-                    <p>A plataforma oferece um fluxo simples para que os munícipes possam interagir com os projetos do seu município. O processo começa com o login ou cadastro do perfil, após o qual o utilizador tem acesso a uma lista de projetos disponíveis. Para cada projeto, é possível adicionar uma reclamação, denúncia ou sugestão através de um formulário simples. Após a submissão, a solicitação fica pendente e o utilizador pode acompanhar seu progresso por meio de uma linha do tempo, que mostra o status da reclamação, como "recebida", "em análise" e "resolvida". Quando a reclamação for resolvida, o utilizador é convidado a avaliar a resposta e informar se está satisfeito ou não, fornecendo o motivo em caso de insatisfação. Esse fluxo assegura que os munícipes possam acompanhar de forma transparente o tratamento das suas solicitações e dar feedback sobre o processo.</p>
-                </div>
-                <div class="platform-image">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400' viewBox='0 0 600 400'%3E%3Crect fill='%23f0f0f0' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' fill='%23999' font-size='24' font-family='Arial' dy='.3em'%3EPessoa com capacete%3C/text%3E%3C/svg%3E" alt="Trabalhador">
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Stats Section -->
-    <section class="stats-section">
-        <div class="stats-container">
-            <h2 class="section-title">O NOSSO IMPACTO EM NÚMEROS</h2>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-circle">85%</div>
-                    <h4>DENÚNCIAS RESOLVIDAS</h4>
-                    <p>Mais de 85% das denúncias foram tratadas com sucesso.</p>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-circle">90%</div>
-                    <h4>RECLAMAÇÕES ATENDIDAS</h4>
-                    <p>Cerca de 90% das reclamações tiveram respostas positivas.</p>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-circle">75%</div>
-                    <h4>SUGESTÕES IMPLEMENTADAS</h4>
-                    <p>75% das sugestões foram incorporadas em novos projetos.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FAQ Section -->
-    <section class="faq-section" id="faq">
-        <div class="faq-container">
-            <h2 class="section-title">PERGUNTAS FREQUENTES</h2>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Como posso fazer uma denúncia na plataforma?</span>
-                    <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Para fazer uma denúncia, basta acessar o sistema, criar ou entrar no seu perfil e selecionar o projeto relacionado à denúncia. Depois, preencha o formulário com os detalhes necessários e envie sua solicitação.</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>É possível acompanhar o status da minha reclamação?</span>
-                    <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Sim! Após submeter sua reclamação, você pode acompanhar o progresso através de uma linha do tempo que mostra o status atual, como "recebida", "em análise" ou "resolvida".</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>As sugestões enviadas pelos munícipes são consideradas?</span>
-                    <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Sim, todas as sugestões são analisadas pela equipe responsável e, quando viáveis, são incorporadas aos projetos municipais.</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Como posso enviar documentos ou provas anexas?</span>
-                    <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Durante o preenchimento do formulário, você pode anexar documentos, fotos ou outros arquivos relevantes para apoiar sua denúncia ou sugestão.</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Quem tem acesso às denúncias enviadas?</span>
-                    <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Apenas os gestores e técnicos autorizados têm acesso às denúncias para garantir a privacidade e segurança das informações.</p>
-                </div>
-            </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFAQ(this)">
-                    <span>Como posso alterar as informações do meu perfil?</span>
-                    <span class="faq-icon">▼</span>
-                </div>
-                <div class="faq-answer">
-                    <p>Você pode editar suas informações pessoais acessando a seção de perfil no sistema após fazer login.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer" id="contactos">
-        <div class="footer-container">
-            <div>
-                <div class="footer-logo">
-                    <div class="footer-logo-inner"></div>
-                </div>
-                <p>Trabalhando juntos pelo progresso e desenvolvimento sustentável de Moçambique.</p>
-            </div>
-
-            <div>
-                <h3>SERVIÇOS</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Sugestão</a></li>
-                    <li><a href="#">Reclamação</a></li>
-                    <li><a href="#">Denúncia</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3>LINKS ÚTEIS</h3>
-                <ul class="footer-links">
-                    <li><a href="#">Conselho Municipal</a></li>
-                    <li><a href="#">Assembleia da República</a></li>
-                    <li><a href="#">Presidência</a></li>
-                </ul>
-            </div>
-
-            <div>
-                <h3>CONTACTOS</h3>
-                <div class="contact-item">
-                    <span>🏠</span>
-                    <span>Maputo, MZ</span>
-                </div>
-                <div class="contact-item">
-                    <span>✉️</span>
-                    <span>info@enabel.co.mz</span>
-                </div>
-                <div class="contact-item">
-                    <span>📞</span>
-                    <span>+258 21 123 456</span>
-                </div>
-            </div>
-        </div>
-    </footer>
+    </div>
 
     <script>
-        // Toggle mobile menu
-        function toggleMenu() {
-            const navMenu = document.getElementById('navMenu');
-            navMenu.classList.toggle('active');
-        }
+        // Elementos do DOM
+        const loginForm = document.getElementById('loginForm');
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+        const closeModal = document.getElementById('closeModal');
+        const cancelRecovery = document.getElementById('cancelRecovery');
+        const submitRecovery = document.getElementById('submitRecovery');
+        const recoveryIdentifier = document.getElementById('recoveryIdentifier');
+        const recoveryError = document.getElementById('recoveryError');
+        const successMessage = document.getElementById('successMessage');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginText = document.getElementById('loginText');
+        const recoveryText = document.getElementById('recoveryText');
 
-        // Toggle FAQ
-        function toggleFAQ(element) {
-            const faqItem = element.parentElement;
-            const allFaqItems = document.querySelectorAll('.faq-item');
-            
-            allFaqItems.forEach(item => {
-                if (item !== faqItem) {
-                    item.classList.remove('active');
-                }
-            });
-            
-            faqItem.classList.toggle('active');
-        }
+        // Estados
+        let isLoginLoading = false;
+        let isRecoveryLoading = false;
 
-        // Smooth scroll
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    
-                    // Close mobile menu if open
-                    document.getElementById('navMenu').classList.remove('active');
-                }
-            });
+        // Abrir modal de recuperação
+        forgotPasswordBtn.addEventListener('click', () => {
+            forgotPasswordModal.classList.add('active');
+            recoveryIdentifier.focus();
         });
 
-        // Active nav link on scroll
-        window.addEventListener('scroll', () => {
-            let current = '';
-            const sections = document.querySelectorAll('section');
-            
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop;
-                const sectionHeight = section.clientHeight;
-                if (pageYOffset >= (sectionTop - 200)) {
-                    current = section.getAttribute('id');
-                }
-            });
-
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${current}`) {
-                    link.classList.add('active');
-                }
-            });
-        });
-
-        // Animate stats on scroll
-        const observerOptions = {
-            threshold: 0.5
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const circles = entry.target.querySelectorAll('.stat-circle');
-                    circles.forEach(circle => {
-                        circle.style.animation = 'pulse 2s infinite';
-                    });
-                }
-            });
-        }, observerOptions);
-
-        const statsSection = document.querySelector('.stats-section');
-        if (statsSection) {
-            observer.observe(statsSection);
+        // Fechar modal
+        function closeRecoveryModal() {
+            forgotPasswordModal.classList.remove('active');
+            resetRecoveryForm();
         }
 
-        // Add animation to cards on scroll
-        const cardObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animation = 'countUp 0.8s ease-out forwards';
-                }
-            });
-        }, { threshold: 0.1 });
+        closeModal.addEventListener('click', closeRecoveryModal);
+        cancelRecovery.addEventListener('click', closeRecoveryModal);
 
-        document.querySelectorAll('.card').forEach(card => {
-            card.style.opacity = '0';
-            cardObserver.observe(card);
-        });
-
-        // Close FAQ when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.faq-item')) {
-                document.querySelectorAll('.faq-item').forEach(item => {
-                    item.classList.remove('active');
-                });
+        // Fechar modal clicando fora
+        forgotPasswordModal.addEventListener('click', (e) => {
+            if (e.target === forgotPasswordModal) {
+                closeRecoveryModal();
             }
         });
 
-        // Add loading animation to hero section
-        window.addEventListener('load', () => {
-            const heroContent = document.querySelector('.hero-content');
-            if (heroContent) {
-                heroContent.style.animation = 'countUp 1s ease-out forwards';
+        // Resetar formulário de recuperação
+        function resetRecoveryForm() {
+            recoveryIdentifier.value = '';
+            recoveryError.textContent = '';
+            successMessage.classList.remove('active');
+            isRecoveryLoading = false;
+            updateRecoveryButton();
+        }
+
+        // Atualizar estado do botão de recuperação
+        function updateRecoveryButton() {
+            if (isRecoveryLoading) {
+                submitRecovery.disabled = true;
+                recoveryText.innerHTML = '<div class="spinner"></div> Enviando...';
+            } else {
+                submitRecovery.disabled = !recoveryIdentifier.value.trim();
+                recoveryText.textContent = 'Enviar';
+            }
+        }
+
+        // Atualizar estado do botão de login
+        function updateLoginButton() {
+            if (isLoginLoading) {
+                loginBtn.disabled = true;
+                loginText.innerHTML = '<div class="spinner"></div> Entrando...';
+            } else {
+                loginBtn.disabled = false;
+                loginText.textContent = 'Entrar';
+            }
+        }
+
+        // Validar formulário de recuperação
+        function validateRecoveryForm() {
+            const identifier = recoveryIdentifier.value.trim();
+            
+            if (!identifier) {
+                recoveryError.textContent = 'Por favor, digite seu email ou nome de usuário';
+                return false;
+            }
+
+            if (identifier.length < 3) {
+                recoveryError.textContent = 'Mínimo 3 caracteres';
+                return false;
+            }
+
+            recoveryError.textContent = '';
+            return true;
+        }
+
+        // Simular envio de recuperação de senha
+        async function submitRecoveryForm() {
+            if (!validateRecoveryForm()) return;
+
+            isRecoveryLoading = true;
+            updateRecoveryButton();
+
+            try {
+                // Simular chamada à API (substitua por sua implementação real)
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Simular sucesso
+                successMessage.classList.add('active');
+                
+                // Fechar modal após 3 segundos
+                setTimeout(() => {
+                    closeRecoveryModal();
+                }, 3000);
+                
+            } catch (error) {
+                recoveryError.textContent = 'Erro ao enviar solicitação. Tente novamente.';
+            } finally {
+                isRecoveryLoading = false;
+                updateRecoveryButton();
+            }
+        }
+
+        // Simular login
+        async function submitLoginForm(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            // Validação simples
+            if (!username || !password) {
+                alert('Por favor, preencha todos os campos');
+                return;
+            }
+
+            isLoginLoading = true;
+            updateLoginButton();
+
+            try {
+                // Simular chamada à API de login
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // Simular sucesso
+                alert('Login realizado com sucesso!');
+                // Redirecionar para dashboard aqui
+                // window.location.href = '/dashboard';
+                
+            } catch (error) {
+                alert('Erro no login. Verifique suas credenciais.');
+            } finally {
+                isLoginLoading = false;
+                updateLoginButton();
+            }
+        }
+
+        // Event Listeners
+        submitRecovery.addEventListener('click', submitRecoveryForm);
+        loginForm.addEventListener('submit', submitLoginForm);
+
+        // Validação em tempo real
+        recoveryIdentifier.addEventListener('input', () => {
+            if (recoveryError.textContent) {
+                validateRecoveryForm();
+            }
+            updateRecoveryButton();
+        });
+
+        // Tecla Enter no modal
+        recoveryIdentifier.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                submitRecoveryForm();
             }
         });
+
+        // Inicialização
+        updateRecoveryButton();
+        updateLoginButton();
     </script>
 </body>
 </html>

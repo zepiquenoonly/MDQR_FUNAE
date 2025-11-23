@@ -7,9 +7,9 @@
                 <div class="w-24 h-24 bg-brand rounded-full flex items-center justify-center mx-auto mb-8">
                     <ExclamationTriangleIcon class="h-12 w-12 text-white" />
                 </div>
-                <h3 class="text-2xl font-bold text-gray-900 mb-6">DENÚNCIAS</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Queixas</h3>
                 <p class="text-gray-600 leading-relaxed text-justify">
-                    Através deste sistema, os munícipes podem fazer denúncias de forma segura ou até anónima sobre
+                    Através deste sistema, os munícipes podem fazer queixas de forma segura ou até anónima sobre
                     obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações
                     serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.
                 </p>

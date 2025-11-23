@@ -32,18 +32,36 @@
                             @click="scrollToSection('contactos')">
                             CONTACTOS
                         </a>
-                        <button @click="navigateToLogin" :disabled="isLoading"
-                            class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                            <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
-                        </button>
+
+                        <!-- Estado de Autenticação -->
+                        <template v-if="$page.props.auth.user">
+                            <!-- Usuário autenticado -->
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-2 text-sm text-gray-700">
+                                    <div
+                                        class="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                        {{ getUserInitials($page.props.auth.user.name) }}
+                                    </div>
+                                    <span>{{ $page.props.auth.user.name }}</span>
+                                </div>
+                                <button @click="navigateToDashboard" :disabled="isLoading"
+                                    class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    <div v-if="isLoading"
+                                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
+                                    {{ isLoading ? 'A ENTRAR...' : 'IR AO PAINEL' }}
+                                </button>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <!-- Usuário não autenticado -->
+                            <button @click="navigateToLogin" :disabled="isLoading"
+                                class="bg-brand hover:bg-brand-dark text-white px-6 py-2 rounded-full text-sm font-semibold transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                <div v-if="isLoading"
+                                    class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mx-auto"></div>
+                                {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
+                            </button>
+                        </template>
+
                         <a href="/track"
                             class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,6 +90,30 @@
                                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                         </svg>
                     </a>
+
+                    <!-- Estado de Autenticação Mobile -->
+                    <template v-if="$page.props.auth.user">
+                        <div class="flex items-center gap-2">
+                            <div
+                                class="w-8 h-8 bg-brand rounded-full flex items-center justify-center text-white text-xs font-bold">
+                                {{ getUserInitials($page.props.auth.user.name) }}
+                            </div>
+                            <button @click="navigateToDashboard" :disabled="isLoading"
+                                class="text-xs bg-brand text-white px-3 py-1 rounded flex items-center gap-1">
+                                <div v-if="isLoading" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white">
+                                </div>
+                                {{ isLoading ? '' : 'PAINEL' }}
+                            </button>
+                        </div>
+                    </template>
+                    <template v-else>
+                        <button @click="navigateToLogin" :disabled="isLoading"
+                            class="text-xs bg-brand text-white px-3 py-1 rounded flex items-center gap-1">
+                            <div v-if="isLoading" class="animate-spin rounded-full h-3 w-3 border-b-2 border-white">
+                            </div>
+                            {{ isLoading ? '' : 'ENTRAR' }}
+                        </button>
+                    </template>
 
                     <button @click="isMobileMenuOpen = !isMobileMenuOpen"
                         class="text-gray-900 p-2 hover:text-brand transition-colors duration-200">
@@ -131,18 +173,35 @@
                     </div>
 
                     <div class="pt-2">
-                        <button @click="navigateToLogin" :disabled="isLoading"
-                            class="w-full bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-lg text-base font-semibold text-center transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
-                            <svg v-if="isLoading" class="animate-spin h-4 w-4 text-white"
-                                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
-                        </button>
+                        <template v-if="$page.props.auth.user">
+                            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-10 h-10 bg-brand rounded-full flex items-center justify-center text-white text-sm font-bold">
+                                        {{ getUserInitials($page.props.auth.user.name) }}
+                                    </div>
+                                    <div>
+                                        <p class="text-sm font-medium text-gray-900">{{ $page.props.auth.user.name }}
+                                        </p>
+                                        <p class="text-xs text-gray-600">{{ $page.props.auth.user.email }}</p>
+                                    </div>
+                                </div>
+                                <button @click="navigateToDashboard" :disabled="isLoading"
+                                    class="bg-brand hover:bg-brand-dark text-white px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                                    <div v-if="isLoading"
+                                        class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                    {{ isLoading ? '' : 'PAINEL' }}
+                                </button>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <button @click="navigateToLogin" :disabled="isLoading"
+                                class="w-full bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-lg text-base font-semibold text-center transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                <div v-if="isLoading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white">
+                                </div>
+                                {{ isLoading ? 'A ENTRAR...' : 'ENTRAR' }}
+                            </button>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -152,18 +211,11 @@
         <div v-if="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4">
                 <div class="text-center">
-                    <div class="w-16 h-16 bg-brand/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="animate-spin h-8 w-8 text-brand" xmlns="http://www.w3.org/2000/svg" fill="none"
-                            viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-                            </circle>
-                            <path class="opacity-75" fill="currentColor"
-                                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                            </path>
-                        </svg>
+                    <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand"></div>
                     </div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">A Entrar</h3>
-                    <p class="text-gray-600">A redirecionar para a página de autenticação...</p>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">A Redirecionar</h3>
+                    <p class="text-gray-600">Aguarde um momento...</p>
                 </div>
             </div>
         </div>
@@ -179,12 +231,34 @@ const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
 const isLoading = ref(false)
 
+// Método para obter iniciais do usuário
+const getUserInitials = (name) => {
+    if (!name) return 'U'
+    const names = name.split(' ')
+    if (names.length >= 2) {
+        return (names[0][0] + names[names.length - 1][0]).toUpperCase()
+    }
+    return name.substring(0, 2).toUpperCase()
+}
+
 const navigateToLogin = () => {
     isLoading.value = true
-
-    // Simula um pequeno delay para mostrar o loading
     setTimeout(() => {
         router.visit('/login', {
+            onFinish: () => {
+                isLoading.value = false
+            },
+            onError: () => {
+                isLoading.value = false
+            }
+        })
+    }, 500)
+}
+
+const navigateToDashboard = () => {
+    isLoading.value = true
+    setTimeout(() => {
+        router.visit('/home', {
             onFinish: () => {
                 isLoading.value = false
             },

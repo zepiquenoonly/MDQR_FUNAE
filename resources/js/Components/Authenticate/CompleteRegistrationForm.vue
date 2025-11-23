@@ -1,5 +1,28 @@
 <template>
     <div class="min-h-[70vh] w-full">
+        <!-- Spinner global para loading -->
+        <div v-if="inertiaLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+            <div class="text-center py-8">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-brand mx-auto mb-4"></div>
+                <p class="text-gray-300 text-sm mt-2" v-if="!showRedirectMessage">Por favor, aguarde...</p>
+                <p class="text-gray-300 text-sm mt-2" v-else>A redirecionar...</p>
+            </div>
+        </div>
+
+        <!-- Popup de sucesso -->
+        <div v-if="showSuccessPopup"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+            <div class="bg-white rounded-lg p-8 max-w-sm mx-4 text-center">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">Registo realizado com sucesso</h3>
+                <p class="text-gray-600 text-sm">Será redirecionado automaticamente...</p>
+            </div>
+        </div>
+
         <!-- Container branco central sem sombra -->
         <div class="bg-white flex justify-center items-center flex-col text-center py-6 px-4 md:px-12">
             <!-- Conteúdo do formulário (mantido igual) -->
@@ -94,12 +117,11 @@
                     </div>
 
                     <div class="flex flex-col">
-                        <label for="nome" class="text-left text-sm font-medium text-gray-700 mb-1">Celular</label>
-                        <input type="tel" id="celular" v-model="formData.celular"
-                            placeholder="Digite o seu número de celular"
+                        <label for="celular" class="text-left text-sm font-medium text-gray-700 mb-1">Celular</label>
+                        <input type="tel" id="celular" v-model="formData.celular" placeholder="+258 84 123 4567"
                             class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.celular }"
-                            @input="formatPhoneNumber" required>
+                            @input="formatPhoneNumber" @keydown="preventInvalidInput" maxlength="16" required>
                         <p v-if="errors.celular" class="text-red-500 text-xs mt-1 text-left">{{ errors.celular }}</p>
                     </div>
                 </div>
@@ -107,9 +129,11 @@
                 <div class="flex justify-end mt-8">
                     <button type="button"
                         class="bg-brand hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base"
-                        @click="nextStep" :disabled="!isStep1Valid">
-                        Próximo
-                        <span class="text-lg">›</span>
+                        @click="nextStep" :disabled="!isStep1Valid || stepLoading">
+                        <div v-if="stepLoading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2">
+                        </div>
+                        <span v-if="!stepLoading">Próximo</span>
+                        <span v-if="!stepLoading" class="text-lg">›</span>
                     </button>
                 </div>
             </div>
@@ -178,9 +202,9 @@
 
                     <div class="flex flex-col">
                         <label for="rua" class="text-left text-sm font-medium text-gray-700 mb-1">Rua</label>
-                        <input type="text" id="rua" v-model="formData.rua" placeholder="Digite a sua rua"
+                        <input type="text" id="rua" v-model="formData.rua" placeholder="Digite a sua rua (opcional)"
                             class="w-full py-2 px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-sm md:text-base"
-                            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.rua }" required>
+                            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.rua }">
                         <p v-if="errors.rua" class="text-red-500 text-xs mt-1 text-left">{{ errors.rua }}</p>
                     </div>
                 </div>
@@ -188,15 +212,17 @@
                 <div class="flex justify-between mt-8">
                     <button type="button"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 active:scale-95 text-base"
-                        @click="previousStep">
+                        @click="previousStep" :disabled="stepLoading">
                         <span class="text-lg">‹</span>
                         Voltar
                     </button>
                     <button type="button"
                         class="bg-brand hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base"
-                        @click="nextStep" :disabled="!isStep2Valid">
-                        Próximo
-                        <span class="text-lg">›</span>
+                        @click="nextStep" :disabled="!isStep2Valid || stepLoading">
+                        <div v-if="stepLoading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2">
+                        </div>
+                        <span v-if="!stepLoading">Próximo</span>
+                        <span v-if="!stepLoading" class="text-lg">›</span>
                     </button>
                 </div>
             </div>
@@ -233,15 +259,16 @@
                 <div class="flex justify-between mt-8">
                     <button type="button"
                         class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 active:scale-95 text-base"
-                        @click="previousStep">
+                        @click="previousStep" :disabled="loading">
                         <span class="text-lg">‹</span>
                         Voltar
                     </button>
                     <button type="button"
                         class="bg-brand hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold flex items-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 text-base"
                         @click="completeRegistration" :disabled="loading">
-                        <span v-if="loading">Finalizando...</span>
-                        <span v-else>Finalizar Registro</span>
+                        <div v-if="loading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2">
+                        </div>
+                        <span v-if="!loading">Finalizar Registro</span>
                     </button>
                 </div>
             </div>
@@ -251,6 +278,7 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import {
     UserIcon,
     MapPinIcon,
@@ -265,20 +293,19 @@ const props = defineProps({
         type: Object,
         required: true
     },
-    loading: {
-        type: Boolean,
-        default: false
-    },
     errors: {
         type: Object,
         default: () => ({})
     }
 })
 
-const emit = defineEmits(['submit', 'back-to-basic'])
-
 const currentStep = ref(1)
 const uploadedFiles = ref([])
+const stepLoading = ref(false)
+const inertiaLoading = ref(false)
+const showSuccessPopup = ref(false)
+const showRedirectMessage = ref(false)
+const registrationCompleted = ref(false)
 
 const formData = ref({
     nome: '',
@@ -300,17 +327,23 @@ const progressWidth = computed(() => {
 })
 
 const isStep1Valid = computed(() => {
-    return formData.value.nome && formData.value.apelido && formData.value.celular
+    const celularValid = formData.value.celular.replace(/\D/g, '').length === 12
+    return formData.value.nome && formData.value.apelido && celularValid
 })
 
 const isStep2Valid = computed(() => {
-    return formData.value.provincia && formData.value.distrito && formData.value.bairro && formData.value.rua
+    return formData.value.provincia && formData.value.distrito && formData.value.bairro
 })
 
-const nextStep = () => {
+const nextStep = async () => {
+    stepLoading.value = true
+    await new Promise(resolve => setTimeout(resolve, 800))
+
     if (currentStep.value < 3) {
         currentStep.value++
     }
+
+    stepLoading.value = false
 }
 
 const previousStep = () => {
@@ -322,19 +355,59 @@ const previousStep = () => {
 const formatPhoneNumber = (event) => {
     let value = event.target.value.replace(/\D/g, '')
 
-    if (value.length > 0) {
-        if (value.length <= 2) {
-            value = value
-        } else if (value.length <= 5) {
-            value = value.slice(0, 2) + ' ' + value.slice(2)
-        } else if (value.length <= 8) {
-            value = value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5)
-        } else {
-            value = value.slice(0, 2) + ' ' + value.slice(2, 5) + ' ' + value.slice(5, 8) + ' ' + value.slice(8, 11)
-        }
+    if (value.startsWith('258')) {
+        value = value.substring(3)
     }
 
-    formData.value.celular = value
+    if (value.length > 0) {
+        if (value[0] !== '8') {
+            value = '8' + value.substring(1)
+        }
+
+        if (value.length > 1) {
+            const validSecondDigits = ['2', '3', '4', '5', '6', '7']
+            if (!validSecondDigits.includes(value[1])) {
+                value = value[0] + (value[1] || '')
+            }
+        }
+
+        value = value.substring(0, 9)
+
+        let formattedValue = '+258 '
+        if (value.length > 0) {
+            formattedValue += value[0]
+            if (value.length > 1) {
+                formattedValue += value[1]
+            }
+            if (value.length > 2) {
+                formattedValue += ' ' + value.substring(2, 5)
+            }
+            if (value.length > 5) {
+                formattedValue += ' ' + value.substring(5, 8)
+            }
+            if (value.length > 8) {
+                formattedValue += ' ' + value.substring(8, 9)
+            }
+        }
+
+        formData.value.celular = formattedValue
+    }
+}
+
+const preventInvalidInput = (event) => {
+    const allowedKeys = [8, 9, 13, 27, 37, 38, 39, 40, 46]
+
+    if (allowedKeys.includes(event.keyCode)) {
+        return
+    }
+
+    if (event.ctrlKey && [65, 67, 86, 88].includes(event.keyCode)) {
+        return
+    }
+
+    if (!/[0-9]/.test(event.key)) {
+        event.preventDefault()
+    }
 }
 
 const triggerFileInput = () => {
@@ -360,13 +433,82 @@ const removeFile = (index) => {
     uploadedFiles.value.splice(index, 1)
 }
 
-const completeRegistration = () => {
-    const completeData = {
-        ...props.basicData,
-        ...formData.value,
-        documents: uploadedFiles.value
+const completeRegistration = async () => {
+    // Validação final do celular
+    const phoneDigits = formData.value.celular.replace(/\D/g, '')
+    if (phoneDigits.length !== 12 || !phoneDigits.startsWith('258')) {
+        alert('Por favor, insira um número de celular válido de Moçambique')
+        return
     }
-    emit('submit', completeData)
+
+    const actualPhone = phoneDigits.substring(3)
+    if (actualPhone[0] !== '8' || !['2', '3', '4', '5', '6', '7'].includes(actualPhone[1])) {
+        alert('Número de celular inválido. O número deve seguir o formato: +258 8X XXX XXXX')
+        return
+    }
+
+    // Prepara os dados para envio
+    const completeData = new FormData()
+
+    // Adiciona os dados do formulário
+    Object.keys(formData.value).forEach(key => {
+        if (formData.value[key]) {
+            completeData.append(key, formData.value[key])
+        }
+    })
+
+    // Adiciona os dados básicos
+    completeData.append('email', props.basicData.email)
+    completeData.append('username', props.basicData.username)
+    completeData.append('password', props.basicData.password)
+
+    // Adiciona os documentos
+    uploadedFiles.value.forEach(file => {
+        completeData.append('documents[]', file)
+    })
+
+    // Usa o router do Inertia para fazer a submissão
+    router.post('/register/complete', completeData, {
+        onStart: () => {
+            inertiaLoading.value = true
+        },
+        onSuccess: (page) => {
+            // Registro bem-sucedido - mostra popup de sucesso
+            inertiaLoading.value = false
+            showSuccessPopup.value = true
+            registrationCompleted.value = true
+
+            // Aguarda 3 segundos e redireciona para o dashboard
+            setTimeout(() => {
+                showSuccessPopup.value = false
+                showRedirectMessage.value = true
+                inertiaLoading.value = true
+
+                // Redireciona após mostrar a mensagem de redirecionamento
+                setTimeout(() => {
+                    router.visit('/home')
+                }, 1000)
+            }, 3000)
+        },
+        onError: (errors) => {
+            inertiaLoading.value = false
+            console.error('Erro no registro:', errors)
+
+            // Mostra o primeiro erro encontrado
+            if (errors && Object.keys(errors).length > 0) {
+                const firstError = errors[Object.keys(errors)[0]]
+                alert(`Erro: ${firstError}`)
+            } else {
+                alert('Erro ao completar registro. Verifique os dados e tente novamente.')
+            }
+        },
+        onFinish: () => {
+            // Só desativa o loading se não estiver no processo de redirecionamento
+            if (!registrationCompleted.value) {
+                inertiaLoading.value = false
+            }
+        }
+    })
 }
 
 onMounted(() => {
