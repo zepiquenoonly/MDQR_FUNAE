@@ -144,7 +144,7 @@
 
                     <div class="pt-2 border-t border-gray-200">
                         <a v-if="!hideTrackLink" @click="handleMobileTrackClick" :disabled="isLoadingTrack"
-                            class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
+                            class="text-gray-900 hover:text-brand hover:bg-gray-50 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -153,7 +153,7 @@
                         </a>
 
                         <a @click="handleMobileEmailTestClick" :disabled="isLoadingEmailTest"
-                            class="text-gray-900 hover:text-brand hover:bg-gray-50 block px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
+                            class="text-gray-900 hover:text-brand hover:bg-gray-50 px-4 py-3 rounded-lg text-base font-medium transition-all duration-200 flex items-center gap-3 cursor-pointer disabled:opacity-50">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -200,7 +200,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router, usePage } from '@inertiajs/vue3'
 
@@ -215,7 +215,7 @@ const getDashboardRoute = () => {
     if (!user.value) return '/login'
     
     const roles = user.value.roles || []
-    const roleNames = roles.map(r => r.name.toLowerCase())
+    const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
     
     // PCA (Ponto Central de Atendimento)
     if (roleNames.includes('pca')) {
@@ -237,7 +237,7 @@ const getDashboardLabel = () => {
     if (!user.value) return 'ENTRAR'
     
     const roles = user.value.roles || []
-    const roleNames = roles.map(r => r.name.toLowerCase())
+    const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
     
     if (roleNames.includes('pca')) return 'DASHBOARD PCA'
     if (roleNames.includes('gestor')) return 'DASHBOARD GESTOR'
@@ -245,18 +245,27 @@ const getDashboardLabel = () => {
     return 'MEU DASHBOARD'
 }
 
-const navigateToDashboard = () => {
-    isLoading.value = true
+// Loading state refs
+const isLoading = ref(false)
+const isLoadingDashboard = ref(false)
+const isLoadingTrack = ref(false)
+const isLoadingEmailTest = ref(false)
+const isLoadingLogin = ref(false)
 
+// Navegação para o dashboard, com estado de loading
 const navigateToDashboard = () => {
+    // marcar ambos estados para cobrir desktop e mobile templates
+    isLoading.value = true
     isLoadingDashboard.value = true
     setTimeout(() => {
         router.visit(getDashboardRoute(), {
             onFinish: () => {
                 isLoading.value = false
+                isLoadingDashboard.value = false
             },
             onError: () => {
                 isLoading.value = false
+                isLoadingDashboard.value = false
             }
         })
     }, 500)
