@@ -186,6 +186,13 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router, usePage } from '@inertiajs/vue3'
 
+const props = defineProps({
+    hideTrackLink: {
+        type: Boolean,
+        default: false
+    }
+})
+
 const page = usePage()
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')

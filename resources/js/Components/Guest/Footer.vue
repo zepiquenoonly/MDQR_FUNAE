@@ -77,7 +77,7 @@
                 <div class="flex space-x-6">
                     <a class="text-white/70 hover:text-white text-sm">Termos de Serviço</a>
                     <a class="text-white/70 hover:text-white text-sm">Política de Privacidade</a>
-                    <a href="/email-test" class="text-white/50 hover:text-white/70 text-xs opacity-50">Teste</a>
+                    <a href="/email-test" class="text-white/50 hover:text-white/70 text-xs opacity-50">Teste Email</a>
                 </div>
             </div>
         </div>

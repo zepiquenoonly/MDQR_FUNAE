@@ -66,19 +66,6 @@
                     Cadastre-se agora
                 </button>
             </p>
-
-            <!-- Link para acompanhar reclamação -->
-            <div class="mt-4 pt-4 border-t border-gray-200">
-                <a href="/track"
-                    class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2"
-                    :class="{ 'pointer-events-none opacity-50': loading }">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                    Acompanhar Reclamação
-                </a>
-            </div>
         </div>
     </form>
 </template>
