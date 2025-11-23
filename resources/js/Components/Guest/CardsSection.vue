@@ -1,7 +1,7 @@
 <template>
     <section class="bg-gray-50 py-20 px-4 sm:px-6 lg:px-8">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
-            <!-- Denúncia Card -->
+            <!-- Queixa Card -->
             <div
                 class="bg-white p-10 rounded-2xl text-center shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
                 <div class="w-24 h-24 bg-brand rounded-full flex items-center justify-center mx-auto mb-8">
