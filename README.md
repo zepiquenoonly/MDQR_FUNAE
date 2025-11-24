@@ -3,6 +3,26 @@
 > **Plataforma Digital de Gestão de Queixas e Reclamações**  
 > Sistema desenvolvido para o Fundo de Energia de Moçambique (FUNAE)
 
+---
+## 🆕 Novidades & Changelog (Nov/2025)
+
+### Funcionalidades Implementadas
+- Dashboard Utente, PCA, Técnico e Gestor completos com análise por tipos de submissão
+- Padronização completa Dashboard Utente
+- Theme Toggle (Dark/Light Mode) funcional
+- Sidebars dinâmicos por role (PCA, Gestor, Técnico, Utente)
+- Menus específicos para cada role
+- Botão "Sair" funcional em todos os dashboards
+- Links "Meu Perfil" e "Acompanhamento" em todos os menus
+- Novo usuário 'Utente' com mesmas credenciais padrão
+
+### Erros Corrigidos
+- MenuItem.vue: popupTimer duplicado removido
+- Complaints.vue: Erro "Unexpected token '<'" (fetch HTML como JSON) resolvido
+- Complaints.vue: Código duplicado (console.error e finally) removido
+
+---
+
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-red.svg)](https://laravel.com)
 [![PHP](https://img.shields.io/badge/PHP-8.2+-blue.svg)](https://php.net)
 [![Vue.js](https://img.shields.io/badge/Vue.js-3-green.svg)](https://vuejs.org)
@@ -87,6 +107,7 @@ Após o seeding, use estas credenciais para login:
 | Admin | admin@funae.co.mz | password |
 | Gestor | gestor@funae.co.mz | password |
 | Técnico | tecnico@funae.co.mz | password |
+| Utente | utente@gmail.com | password |
 
 ---
 
@@ -214,6 +235,37 @@ tail -f storage/logs/laravel.log
 
 ## 📚 Documentação
 
+---
+
+## 🌱 Seeders Especiais & Testes de Performance
+
+O sistema inclui seeders avançados para popular o banco de dados com dados realistas e para testes de performance em larga escala.
+
+### Seeders Padrão
+Ao rodar `php artisan migrate --seed`, os seguintes seeders são executados:
+- **RoleSeeder**: Cria todos os papéis e permissões do sistema
+- **AdminUserSeeder**: Cria usuários padrão (Gestor, Técnico, PCA, Utente)
+- **GrievanceSeeder**: Cria exemplos reais de queixas em diferentes estados
+- **UserSpecializationsSeeder**: Atribui especializações e capacidade de trabalho aos técnicos
+
+### Seeder de Performance (opcional)
+Para gerar grandes volumes de dados para testes de stress e relatórios:
+
+```bash
+php artisan db:seed-performance --utentes=500 --tecnicos=20 --gestores=5 --reclamacoes=2000
+```
+> Altere os parâmetros conforme necessário. Use apenas em ambiente de desenvolvimento!
+
+### Dicas
+- Sempre rode o `RoleSeeder` antes de outros seeders customizados.
+- Para rodar seeders individualmente:
+```bash
+php artisan db:seed --class=UserSpecializationsSeeder
+php artisan db:seed --class=GrievanceSeeder
+
+```
+---
+
 ### Guias Disponíveis
 
 | Documento | Descrição |
@@ -309,7 +361,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 0.3  
-**Última Atualização:** 22 de Novembro de 2025  
+**Versão:** 0.4  
+**Última Atualização:** 24 de Novembro de 2025  
 **Status:** ✅ Em Produção
 
