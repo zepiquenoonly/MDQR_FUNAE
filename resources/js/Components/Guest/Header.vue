@@ -218,15 +218,15 @@ const getDashboardRoute = () => {
     const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
 
     // PCA (Ponto Central de Atendimento)
-    if (roleNames.includes('pca')) {
+    if (roleNames.has('pca')) {
         return '/pca/dashboard'
     }
     // Gestor
-    if (roleNames.includes('gestor')) {
+    if (roleNames.has('gestor')) {
         return '/gestor/dashboard'
     }
     // Técnico
-    if (roleNames.includes('técnico') || roleNames.includes('tecnico')) {
+    if (roleNames.has('técnico') || roleNames.has('tecnico')) {
         return '/tecnico/dashboard'
     }
     // Utente (padrão)

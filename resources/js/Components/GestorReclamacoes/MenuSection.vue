@@ -10,9 +10,9 @@
 
     <!-- Menu Items -->
     <MenuItem
-      :active="$page.url === '/home' || $page.url === '/admin/dashboard' || $page.url === '/gestor/dashboard' || $page.url === '/tecnico/dashboard' || $page.url === '/utente/dashboard'"
+      :active="$page.url === '/home' || $page.url === '/pca/dashboard' || $page.url === '/gestor/dashboard' || $page.url === '/tecnico/dashboard' || $page.url === '/utente/dashboard'"
       :icon="HomeIcon" :text="'Home'" :is-collapsed="isCollapsed"
-      :href="$page.url.startsWith('/home') ? '/home' : '/admin/dashboard'" />
+      :href="$page.url.startsWith('/home') ? '/home' : '/pca/dashboard'" />
 
     <!-- Casos Dropdown
     <MenuDropdown id="casos" :icon="DocumentTextIcon" :text="'Casos'" :badge="stats.pending_complaints || 0"

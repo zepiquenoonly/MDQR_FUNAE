@@ -204,7 +204,7 @@ class AuthController extends Controller {
 
         switch ( $role ) {
             case 'PCA':
-            return redirect()->route( 'admin.dashboard' );
+            return redirect()->route( 'pca.dashboard' );
             case 'Gestor':
             return redirect()->route( 'manager.dashboard' );
             case 'Técnico':
@@ -238,7 +238,7 @@ class AuthController extends Controller {
 
         switch ( $role ) {
             case 'PCA':
-            return Inertia::render( 'Admin/Dashboard', [
+            return Inertia::render( 'PCA/Dashboard', [
                 'user' => [
                     'name' => $user->name,
                     'email' => $user->email,

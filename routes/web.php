@@ -42,7 +42,7 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     Route::post('/register/complete', [AuthController::class, 'completeRegistration']);
-    
+
     // Rota de teste
     Route::get('/test-track', function () {
         return view('test-tracking');
@@ -53,7 +53,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
 
     // Rotas específicas por role
-    Route::get('/admin/dashboard', [AuthController::class, 'home'])->name('admin.dashboard');
+    Route::get('/pca/dashboard', [AuthController::class, 'home'])->name('pca.dashboard');
     Route::get('/gestor/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
 
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
