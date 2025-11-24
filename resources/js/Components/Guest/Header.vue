@@ -182,7 +182,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router, usePage } from '@inertiajs/vue3'
 
@@ -213,10 +213,10 @@ const getUserInitials = (name) => {
 
 const getDashboardRoute = () => {
     if (!user.value) return '/login'
-    
+
     const roles = user.value.roles || []
     const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
-    
+
     // PCA (Ponto Central de Atendimento)
     if (roleNames.includes('pca')) {
         return '/pca/dashboard'
@@ -235,20 +235,20 @@ const getDashboardRoute = () => {
 
 const getDashboardLabel = () => {
     if (!user.value) return 'ENTRAR'
-    
+
     const roles = user.value.roles || []
     const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
-    
-    if (roleNames.includes('pca')) return 'DASHBOARD PCA'
-    if (roleNames.includes('gestor')) return 'DASHBOARD GESTOR'
-    if (roleNames.includes('técnico') || roleNames.includes('tecnico')) return 'DASHBOARD TÉCNICO'
+
+    if (roleNames.has('pca')) return 'DASHBOARD PCA'
+    if (roleNames.has('gestor')) return 'DASHBOARD GESTOR'
+    if (roleNames.has('técnico') || roleNames.has('tecnico')) return 'DASHBOARD TÉCNICO'
     return 'MEU DASHBOARD'
 }
 
 const navigateToDashboard = () => {
     isLoading.value = true
     isLoadingDashboard.value = true
-    
+
     setTimeout(() => {
         router.visit(getDashboardRoute(), {
             onFinish: () => {
@@ -265,7 +265,7 @@ const navigateToDashboard = () => {
 
 const navigateToLogin = () => {
     isLoadingLogin.value = true
-    
+
     setTimeout(() => {
         router.visit('/login', {
             onFinish: () => {
