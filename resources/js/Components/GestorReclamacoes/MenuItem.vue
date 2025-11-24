@@ -1,31 +1,37 @@
 <template>
     <div class="relative">
-        <Link :href="href" :class="[
-            'flex items-center gap-3 px-5 py-3 text-white cursor-pointer transition-all duration-200 border-l-3',
-            active
-                ? 'bg-white bg-opacity-20 text-white border-white'
-                : 'border-transparent hover:bg-white hover:bg-opacity-10'
-        ]" @mouseenter="onMouseEnter" @mouseleave="onMouseLeave">
-        <component :is="icon" :class="[
-            'flex-shrink-0 w-5 h-5',
-            active ? 'text-white' : 'text-white text-opacity-90'
-        ]" />
+        <component 
+            :is="href && href !== '#' ? Link : 'button'"
+            :href="href && href !== '#' ? href : undefined"
+            :class="[
+                'flex items-center gap-3 px-5 py-3 text-white cursor-pointer transition-all duration-200 border-l-3 w-full text-left',
+                active
+                    ? 'bg-white bg-opacity-20 text-white border-white'
+                    : 'border-transparent hover:bg-white hover:bg-opacity-10'
+            ]" 
+            @mouseenter="onMouseEnter" 
+            @mouseleave="onMouseLeave"
+            @click="handleClick">
+            <component :is="icon" :class="[
+                'flex-shrink-0 w-5 h-5',
+                active ? 'text-white' : 'text-white text-opacity-90'
+            ]" />
 
-        <span :class="[
-            'transition-opacity duration-300 flex-1 text-sm font-medium text-left',
-            isCollapsed ? 'opacity-0' : 'opacity-100'
-        ]">
-            {{ text }}
-        </span>
+            <span :class="[
+                'transition-opacity duration-300 flex-1 text-sm font-medium text-left',
+                isCollapsed ? 'opacity-0' : 'opacity-100'
+            ]">
+                {{ text }}
+            </span>
 
-        <!-- Badge -->
-        <span v-if="badge" :class="[
-            'bg-white text-orange-600 rounded-full px-2 py-1 text-xs font-bold transition-opacity duration-300 min-w-6 text-center',
-            isCollapsed ? 'opacity-0' : 'opacity-100'
-        ]">
-            {{ badge }}
-        </span>
-        </Link>
+            <!-- Badge -->
+            <span v-if="badge" :class="[
+                'bg-white text-orange-600 rounded-full px-2 py-1 text-xs font-bold transition-opacity duration-300 min-w-6 text-center',
+                isCollapsed ? 'opacity-0' : 'opacity-100'
+            ]">
+                {{ badge }}
+            </span>
+        </component>
 
         <!-- Popup para quando sidebar estiver fechado -->
         <div v-if="isCollapsed && showPopup"
@@ -75,9 +81,22 @@ const props = defineProps({
 const emit = defineEmits(['click'])
 
 // Obter o gerenciador de dropdowns do contexto
-const dropdownManager = inject('dropdownManager')
+const dropdownManager = inject('dropdownManager', null)
 
 const showPopup = ref(false)
+let popupTimer = null
+
+const handleClick = (e) => {
+    // Se não tem href válido, prevenir navegação e emitir evento
+    if (!props.href || props.href === '#') {
+        e.preventDefault()
+        emit('click', e)
+    }
+    // Fechar dropdowns se existe o gerenciador
+    if (dropdownManager) {
+        dropdownManager.closeDropdown()
+    }
+}
 let popupTimer = null
 
 const handleClick = () => {
