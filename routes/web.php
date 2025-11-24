@@ -7,6 +7,7 @@ use App\Http\Controllers\GrievanceTrackingController;
 use App\Http\Controllers\GuestController;
 use App\Http\Controllers\ManagerDashboardController;
 use App\Http\Controllers\ManagerGrievanceController;
+use App\Http\Controllers\PCADashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TechnicianDashboardController;
@@ -53,7 +54,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
 
     // Rotas específicas por role
-    Route::get('/pca/dashboard', [AuthController::class, 'home'])->name('pca.dashboard');
+    Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
     Route::get('/gestor/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
 
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
