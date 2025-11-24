@@ -252,32 +252,27 @@ const loadGrievances = async () => {
     error.value = null
 
     try {
-        const params = new URLSearchParams()
-        if (filters.value.status) params.append('status', filters.value.status)
-        if (filters.value.priority) params.append('priority', filters.value.priority)
-        if (filters.value.category) params.append('category', filters.value.category)
-        if (filters.value.search) params.append('search', filters.value.search)
-
-        const response = await fetch(`/utente/dashboard?${params.toString()}`, {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-
-        if (!response.ok) {
-            throw new Error('Erro ao carregar reclamações')
+        // Usar os dados já disponíveis da página ao invés de fazer fetch
+        const page = usePage()
+        
+        if (page.props.stats) {
+            stats.value = page.props.stats
         }
-
-        const data = await response.json()
-
-        if (data.props) {
-            stats.value = data.props.stats || stats.value
-            grievances.value = data.props.grievances || grievances.value
-            notifications.value = data.props.notifications || []
+        
+        if (page.props.grievances) {
+            grievances.value = page.props.grievances
         }
+        
+        if (page.props.notifications) {
+            notifications.value = page.props.notifications
+        }
+        
+        loading.value = false
     } catch (err) {
         error.value = err.message
+        loading.value = false
+    }
+}
         console.error('Erro ao carregar reclamações:', err)
     } finally {
         loading.value = false
