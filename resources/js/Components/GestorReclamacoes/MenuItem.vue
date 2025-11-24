@@ -48,7 +48,7 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref, inject, onUnmounted } from 'vue'
 import { Link, router } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -97,15 +97,6 @@ const handleClick = (e) => {
         dropdownManager.closeDropdown()
     }
 }
-let popupTimer = null
-
-const handleClick = () => {
-    // Fechar todos os dropdowns ao clicar em um item regular
-    if (dropdownManager) {
-        dropdownManager.closeDropdown()
-    }
-    emit('click')
-}
 
 const onMouseEnter = () => {
     if (props.isCollapsed) {
@@ -136,7 +127,6 @@ const onPopupLeave = () => {
 }
 
 // Cleanup timer on unmount
-import { onUnmounted } from 'vue'
 onUnmounted(() => {
     clearTimeout(popupTimer)
 })
