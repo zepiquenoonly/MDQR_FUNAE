@@ -40,6 +40,12 @@ class AdminUserSeeder extends Seeder
                 'email' => 'pca@funae.co.mz',
                 'role' => 'PCA',
             ],
+            [
+                'name' => 'Utente',
+                'username' => 'utente',
+                'email' => 'utente@gmail.com',
+                'role' => 'Utente',
+            ],
         ];
 
         foreach ($adminUsers as $userData) {

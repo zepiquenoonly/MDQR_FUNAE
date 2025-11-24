@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-2xl font-semibold text-gray-800 mb-4">
+    <div class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
       <h1>Visão Geral das Minhas Submissões</h1>
     </div>
     
@@ -30,7 +30,7 @@
     </div>
 
     <!-- Estatísticas por Status -->
-    <div class="text-lg font-semibold text-gray-800 mb-3 mt-8">
+    <div class="text-lg font-semibold text-gray-800 dark:text-white mb-3 mt-8">
       <h2>Status das Submissões</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">

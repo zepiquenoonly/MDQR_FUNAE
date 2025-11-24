@@ -17,18 +17,41 @@
         @click="() => emitItem('dashboard')"
       />
 
-      <!-- Acompanhar Reclamação -->
+      <!-- Projectos -->
+      <MenuItem
+        :active="activePanel === 'projectos'"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        :is-collapsed="isCollapsed"
+        @click="() => emitItem('projectos')"
+      />
+
+      <!-- MDQR Section -->
       <div :class="[
         'px-5 py-3 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300 mt-3',
         isCollapsed ? 'opacity-0' : 'opacity-100'
-      ]">Reclamações</div>
+      ]">MDQR</div>
 
-      <MenuItem
-        :active="activePanel === 'reclamacoes'"
-        :icon="DocumentTextIcon"
-        :text="'Acompanhar Reclamação'"
+      <!-- Submeter Reclamação/Queixa/Sugestão -->
+      <MenuDropdown
+        :icon="DocumentPlusIcon"
+        :text="'Nova Submissão'"
         :is-collapsed="isCollapsed"
-        @click="() => emitItem('reclamacoes')"
+        :items="[
+          { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
+          { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
+          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon }
+        ]"
+        @item-clicked="emitItem"
+      />
+
+      <!-- Acompanhamento -->
+      <MenuItem
+        :active="false"
+        :icon="MagnifyingGlassIcon"
+        :text="'Acompanhamento'"
+        :is-collapsed="isCollapsed"
+        @click="() => navigateToTracking()"
       />
 
       <!-- Conta / Perfil -->
@@ -37,12 +60,22 @@
         isCollapsed ? 'opacity-0' : 'opacity-100'
       ]">Conta</div>
 
+      <!-- Meu Perfil -->
       <MenuItem
-        :active="activePanel === 'perfil'"
-        :icon="UserIcon"
-        :text="'Gestão de Perfil'"
+        :active="false"
+        :icon="UserCircleIcon"
+        :text="'Meu Perfil'"
         :is-collapsed="isCollapsed"
-        @click="() => emitItem('perfil')"
+        @click="() => navigateToProfile()"
+      />
+
+      <!-- Logout -->
+      <MenuItem
+        :active="false"
+        :icon="ArrowRightOnRectangleIcon"
+        :text="'Sair'"
+        :is-collapsed="isCollapsed"
+        @click="() => handleLogout()"
       />
   </nav>
 </template>
@@ -50,11 +83,19 @@
 <script setup>
 import {
   HomeIcon,
-  DocumentTextIcon,
-  UserIcon
+  BriefcaseIcon,
+  DocumentPlusIcon,
+  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  LightBulbIcon,
+  MagnifyingGlassIcon,
+  UserCircleIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
+import { router } from '@inertiajs/vue3'
 import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
 import MenuItem from './MenuItem.vue'
+import MenuDropdown from './MenuDropdown.vue'
 import { defineEmits, defineProps } from 'vue'
 
 defineProps({
@@ -69,5 +110,17 @@ const emitItem = (panel) => {
   console.log('MenuSection - emit item:', panel)
   setActivePanel(panel)
   emit('item-clicked', panel)
+}
+
+const navigateToProfile = () => {
+  router.visit('/profile')
+}
+
+const navigateToTracking = () => {
+  router.visit('/track')
+}
+
+const handleLogout = () => {
+  router.post('/logout')
 }
 </script>

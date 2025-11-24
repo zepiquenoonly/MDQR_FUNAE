@@ -13,12 +13,12 @@
                 <div v-if="isMobile" class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                     <div
                         class="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg flex-shrink-0">
-                        GR
+                        {{ logoInitials }}
                     </div>
                     <div class="transition-all duration-300 overflow-hidden min-w-0 flex-1">
-                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate">Gestor de Reclamações
+                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate">{{ dashboardTitle }}
                         </h1>
-                        <p class="text-orange-100 dark:text-orange-200 text-xs sm:text-sm truncate">Painel do Gestor</p>
+                        <p class="text-orange-100 dark:text-orange-200 text-xs sm:text-sm truncate">{{ dashboardSubtitle }}</p>
                     </div>
                 </div>
 
@@ -26,12 +26,12 @@
                 <div v-else class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                     <div
                         class="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg flex-shrink-0">
-                        GR
+                        {{ logoInitials }}
                     </div>
                     <div v-if="!isCollapsed" class="transition-all duration-300 overflow-hidden min-w-0 flex-1">
-                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate">Gestor de Reclamações
+                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate">{{ dashboardTitle }}
                         </h1>
-                        <p class="text-orange-100 dark:text-orange-200 text-xs sm:text-sm truncate">Painel do Gestor</p>
+                        <p class="text-orange-100 dark:text-orange-200 text-xs sm:text-sm truncate">{{ dashboardSubtitle }}</p>
                     </div>
                 </div>
             </div>
@@ -40,7 +40,7 @@
         <!-- Menu Sections -->
         <div class="flex-1 overflow-y-auto overflow-x-hidden">
             <!-- Gestão de Casos Section -->
-            <MenuSection :is-collapsed="isCollapsed && !isMobile" :stats="stats" @item-clicked="handleMenuItemClick" />
+            <MenuSection :is-collapsed="isCollapsed && !isMobile" :stats="stats" :user="user" @item-clicked="handleMenuItemClick" />
         </div>
     </aside>
 </template>
@@ -77,6 +77,41 @@ const emit = defineEmits(['toggle-sidebar'])
 const dashboardState = inject('dashboardState')
 const sidebarState = inject('sidebarState')
 const isMobile = ref(false)
+
+// Computed para determinar role do usuário
+const userRole = computed(() => {
+    return props.user?.roles?.[0]?.name || props.user?.role || 'Gestor'
+})
+
+// Computed para título do dashboard baseado no role
+const dashboardTitle = computed(() => {
+    const titles = {
+        'PCA': 'Dashboard PCA',
+        'Gestor': 'Gestor de Reclamações',
+        'Técnico': 'Dashboard Técnico'
+    }
+    return titles[userRole.value] || 'Dashboard'
+})
+
+// Computed para subtítulo do dashboard
+const dashboardSubtitle = computed(() => {
+    const subtitles = {
+        'PCA': 'Painel Executivo',
+        'Gestor': 'Painel do Gestor',
+        'Técnico': 'Painel do Técnico'
+    }
+    return subtitles[userRole.value] || 'Painel'
+})
+
+// Computed para iniciais do logo
+const logoInitials = computed(() => {
+    const initials = {
+        'PCA': 'PCA',
+        'Gestor': 'GR',
+        'Técnico': 'TEC'
+    }
+    return initials[userRole.value] || 'GR'
+})
 
 // Computed para painel ativo
 const activePanel = computed(() => {
