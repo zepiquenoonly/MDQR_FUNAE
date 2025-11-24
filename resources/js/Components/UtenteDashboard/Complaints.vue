@@ -270,11 +270,7 @@ const loadGrievances = async () => {
         loading.value = false
     } catch (err) {
         error.value = err.message
-        loading.value = false
-    }
-}
         console.error('Erro ao carregar reclamações:', err)
-    } finally {
         loading.value = false
     }
 }
