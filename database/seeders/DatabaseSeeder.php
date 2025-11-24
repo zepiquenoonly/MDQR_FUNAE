@@ -43,6 +43,11 @@ class DatabaseSeeder extends Seeder
 
         // Create sample grievances with different statuses
         $this->call(GrievanceSeeder::class);
+
+        // Another seeders cruciais
+        $this->call(ProjectSeeder::class);
+        $this->call(UserSpecializationsSeeder::class);
+        
     }
 
     /**
