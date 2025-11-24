@@ -68,6 +68,34 @@
                 </div>
             </div>
 
+            <!-- Submission Types Chart -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Tipos de Submissões
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-4 border-l-4 border-red-500">
+                        <p class="text-sm text-red-600 dark:text-red-400 font-medium">Reclamações</p>
+                        <p class="text-2xl font-bold text-red-700 dark:text-red-300 mt-1">
+                            {{ complaintsByType.complaint || 0 }}
+                        </p>
+                    </div>
+                    <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-4 border-l-4 border-orange-500">
+                        <p class="text-sm text-orange-600 dark:text-orange-400 font-medium">Queixas</p>
+                        <p class="text-2xl font-bold text-orange-700 dark:text-orange-300 mt-1">
+                            {{ complaintsByType.grievance || 0 }}
+                        </p>
+                    </div>
+                    <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border-l-4 border-green-500">
+                        <p class="text-sm text-green-600 dark:text-green-400 font-medium">Sugestões</p>
+                        <p class="text-2xl font-bold text-green-700 dark:text-green-300 mt-1">
+                            {{ complaintsByType.suggestion || 0 }}
+                        </p>
+                    </div>
+                </div>
+                <TypeChart :data="complaintsByType" />
+            </div>
+
             <!-- Trend Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -135,6 +163,7 @@ import Layout from '@/Layouts/ManagerLayout.vue'
 import StatCard from '@/Components/PCA/StatCard.vue'
 import StatusChart from '@/Components/PCA/StatusChart.vue'
 import PriorityChart from '@/Components/PCA/PriorityChart.vue'
+import TypeChart from '@/Components/PCA/TypeChart.vue'
 import TrendChart from '@/Components/PCA/TrendChart.vue'
 import CategoryChart from '@/Components/PCA/CategoryChart.vue'
 import TechniciansTable from '@/Components/PCA/TechniciansTable.vue'
@@ -157,6 +186,10 @@ const props = defineProps({
         default: () => ({})
     },
     complaintsByPriority: {
+        type: Object,
+        default: () => ({})
+    },
+    complaintsByType: {
         type: Object,
         default: () => ({})
     },

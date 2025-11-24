@@ -36,6 +36,9 @@ class PCADashboardController extends Controller
         // Complaints by Priority
         $complaintsByPriority = $this->getComplaintsByPriority($startDate, $endDate, $department, $complaintType);
         
+        // Complaints by Type (Reclamações, Queixas, Sugestões)
+        $complaintsByType = $this->getComplaintsByType($startDate, $endDate, $department);
+        
         // Complaints by Category
         $complaintsByCategory = $this->getComplaintsByCategory($startDate, $endDate, $department, $complaintType);
         
@@ -69,6 +72,7 @@ class PCADashboardController extends Controller
             'globalStats' => $globalStats,
             'complaintsByStatus' => $complaintsByStatus,
             'complaintsByPriority' => $complaintsByPriority,
+            'complaintsByType' => $complaintsByType,
             'complaintsByCategory' => $complaintsByCategory,
             'performanceMetrics' => $performanceMetrics,
             'trendData' => $trendData,
@@ -155,6 +159,33 @@ class PCADashboardController extends Controller
                 return [$item->priority => $item->total];
             })
             ->toArray();
+    }
+
+    /**
+     * Get complaints grouped by type (Reclamação, Queixa, Sugestão)
+     */
+    private function getComplaintsByType($startDate, $endDate, $department): array
+    {
+        $query = Grievance::whereBetween('created_at', [$startDate, $endDate]);
+
+        if ($department) {
+            $query->where('province', $department);
+        }
+
+        $results = $query->select('type', DB::raw('count(*) as total'))
+            ->groupBy('type')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->type => $item->total];
+            })
+            ->toArray();
+
+        // Garantir que todos os tipos estejam presentes
+        return [
+            'complaint' => $results['complaint'] ?? 0,
+            'grievance' => $results['grievance'] ?? 0,
+            'suggestion' => $results['suggestion'] ?? 0,
+        ];
     }
 
     /**

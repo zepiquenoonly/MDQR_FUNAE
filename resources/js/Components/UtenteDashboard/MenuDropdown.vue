@@ -64,15 +64,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, inject } from 'vue'
+import { ref, computed } from 'vue'
 import { ChevronRightIcon } from '@heroicons/vue/24/outline'
 import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
 
 const props = defineProps({
-  id: {
-    type: String,
-    required: true
-  },
   icon: Object,
   text: String,
   badge: [String, Number],
@@ -84,10 +80,6 @@ const props = defineProps({
   items: {
     type: Array,
     default: () => []
-  },
-  dropdownManager: {
-    type: [Object, Function],
-    required: true
   }
 })
 
@@ -96,24 +88,30 @@ const emit = defineEmits(['item-clicked'])
 const { activeDropdown } = useDashboardState()
 
 const showPopup = ref(false)
+const isOpen = ref(false)
 let popupTimer = null
-
-// Computed para verificar se este dropdown está aberto
-const isOpen = computed(() => {
-  return props.dropdownManager.isDropdownOpen(props.id)
-})
 
 // Verificar se um item específico está ativo
 const isItemActive = (item) => {
   return activeDropdown.value === item.id
 }
 
+// Toggle dropdown
 const handleClick = () => {
   if (!props.isCollapsed) {
-    props.dropdownManager.toggleDropdown(props.id)
+    isOpen.value = !isOpen.value
   }
 }
 
+// Handle item click
+const handleItemClick = (item) => {
+  console.log('MenuDropdown - item clicked:', item.id)
+  emit('item-clicked', item.id)
+  isOpen.value = false
+  showPopup.value = false
+}
+
+// Mouse handlers para popup quando collapsed
 const onMouseEnter = () => {
   if (props.isCollapsed) {
     clearTimeout(popupTimer)
@@ -128,7 +126,7 @@ const onMouseLeave = () => {
     clearTimeout(popupTimer)
     popupTimer = setTimeout(() => {
       showPopup.value = false
-    }, 300)
+    }, 200)
   }
 }
 
@@ -137,22 +135,7 @@ const onPopupEnter = () => {
 }
 
 const onPopupLeave = () => {
-  popupTimer = setTimeout(() => {
-    showPopup.value = false
-  }, 300)
-}
-
-const handleItemClick = (item) => {
-  // Não fechar o dropdown manager quando um item é clicado
-  // Apenas emitir o evento
+  clearTimeout(popupTimer)
   showPopup.value = false
-  emit('item-clicked', item.text)
 }
-
-// Watch para fechar popup quando dropdown for fechado
-watch(isOpen, (newValue) => {
-  if (!newValue && !props.isCollapsed) {
-    showPopup.value = false
-  }
-})
 </script>
