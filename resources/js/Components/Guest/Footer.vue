@@ -1,5 +1,5 @@
 <template>
-    <footer id="contactos" class="bg-orange-400 text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8">
+    <footer id="contactos" class="bg-brand text-white py-12 md:py-16 px-4 sm:px-6 lg:px-8">
 
         <!-- GRID PRINCIPAL -->
         <div class="max-w-7xl mx-auto 
