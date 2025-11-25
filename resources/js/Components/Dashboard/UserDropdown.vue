@@ -80,9 +80,7 @@ const toggleDropdown = () => {
 }
 
 const handleLogout = () => {
-  if (confirm('Tem certeza que deseja sair?')) {
-    router.post('/logout')
-  }
+  router.post('/logout')
   isOpen.value = false
 }
 

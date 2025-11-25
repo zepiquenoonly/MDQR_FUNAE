@@ -41,7 +41,6 @@ import {
   EyeIcon
 } from '@heroicons/vue/24/outline'
 import { useDropdownManager } from './Composables/useDropdownManager.js'
-import { inject } from 'vue'
 import MenuItem from './MenuItem.vue'
 import MenuDropdown from './MenuDropdown.vue'
 
@@ -53,9 +52,6 @@ const emit = defineEmits(['item-clicked'])
 
 // Inicializar o gerenciador de dropdowns
 const dropdownManager = useDropdownManager()
-
-// Obter a função para mudar o painel ativo
-const setActivePanel = inject('setActivePanel')
 
 const mdqrItems = [
   { icon: LightBulbIcon, text: 'Sugestões', id: 'sugestoes' },
@@ -72,18 +68,7 @@ const handleItemClick = (item) => {
   // Fechar todos os dropdowns ao clicar em um item
   dropdownManager.closeDropdown()
 
-  // Definir painel ativo baseado no item clicado
-  if (typeof item === 'string') {
-    if (setActivePanel) {
-      setActivePanel(item)
-    }
-  } else if (item && item.id) {
-    if (setActivePanel) {
-      setActivePanel(item.id)
-    }
-  }
-
-  console.log('Menu item clicked:', item)
+  // Emitir evento para o componente pai tratar
   emit('item-clicked', item)
 }
 </script>

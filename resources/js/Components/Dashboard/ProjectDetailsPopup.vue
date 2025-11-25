@@ -472,16 +472,16 @@ const saveProject = async () => {
             // Emitir o projeto actualizado
             emit('project-updated', response.data.project)
 
-            alert('Projecto actualizado com sucesso!')
+            console.log('Projecto actualizado com sucesso!')
         } else {
             throw new Error(response.data.message || 'Erro ao actualizar projecto')
         }
     } catch (error) {
         console.error('Erro ao actualizar projecto:', error)
         if (error.response?.data?.errors) {
-            alert('Erro ao actualizar projecto: ' + JSON.stringify(error.response.data.errors))
+            console.error('Erro ao actualizar projecto: ' + JSON.stringify(error.response.data.errors))
         } else {
-            alert('Erro ao actualizar projecto: ' + error.message)
+            console.error('Erro ao actualizar projecto: ' + error.message)
         }
     } finally {
         saving.value = false
@@ -492,16 +492,14 @@ const saveProject = async () => {
 const deleteProject = async () => {
     if (!props.projectId) return
 
-    if (confirm('Tem certeza que deseja eliminar este projecto? Esta acção não pode ser desfeita.')) {
-        try {
-            await axios.delete(`/api/projects/${props.projectId}`)
-            emit('project-deleted', props.projectId)
-            closePopup()
-            alert('Projecto eliminado com sucesso!')
-        } catch (error) {
-            console.error('Erro ao eliminar projecto:', error)
-            alert('Erro ao eliminar projecto')
-        }
+    console.log('Confirmando eliminação do projecto')
+    try {
+        await axios.delete(`/api/projects/${props.projectId}`)
+        emit('project-deleted', props.projectId)
+        closePopup()
+        console.log('Projecto eliminado com sucesso!')
+    } catch (error) {
+        console.error('Erro ao eliminar projecto:', error)
     }
 }
 

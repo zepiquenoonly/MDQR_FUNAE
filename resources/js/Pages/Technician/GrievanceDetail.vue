@@ -1,12 +1,12 @@
 <template>
     <Layout>
-        <div class="h-screen flex flex-col">
-            <!-- Fixed Header -->
-            <div class="sticky top-0 z-40 bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-gray-700 shadow-sm">
-                <div class="px-4 sm:px-6 py-4">
-                    <Link href="/tecnico/dashboard" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center gap-1 mb-3">
-                        ← Voltar ao Painel
-                    </Link>
+        <div class="space-y-4 sm:space-y-6">
+            <!-- Breadcrumb & Header -->
+            <div class="flex flex-col gap-3 sm:gap-4">
+                <Link href="/tecnico/dashboard" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center gap-1">
+                    ← Voltar ao Painel
+                </Link>
+                <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                         <div class="flex-1">
                             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">
@@ -33,9 +33,6 @@
                 </div>
             </div>
 
-            <!-- Scrollable Content -->
-            <div class="flex-1 overflow-y-auto">
-                <div class="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
             <!-- Main Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <!-- Left Column - 2/3 -->
@@ -136,7 +133,7 @@
                 </div>
 
                 <!-- Right Column - 1/3 -->
-                <div class="lg:sticky lg:top-32 h-fit space-y-4 sm:space-y-6">
+                <div class="space-y-4 sm:space-y-6">
                     <!-- Quick Status -->
                     <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4">Status</h2>
@@ -210,7 +207,7 @@
             </div>
 
             <!-- Forms Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pb-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 <!-- Registar Atualização -->
                 <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
@@ -378,8 +375,6 @@
                             </span>
                         </button>
                     </form>
-                </div>
-            </div>
                 </div>
             </div>
         </div>

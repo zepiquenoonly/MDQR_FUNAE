@@ -3,22 +3,22 @@
     <a
       :class="[
         'flex items-center gap-3 px-5 py-3 text-white cursor-pointer transition-all duration-200 border-l-3',
-        active 
-          ? 'bg-white bg-opacity-20 text-white border-white' 
+        active
+          ? 'bg-white bg-opacity-20 text-white border-white'
           : 'border-transparent hover:bg-white hover:bg-opacity-10'
       ]"
       @click="handleClick"
       @mouseenter="onMouseEnter"
       @mouseleave="onMouseLeave"
     >
-      <component 
-        :is="icon" 
+      <component
+        :is="icon"
         :class="[
           'flex-shrink-0 w-5 h-5',
           active ? 'text-white' : 'text-white'
-        ]" 
+        ]"
       />
-      <span 
+      <span
         :class="[
           'transition-opacity duration-300 flex-1 text-sm font-medium',
           isCollapsed ? 'opacity-0' : 'opacity-100'
@@ -41,7 +41,7 @@
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
+import { ref } from 'vue'
 
 const props = defineProps({
   active: {
@@ -55,17 +55,10 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
-// Obter o gerenciador de dropdowns do contexto
-const dropdownManager = inject('dropdownManager')
-
 const showPopup = ref(false)
 let popupTimer = null
 
 const handleClick = () => {
-  // Fechar todos os dropdowns ao clicar em um item regular
-  if (dropdownManager) {
-    dropdownManager.closeDropdown()
-  }
   emit('click')
 }
 

@@ -1,14 +1,15 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex">
-    <!-- Sidebar -->
+    <!-- Sidebar (Fixed) -->
     <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
 
     <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
+    <div class="flex-1 flex flex-col h-screen">
+      <!-- Header (Fixed) -->
       <Header :sidebar-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :user="user" />
 
-      <!-- Page Content -->
-      <main class="flex-1 overflow-y-auto">
+      <!-- Page Content (Scrollable) -->
+      <main class="flex-1 overflow-y-auto px-2 sm:px-3 lg:px-4 py-4 sm:py-6">
         <slot />
       </main>
     </div>

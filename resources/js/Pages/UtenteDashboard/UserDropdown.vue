@@ -96,9 +96,7 @@ const toggleDropdown = () => {
 
 const handleItemClick = (item) => {
   if (item.text === 'Sair') {
-    if (confirm('Tem certeza que deseja sair?')) {
-      router.post('/logout')
-    }
+    router.post('/logout')
   } else {
     console.log('Action:', item.text)
   }

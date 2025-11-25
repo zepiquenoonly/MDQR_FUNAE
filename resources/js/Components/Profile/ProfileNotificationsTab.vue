@@ -119,8 +119,7 @@ const systemNotifications = ref({
 
 const saveNotifications = () => {
     // Aqui você pode implementar a lógica para salvar as preferências
-    // Por enquanto, apenas mostra um alerta
-    alert('Preferências de notificação guardadas!')
+    console.log('Preferências de notificação guardadas!')
     // Em produção, você faria uma chamada API para salvar estas configurações
 }
 </script>

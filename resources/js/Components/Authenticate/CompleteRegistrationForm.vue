@@ -306,6 +306,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { router } from '@inertiajs/vue3'
+import { useToast } from '@/Composables/useToast'
 import {
     UserIcon,
     MapPinIcon,
@@ -314,6 +315,8 @@ import {
     DocumentIcon,
     XMarkIcon
 } from '@heroicons/vue/24/outline'
+
+const { error, warning } = useToast()
 
 const props = defineProps({
     basicData: {
@@ -464,13 +467,13 @@ const completeRegistration = async () => {
     // Validação final do celular
     const phoneDigits = formData.value.celular.replace(/\D/g, '')
     if (phoneDigits.length !== 12 || !phoneDigits.startsWith('258')) {
-        alert('Por favor, insira um número de celular válido de Moçambique')
+        console.warn('Por favor, insira um número de celular válido de Moçambique')
         return
     }
 
     const actualPhone = phoneDigits.substring(3)
     if (actualPhone[0] !== '8' || !['2', '3', '4', '5', '6', '7'].includes(actualPhone[1])) {
-        alert('Número de celular inválido. O número deve seguir o formato: +258 8X XXX XXXX')
+        console.warn('Número de celular inválido. O número deve seguir o formato: +258 8X XXX XXXX')
         return
     }
 
@@ -524,9 +527,9 @@ const completeRegistration = async () => {
             // Mostra o primeiro erro encontrado
             if (errors && Object.keys(errors).length > 0) {
                 const firstError = errors[Object.keys(errors)[0]]
-                alert(`Erro: ${firstError}`)
+                console.error(`Erro: ${firstError}`)
             } else {
-                alert('Erro ao completar registro. Verifique os dados e tente novamente.')
+                console.error('Erro ao completar registro. Verifique os dados e tente novamente.')
             }
         },
         onFinish: () => {

@@ -305,7 +305,7 @@ const formatDate = (dateString) => {
 }
 
 const viewDetails = (row) => {
-  alert(`Visualizando detalhes de: ${row.code}\nTipo: ${row.submissionType.text}\nBairro: ${row.neighborhood}`)
+  console.log(`Visualizando detalhes de: ${row.code}, Tipo: ${row.submissionType.text}, Bairro: ${row.neighborhood}`)
 }
 </script>
 

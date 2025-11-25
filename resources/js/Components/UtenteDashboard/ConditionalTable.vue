@@ -398,9 +398,8 @@ const editItem = (item) => {
 }
 
 const deleteItem = (item) => {
-    if (confirm(`Tem a certeza que deseja eliminar "${item.title}"?`)) {
-        emit('delete-item', item)
-    }
+    console.log(`Confirmar eliminação de: "${item.title}"`)
+    emit('delete-item', item)
 }
 
 const exportData = () => {

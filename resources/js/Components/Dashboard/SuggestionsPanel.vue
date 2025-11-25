@@ -192,11 +192,11 @@ const tableData = ref([
 ])
 
 const viewDetails = (row) => {
-    alert(`Visualizando detalhes de: ${row.name}\nBairro: ${row.neighborhood}\nEstado: ${row.status.text}`)
+    console.log(`Visualizando detalhes de: ${row.name}, Bairro: ${row.neighborhood}, Estado: ${row.status.text}`)
 }
 
 const registerNew = () => {
-    alert('Abrir formulário para registrar nova sugestão')
+    console.log('Abrir formulário para registrar nova sugestão')
 }
 </script>
 

@@ -51,14 +51,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { router, Link } from '@inertiajs/vue3'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { useToast } from '@/Composables/useToast'
 import {
   UserIcon,
   ChevronDownIcon,
   LockClosedIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
+
+const { error } = useToast()
 
 const props = defineProps({
   user: {
@@ -90,7 +93,7 @@ const toggleDropdown = () => {
 }
 
 const handleLogout = async () => {
-  
+
 
   logoutLoading.value = true
   isOpen.value = false
@@ -106,7 +109,7 @@ const handleLogout = async () => {
       },
       onError: () => {
         logoutLoading.value = false
-        alert('Erro ao fazer logout. Tente novamente.')
+        error('Erro ao fazer logout. Tente novamente.')
       },
       onFinish: () => {
         // Garante que o loading seja desativado mesmo em caso de erro
@@ -115,10 +118,10 @@ const handleLogout = async () => {
         }, 1000)
       }
     })
-  } catch (error) {
+  } catch (err) {
     logoutLoading.value = false
-    console.error('Erro no logout:', error)
-    alert('Erro ao fazer logout. Tente novamente.')
+    console.error('Erro no logout:', err)
+    error('Erro ao fazer logout. Tente novamente.')
   }
 }
 

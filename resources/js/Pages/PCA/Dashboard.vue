@@ -244,7 +244,7 @@ const applyFilters = () => {
 }
 
 const exportReport = () => {
-    // Implement export functionality
-    alert('Funcionalidade de exportação será implementada')
+    // TODO: Implementar exportação de relatório
+    console.log('Funcionalidade de exportação será implementada')
 }
 </script>

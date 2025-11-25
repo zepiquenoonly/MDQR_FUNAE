@@ -196,11 +196,11 @@ const tableData = ref([
 ])
 
 const viewDetails = (row) => {
-    alert(`Visualizando detalhes da queixa: ${row.name}\nBairro: ${row.neighborhood}\nEstado: ${row.status.text}`)
+    console.log(`Visualizando detalhes da queixa: ${row.name}, Bairro: ${row.neighborhood}, Estado: ${row.status.text}`)
 }
 
 const registerNew = () => {
-    alert('Abrir formulário para registrar nova queixa')
+    console.log('Abrir formulário para registrar nova queixa')
 }
 </script>
 

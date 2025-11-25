@@ -1,8 +1,8 @@
 <template>
     <Layout :stats="safeStats">
-        <div class="space-y-3 sm:space-y-6">
+        <div class="space-y-3 sm:space-y-6 px-3 sm:px-0">
             <!-- Header com bem-vindo -->
-            <div class="px-3 sm:px-0">
+            <div>
                 <header class="flex flex-col gap-1 sm:gap-2">
                     <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Bem-vindo(a), {{ props.user?.name }}</p>
                     <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">Painel do Técnico</h1>
@@ -11,7 +11,7 @@
             </div>
 
             <!-- KPIs Grid - Melhorado para mobile -->
-            <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 px-3 sm:px-0">
+            <div class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6">
                 <KpiCard
                     title="Atribuídas"
                     :value="safeStats.total_assigned || 0"
@@ -43,7 +43,7 @@
             </div>
 
             <!-- Main Content Grid -->
-            <div class="grid grid-cols-1 gap-3 sm:gap-6 px-3 sm:px-0">
+            <div class="grid grid-cols-1 gap-3 sm:gap-6">
                 <!-- Reclamações Lista -->
                 <div>
                     <GrievancesList

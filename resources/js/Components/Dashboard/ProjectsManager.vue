@@ -358,7 +358,6 @@ const loadProjects = async () => {
         console.log('Projectos carregados:', projects.value)
     } catch (error) {
         console.error('Erro ao carregar projectos:', error)
-        alert('Erro ao carregar projectos')
     } finally {
         loading.value = false
     }

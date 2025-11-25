@@ -120,8 +120,8 @@ defineProps({
 })
 
 const handleAvatarUpload = () => {
-    // Implementar upload de avatar
-    alert('Funcionalidade de upload de avatar seria implementada aqui')
+    // TODO: Implementar upload de avatar
+    console.log('Upload de avatar será implementado em breve')
 }
 </script>
 

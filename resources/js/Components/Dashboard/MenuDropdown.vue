@@ -9,11 +9,11 @@
       @mouseenter="onMouseEnter"
       @mouseleave="onMouseLeave"
     >
-      <component 
-        :is="icon" 
-        class="flex-shrink-0 w-5 h-5 text-white" 
+      <component
+        :is="icon"
+        class="flex-shrink-0 w-5 h-5 text-white"
       />
-      <span 
+      <span
         :class="[
           'transition-opacity duration-300 flex-1 text-sm font-medium',
           isCollapsed ? 'opacity-0' : 'opacity-100'
@@ -21,9 +21,9 @@
       >
         {{ text }}
       </span>
-      
+
       <!-- Badge -->
-      <span 
+      <span
         v-if="badge"
         :class="[
           'bg-white text-brand rounded-full px-2 py-1 text-xs font-bold transition-opacity duration-300',
@@ -32,18 +32,16 @@
       >
         {{ badge }}
       </span>
-      
+
       <!-- Arrow -->
-      <ChevronRightIcon 
+      <ChevronRightIcon
         :class="[
           'text-white text-opacity-70 transition-all duration-300 w-4 h-4',
           isCollapsed ? 'opacity-0' : 'opacity-100',
           isOpen ? 'rotate-90' : ''
         ]"
       />
-    </div>
-
-    <!-- Dropdown Items - Normal (quando sidebar aberta) -->
+    </div>    <!-- Dropdown Items - Normal (quando sidebar aberta) -->
     <div
       v-if="!isCollapsed && isOpen"
       :class="[
