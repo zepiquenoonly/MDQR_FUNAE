@@ -3,35 +3,31 @@
     <div class="flex items-center justify-between">
       <!-- Left Section -->
       <div class="flex items-center gap-4">
+    
     <!-- Botão para abrir sidebar quando fechada -->
         <button
           v-if="sidebarCollapsed"
           @click="$emit('toggle-sidebar')"
-          class="hover:text-orange-600 hover:scale-110 active:scale-95 transition-all duration-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+          class="hover:text-orange-600 transition-colors"
         >
           <Bars3Icon class="w-5 h-5" />
         </button>
-        
-        <!-- Search Bar -->
-        <div class="hidden md:flex gap-0">
-          <input
-            type="text"
-            placeholder="Pesquisar..."
-            class="w-64 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent"
-          >
-          <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
-            <MagnifyingGlassIcon class="w-4 h-4" />
-          </button>
+
+        <!-- Logo no lugar da search box -->
+        <div class="hidden md:flex items-center gap-3">
+          <div class="w-16 h-16 flex items-center justify-center">
+            <img src="/images/Logotipo-scaled.png" alt="FUNAE" class="w-full h-full object-contain" />
+          </div>
         </div>
       </div>
 
       <!-- Right Section -->
       <div class="flex items-center gap-4">
-        <button class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-orange-400 transition-all duration-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 active:scale-95">
+        <button class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-orange-400 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
           <MoonIcon class="w-5 h-5" />
         </button>
 
-        <button class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-orange-400 transition-all duration-200 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 hover:scale-110 active:scale-95 relative">
+        <button class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-orange-400 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 relative">
           <BellIcon class="w-5 h-5" />
           <span class="absolute -top-1 -right-1 bg-brand text-white rounded-full w-4 h-4 text-xs flex items-center justify-center font-bold animate-pulse">
             1
@@ -43,28 +39,23 @@
       </div>
     </div>
 
-    <!-- Search Bar para mobile -->
+    <!-- Espaço reservado (search removida) para mobile -->
     <div class="mt-3 md:hidden">
-      <div class="flex gap-0">
-        <input
-          type="text"
-          placeholder="Pesquisar..."
-          class="flex-1 px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-brand"
-        >
-        <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
-          <MagnifyingGlassIcon class="w-4 h-4" />
-        </button>
+      <div class="flex items-center">
+        <div class="w-10 h-10 flex items-center justify-center">
+          <img src="/images/Logotipo-scaled.png" alt="FUNAE" class="w-full h-full object-contain" />
+        </div>
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
-import { 
+import {
   Bars3Icon,
-  MagnifyingGlassIcon, 
-  MoonIcon, 
-  BellIcon 
+  MagnifyingGlassIcon,
+  MoonIcon,
+  BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
 
