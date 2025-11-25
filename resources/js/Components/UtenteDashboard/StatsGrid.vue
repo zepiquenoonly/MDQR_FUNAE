@@ -3,28 +3,28 @@
     <div class="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
       <h1>Visão Geral das Minhas Submissões</h1>
     </div>
-    
+
     <!-- Estatísticas por Tipo -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      <StatCard 
-        title="Reclamações" 
-        :value="statsByType.complaints.toString()" 
-        description="Total de reclamações submetidas" 
-        icon="📋"
+      <StatCard
+        title="Reclamações"
+        :value="statsByType.complaints.toString()"
+        description="Total de reclamações submetidas"
+        :icon="ClipboardDocumentIcon"
         color="red"
       />
-      <StatCard 
-        title="Queixas" 
-        :value="statsByType.grievances.toString()" 
-        description="Total de queixas submetidas" 
-        icon="⚠️"
+      <StatCard
+        title="Queixas"
+        :value="statsByType.grievances.toString()"
+        description="Total de queixas submetidas"
+        :icon="ExclamationTriangleIcon"
         color="orange"
       />
-      <StatCard 
-        title="Sugestões" 
-        :value="statsByType.suggestions.toString()" 
-        description="Total de sugestões submetidas" 
-        icon="💡"
+      <StatCard
+        title="Sugestões"
+        :value="statsByType.suggestions.toString()"
+        description="Total de sugestões submetidas"
+        :icon="LightBulbIcon"
         color="blue"
       />
     </div>
@@ -34,32 +34,32 @@
       <h2>Status das Submissões</h2>
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-      <StatCard 
-        title="Total de Submissões" 
-        :value="stats.total.toString()" 
-        description="Todas as submissões" 
-        icon="📊"
+      <StatCard
+        title="Total de Submissões"
+        :value="stats.total.toString()"
+        description="Todas as submissões"
+        :icon="ChartBarIcon"
         color="purple"
       />
-      <StatCard 
-        title="Em Progresso" 
-        :value="stats.in_progress.toString()" 
-        description="Sendo processadas" 
-        icon="🔄"
+      <StatCard
+        title="Em Progresso"
+        :value="stats.in_progress.toString()"
+        description="Sendo processadas"
+        :icon="ArrowPathIcon"
         color="orange"
       />
-      <StatCard 
-        title="Resolvidas" 
-        :value="stats.resolved.toString()" 
-        description="Concluídas com sucesso" 
-        icon="✅"
+      <StatCard
+        title="Resolvidas"
+        :value="stats.resolved.toString()"
+        description="Concluídas com sucesso"
+        :icon="CheckCircleIcon"
         color="green"
       />
-      <StatCard 
-        title="Pendentes" 
-        :value="stats.submitted.toString()" 
-        description="Aguardando análise" 
-        icon="⏳"
+      <StatCard
+        title="Pendentes"
+        :value="stats.submitted.toString()"
+        description="Aguardando análise"
+        :icon="ClockIcon"
         color="yellow"
       />
     </div>
@@ -70,6 +70,7 @@
 import { computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import StatCard from './StatCard.vue'
+import { ClipboardDocumentIcon, ExclamationTriangleIcon, LightBulbIcon, ChartBarIcon, ArrowPathIcon, CheckCircleIcon, ClockIcon } from '@heroicons/vue/24/outline'
 
 const page = usePage()
 

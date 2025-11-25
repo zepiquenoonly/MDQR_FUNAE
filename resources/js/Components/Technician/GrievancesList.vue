@@ -147,7 +147,7 @@ const priorityBadgeClass = (priority) => {
 }
 
 const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return 'N/D'
     return new Date(dateString).toLocaleDateString('pt-PT', {
         day: '2-digit',
         month: 'short',

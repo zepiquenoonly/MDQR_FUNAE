@@ -1,12 +1,12 @@
 <template>
     <Layout>
-        <div class="space-y-4 sm:space-y-6">
-            <!-- Breadcrumb & Header -->
-            <div class="flex flex-col gap-3 sm:gap-4">
-                <Link href="/tecnico/dashboard" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center gap-1">
-                    ← Voltar ao Painel
-                </Link>
-                <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+        <div class="h-screen flex flex-col">
+            <!-- Fixed Header -->
+            <div class="sticky top-0 z-40 bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-gray-700 shadow-sm">
+                <div class="px-4 sm:px-6 py-4">
+                    <Link href="/tecnico/dashboard" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center gap-1 mb-3">
+                        ← Voltar ao Painel
+                    </Link>
                     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                         <div class="flex-1">
                             <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">
@@ -25,13 +25,17 @@
                         <span class="rounded-full bg-blue-100 dark:bg-blue-900/20 px-3 py-1 text-sm text-blue-700 dark:text-blue-300 font-medium">
                             {{ grievance.category }}
                         </span>
-                        <span v-if="grievance.district" class="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300">
-                            📍 {{ grievance.district }}
+                        <span v-if="grievance.district" class="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 inline-flex items-center gap-2">
+                            <MapPinIcon class="h-4 w-4 text-gray-600" />
+                            {{ grievance.district }}
                         </span>
                     </div>
                 </div>
             </div>
 
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto">
+                <div class="px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
             <!-- Main Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
                 <!-- Left Column - 2/3 -->
@@ -39,7 +43,9 @@
                     <!-- Description Card -->
                     <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
-                            <span class="flex items-center justify-center h-5 w-5 rounded-full bg-purple-100 dark:bg-purple-900/20 text-xs">📝</span>
+                            <span class="flex items-center justify-center h-5 w-5 rounded-full bg-purple-100 dark:bg-purple-900/20 text-xs">
+                                <DocumentTextIcon class="h-4 w-4 text-purple-600" />
+                            </span>
                             Descrição da Reclamação
                         </h2>
                         <div class="prose prose-sm dark:prose-invert max-w-none bg-gray-50 dark:bg-dark-accent rounded-lg p-4"
@@ -63,7 +69,9 @@
                     <!-- Timeline de Atualizações -->
                     <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
-                            <span class="flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/20 text-xs flex-shrink-0">🕐</span>
+                            <span class="flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/20 text-xs flex-shrink-0">
+                                <ClockIcon class="h-4 w-4 text-blue-600" />
+                            </span>
                             Histórico de Atualizações ({{ grievance.updates?.length || 0 }})
                         </h2>
                         <div v-if="grievance.updates?.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -87,8 +95,9 @@
                                     <div class="flex flex-wrap gap-1">
                                         <a v-for="attach in update.attachments" :key="attach.id"
                                             :href="attach.url" target="_blank"
-                                            class="text-xs bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-2 py-1 rounded hover:bg-orange-200 dark:hover:bg-orange-900/40">
-                                            📎 {{ attach.original_filename }}
+                                            class="text-xs bg-orange-100 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-2 py-1 rounded hover:bg-orange-200 dark:hover:bg-orange-900/40 inline-flex items-center gap-1">
+                                            <PaperClipIcon class="h-3 w-3" />
+                                            {{ attach.original_filename }}
                                         </a>
                                     </div>
                                 </div>
@@ -99,7 +108,9 @@
                     <!-- Anexos -->
                     <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
-                            <span class="flex items-center justify-center h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/20 text-xs flex-shrink-0">📎</span>
+                            <span class="flex items-center justify-center h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/20 text-xs flex-shrink-0">
+                                <PaperClipIcon class="h-4 w-4 text-green-600" />
+                            </span>
                             Anexos ({{ grievance.attachments?.length || 0 }})
                         </h2>
                         <div v-if="grievance.attachments?.length === 0" class="text-center py-8 text-gray-500 dark:text-gray-400">
@@ -109,7 +120,7 @@
                             <a v-for="attach in grievance.attachments" :key="attach.id"
                                 :href="attach.url" target="_blank"
                                 class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-dark-accent border border-gray-200 dark:border-gray-600 hover:border-brand dark:hover:border-orange-500 transition-all group">
-                                <div class="text-3xl">📄</div>
+                                <DocumentTextIcon class="h-8 w-8 text-gray-400" />
                                 <div class="flex-1 min-w-0">
                                     <p class="text-sm font-medium text-gray-900 dark:text-dark-text-primary truncate group-hover:text-brand">
                                         {{ attach.original_filename }}
@@ -118,14 +129,14 @@
                                         {{ formatFileSize(attach.size) }}
                                     </p>
                                 </div>
-                                <span class="text-lg group-hover:text-brand">⬇️</span>
+                                <ArrowDownTrayIcon class="h-5 w-5 group-hover:text-brand" />
                             </a>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Column - 1/3 -->
-                <div class="space-y-4 sm:space-y-6">
+                <div class="lg:sticky lg:top-32 h-fit space-y-4 sm:space-y-6">
                     <!-- Quick Status -->
                     <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                         <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4">Status</h2>
@@ -140,8 +151,9 @@
                                     {{ priorityLabel(grievance.priority) }}
                                 </span>
                             </div>
-                            <div v-if="grievance.is_pending_approval" class="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10 p-3 text-sm text-orange-900 dark:text-orange-300">
-                                ⏳ Aguardando aprovação do Gestor
+                            <div v-if="grievance.is_pending_approval" class="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10 p-3 text-sm text-orange-900 dark:text-orange-300 flex items-center gap-2">
+                                <ClockIcon class="h-4 w-4" />
+                                Aguardando aprovação do Gestor
                             </div>
                         </div>
                     </div>
@@ -181,10 +193,16 @@
                                 type="button"
                                 @click="startWork"
                                 class="w-full bg-brand text-white px-4 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-all shadow-sm text-sm">
-                                🚀 Iniciar Trabalho
+                                <span class="inline-flex items-center gap-2 justify-center">
+                                    <RocketLaunchIcon class="h-4 w-4" />
+                                    Iniciar Trabalho
+                                </span>
                             </button>
                             <p v-else class="text-sm text-gray-600 dark:text-gray-400 text-center py-2">
-                                ✓ Trabalho iniciado
+                                <span class="inline-flex items-center gap-2 justify-center">
+                                    <CheckIcon class="h-4 w-4 text-emerald-600" />
+                                    Trabalho iniciado
+                                </span>
                             </p>
                         </div>
                     </div>
@@ -192,11 +210,13 @@
             </div>
 
             <!-- Forms Section -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 pb-8">
                 <!-- Registar Atualização -->
                 <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
-                        <span class="flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/20 text-xs flex-shrink-0">✍️</span>
+                        <span class="flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/20 text-xs flex-shrink-0">
+                            <PencilSquareIcon class="h-4 w-4 text-blue-600" />
+                        </span>
                         Registar Atualização
                     </h2>
                     <form @submit.prevent="submitUpdate" class="space-y-4">
@@ -235,8 +255,9 @@
                                 multiple
                                 @change="handleUpdateFiles"
                                 class="w-full px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-brand/20 cursor-pointer" />
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                📁 Máx 10 arquivos, 10MB cada
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 inline-flex items-center gap-2">
+                                <FolderIcon class="h-4 w-4" />
+                                Máx 10 arquivos, 10MB cada
                             </p>
                             <p v-if="updateForm.errors.attachments" class="text-xs text-red-600 mt-1">
                                 {{ updateForm.errors.attachments }}
@@ -245,8 +266,9 @@
                                 <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Selecionados:</p>
                                 <div class="space-y-1">
                                     <p v-for="(file, idx) in updateForm.attachments" :key="idx"
-                                        class="text-xs bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                        ✓ {{ file.name }}
+                                        class="text-xs bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 px-2 py-1 rounded inline-flex items-center gap-2">
+                                        <CheckIcon class="h-4 w-4" />
+                                        {{ file.name }}
                                     </p>
                                 </div>
                             </div>
@@ -264,7 +286,14 @@
                         <button type="submit"
                             :disabled="isProcessing"
                             class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 disabled:opacity-50 transition-all text-sm">
-                            {{ isProcessing ? '⏳ Registando...' : '✓ Registar Atualização' }}
+                            <span v-if="isProcessing" class="inline-flex items-center gap-2 justify-center">
+                                <ClockIcon class="h-4 w-4 animate-spin" />
+                                A registar...
+                            </span>
+                            <span v-else class="inline-flex items-center gap-2 justify-center">
+                                <CheckIcon class="h-4 w-4" />
+                                Registar Atualização
+                            </span>
                         </button>
                     </form>
                 </div>
@@ -272,7 +301,9 @@
                 <!-- Solicitar Conclusão -->
                 <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
-                        <span class="flex items-center justify-center h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/20 text-xs flex-shrink-0">✈️</span>
+                        <span class="flex items-center justify-center h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/20 text-xs flex-shrink-0">
+                            <CheckBadgeIcon class="h-4 w-4 text-green-600" />
+                        </span>
                         Solicitar Conclusão
                     </h2>
                     <form @submit.prevent="requestCompletion" class="space-y-4">
@@ -300,8 +331,9 @@
                                 :disabled="!grievance.can_request_completion"
                                 @change="handleCompletionFiles"
                                 class="w-full px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-brand/20 cursor-pointer disabled:bg-gray-100 dark:disabled:bg-gray-700" />
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                📁 Máx 10 arquivos, 10MB cada
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 inline-flex items-center gap-2">
+                                <FolderIcon class="h-4 w-4" />
+                                Máx 10 arquivos, 10MB cada
                             </p>
                             <p v-if="completionForm.errors.attachments" class="text-xs text-red-600 mt-1">
                                 {{ completionForm.errors.attachments }}
@@ -309,9 +341,10 @@
                             <div v-if="completionForm.attachments.length > 0" class="mt-2 space-y-1">
                                 <p class="text-xs font-medium text-gray-700 dark:text-gray-300">Selecionados:</p>
                                 <div class="space-y-1">
-                                    <p v-for="(file, idx) in completionForm.attachments" :key="idx"
-                                        class="text-xs bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 px-2 py-1 rounded">
-                                        ✓ {{ file.name }}
+                                        <p v-for="(file, idx) in completionForm.attachments" :key="idx"
+                                        class="text-xs bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 px-2 py-1 rounded inline-flex items-center gap-2">
+                                        <CheckIcon class="h-4 w-4" />
+                                        {{ file.name }}
                                     </p>
                                 </div>
                             </div>
@@ -327,16 +360,26 @@
                             </span>
                         </label>
 
-                        <div v-if="!grievance.can_request_completion" class="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10 p-3 text-sm text-orange-900 dark:text-orange-300">
-                            ℹ️ Complete o trabalho registando atualizações antes de solicitar conclusão
+                        <div v-if="!grievance.can_request_completion" class="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10 p-3 text-sm text-orange-900 dark:text-orange-300 flex items-start gap-2">
+                            <InformationCircleIcon class="h-5 w-5" />
+                            <div>Complete o trabalho registando atualizações antes de solicitar conclusão</div>
                         </div>
 
                         <button type="submit"
                             :disabled="!grievance.can_request_completion || isProcessing"
                             class="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 transition-all text-sm">
-                            {{ isProcessing ? '⏳ Enviando...' : '✓ Solicitar Conclusão' }}
+                            <span v-if="isProcessing" class="inline-flex items-center gap-2 justify-center">
+                                <ClockIcon class="h-4 w-4 animate-spin" />
+                                A enviar...
+                            </span>
+                            <span v-else class="inline-flex items-center gap-2 justify-center">
+                                <CheckIcon class="h-4 w-4" />
+                                Solicitar Conclusão
+                            </span>
                         </button>
                     </form>
+                </div>
+            </div>
                 </div>
             </div>
         </div>
@@ -348,6 +391,7 @@ import { computed, ref } from 'vue'
 import { Link, router, useForm } from '@inertiajs/vue3'
 import Layout from '@/Layouts/Layout.vue'
 import StatusBadge from '@/Components/Grievance/StatusBadge.vue'
+import { DocumentTextIcon, ClockIcon, PaperClipIcon, ArrowDownTrayIcon, RocketLaunchIcon, CheckIcon, PencilSquareIcon, FolderIcon, InformationCircleIcon, MapPinIcon, CheckBadgeIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
     grievance: {
@@ -403,7 +447,7 @@ const submitUpdate = async () => {
                 if (updateFilesInput.value) updateFilesInput.value.value = null
             },
             onError: () => {
-                console.error('Erro ao registar atualização')
+                // Erro ao registar atualização
             }
         })
     } finally {
@@ -424,7 +468,7 @@ const requestCompletion = async () => {
                     if (completionFilesInput.value) completionFilesInput.value.value = null
                 },
                 onError: () => {
-                    console.error('Erro ao solicitar conclusão')
+                    // Erro ao solicitar conclusão
                 }
             }
         )
@@ -452,7 +496,7 @@ const priorityBadgeClass = (priority) => {
 }
 
 const formatDate = (dateString) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return 'N/D'
     return new Date(dateString).toLocaleDateString('pt-PT', {
         day: '2-digit',
         month: 'long',
@@ -463,7 +507,7 @@ const formatDate = (dateString) => {
 }
 
 const formatRelative = (dateString) => {
-    if (!dateString) return 'N/A'
+    if (!dateString) return 'N/D'
     const date = new Date(dateString)
     const now = new Date()
     const diff = now - date
@@ -483,7 +527,7 @@ const getDaysOpen = () => {
 }
 
 const formatFileSize = (bytes) => {
-    if (!bytes) return 'N/A'
+    if (!bytes) return 'N/D'
     const k = 1024
     const sizes = ['B', 'KB', 'MB', 'GB']
     const i = Math.floor(Math.log(bytes) / Math.log(k))

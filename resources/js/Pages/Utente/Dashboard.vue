@@ -15,7 +15,7 @@
             <div v-if="activePanel === 'dashboard'" class="p-4 sm:p-6 space-y-6">
                 <!-- Welcome Message -->
                 <div class="bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
-                    <h1 class="text-2xl lg:text-3xl font-bold mb-2">Bem-vindo(a), {{ user.name }}! 👋</h1>
+                    <h1 class="text-2xl lg:text-3xl font-bold mb-2">Bem-vindo(a), {{ user.name }}!</h1>
                     <p class="text-orange-100">Acompanhe suas reclamações e submissões em tempo real</p>
                 </div>
 

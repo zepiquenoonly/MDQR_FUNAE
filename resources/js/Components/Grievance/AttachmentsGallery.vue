@@ -1,5 +1,5 @@
 <script setup>
-import { DocumentIcon, ArrowDownTrayIcon } from '@heroicons/vue/24/outline';
+import { DocumentIcon, ArrowDownTrayIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon } from '@heroicons/vue/24/outline';
 
 defineProps({
     attachments: {
@@ -17,36 +17,36 @@ const formatFileSize = (bytes) => {
 };
 
 const getFileIcon = (mimeType) => {
-    if (mimeType.startsWith('image/')) return '🖼️';
-    if (mimeType.startsWith('video/')) return '🎥';
-    if (mimeType === 'application/pdf') return '📄';
-    if (mimeType.includes('word')) return '📝';
-    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return '📊';
-    return '📎';
+    if (mimeType.startsWith('image/')) return PhotoIcon;
+    if (mimeType.startsWith('video/')) return FilmIcon;
+    if (mimeType === 'application/pdf') return DocumentIcon;
+    if (mimeType.includes('word')) return DocumentTextIcon;
+    if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return TableCellsIcon;
+    return PaperClipIcon;
 };
 </script>
 
 <template>
     <div class="space-y-4">
         <h3 class="text-lg font-semibold text-gray-900">Anexos e Evidências</h3>
-        
+
         <div v-if="attachments.length === 0" class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
             <DocumentIcon class="w-12 h-12 mx-auto mb-2 text-gray-400" />
             <p>Nenhum anexo disponível</p>
         </div>
-        
+
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a 
-                v-for="attachment in attachments" 
+            <a
+                v-for="attachment in attachments"
                 :key="attachment.id"
                 :href="attachment.url"
                 target="_blank"
                 class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-brand hover:shadow-md transition-all group"
             >
                 <div class="flex-shrink-0 text-3xl">
-                    {{ getFileIcon(attachment.mime_type) }}
+                    <component :is="getFileIcon(attachment.mime_type)" class="w-8 h-8 text-gray-400" />
                 </div>
-                
+
                 <div class="flex-1 min-w-0">
                     <p class="text-sm font-medium text-gray-900 truncate group-hover:text-brand">
                         {{ attachment.original_filename }}
@@ -62,7 +62,7 @@ const getFileIcon = (mimeType) => {
                         }) }}
                     </p>
                 </div>
-                
+
                 <ArrowDownTrayIcon class="w-5 h-5 text-gray-400 group-hover:text-brand flex-shrink-0" />
             </a>
         </div>

@@ -19,7 +19,7 @@
                 <p class="text-gray-600 dark:text-gray-400 text-sm">{{ user.role }}</p>
                 <div class="flex justify-center space-x-2 mt-2">
                     <span
-                        class="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded-full">✓
+                        class="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded-full">Verificado
                         Verificado</span>
                 </div>
             </div>

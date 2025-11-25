@@ -3,7 +3,7 @@
         <div class="container mx-auto px-6 py-8">
             <!-- Breadcrumb -->
             <nav class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 mb-8">
-                <Link href="/home" class="hover:text-orange-600 transition-colors">Dashboard</Link>
+                <Link href="/home" class="hover:text-orange-600 transition-colors">Painel</Link>
                 <ChevronRightIcon class="w-3 h-3 text-gray-400" />
                 <span class="text-orange-600 font-medium">Gestão de Perfil</span>
             </nav>

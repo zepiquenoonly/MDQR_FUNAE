@@ -118,7 +118,8 @@ const dataLoaded = ref(false)
 const activePanel = computed(() => {
     const urlParams = new URLSearchParams(window.location.search)
     const panelFromUrl = urlParams.get('panel')
-    console.log('🔍 Panel ativo:', panelFromUrl)
+    console.log('Panel ativo:', panelFromUrl)
+        console.log('Panel ativo:', panelFromUrl)
 
     if (panelFromUrl === 'projectos') return 'projectos'
     if (panelFromUrl === 'tecnicos') return 'tecnicos'
@@ -135,11 +136,13 @@ const initializeSelectedComplaint = () => {
 
 // Watcher para detectar mudanças no panel
 watch(activePanel, (newPanel, oldPanel) => {
-    console.log('🔄 Mudança de panel:', { de: oldPanel, para: newPanel })
+    console.log('Mudança de panel:', { de: oldPanel, para: newPanel })
+        console.log('Mudança de panel:', { de: oldPanel, para: newPanel })
 
     // Se estamos voltando para o dashboard, garantir que os dados estão atualizados
     if (newPanel === 'dashboard' && oldPanel !== 'dashboard') {
-        console.log('🔄 Voltando para dashboard - recarregando dados...')
+        console.log('Voltando para dashboard - recarregando dados...')
+            console.log('Voltando para dashboard - recarregando dados...')
         reloadDashboardData()
     }
 })
@@ -148,7 +151,8 @@ watch(activePanel, (newPanel, oldPanel) => {
 watch(
     () => safeComplaints.value.data,
     (newData) => {
-        console.log('📊 Dados de complaints atualizados:', newData?.length)
+        console.log('Dados de complaints atualizados:', newData?.length)
+            console.log('Dados de complaints atualizados:', newData?.length)
         if (newData?.length && !selectedComplaint.value) {
             selectedComplaint.value = newData[0]
             dataLoaded.value = true
@@ -161,7 +165,8 @@ watch(
 watch(
     () => page.props.complaints,
     (newComplaints) => {
-        console.log('🔄 Props atualizadas via Inertia:', newComplaints?.data?.length)
+        console.log('Props atualizadas via Inertia:', newComplaints?.data?.length)
+            console.log('Props atualizadas via Inertia:', newComplaints?.data?.length)
         if (newComplaints?.data?.length && !selectedComplaint.value) {
             selectedComplaint.value = newComplaints.data[0]
             dataLoaded.value = true
@@ -173,7 +178,8 @@ watch(
 // Watcher para filtros
 watch(localFilters, (newFilters) => {
     if (activePanel.value === 'dashboard') {
-        console.log('🔍 Aplicando filtros:', newFilters)
+        console.log('Aplicando filtros:', newFilters)
+            console.log('Aplicando filtros:', newFilters)
         router.reload({
             data: newFilters,
             preserveState: true,
@@ -185,7 +191,8 @@ watch(localFilters, (newFilters) => {
 
 // Função para recarregar dados do dashboard
 const reloadDashboardData = () => {
-    console.log('🔄 Recarregando dados do dashboard...')
+    console.log('Recarregando dados do dashboard...')
+        console.log('Recarregando dados do dashboard...')
     dataLoaded.value = false
     selectedComplaint.value = null
 
@@ -194,7 +201,8 @@ const reloadDashboardData = () => {
         preserveScroll: true,
         only: ['complaints', 'stats', 'allComplaints', 'technicians', 'filters'],
         onSuccess: () => {
-            console.log('✅ Dados recarregados com sucesso')
+            console.log('Dados recarregados com sucesso')
+                console.log('Dados recarregados com sucesso')
             // Pequeno delay para garantir que o DOM foi atualizado
             nextTick(() => {
                 initializeSelectedComplaint()
@@ -202,7 +210,8 @@ const reloadDashboardData = () => {
             })
         },
         onError: (errors) => {
-            console.error('❌ Erro ao recarregar dados:', errors)
+            console.error('Erro ao recarregar dados:', errors)
+                console.error('Erro ao recarregar dados:', errors)
             dataLoaded.value = true
         }
     })
@@ -288,8 +297,8 @@ const markComplete = async (complaintId) => {
 
 // Recarregar dados quando o componente for montado
 onMounted(() => {
-    console.log('🚀 Dashboard montado - Panel atual:', activePanel.value)
-    console.log('📊 Dados iniciais:', {
+    console.log('Dashboard montado - Panel atual:', activePanel.value)
+    console.log('Dados iniciais:', {
         complaints: safeComplaints.value?.data?.length,
         stats: safeStats.value,
         allComplaints: safeAllComplaints.value?.length,
@@ -303,12 +312,11 @@ onMounted(() => {
     if (activePanel.value === 'dashboard') {
         // Verificar se os dados já estão carregados, se não, recarregar
         if (!safeComplaints.value.data?.length) {
-            console.log('📊 Dados vazios - recarregando...')
+            console.log('Dados vazios - recarregando...')
             reloadDashboardData()
         }
     }
 })
-
 // Adicionar listener para popstate (navegação pelo browser)
 onMounted(() => {
     window.addEventListener('popstate', handlePopState)
@@ -322,7 +330,8 @@ const handlePopState = () => {
     // Pequeno delay para garantir que a URL já foi atualizada
     setTimeout(() => {
         if (activePanel.value === 'dashboard') {
-            console.log('🔙 Navegação do browser - recarregando dados')
+            console.log('Navegação do browser - recarregando dados')
+                console.log('Navegação do browser - recarregando dados')
             reloadDashboardData()
         }
     }, 100)

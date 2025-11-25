@@ -107,14 +107,14 @@ function handleSidebarToggle(isCollapsed = null) {
 let loadingTimeout = null
 
 const startLoading = () => {
-  console.log('🔄 Loading STARTED - Navigation beginning')
+  console.log('Loading STARTED - Navigation beginning')
   loadingTimeout = setTimeout(() => {
     loading.value = true
   }, 300)
 }
 
 const finishLoading = () => {
-  console.log('✅ Loading FINISHED - Navigation complete')
+  console.log('Loading FINISHED - Navigation complete')
   if (loadingTimeout) {
     clearTimeout(loadingTimeout)
     loadingTimeout = null

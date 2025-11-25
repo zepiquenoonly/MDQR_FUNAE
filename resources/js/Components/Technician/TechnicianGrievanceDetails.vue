@@ -32,8 +32,9 @@
         </div>
 
         <!-- Aviso de Pendência -->
-        <div v-if="grievance.is_pending_approval" class="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10 p-4 text-sm text-orange-900 dark:text-orange-300">
-            ⏳ Esta reclamação aguarda validação do Gestor. Será notificada quando aprovada.
+        <div v-if="grievance.is_pending_approval" class="rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-900/10 p-4 text-sm text-orange-900 dark:text-orange-300 flex items-center gap-2">
+            <ClockIcon class="h-5 w-5 flex-shrink-0" />
+            <span>Esta reclamação aguarda validação do Gestor. Será notificada quando aprovada.</span>
         </div>
 
         <!-- Informações do Utente -->
@@ -67,7 +68,7 @@
         <!-- Ações Rápidas -->
         <div class="space-y-3 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <h4 class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                <span class="inline-block h-5 w-5 rounded-full bg-orange-100 dark:bg-orange-900/20 flex items-center justify-center text-xs">⚡</span>
+                <BoltIcon class="h-5 w-5 text-orange-600" />
                 Ações Rápidas
             </h4>
             <button
@@ -76,17 +77,17 @@
                 class="w-full rounded-lg bg-brand px-4 py-3 text-sm font-medium text-white shadow hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-70 transition-all"
                 :disabled="isProcessing"
                 @click="handleStartWork">
-                🚀 Iniciar Trabalho
+                <RocketLaunchIcon class="h-4 w-4 inline-block mr-1" /> Iniciar Trabalho
             </button>
             <p v-else class="text-xs text-gray-500 dark:text-gray-400">
-                ✓ Trabalho já foi iniciado nesta reclamação.
+                <CheckIcon class="h-4 w-4 inline-block text-emerald-600 mr-1" /> Trabalho já foi iniciado nesta reclamação.
             </p>
         </div>
 
         <!-- Formulário de Atualização -->
         <div class="space-y-3 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <h4 class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                <span class="inline-block h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center text-xs">💬</span>
+                <ChatBubbleLeftIcon class="h-5 w-5 text-blue-600" />
                 Registar Atualização
             </h4>
             <form class="space-y-3" @submit.prevent="handleSubmitUpdate">
@@ -129,7 +130,8 @@
                     type="submit"
                     class="w-full rounded-lg border border-brand bg-white dark:bg-dark-accent px-4 py-2 text-sm font-medium text-brand transition hover:bg-brand/5 dark:hover:bg-brand/10 disabled:cursor-not-allowed disabled:opacity-70"
                     :disabled="isProcessing">
-                    {{ isProcessing ? '⏳ Registando...' : '✓ Registar Atualização' }}
+                    <span v-if="isProcessing" class="flex items-center gap-2"><ClockIcon class="h-4 w-4 animate-spin" /> Registando...</span>
+                    <span v-else class="flex items-center gap-2"><CheckIcon class="h-4 w-4" /> Registar Atualização</span>
                 </button>
             </form>
         </div>
@@ -137,7 +139,7 @@
         <!-- Solicitar Conclusão -->
         <div class="space-y-3 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <h4 class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary flex items-center gap-2">
-                <span class="inline-block h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center text-xs">✈️</span>
+                <CheckBadgeIcon class="h-5 w-5 text-green-600" />
                 Solicitar Conclusão ao Gestor
             </h4>
             <form class="space-y-3" @submit.prevent="handleRequestCompletion">
@@ -173,10 +175,12 @@
                     type="submit"
                     class="w-full rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-70"
                     :disabled="!grievance.can_request_completion || isProcessing">
-                    {{ isProcessing ? '⏳ Enviando...' : '✓ Solicitar Conclusão' }}
+                    <span v-if="isProcessing" class="flex items-center gap-2"><ClockIcon class="h-4 w-4 animate-spin" /> Enviando...</span>
+                    <span v-else class="flex items-center gap-2"><CheckIcon class="h-4 w-4" /> Solicitar Conclusão</span>
                 </button>
-                <p v-if="!grievance.can_request_completion" class="text-xs text-gray-500 dark:text-gray-400">
-                    ℹ️ Complete o trabalho antes de solicitar conclusão.
+                <p v-if="!grievance.can_request_completion" class="text-xs text-gray-500 dark:text-gray-400 flex items-start gap-2">
+                    <InformationCircleIcon class="h-4 w-4 flex-shrink-0 mt-0.5" />
+                    <span>Complete o trabalho antes de solicitar conclusão.</span>
                 </p>
             </form>
         </div>
@@ -188,6 +192,7 @@ import { ref } from 'vue'
 import StatusBadge from '@/Components/Grievance/StatusBadge.vue'
 import UpdatesTimeline from '@/Components/Grievance/UpdatesTimeline.vue'
 import AttachmentsGallery from '@/Components/Grievance/AttachmentsGallery.vue'
+import { BoltIcon, RocketLaunchIcon, CheckIcon, ClockIcon, ChatBubbleLeftIcon, CheckBadgeIcon, InformationCircleIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
     grievance: {

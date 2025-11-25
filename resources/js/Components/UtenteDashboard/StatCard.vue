@@ -1,5 +1,5 @@
 <template>
-  <div 
+  <div
     :class="[
       'bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-l-4',
       borderColorClass
@@ -12,7 +12,8 @@
         <div class="text-xs text-gray-500 dark:text-gray-400">{{ description }}</div>
       </div>
       <div v-if="icon" :class="['text-3xl', iconBgClass, 'w-12 h-12 rounded-lg flex items-center justify-center']">
-        {{ icon }}
+        <component v-if="isComponent" :is="icon" class="h-6 w-6 text-current" />
+        <span v-else>{{ icon }}</span>
       </div>
     </div>
   </div>
@@ -25,12 +26,14 @@ const props = defineProps({
   title: String,
   value: [String, Number],
   description: String,
-  icon: String,
+  icon: { type: [String, Object], default: null },
   color: {
     type: String,
     default: 'blue'
   }
 })
+
+const isComponent = computed(() => typeof props.icon === 'object' || typeof props.icon === 'function')
 
 const borderColorClass = computed(() => {
   const colors = {

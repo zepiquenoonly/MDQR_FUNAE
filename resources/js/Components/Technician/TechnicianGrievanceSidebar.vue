@@ -60,8 +60,8 @@
                 {{ grievance.contact_name || 'Anónimo' }}
             </p>
             <div class="space-y-1 text-xs text-gray-600 dark:text-gray-400">
-                <p v-if="grievance.contact_email">📧 {{ grievance.contact_email }}</p>
-                <p v-if="grievance.contact_phone">📱 {{ grievance.contact_phone }}</p>
+                <p v-if="grievance.contact_email">{{ grievance.contact_email }}</p>
+                <p v-if="grievance.contact_phone">{{ grievance.contact_phone }}</p>
             </div>
         </div>
 

@@ -193,21 +193,21 @@ const showDesempenhoModal = ref(false)
 const loadTecnicos = async () => {
     loading.value = true
     try {
-        console.log('🔄 A carregar técnicos...')
+        console.log('A carregar técnicos...')
         const response = await fetch('/api/tecnicos')
-        console.log('📊 Resposta da API:', response)
+        console.log('Resposta da API:', response)
 
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`)
         }
 
         const data = await response.json()
-        console.log('📋 Dados recebidos:', data)
+        console.log('Dados recebidos:', data)
 
         tecnicos.value = data.tecnicos || []
         stats.value = data.stats || {}
     } catch (error) {
-        console.error('❌ Erro ao carregar técnicos:', error)
+        console.error('Erro ao carregar técnicos:', error)
         tecnicos.value = []
     } finally {
         loading.value = false
@@ -243,7 +243,7 @@ const closeDesempenhoModal = () => {
 
 // Carregar técnicos quando o componente é montado
 onMounted(() => {
-    console.log('🚀 TecnicoList montado')
+    console.log('TecnicoList montado')
     loadTecnicos()
 })
 </script>

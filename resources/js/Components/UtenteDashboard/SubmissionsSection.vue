@@ -13,7 +13,7 @@
     <!-- Tabs por Tipo -->
     <div class="border-b border-gray-200">
       <div class="flex flex-wrap">
-        <button
+          <button
           v-for="tab in tabs"
           :key="tab.id"
           :class="[
@@ -24,7 +24,7 @@
           ]"
           @click="activeTab = tab.id"
         >
-          <span class="mr-2">{{ tab.icon }}</span>
+          <component :is="tab.icon" class="h-4 w-4 mr-2 inline-block text-current" />
           {{ tab.name }}
           <span v-if="tab.count > 0" class="ml-2 px-2 py-0.5 text-xs rounded-full bg-gray-200">
             {{ tab.count }}
@@ -40,21 +40,18 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="!filteredGrievances || filteredGrievances.length === 0" class="p-12 text-center">
-      <div class="text-5xl mb-4">{{ getEmptyIcon }}</div>
+      <div v-else-if="!filteredGrievances || filteredGrievances.length === 0" class="p-12 text-center">
+      <component :is="getEmptyIcon" class="w-12 h-12 mx-auto mb-4 text-gray-300" />
       <h3 class="text-lg font-semibold text-gray-800 mb-2">{{ getEmptyTitle }}</h3>
       <p class="text-gray-600 mb-4">{{ getEmptyMessage }}</p>
-      <button 
+      <button
         @click="goToSubmissions(activeTab)"
         class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
       >
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        <PlusIcon class="w-5 h-5 mr-2" />
         Criar {{ getEmptyActionLabel }}
       </button>
     </div>
-
     <!-- Table Content -->
     <div v-else class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
@@ -103,7 +100,7 @@
               {{ grievance.submitted_at || grievance.created_at }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm">
-              <button 
+              <button
                 @click="viewDetails(grievance)"
                 class="text-orange-600 hover:text-orange-900 font-medium"
               >
@@ -116,7 +113,7 @@
 
       <!-- View All Button -->
       <div v-if="grievances.total > 5" class="px-6 py-4 bg-gray-50 border-t border-gray-200">
-        <button 
+        <button
           @click="goToSubmissions(activeTab)"
           class="w-full text-center py-2 text-orange-600 hover:text-orange-700 font-medium transition-colors"
         >
@@ -131,6 +128,7 @@
 import { ref, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import { useDashboardState } from './Composables/useDashboardState.js'
+import { ChartBarIcon, ClipboardDocumentIcon, ExclamationTriangleIcon, LightBulbIcon, PlusIcon, ArrowRightIcon } from '@heroicons/vue/24/outline'
 
 const page = usePage()
 const { setActivePanel, setActiveDropdown } = useDashboardState()
@@ -151,34 +149,33 @@ const statsByType = computed(() => {
 })
 
 const tabs = computed(() => [
-  { id: 'all', name: 'Todas', icon: '📊', count: grievances.value.total },
-  { id: 'complaint', name: 'Reclamações', icon: '📋', count: statsByType.value.complaints },
-  { id: 'grievance', name: 'Queixas', icon: '⚠️', count: statsByType.value.grievances },
-  { id: 'suggestion', name: 'Sugestões', icon: '💡', count: statsByType.value.suggestions }
+  { id: 'all', name: 'Todas', icon: ChartBarIcon, count: grievances.value.total },
+  { id: 'complaint', name: 'Reclamações', icon: ClipboardDocumentIcon, count: statsByType.value.complaints },
+  { id: 'grievance', name: 'Queixas', icon: ExclamationTriangleIcon, count: statsByType.value.grievances },
+  { id: 'suggestion', name: 'Sugestões', icon: LightBulbIcon, count: statsByType.value.suggestions }
 ])
 
 const filteredGrievances = computed(() => {
   if (!grievances.value.data) return []
-  
+
   if (activeTab.value === 'all') {
     return grievances.value.data.slice(0, 5)
   }
-  
+
   return grievances.value.data
     .filter(g => g.type === activeTab.value)
     .slice(0, 5)
 })
 
-const getEmptyIcon = computed(() => {
+  const getEmptyIcon = computed(() => {
   const icons = {
-    'all': '📊',
-    'complaint': '📋',
-    'grievance': '⚠️',
-    'suggestion': '💡'
+    'all': ChartBarIcon,
+    'complaint': ClipboardDocumentIcon,
+    'grievance': ExclamationTriangleIcon,
+    'suggestion': LightBulbIcon
   }
-  return icons[activeTab.value] || '📊'
+  return icons[activeTab.value] || ChartBarIcon
 })
-
 const getEmptyTitle = computed(() => {
   const titles = {
     'all': 'Nenhuma submissão encontrada',
@@ -249,14 +246,14 @@ const viewDetails = (grievance) => {
 
 const goToSubmissions = (type) => {
   setActivePanel('mdqr')
-  
+
   const dropdowns = {
     'complaint': 'reclamacoes',
     'grievance': 'queixas',
     'suggestion': 'sugestoes',
     'all': 'reclamacoes'
   }
-  
+
   setActiveDropdown(dropdowns[type] || 'reclamacoes')
 }
 </script>

@@ -269,7 +269,7 @@ const carregarDadosDesempenho = async () => {
     error.value = null
 
     try {
-        console.log('🔄 Carregando dados de desempenho para técnico:', props.tecnico.id)
+        console.log('Carregando dados de desempenho para técnico:', props.tecnico.id)
 
         const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`)
 
@@ -278,7 +278,7 @@ const carregarDadosDesempenho = async () => {
         }
 
         const data = await response.json()
-        console.log('📊 Dados de desempenho recebidos:', data)
+        console.log('Dados de desempenho recebidos:', data)
 
         dadosDesempenho.value = data.estatisticas_gerais || {}
         historicoMensal.value = data.historico_mensal || []
@@ -297,7 +297,7 @@ const carregarDadosDesempenho = async () => {
 // Função para carregar dados específicos do mês
 const carregarDadosMensais = async () => {
     try {
-        console.log('📅 Carregando dados do mês:', mesSelecionado.value)
+        console.log('Carregando dados do mês:', mesSelecionado.value)
 
         const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`)
 
@@ -306,7 +306,7 @@ const carregarDadosMensais = async () => {
         }
 
         const data = await response.json()
-        console.log('📈 Dados mensais recebidos:', data)
+        console.log('Dados mensais recebidos:', data)
 
         dadosMensais.value = data.dados_mensais || {}
         casosMensais.value = data.casos_mensais || []
