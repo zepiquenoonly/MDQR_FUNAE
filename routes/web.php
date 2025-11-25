@@ -77,6 +77,8 @@ Route::middleware('auth')->group(function () {
         ->name('technician.grievances.updates.store');
     Route::post('/technician/grievances/{grievance}/request-completion', [TechnicianGrievanceController::class, 'requestCompletion'])
         ->name('technician.grievances.request-completion');
+    Route::get('/technician/grievances/{grievance}', [TechnicianGrievanceController::class, 'show'])
+        ->name('technician.grievances.show');
 
     // Fluxo do gestor
     Route::prefix('complaints')->name('complaints.')->group(function () {

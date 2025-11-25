@@ -14,12 +14,90 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class TechnicianGrievanceController extends Controller
 {
     public function __construct(
         private readonly NotificationService $notificationService
     ) {
+    }
+
+    /**
+     * Show grievance detail page for technician.
+     */
+    public function show(Request $request, Grievance $grievance)
+    {
+        $this->ensureOwnership($request->user(), $grievance);
+
+        $grievance->load([
+            'updates.user',
+            'attachments',
+            'user',
+        ]);
+
+        return Inertia::render('Technician/GrievanceDetail', [
+            'grievance' => [
+                'id' => $grievance->id,
+                'reference_number' => $grievance->reference_number,
+                'title' => $grievance->title,
+                'description' => $grievance->description,
+                'status' => $grievance->status,
+                'status_label' => $this->getStatusLabel($grievance->status),
+                'priority' => $grievance->priority,
+                'category' => $grievance->category,
+                'district' => $grievance->district,
+                'contact_name' => $grievance->user?->name,
+                'contact_email' => $grievance->user?->email,
+                'contact_phone' => $grievance->user?->phone,
+                'submitted_at' => $grievance->created_at,
+                'updated_at' => $grievance->updated_at,
+                'created_at' => $grievance->created_at,
+                'is_pending_approval' => $grievance->status === 'pending_approval',
+                'can_start' => !in_array($grievance->status, ['in_progress', 'pending_approval', 'closed', 'rejected']),
+                'can_request_completion' => $grievance->status === 'in_progress',
+                'updates' => $grievance->updates->map(fn($update) => [
+                    'id' => $update->id,
+                    'description' => $update->description,
+                    'comment' => $update->comment,
+                    'created_at' => $update->created_at,
+                    'user' => $update->user ? [
+                        'id' => $update->user->id,
+                        'name' => $update->user->name,
+                    ] : null,
+                    'attachments' => $update->metadata['attachment_id'] ?? null ? [
+                        [
+                            'id' => $update->metadata['attachment_id'],
+                            'original_filename' => $update->metadata['filename'],
+                            'url' => route('attachments.download', $update->metadata['attachment_id']),
+                        ]
+                    ] : [],
+                ]),
+                'attachments' => $grievance->attachments->map(fn($attachment) => [
+                    'id' => $attachment->id,
+                    'original_filename' => $attachment->original_filename,
+                    'size' => $attachment->size,
+                    'url' => route('attachments.download', $attachment->id),
+                ]),
+            ]
+        ]);
+    }
+
+    /**
+     * Get status label in Portuguese.
+     */
+    private function getStatusLabel(string $status): string
+    {
+        return match ($status) {
+            'submitted' => 'Submetida',
+            'under_review' => 'Sob Revisão',
+            'assigned' => 'Atribuída',
+            'in_progress' => 'Em Andamento',
+            'pending_approval' => 'Pendente Aprovação',
+            'closed' => 'Concluída',
+            'rejected' => 'Rejeitada',
+            default => 'Desconhecida',
+        };
     }
 
     /**
@@ -237,7 +315,7 @@ class TechnicianGrievanceController extends Controller
             'metadata' => [
                 'uploaded_via' => 'technician_dashboard',
             ],
-            'uploaded_by' => auth()->id(),
+            'uploaded_by' => auth('web')->user()?->id ?? null,
             'uploaded_at' => now(),
         ]);
     }
