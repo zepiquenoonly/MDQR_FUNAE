@@ -3,7 +3,7 @@
         <div class="space-y-4 sm:space-y-6">
             <!-- Breadcrumb & Header -->
             <div class="flex flex-col gap-3 sm:gap-4">
-                <Link href="/technician/dashboard" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center gap-1">
+                <Link href="/tecnico/dashboard" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center gap-1">
                     ← Voltar ao Painel
                 </Link>
                 <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
