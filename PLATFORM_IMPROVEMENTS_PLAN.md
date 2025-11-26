@@ -6,25 +6,34 @@ Baseado na reunião da equipe realizada, foram identificados vários problemas c
 ## 🔴 Prioridades Críticas (Para apresentação ao diretor)
 
 ### 1. Padronização de Layout
-- **Problema**: Pelo menos 3 layouts diferentes sendo usados na plataforma
-- **Impacto**: Aparência não profissional e confusa para usuários
-- **Solução**: Implementar um layout padrão único com apenas o conteúdo principal variando
 
-#### Tarefas:
-- [ ] Criar componente de layout padrão com header, sidebar e footer consistentes
-- [ ] Aplicar o layout padrão em todas as páginas da plataforma
+- **Problemas adicionais identificados:**
+	- Falta de padronização de cores e fontes entre páginas
+	- Footer inconsistente ou ausente em algumas telas
+	- Elementos desalinhados em diferentes resoluções/tamanhos de tela
+
+
+- **Problemas adicionais identificados:**
+	- Footer ausente em algumas páginas
+	- Paleta de cores não segue identidade visual única
 - [ ] Garantir que sidebar permaneça fixa durante scroll
-- [ ] Incluir logo FUNAI em todas as telas
 
-### 2. Problemas de Footer e Cores
+- **Problemas adicionais identificados:**
+	- Falta de validação clara de campos obrigatórios
+	- Falta de confirmação visual após submissão bem-sucedida
+	- Falta de loading/spinner durante operações demoradas
+	- Falta de segmentação clara no formulário (passos/seções)
 - **Problema**: Cor do footer inadequada
-- **Impacto**: Aparência visual não profissional
-- **Solução**: Revisar paleta de cores e design do footer
 
+- **Problemas adicionais identificados:**
+	- Falta de contraste adequado para acessibilidade
+	- Elementos pequenos/difíceis de clicar em dispositivos móveis
+	- Falta de textos alternativos em imagens e ícones
 #### Tarefas:
-- [ ] Redesenvolver footer com cores apropriadas
-- [ ] Aplicar paleta de cores consistente
-- [ ] Testar em diferentes dispositivos
+
+- **Problemas adicionais identificados:**
+	- Navegação inconsistente entre usuários autenticados e não autenticados
+	- Falta de atalhos de teclado ou navegação facilitada
 
 ### 3. Flow de Submissão de Reclamações
 - **Problema**: Botão "New Claim" redireciona para página ao invés de abrir modal
