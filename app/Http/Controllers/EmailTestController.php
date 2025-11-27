@@ -34,10 +34,10 @@ class EmailTestController extends Controller
         $email = $request->email;
 
         // Buscar uma grievance de teste ou criar uma fictícia
-        $grievance = Grievance::first() ?? $this->createTestGrievance();
+        $grievance = $this->createTestGrievance();
 
         // Buscar ou criar um usuário de teste
-        $testUser = User::first() ?? $this->createTestUser();
+        $testUser = $this->createTestUser();
 
         $emailsSent = [];
 
