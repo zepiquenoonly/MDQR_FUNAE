@@ -1,7 +1,5 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Atualização de Status - FUNAE')
-
 @section('content')
 <div class="email-header">
     <h1>Atualização de Status</h1>

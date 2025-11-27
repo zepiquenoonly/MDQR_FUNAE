@@ -1,7 +1,5 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Reclamação Não Procedente - FUNAE')
-
 @section('content')
 <div class="email-header" style="background: linear-gradient(135deg, #DC2626 0%, #b91c1c 100%);">
     <h1>{{ $grievance->type_label }} Não Procedente</h1>

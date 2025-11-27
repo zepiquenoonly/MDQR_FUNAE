@@ -1,7 +1,5 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Reclamação Atribuída - FUNAE')
-
 @section('content')
 <div class="email-header">
     <h1>{{ $grievance->type_label }} Atribuída</h1>

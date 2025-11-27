@@ -1,7 +1,5 @@
 @extends('emails.layouts.base')
 
-@section('title', 'Reclamação Resolvida - FUNAE')
-
 @section('content')
 <div class="email-header" style="background: linear-gradient(135deg, #16A34A 0%, #15803d 100%);">
     <h1>{{ $grievance->type_label }} Resolvida</h1>
