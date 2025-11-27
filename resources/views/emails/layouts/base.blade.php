@@ -206,7 +206,6 @@
         .status-new {
             background-color: #f3f4f6;
             color: #ea580c;
-            text-decoration: line-through;
         }
         .status-arrow {
             display: inline-block;
