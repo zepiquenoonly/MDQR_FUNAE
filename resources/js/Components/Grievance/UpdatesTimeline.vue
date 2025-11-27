@@ -1,5 +1,5 @@
 <script setup>
-import { ClockIcon } from '@heroicons/vue/24/outline';
+import { ClockIcon, DocumentTextIcon, ArrowPathIcon, UserIcon, ArrowRightArrowLeftIcon, ChatBubbleLeftIcon, BoltIcon, PaperClipIcon, CheckCircleIcon, XCircleIcon, LockOpenIcon } from '@heroicons/vue/24/outline';
 
 defineProps({
     updates: {
@@ -10,18 +10,18 @@ defineProps({
 
 const getIconForActionType = (actionType) => {
     const icons = {
-        created: '📝',
-        status_changed: '🔄',
-        assigned: '👤',
-        reassigned: '🔀',
-        comment_added: '💬',
-        priority_changed: '⚡',
-        attachment_added: '📎',
-        resolved: '✅',
-        rejected: '❌',
-        reopened: '🔓'
+        created: DocumentTextIcon,
+        status_changed: ArrowPathIcon,
+        assigned: UserIcon,
+        reassigned: ArrowRightArrowLeftIcon,
+        comment_added: ChatBubbleLeftIcon,
+        priority_changed: BoltIcon,
+        attachment_added: PaperClipIcon,
+        resolved: CheckCircleIcon,
+        rejected: XCircleIcon,
+        reopened: LockOpenIcon
     };
-    return icons[actionType] || '•';
+    return icons[actionType] || ClockIcon;
 };
 
 const formatDate = (dateString) => {
@@ -81,7 +81,7 @@ const formatDate = (dateString) => {
                             index === 0 ? 'bg-brand text-white' : 'bg-white border-2 border-gray-300'
                         ]"
                     >
-                        {{ getIconForActionType(update.action_type) }}
+                        <component :is="getIconForActionType(update.action_type)" class="w-4 h-4" />
                     </div>
 
                     <!-- Update content -->

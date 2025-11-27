@@ -44,6 +44,9 @@ class User extends Authenticatable
         'district',
         'neighborhood',
         'street',
+        'workload_capacity',
+        'current_workload',
+        'is_available',
     ];
 
     /**
@@ -66,6 +69,9 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_available' => 'boolean',
+            'workload_capacity' => 'integer',
+            'current_workload' => 'integer',
         ];
     }
 
@@ -120,5 +126,72 @@ class User extends Authenticatable
     public function attachments(): HasMany
     {
         return $this->hasMany(Attachment::class, 'uploaded_by');
+    }
+
+    /**
+     * Get the specializations for this user.
+     */
+    public function specializations(): HasMany
+    {
+        return $this->hasMany(UserSpecialization::class);
+    }
+
+    /**
+     * Calculate current workload based on assigned grievances.
+     */
+    public function calculateWorkload(): int
+    {
+        return $this->assignedGrievances()
+            ->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])
+            ->get()
+            ->sum(function ($grievance) {
+                return match($grievance->priority) {
+                    'urgent' => 4,
+                    'high' => 3,
+                    'medium' => 2,
+                    'low' => 1,
+                    default => 2,
+                };
+            });
+    }
+
+    /**
+     * Update current workload.
+     */
+    public function updateWorkload(): void
+    {
+        $this->current_workload = $this->calculateWorkload();
+        $this->save();
+    }
+
+    /**
+     * Check if user can accept more grievances.
+     */
+    public function canAcceptGrievance(int $weight = 2): bool
+    {
+        return $this->is_available && 
+               ($this->current_workload + $weight) <= $this->workload_capacity;
+    }
+
+    /**
+     * Check if user has specialization in a category.
+     */
+    public function hasSpecialization(string $category): bool
+    {
+        return $this->specializations()
+            ->where('category', $category)
+            ->exists();
+    }
+
+    /**
+     * Get proficiency level for a category.
+     */
+    public function getProficiencyLevel(string $category): int
+    {
+        $specialization = $this->specializations()
+            ->where('category', $category)
+            ->first();
+        
+        return $specialization ? $specialization->proficiency_level : 0;
     }
 }

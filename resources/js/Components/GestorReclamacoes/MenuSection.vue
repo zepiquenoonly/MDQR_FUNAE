@@ -1,33 +1,110 @@
 <template>
   <nav class="py-4 overflow-hidden">
-    <!-- Menu Label -->
+    <!-- Menu PCA -->
+    <template v-if="userRole === 'PCA'">
+      <div :class="[
+        'px-5 py-4 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300',
+        isCollapsed ? 'opacity-0' : 'opacity-100'
+      ]">
+        Visão Executiva
+      </div>
+
+      <MenuItem
+        :active="$page.url === '/pca/dashboard'"
+        :icon="ChartBarIcon" 
+        :text="'Dashboard'" 
+        :is-collapsed="isCollapsed"
+        href="/pca/dashboard" />
+
+      <MenuItem 
+        :active="$page.url === '/track'" 
+        :icon="MagnifyingGlassIcon" 
+        :text="'Acompanhamento'"
+        :is-collapsed="isCollapsed" 
+        href="/track" />
+    </template>
+
+    <!-- Menu Gestor -->
+    <template v-else-if="userRole === 'Gestor'">
+      <div :class="[
+        'px-5 py-4 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300',
+        isCollapsed ? 'opacity-0' : 'opacity-100'
+      ]">
+        Gestão de Casos
+      </div>
+
+      <MenuItem
+        :active="$page.url === '/gestor/dashboard' && !$page.url.includes('panel=')"
+        :icon="HomeIcon" 
+        :text="'Dashboard'" 
+        :is-collapsed="isCollapsed"
+        href="/gestor/dashboard" />
+
+      <MenuDropdown id="projectos" :icon="FolderIcon" :text="'Projectos'" :is-collapsed="isCollapsed"
+        :items="projetosItems" :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
+
+      <MenuItem 
+        :active="$page.url.includes('panel=tecnicos')" 
+        :icon="UserGroupIcon" 
+        :text="'Ver Técnicos'"
+        :is-collapsed="isCollapsed" 
+        href="/gestor/dashboard?panel=tecnicos" />
+
+      <MenuItem 
+        :active="$page.url === '/track'" 
+        :icon="MagnifyingGlassIcon" 
+        :text="'Acompanhamento'"
+        :is-collapsed="isCollapsed" 
+        href="/track" />
+    </template>
+
+    <!-- Menu Técnico -->
+    <template v-else-if="userRole === 'Técnico'">
+      <div :class="[
+        'px-5 py-4 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300',
+        isCollapsed ? 'opacity-0' : 'opacity-100'
+      ]">
+        Minhas Tarefas
+      </div>
+
+      <MenuItem
+        :active="$page.url === '/tecnico/dashboard'"
+        :icon="HomeIcon" 
+        :text="'Dashboard'" 
+        :is-collapsed="isCollapsed"
+        href="/tecnico/dashboard" />
+
+      <MenuItem 
+        :active="$page.url === '/track'" 
+        :icon="MagnifyingGlassIcon" 
+        :text="'Acompanhamento'"
+        :is-collapsed="isCollapsed" 
+        href="/track" />
+    </template>
+
+    <!-- Conta Section (comum para todos) -->
     <div :class="[
-      'px-5 py-4 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300',
+      'px-5 py-4 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300 mt-4',
       isCollapsed ? 'opacity-0' : 'opacity-100'
     ]">
-      Gestão de Casos
+      Conta
     </div>
 
-    <!-- Menu Items -->
-    <MenuItem
-      :active="$page.url === '/home' || $page.url === '/admin/dashboard' || $page.url === '/gestor/dashboard' || $page.url === '/tecnico/dashboard' || $page.url === '/utente/dashboard'"
-      :icon="HomeIcon" :text="'Home'" :is-collapsed="isCollapsed"
-      :href="$page.url.startsWith('/home') ? '/home' : '/admin/dashboard'" />
-
-    <!-- Casos Dropdown
-    <MenuDropdown id="casos" :icon="DocumentTextIcon" :text="'Casos'" :badge="stats.pending_complaints || 0"
-      :is-collapsed="isCollapsed" :items="casosItems" :dropdown-manager="dropdownManager"
-      @item-clicked="handleItemClick" /> -->
-
-    <!-- Projetos Dropdown -->
-    <MenuDropdown id="projectos" :icon="FolderIcon" :text="'Projectos'" :is-collapsed="isCollapsed"
-      :items="projetosItems" :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
-
-    <MenuItem :active="$page.url.includes('tecnicos')" :icon="UserGroupIcon" :text="'Ver Técnicos'"
-      :is-collapsed="isCollapsed" href="/gestor/dashboard?panel=tecnicos" />
-
-    <MenuItem :active="$page.url.startsWith('/profile')" :icon="UserIcon" :text="'Perfil'" :is-collapsed="isCollapsed"
+    <!-- Meu Perfil -->
+    <MenuItem 
+      :active="$page.url.startsWith('/profile')" 
+      :icon="UserCircleIcon" 
+      :text="'Meu Perfil'"
+      :is-collapsed="isCollapsed" 
       href="/profile" />
+
+    <!-- Sair -->
+    <MenuItem 
+      :active="false" 
+      :icon="ArrowRightOnRectangleIcon" 
+      :text="'Sair'"
+      :is-collapsed="isCollapsed" 
+      @click="handleLogout" />
   </nav>
 </template>
 
@@ -36,14 +113,12 @@ import { computed } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
 import {
   HomeIcon,
-  DocumentTextIcon,
+  ChartBarIcon,
   FolderIcon,
-  UserIcon,
-  ExclamationTriangleIcon,
-  LightBulbIcon,
-  EyeIcon,
+  UserCircleIcon,
   UserGroupIcon,
-  Cog6ToothIcon
+  MagnifyingGlassIcon,
+  ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
 import { useDropdownManager } from './Composables/useDropdownManager.js'
 import MenuItem from './MenuItem.vue'
@@ -51,6 +126,10 @@ import MenuDropdown from './MenuDropdown.vue'
 
 const props = defineProps({
   isCollapsed: Boolean,
+  user: {
+    type: Object,
+    required: true
+  },
   stats: {
     type: Object,
     default: () => ({})
@@ -63,32 +142,12 @@ const emit = defineEmits(['item-clicked'])
 const dropdownManager = useDropdownManager()
 const page = usePage()
 
-// Itens do menu com base nas suas rotas reais
-const casosItems = computed(() => [
-  {
-    icon: ExclamationTriangleIcon,
-    text: 'Nova Reclamação',
-    id: 'nova-reclamacao',
-    href: '/reclamacoes/nova',
-    active: page.url === '/reclamacoes/nova'
-  },
-  {
-    icon: EyeIcon,
-    text: 'Acompanhar Reclamação',
-    id: 'acompanhar-reclamacao',
-    href: '/reclamacoes/acompanhar',
-    active: page.url === '/reclamacoes/acompanhar'
-  },
-  {
-    icon: LightBulbIcon,
-    text: 'Tracking',
-    id: 'tracking',
-    href: '/track',
-    active: page.url === '/track'
-  }
-])
+// Determinar role do usuário
+const userRole = computed(() => {
+  return props.user?.roles?.[0]?.name || props.user?.role || 'Gestor'
+})
 
-// Itens de projetos - CORRIGIDO para usar navigateToProjectos
+// Itens de projetos (apenas para Gestor)
 const projetosItems = computed(() => [
   {
     icon: FolderIcon,
@@ -105,7 +164,7 @@ const handleItemClick = (item) => {
 
   // Navegação especial para "Lista de Projectos"
   if (item.id === 'lista-projectos') {
-    navigateToProjectos()
+    router.visit('/gestor/dashboard?panel=projectos')
     return
   }
 
@@ -117,8 +176,7 @@ const handleItemClick = (item) => {
   emit('item-clicked', item)
 }
 
-// Função específica para navegar para a lista de projetos
-const navigateToProjectos = () => {
-  router.visit('/gestor/dashboard?panel=projectos')
+const handleLogout = () => {
+  router.post('/logout')
 }
 </script>

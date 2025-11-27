@@ -71,8 +71,9 @@ class AuthController extends Controller {
             return $this->redirectBasedOnRole();
         }
 
+        // Retornar erro genérico para segurança
         return back()->withErrors( [
-            'username' => 'Falha na autenticação, usuário ou senha inválidos.',
+            'auth_error' => 'Falha na autenticação, usuário ou senha inválidos.',
         ] )->onlyInput( 'username' );
     }
 
@@ -80,7 +81,7 @@ class AuthController extends Controller {
     * Handle user registration.
     */
 
-    public function register( Request $request ) {
+    public function register( Request $request ): RedirectResponse {
         $validator = Validator::make( $request->all(), [
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
@@ -93,6 +94,11 @@ class AuthController extends Controller {
                 ->numbers()
                 ->symbols()
             ],
+        ], [
+            'password.mixed' => 'A senha deve conter pelo menos uma letra maiúscula e uma minúscula.',
+            'password.letters' => 'A senha deve conter pelo menos uma letra.',
+            'password.numbers' => 'A senha deve conter pelo menos um número.',
+            'password.symbols' => 'A senha deve conter pelo menos um símbolo.',
         ] );
 
         if ( $validator->fails() ) {
@@ -115,7 +121,7 @@ class AuthController extends Controller {
     * Display the complete registration form.
     */
 
-    public function showCompleteRegistration(): Response {
+    public function showCompleteRegistration(): Response|RedirectResponse {
         $basicData = session( 'basic_registration' );
 
         if ( !$basicData ) {
@@ -131,64 +137,61 @@ class AuthController extends Controller {
         ] );
     }
 
-    /**
-    * Handle complete user registration.
-    */
+    public function completeRegistration( Request $request ): RedirectResponse {
+        try {
+            // Recupera os dados básicos da sessão
+            $basicData = session( 'basic_registration' );
 
-    public function completeRegistration( Request $request ) {
-        $basicData = session( 'basic_registration' );
-
-        if ( !$basicData ) {
-            return redirect()->route( 'auth.register' );
-        }
-
-        $validator = Validator::make( $request->all(), [
-            'nome' => 'required|string|max:255',
-            'apelido' => 'required|string|max:255',
-            'celular' => 'required|string|max:20',
-            'provincia' => 'required|string|max:255',
-            'distrito' => 'required|string|max:255',
-            'bairro' => 'required|string|max:255',
-            'rua' => 'required|string|max:255',
-            'documents' => 'nullable|array',
-            'documents.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png|max:5120'
-        ] );
-
-        if ( $validator->fails() ) {
-            return back()->withErrors( $validator )->withInput();
-        }
-
-        // Create user with complete data
-        $user = User::create( [
-            'name' => $request->nome . ' ' . $request->apelido,
-            'username' => $basicData[ 'username' ],
-            'email' => $basicData[ 'email' ],
-            'password' => $basicData[ 'password' ],
-            'phone' => $request->celular,
-            'province' => $request->provincia,
-            'district' => $request->distrito,
-            'neighborhood' => $request->bairro,
-            'street' => $request->rua,
-        ] );
-
-        // Handle document uploads if any
-        if ( $request->hasFile( 'documents' ) ) {
-            foreach ( $request->file( 'documents' ) as $document ) {
-                $path = $document->store( 'user_documents', 'public' );
-                // You might want to create an Attachment model to store these
+            if ( !$basicData ) {
+                return redirect()->route( 'auth.register' )->with( 'error', 'Sessão expirada. Por favor, registre-se novamente.' );
             }
+
+            // Validação dos dados
+            $validated = $request->validate( [
+                'nome' => 'required|string|max:255',
+                'apelido' => 'required|string|max:255',
+                'celular' => 'required|string|max:255',
+                'provincia' => 'required|string|max:255',
+                'distrito' => 'required|string|max:255',
+                'bairro' => 'required|string|max:255',
+                'rua' => 'nullable|string|max:255',
+            ] );
+
+            // Create user with complete data
+            $user = User::create( [
+                'name' => $request->nome . ' ' . $request->apelido,
+                'username' => $basicData[ 'username' ],
+                'email' => $basicData[ 'email' ],
+                'password' => $basicData[ 'password' ],
+                'phone' => $request->celular,
+                'province' => $request->provincia,
+                'district' => $request->distrito,
+                'neighborhood' => $request->bairro,
+                'street' => $request->rua,
+            ] );
+
+            // Handle document uploads if any
+            if ( $request->hasFile( 'documents' ) ) {
+                foreach ( $request->file( 'documents' ) as $document ) {
+                    $path = $document->store( 'user_documents', 'public' );
+                    // You might want to create an Attachment model to store these
+                }
+            }
+
+            // Assign default role to new users
+            $user->assignRole( 'Utente' );
+
+            // Clear session data
+            session()->forget( 'basic_registration' );
+
+            // Login automático após registro
+            Auth::login( $user );
+
+            return redirect()->route( 'user.dashboard' )->with( 'success', 'Registro realizado com sucesso!' );
+
+        } catch ( \Exception $e ) {
+            return back()->with( 'error', 'Erro ao completar registro: ' . $e->getMessage() )->withInput();
         }
-
-        // Assign default role to new users
-        $user->assignRole( 'Utente' );
-
-        // Clear session data
-        session()->forget( 'basic_registration' );
-
-        Auth::login( $user );
-        $request->session()->regenerate();
-
-        return $this->redirectBasedOnRole()->with( 'success', 'Conta criada com sucesso! Bem-vindo!' );
     }
 
     /**
@@ -201,7 +204,7 @@ class AuthController extends Controller {
 
         switch ( $role ) {
             case 'PCA':
-            return redirect()->route( 'admin.dashboard' );
+            return redirect()->route( 'pca.dashboard' );
             case 'Gestor':
             return redirect()->route( 'manager.dashboard' );
             case 'Técnico':
@@ -219,12 +222,11 @@ class AuthController extends Controller {
     public function home(): Response|RedirectResponse {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
-
-        if ( $role === 'Técnico' ) {
-            return redirect()->route( 'technician.dashboard' );
-        }
-
-        return $this->getDashboardByRole( $role );
+        // Render the correct dashboard for the current role. Using
+        // `getDashboardByRole` avoids redirect loops (e.g. `/utente/dashboard`
+        // mapped to this same method) and ensures the appropriate Inertia
+        // page is returned for each role.
+        return $this->getDashboardByRole($role);
     }
 
     /**
@@ -236,7 +238,7 @@ class AuthController extends Controller {
 
         switch ( $role ) {
             case 'PCA':
-            return Inertia::render( 'Admin/Dashboard', [
+            return Inertia::render( 'PCA/Dashboard', [
                 'user' => [
                     'name' => $user->name,
                     'email' => $user->email,
@@ -291,11 +293,13 @@ class AuthController extends Controller {
     * Handle user logout.
     */
 
-    public function logout( Request $request ) {
+    public function logout( Request $request ): RedirectResponse {
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect( '/login' );
+        // Use a rota correta que existe no seu web.php
+        return redirect()->route( 'auth.main' );
+        // ou 'auth.login'
     }
 }

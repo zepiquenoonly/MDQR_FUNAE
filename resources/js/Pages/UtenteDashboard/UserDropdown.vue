@@ -86,9 +86,9 @@ const userInitials = computed(() => {
     .substring(0, 2)
 })
 
-console.log('👤 UserDropdown - User data:', safeUser.value)
-console.log('👤 UserDropdown - User name:', safeUser.value.name)
-console.log('👤 UserDropdown - User initials:', userInitials.value)
+console.log('UserDropdown - User data:', safeUser.value)
+console.log('UserDropdown - User name:', safeUser.value.name)
+console.log('UserDropdown - User initials:', userInitials.value)
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
@@ -96,9 +96,7 @@ const toggleDropdown = () => {
 
 const handleItemClick = (item) => {
   if (item.text === 'Sair') {
-    if (confirm('Tem certeza que deseja sair?')) {
-      router.post('/logout')
-    }
+    router.post('/logout')
   } else {
     console.log('Action:', item.text)
   }

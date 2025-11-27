@@ -15,7 +15,7 @@ class ProjectSeeder extends Seeder
         // ==================== PROJECTOS EM ANDAMENTO ====================
 
         // Projecto 1 - Parque Eólico de Pemba
-        $project1 = Project::create([
+        $project1 = Project::firstOrCreate([
             'name' => 'PROJETO PARQUE EÓLICO DE PEMBA',
             'description' => 'O projecto Parque Eólico de Pemba, uma iniciativa inovadora implementada pelo Fundo de Energia (FUNAE FP), representa um marco no compromisso de Moçambique com a transição energética sustentável e a redução da dependência de fontes de energia convencionais.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -27,28 +27,28 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 1
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project1->id,
             'title' => 'Produção de Energia Renovável',
             'description' => 'Aproveitar o potencial eólico da região de Pemba para gerar eletricidade limpa e renovável, contribuindo para a diversificação da matriz energética de Moçambique.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project1->id,
             'title' => 'Redução da Dependência de Combustíveis Fósseis',
             'description' => 'Diminuir a dependência de fontes de energia convencionais, como carvão e petróleo, alinhando-se aos objetivos globais de redução de emissões de carbono.',
             'order' => 2
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project1->id,
             'title' => 'Acesso à Energia para Comunidades Locais',
             'description' => 'Melhorar o acesso à energia elétrica em comunidades remotas, promovendo o desenvolvimento social e econômico na região.',
             'order' => 3
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project1->id,
             'title' => 'Fomento da Sustentabilidade Ambiental',
             'description' => 'Reduzir o impacto ambiental causado pela geração de energia a partir de fontes não renováveis, protegendo os ecossistemas locais.',
@@ -56,7 +56,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 1
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project1->id,
             'financiador' => 'Enabel',
             'beneficiario' => 'Município de Pemba',
@@ -66,7 +66,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 1
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project1->id,
             'data_aprovacao' => '2024-05-25',
             'data_inicio' => '2024-10-25',
@@ -76,7 +76,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Projecto 2 - Centro de Saúde Comunitário
-        $project2 = Project::create([
+        $project2 = Project::firstOrCreate([
             'name' => 'CENTRO DE SAÚDE COMUNITÁRIO',
             'description' => 'Construção de centro de saúde para atendimento básico à comunidade.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -88,14 +88,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 2
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project2->id,
             'title' => 'Melhorar o Acesso aos Cuidados de Saúde',
             'description' => 'Proporcionar atendimento médico básico à comunidade local.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project2->id,
             'title' => 'Reduzir Mortalidade Infantil',
             'description' => 'Oferecer cuidados pré-natais e pós-natais para reduzir a mortalidade infantil.',
@@ -103,7 +103,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 2
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project2->id,
             'financiador' => 'MISAU',
             'beneficiario' => 'Comunidade de Khongolote',
@@ -113,7 +113,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 2
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project2->id,
             'data_aprovacao' => '2024-05-01',
             'data_inicio' => '2024-06-01',
@@ -123,7 +123,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Projecto 3 - Escola Primária Completa
-        $project3 = Project::create([
+        $project3 = Project::firstOrCreate([
             'name' => 'ESCOLA PRIMÁRIA COMPLETA',
             'description' => 'Construção de escola primária com 12 salas de aula, biblioteca e campo desportivo.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -135,14 +135,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 3
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project3->id,
             'title' => 'Melhorar o Acesso à Educação',
             'description' => 'Proporcionar infraestrutura educacional adequada para 500 alunos.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project3->id,
             'title' => 'Reduzir Taxa de Abandono Escolar',
             'description' => 'Criar ambiente propício para a permanência das crianças na escola.',
@@ -150,7 +150,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 3
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project3->id,
             'financiador' => 'MINEDH',
             'beneficiario' => 'Comunidade de Mugudo',
@@ -160,7 +160,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 3
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project3->id,
             'data_aprovacao' => '2024-03-20',
             'data_inicio' => '2024-04-15',
@@ -172,7 +172,7 @@ class ProjectSeeder extends Seeder
         // ==================== PROJECTOS FINALIZADOS ====================
 
         // Projecto 4 - Sistema de Água Potável
-        $project4 = Project::create([
+        $project4 = Project::firstOrCreate([
             'name' => 'SISTEMA DE ÁGUA POTÁVEL',
             'description' => 'Projecto de implementação de sistema de abastecimento de água potável para comunidades rurais.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -184,14 +184,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 4
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project4->id,
             'title' => 'Melhorar o Acesso à Água Potável',
             'description' => 'Garantir o acesso à água potável para comunidades carentes.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project4->id,
             'title' => 'Reduzir Doenças de Veiculação Hídrica',
             'description' => 'Diminuir a incidência de doenças relacionadas com água contaminada.',
@@ -199,7 +199,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 4
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project4->id,
             'financiador' => 'AIAS, EP',
             'beneficiario' => 'Comunidade de Machava',
@@ -209,7 +209,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 4
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project4->id,
             'data_aprovacao' => '2022-01-15',
             'data_inicio' => '2022-03-15',
@@ -219,7 +219,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Projecto 5 - Mercado Municipal
-        $project5 = Project::create([
+        $project5 = Project::firstOrCreate([
             'name' => 'MERCADO MUNICIPAL',
             'description' => 'Construção de mercado municipal com 50 bancas, sistema de saneamento e área de descarga.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -231,14 +231,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 5
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project5->id,
             'title' => 'Fortalecer Economia Local',
             'description' => 'Criar espaço adequado para comércio de produtos locais.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project5->id,
             'title' => 'Melhorar Condições de Trabalho',
             'description' => 'Oferecer infraestrutura digna para os vendedores ambulantes.',
@@ -246,7 +246,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 5
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project5->id,
             'financiador' => 'CMB',
             'beneficiario' => 'Vendedores de Munhava',
@@ -256,7 +256,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 5
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project5->id,
             'data_aprovacao' => '2021-08-10',
             'data_inicio' => '2021-09-01',
@@ -266,7 +266,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Projecto 6 - Ponte sobre Rio Limpopo
-        $project6 = Project::create([
+        $project6 = Project::firstOrCreate([
             'name' => 'PONTE SOBRE RIO LIMPOPO',
             'description' => 'Construção de ponte rodoviária com 150 metros de comprimento sobre o Rio Limpopo.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -278,14 +278,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 6
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project6->id,
             'title' => 'Melhorar Acessibilidade',
             'description' => 'Garantir passagem segura durante todo o ano, incluindo época chuvosa.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project6->id,
             'title' => 'Impulsionar Comércio Regional',
             'description' => 'Facilitar o transporte de mercadorias entre distritos.',
@@ -293,7 +293,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 6
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project6->id,
             'financiador' => 'ANE',
             'beneficiario' => 'População de Chokwé',
@@ -303,7 +303,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 6
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project6->id,
             'data_aprovacao' => '2020-11-25',
             'data_inicio' => '2021-01-10',
@@ -315,7 +315,7 @@ class ProjectSeeder extends Seeder
         // ==================== PROJECTOS PARADOS ====================
 
         // Projecto 7 - Usina Solar de Nampula
-        $project7 = Project::create([
+        $project7 = Project::firstOrCreate([
             'name' => 'USINA SOLAR DE NAMPULA',
             'description' => 'Instalação de usina solar com capacidade de 10MW para suprir deficit energético da região.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -327,14 +327,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 7
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project7->id,
             'title' => 'Diversificar Matriz Energética',
             'description' => 'Aumentar a participação de energias renováveis no fornecimento regional.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project7->id,
             'title' => 'Reduzir Apagões',
             'description' => 'Diminuir a frequência de interrupções no fornecimento de energia.',
@@ -342,7 +342,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 7
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project7->id,
             'financiador' => 'EDM, EP',
             'beneficiario' => 'População de Nampula',
@@ -352,7 +352,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 7
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project7->id,
             'data_aprovacao' => '2023-07-15',
             'data_inicio' => '2023-08-01',
@@ -362,7 +362,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Projecto 8 - Complexo Habitacional
-        $project8 = Project::create([
+        $project8 = Project::firstOrCreate([
             'name' => 'COMPLEXO HABITACIONAL',
             'description' => 'Construção de 100 habitações sociais para famílias de baixa renda.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -374,14 +374,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 8
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project8->id,
             'title' => 'Reduzir Défice Habitacional',
             'description' => 'Oferecer habitação digna para famílias carentes.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project8->id,
             'title' => 'Promover Urbanização Ordenada',
             'description' => 'Contribuir para o desenvolvimento urbano planeado.',
@@ -389,7 +389,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 8
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project8->id,
             'financiador' => 'IFH',
             'beneficiario' => 'Famílias de Nicolé',
@@ -399,7 +399,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 8
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project8->id,
             'data_aprovacao' => '2023-03-05',
             'data_inicio' => '2023-04-01',
@@ -409,7 +409,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Projecto 9 - Sistema de Drenagem Pluvial
-        $project9 = Project::create([
+        $project9 = Project::firstOrCreate([
             'name' => 'SISTEMA DE DRENAGEM PLUVIAL',
             'description' => 'Implementação de sistema de drenagem para prevenir inundações em área urbana.',
             'image_url' => '/images/Emblem_of_Mozambique.svg-2.png',
@@ -421,14 +421,14 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Objectivos do Projecto 9
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project9->id,
             'title' => 'Prevenir Inundações',
             'description' => 'Reduzir impactos das chuvas intensas na comunidade.',
             'order' => 1
         ]);
 
-        Objective::create([
+        Objective::firstOrCreate([
             'project_id' => $project9->id,
             'title' => 'Melhorar Saneamento Básico',
             'description' => 'Garantir escoamento adequado de águas pluviais.',
@@ -436,7 +436,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Financiamento do Projecto 9
-        Finance::create([
+        Finance::firstOrCreate([
             'project_id' => $project9->id,
             'financiador' => 'CMCM',
             'beneficiario' => 'Residentes da Urbanização',
@@ -446,7 +446,7 @@ class ProjectSeeder extends Seeder
         ]);
 
         // Prazos do Projecto 9
-        Deadline::create([
+        Deadline::firstOrCreate([
             'project_id' => $project9->id,
             'data_aprovacao' => '2023-09-18',
             'data_inicio' => '2023-10-05',

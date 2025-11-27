@@ -35,4 +35,19 @@ return [
         ],
     ],
 
+    'sms' => [
+        'enabled' => env('SMS_ENABLED', false),
+        'provider' => env('SMS_PROVIDER', 'africastalking'), // africastalking, twilio, nexmo
+        'africastalking' => [
+            'username' => env('AFRICASTALKING_USERNAME'),
+            'api_key' => env('AFRICASTALKING_API_KEY'),
+            'from' => env('AFRICASTALKING_FROM', 'FUNAE'),
+        ],
+        'twilio' => [
+            'sid' => env('TWILIO_SID'),
+            'token' => env('TWILIO_TOKEN'),
+            'from' => env('TWILIO_FROM'),
+        ],
+    ],
+
 ];

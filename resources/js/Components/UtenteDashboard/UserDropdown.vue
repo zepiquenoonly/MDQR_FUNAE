@@ -1,5 +1,13 @@
 <template>
   <div class="relative">
+    <!-- Spinner para logout -->
+    <div v-if="logoutLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+      <div class="text-center py-8">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-brand mx-auto mb-4"></div>
+        <p class="text-gray-300 text-sm mt-2">A Sair...</p>
+      </div>
+    </div>
+
     <div class="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors"
       @click="toggleDropdown">
       <div class="w-9 h-9 bg-gray-400 rounded-full flex items-center justify-center text-white">
@@ -31,24 +39,29 @@
       </a>
 
       <!-- Sair - URL direta -->
-      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-red-600 hover:bg-red-50"
+      <button :disabled="logoutLoading"
+        class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-red-600 hover:bg-red-50 w-full text-left disabled:opacity-50 disabled:cursor-not-allowed"
         @click="handleLogout">
         <ArrowRightOnRectangleIcon class="w-4 h-4" />
-        <span>Sair</span>
-      </a>
+        <span v-if="!logoutLoading">Sair</span>
+        <span v-else>Saindo...</span>
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { router, Link } from '@inertiajs/vue3'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
+import { useToast } from '@/Composables/useToast'
 import {
   UserIcon,
   ChevronDownIcon,
   LockClosedIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
+
+const { error } = useToast()
 
 const props = defineProps({
   user: {
@@ -62,7 +75,6 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
-  // Props para customizar cores
   bgColor: {
     type: String,
     default: 'hover:bg-gray-50'
@@ -74,16 +86,43 @@ const props = defineProps({
 })
 
 const isOpen = ref(false)
+const logoutLoading = ref(false)
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value
 }
 
-const handleLogout = () => {
-  if (confirm('Tem certeza que deseja sair?')) {
-    router.post('/logout')
-  }
+const handleLogout = async () => {
+
+
+  logoutLoading.value = true
   isOpen.value = false
+
+  try {
+    await router.post('/logout', {}, {
+      onStart: () => {
+        logoutLoading.value = true
+      },
+      onSuccess: () => {
+        // O redirecionamento será feito automaticamente pelo Laravel
+        logoutLoading.value = false
+      },
+      onError: () => {
+        logoutLoading.value = false
+        error('Erro ao fazer logout. Tente novamente.')
+      },
+      onFinish: () => {
+        // Garante que o loading seja desativado mesmo em caso de erro
+        setTimeout(() => {
+          logoutLoading.value = false
+        }, 1000)
+      }
+    })
+  } catch (err) {
+    logoutLoading.value = false
+    console.error('Erro no logout:', err)
+    error('Erro ao fazer logout. Tente novamente.')
+  }
 }
 
 const handleItemClick = (item) => {

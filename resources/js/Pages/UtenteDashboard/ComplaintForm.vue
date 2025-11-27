@@ -455,7 +455,7 @@ const handleSubmit = async () => {
             formDataToSend.append(`attachments[${index}]`, file)
         })
 
-        console.log('📤 Enviando reclamação...', {
+        console.log('Enviando reclamação...', {
             category: formData.value.category,
             is_anonymous: formData.value.is_anonymous,
             description_length: formData.value.description?.length || 0,
@@ -473,7 +473,7 @@ const handleSubmit = async () => {
             }
         })
 
-        console.log('📥 Status da resposta:', response.status, response.statusText)
+        console.log('Status da resposta:', response.status, response.statusText)
 
         // Tentar parsear a resposta
         let data
@@ -483,22 +483,22 @@ const handleSubmit = async () => {
             data = await response.json()
         } else {
             const text = await response.text()
-            console.error('❌ Resposta não é JSON:', text)
+            console.error('Resposta não é JSON:', text)
             throw new Error('Servidor retornou resposta inválida')
         }
 
-        console.log('📋 Dados recebidos:', data)
+        console.log('Dados recebidos:', data)
 
         if (response.ok && data.success) {
-            console.log('✅ Sucesso! Número:', data.reference_number)
+            console.log('Sucesso! Número:', data.reference_number)
             emit('submitted', data)
         } else {
-            console.error('❌ Erro na resposta:', data)
+            console.error('Erro na resposta:', data)
 
             // Tratar erros de validação
             if (data.errors) {
                 errors.value = data.errors
-                console.log('📋 Erros de validação:', errors.value)
+                console.log('Erros de validação:', errors.value)
 
                 // Voltar para o primeiro passo se houver erros
                 currentStep.value = 1
@@ -513,11 +513,11 @@ const handleSubmit = async () => {
             }
         }
     } catch (error) {
-        console.error('💥 Erro crítico ao submeter:', error)
+        console.error('Erro crítico ao submeter:', error)
 
         // Mostrar erro genérico no console
         if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            console.error('🔌 Problema de conexão - Servidor pode não estar rodando')
+            console.error('Problema de conexão - Servidor pode não estar rodando')
         }
     } finally {
         isSubmitting.value = false

@@ -55,7 +55,7 @@ const formData = ref({
 
 const handleSubmit = () => {
     if (!formData.value.suggestion.trim()) {
-        alert('Por favor, descreva sua sugestão')
+        console.warn('Por favor, descreva sua sugestão')
         return
     }
 

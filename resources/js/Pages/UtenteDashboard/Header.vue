@@ -82,7 +82,7 @@ const safeUser = computed(() => {
   return userData
 })
 
-console.log('📦 Header - User data received:', props.user)
-console.log('📦 Header - Safe user:', safeUser.value)
-console.log('📦 Header - User name:', safeUser.value.name)
+console.log('Header - User data received:', props.user)
+console.log('Header - Safe user:', safeUser.value)
+console.log('Header - User name:', safeUser.value.name)
 </script>

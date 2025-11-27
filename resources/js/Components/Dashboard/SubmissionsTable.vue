@@ -29,8 +29,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr 
-            v-for="(row, index) in tableData" 
+          <tr
+            v-for="(row, index) in tableData"
             :key="index"
             class="border-b border-gray-100 hover:bg-gray-50 transition-colors"
           >
@@ -38,33 +38,33 @@
             <td class="py-4 px-4 text-sm text-gray-600">{{ row.neighborhood }}</td>
             <td class="py-4 px-4">
               <span :class="['badge', row.impactType.class]">
-                <component 
-                  :is="row.impactType.icon" 
-                  class="w-3 h-3 mr-1" 
+                <component
+                  :is="row.impactType.icon"
+                  class="w-3 h-3 mr-1"
                 />
                 {{ row.impactType.text }}
               </span>
             </td>
             <td class="py-4 px-4">
               <span :class="['badge', row.submissionType.class]">
-                <component 
-                  :is="row.submissionType.icon" 
-                  class="w-3 h-3 mr-1" 
+                <component
+                  :is="row.submissionType.icon"
+                  class="w-3 h-3 mr-1"
                 />
                 {{ row.submissionType.text }}
               </span>
             </td>
             <td class="py-4 px-4">
               <span :class="['badge', row.status.class]">
-                <component 
-                  :is="row.status.icon" 
-                  class="w-3 h-3 mr-1" 
+                <component
+                  :is="row.status.icon"
+                  class="w-3 h-3 mr-1"
                 />
                 {{ row.status.text }}
               </span>
             </td>
             <td class="py-4 px-4">
-              <button 
+              <button
                 @click="viewDetails(row)"
                 class="bg-brand hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
               >
@@ -81,7 +81,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { 
+import {
   EyeIcon,
   LightBulbIcon,
   ExclamationTriangleIcon,
@@ -113,18 +113,18 @@ const tableData = computed(() => {
       {
         name: 'João Silva',
         neighborhood: 'Machava',
-        impactType: { 
-          class: 'badge-ambiental', 
+        impactType: {
+          class: 'badge-ambiental',
           text: 'Ambiental',
           icon: LightBulbIcon
         },
-        submissionType: { 
-          class: 'badge-sugestao', 
+        submissionType: {
+          class: 'badge-sugestao',
           text: 'Sugestão',
           icon: LightBulbIcon
         },
-        status: { 
-          class: 'badge-pendente', 
+        status: {
+          class: 'badge-pendente',
           text: 'Pendente',
           icon: ClockIcon
         }
@@ -184,7 +184,7 @@ const tableData = computed(() => {
 
 
 const viewDetails = (row) => {
-  alert(`Visualizando detalhes de: ${row.name}\nTipo: ${row.submissionType.text}`)
+  console.log(`Visualizando detalhes de: ${row.name}, Tipo: ${row.submissionType.text}`)
 }
 </script>
 

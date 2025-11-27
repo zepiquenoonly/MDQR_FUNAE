@@ -3,11 +3,11 @@
         <!-- Header -->
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900">Técnicos</h1>
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-dark-text-primary">Técnicos</h1>
             </div>
             <div class="flex gap-3">
                 <button @click="refreshTecnicos"
-                    class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2">
+                    class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2">
                     <ArrowPathIcon class="w-4 h-4" />
                     Atualizar
                 </button>
@@ -16,82 +16,96 @@
 
         <!-- Stats Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div
+                class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Total de Técnicos</p>
-                        <p class="text-2xl font-bold text-gray-900">{{ stats.totalTecnicos || 0 }}</p>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total de Técnicos</p>
+                        <p class="text-2xl font-bold text-gray-900 dark:text-dark-text-primary">{{ stats.totalTecnicos
+                            || 0 }}</p>
                     </div>
-                    <div class="p-3 bg-blue-100 rounded-lg">
-                        <UserGroupIcon class="w-6 h-6 text-blue-600" />
+                    <div class="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
+                        <UserGroupIcon class="w-6 h-6 text-blue-600 dark:text-blue-400" />
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div
+                class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Técnicos Ativos</p>
-                        <p class="text-2xl font-bold text-green-600">{{ stats.tecnicosAtivos || 0 }}</p>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Técnicos Ativos</p>
+                        <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ stats.tecnicosAtivos || 0 }}
+                        </p>
                     </div>
-                    <div class="p-3 bg-green-100 rounded-lg">
-                        <CheckBadgeIcon class="w-6 h-6 text-green-600" />
+                    <div class="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
+                        <CheckBadgeIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
+            <div
+                class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6 border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div>
-                        <p class="text-sm font-medium text-gray-600">Casos Atribuídos</p>
-                        <p class="text-2xl font-bold text-orange-600">{{ stats.casosAtribuidos || 0 }}</p>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Casos Atribuídos</p>
+                        <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ stats.casosAtribuidos || 0
+                            }}</p>
                     </div>
-                    <div class="p-3 bg-orange-100 rounded-lg">
-                        <ClipboardDocumentListIcon class="w-6 h-6 text-orange-600" />
+                    <div class="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
+                        <ClipboardDocumentListIcon class="w-6 h-6 text-orange-600 dark:text-orange-400" />
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Técnicos Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-800">Lista de Técnicos</h2>
+        <div
+            class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Lista de Técnicos</h2>
             </div>
 
             <!-- Loading State -->
             <div v-if="loading" class="p-8 text-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand mx-auto"></div>
-                <p class="text-gray-600 mt-2">A carregar técnicos...</p>
+                <p class="text-gray-600 dark:text-gray-400 mt-2">A carregar técnicos...</p>
             </div>
 
             <!-- Técnicos List -->
             <div v-else class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                    <thead class="bg-gray-50 dark:bg-dark-accent">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Técnico
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Contacto
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Localização
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Casos Ativos
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Status
                             </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <th
+                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                                 Ações
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="tecnico in tecnicos" :key="tecnico.id" class="hover:bg-gray-50 transition-colors">
+                    <tbody class="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-gray-700">
+                        <tr v-for="tecnico in tecnicos" :key="tecnico.id"
+                            class="hover:bg-gray-50 dark:hover:bg-dark-accent transition-colors">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
                                     <div
@@ -99,22 +113,25 @@
                                         {{ getInitials(tecnico.name) }}
                                     </div>
                                     <div class="ml-4">
-                                        <div class="text-sm font-medium text-gray-900">{{ tecnico.name }}</div>
-                                        <div class="text-sm text-gray-500">{{ tecnico.email }}</div>
+                                        <div class="text-sm font-medium text-gray-900 dark:text-dark-text-primary">{{
+                                            tecnico.name }}</div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">{{ tecnico.email }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ tecnico.phone || 'N/A' }}</div>
-                                <div class="text-sm text-gray-500">{{ tecnico.username }}</div>
+                                <div class="text-sm text-gray-900 dark:text-dark-text-primary">{{ tecnico.phone || 'N/A'
+                                    }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ tecnico.username }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-gray-900">{{ tecnico.province || 'N/A' }}</div>
-                                <div class="text-sm text-gray-500">{{ tecnico.district || '' }}</div>
+                                <div class="text-sm text-gray-900 dark:text-dark-text-primary">{{ tecnico.province ||
+                                    'N/A' }}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">{{ tecnico.district || '' }}</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span
-                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
                                     {{ tecnico.active_cases_count || 0 }} casos
                                 </span>
                             </td>
@@ -122,15 +139,15 @@
                                 <span :class="[
                                     'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
                                     tecnico.is_active
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-red-100 text-red-800'
+                                        ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300'
+                                        : 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-300'
                                 ]">
                                     {{ tecnico.is_active ? 'Ativo' : 'Inativo' }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <!--<button @click="viewTecnicoDesempenho(tecnico)"
-                                    class="text-brand hover:text-brand-dark mr-3">
+                                    class="text-brand hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 mr-3">
                                     Ver Desempenho
                                 </button>-->
                             </td>
@@ -140,9 +157,11 @@
 
                 <!-- Empty State -->
                 <div v-if="tecnicos.length === 0 && !loading" class="text-center py-12">
-                    <UserGroupIcon class="mx-auto h-12 w-12 text-gray-400" />
-                    <h3 class="mt-2 text-sm font-medium text-gray-900">Nenhum técnico encontrado</h3>
-                    <p class="mt-1 text-sm text-gray-500">Não existem técnicos registados no sistema.</p>
+                    <UserGroupIcon class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600" />
+                    <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-dark-text-primary">Nenhum técnico
+                        encontrado</h3>
+                    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Não existem técnicos registados no sistema.
+                    </p>
                 </div>
             </div>
         </div>
@@ -174,21 +193,21 @@ const showDesempenhoModal = ref(false)
 const loadTecnicos = async () => {
     loading.value = true
     try {
-        console.log('🔄 A carregar técnicos...')
+        console.log('A carregar técnicos...')
         const response = await fetch('/api/tecnicos')
-        console.log('📊 Resposta da API:', response)
+        console.log('Resposta da API:', response)
 
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`)
         }
 
         const data = await response.json()
-        console.log('📋 Dados recebidos:', data)
+        console.log('Dados recebidos:', data)
 
         tecnicos.value = data.tecnicos || []
         stats.value = data.stats || {}
     } catch (error) {
-        console.error('❌ Erro ao carregar técnicos:', error)
+        console.error('Erro ao carregar técnicos:', error)
         tecnicos.value = []
     } finally {
         loading.value = false
@@ -224,7 +243,7 @@ const closeDesempenhoModal = () => {
 
 // Carregar técnicos quando o componente é montado
 onMounted(() => {
-    console.log('🚀 TecnicoList montado')
+    console.log('TecnicoList montado')
     loadTecnicos()
 })
 </script>

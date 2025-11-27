@@ -5,152 +5,136 @@ namespace App\Http\Controllers;
 use App\Models\Grievance;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ManagerDashboardController extends Controller
 {
     /**
-     * Display the manager dashboard with actionable grievances.
+     * Handle the incoming request.
      */
     public function __invoke(Request $request): Response
     {
         $user = $request->user();
-
+        
         abort_if(!$user || !$user->hasRole('Gestor'), 403);
 
+        $status = $request->input('status');
+        $priority = $request->input('priority');
+        $category = $request->input('category');
+
         $filters = [
-            'status' => $request->input('status'),
-            'priority' => $request->input('priority'),
-            'category' => $request->input('category'),
-            'type' => $request->input('type'),
+            'status' => $status !== null && $status !== '' ? $status : null,
+            'priority' => $priority !== null && $priority !== '' ? $priority : null,
+            'category' => $category !== null && $category !== '' ? $category : null,
         ];
 
-        $statusMap = [
-            'open' => ['submitted', 'under_review', 'assigned'],
-            'in_progress' => ['in_progress'],
-            'pending_completion' => ['pending_approval'],
-            'closed' => ['resolved', 'rejected'],
-        ];
-
+        // Query base para reclamações - SEMPRE retornar dados
         $complaintsQuery = Grievance::query()
-            ->with([
-                'user:id,name',
-                'assignedUser:id,name,email',
-                'attachments:id,grievance_id,original_filename',
-                'updates' => fn ($query) => $query
-                    ->with('user:id,name')
-                    ->latest('created_at')
-                    ->take(20),
-            ])
-            ->when(
-                $filters['priority'],
-                fn ($query, $priority) => $query->where('priority', $priority)
-            )
-            ->when(
-                $filters['category'],
-                fn ($query, $category) => $query->where('category', $category)
-            )
-            ->when(
-                $filters['status'],
-                function ($query, $status) use ($statusMap) {
-                    $query->whereIn('status', $statusMap[$status] ?? [$status]);
-                }
-            )
+            ->with(['user:id,name,email', 'assignedUser:id,name', 'attachments'])
             ->latest('submitted_at');
 
-        $complaints = $complaintsQuery
-            ->paginate(10)
-            ->withQueryString()
-            ->through(fn (Grievance $grievance) => $this->transformComplaint($grievance));
+        // Aplicar filtros
+        if ($filters['status']) {
+            $complaintsQuery->where('status', $filters['status']);
+        }
+        if ($filters['priority']) {
+            $complaintsQuery->where('priority', $filters['priority']);
+        }
+        if ($filters['category']) {
+            $complaintsQuery->where('category', $filters['category']);
+        }
 
-        $statsBase = Grievance::query();
+        // Paginação para a lista principal - garantir que sempre retorna pelo menos array vazio
+        $complaints = $complaintsQuery->paginate(10)->through(function ($grievance) {
+            return [
+                'id' => $grievance->id,
+                'title' => $grievance->description,
+                'description' => $grievance->description,
+                'type' => 'complaint',
+                'priority' => $grievance->priority,
+                'status' => $grievance->status,
+                'category' => $grievance->category,
+                'created_at' => $grievance->created_at,
+                'submitted_at' => $grievance->submitted_at,
+                'reference_number' => $grievance->reference_number,
+                'province' => $grievance->province,
+                'district' => $grievance->district,
+                'user' => $grievance->user ? [
+                    'name' => $grievance->user->name,
+                ] : null,
+                'technician' => $grievance->assignedUser ? [
+                    'name' => $grievance->assignedUser->name,
+                ] : null,
+                'attachments' => $grievance->attachments->map(function ($attachment) {
+                    return [
+                        'id' => $attachment->id,
+                        'name' => $attachment->original_filename,
+                        'size' => $attachment->size,
+                    ];
+                })->toArray(),
+            ];
+        });
+
+        // TODAS as reclamações (sem paginação) para a visualização completa
+        $allComplaintsQuery = Grievance::query()
+            ->with(['user:id,name,email', 'assignedUser:id,name'])
+            ->latest('submitted_at');
+
+        $allComplaints = $allComplaintsQuery->get()->map(function ($grievance) {
+            return [
+                'id' => $grievance->id,
+                'title' => $grievance->description,
+                'description' => $grievance->description,
+                'type' => 'complaint',
+                'priority' => $grievance->priority,
+                'status' => $grievance->status,
+                'category' => $grievance->category,
+                'created_at' => $grievance->created_at,
+                'submitted_at' => $grievance->submitted_at,
+                'reference_number' => $grievance->reference_number,
+                'province' => $grievance->province,
+                'district' => $grievance->district,
+                'assigned_user' => $grievance->assignedUser ? [
+                    'name' => $grievance->assignedUser->name,
+                ] : null,
+            ];
+        })->toArray();
+
+        // Estatísticas - garantir valores padrão
         $stats = [
-            'pending_complaints' => (clone $statsBase)
-                ->whereIn('status', ['submitted', 'under_review', 'assigned'])
-                ->count(),
-            'in_progress' => (clone $statsBase)
-                ->where('status', 'in_progress')
-                ->count(),
-            'high_priority' => (clone $statsBase)
-                ->where('priority', 'high')
-                ->whereNotIn('status', ['resolved', 'rejected'])
-                ->count(),
-            'pending_completion_requests' => (clone $statsBase)
-                ->where('status', 'pending_approval')
-                ->count(),
+            'pending_complaints' => Grievance::whereIn('status', ['submitted', 'under_review', 'assigned'])->count() ?: 0,
+            'in_progress' => Grievance::where('status', 'in_progress')->count() ?: 0,
+            'high_priority' => Grievance::where('priority', 'high')->count() ?: 0,
+            'pending_completion_requests' => Grievance::where('status', 'pending_approval')->count() ?: 0,
         ];
 
+        // Técnicos disponíveis
         $technicians = User::role('Técnico')
             ->select('id', 'name', 'email')
-            ->orderBy('name')
-            ->get();
+            ->get()
+            ->map(function ($technician) {
+                return [
+                    'id' => $technician->id,
+                    'name' => $technician->name,
+                    'email' => $technician->email,
+                ];
+            })
+            ->toArray();
 
         return Inertia::render('Manager/Dashboard', [
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->getRoleNames()->first(),
+                'created_at' => $user->created_at?->format('d/m/Y'),
+            ],
             'complaints' => $complaints,
+            'allComplaints' => $allComplaints,
             'stats' => $stats,
             'technicians' => $technicians,
             'filters' => $filters,
+            'canEdit' => $user->hasRole('Gestor'),
         ]);
     }
-
-    /**
-     * Prepare complaint payload for the frontend dashboard.
-     */
-    private function transformComplaint(Grievance $grievance): array
-    {
-        return [
-            'id' => $grievance->id,
-            'reference_number' => $grievance->reference_number,
-            'title' => sprintf('Reclamação %s', $grievance->reference_number),
-            'description' => Str::limit(strip_tags($grievance->description), 240),
-            'category' => $grievance->category,
-            'priority' => $grievance->priority,
-            'status' => $this->mapStatus($grievance->status),
-            'status_label' => $grievance->status_label,
-            'type' => 'complaint',
-            'submitted_at' => optional($grievance->submitted_at)->toIso8601String(),
-            'user' => $grievance->user ? [
-                'id' => $grievance->user->id,
-                'name' => $grievance->user->name,
-            ] : [
-                'id' => null,
-                'name' => $grievance->display_name,
-            ],
-            'technician' => $grievance->assignedUser ? [
-                'id' => $grievance->assignedUser->id,
-                'name' => $grievance->assignedUser->name,
-                'email' => $grievance->assignedUser->email,
-            ] : null,
-            'attachments' => $grievance->attachments->map(fn ($attachment) => [
-                'id' => $attachment->id,
-                'name' => $attachment->original_filename,
-            ]),
-            'activities' => $grievance->updates->map(fn ($update) => [
-                'id' => $update->id,
-                'description' => $update->formatted_description,
-                'created_at' => optional($update->created_at)->toIso8601String(),
-                'user' => $update->user ? [
-                    'id' => $update->user->id,
-                    'name' => $update->user->name,
-                ] : null,
-            ]),
-        ];
-    }
-
-    /**
-     * Map internal status to dashboard-friendly labels.
-     */
-    private function mapStatus(string $status): string
-    {
-        return match ($status) {
-            'submitted', 'under_review', 'assigned' => 'open',
-            'in_progress' => 'in_progress',
-            'pending_approval' => 'pending_completion',
-            'resolved', 'rejected' => 'closed',
-            default => $status,
-        };
-    }
 }
-

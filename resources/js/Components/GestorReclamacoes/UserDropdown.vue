@@ -1,37 +1,38 @@
 <template>
   <div class="relative">
-    <div class="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 transition-colors"
+    <div
+      class="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-dark-accent transition-colors"
       @click="toggleDropdown">
-      <div class="w-9 h-9 bg-gray-400 rounded-full flex items-center justify-center text-white">
+      <div class="w-9 h-9 bg-gray-400 dark:bg-gray-600 rounded-full flex items-center justify-center text-white">
         <UserIcon class="w-5 h-5" />
       </div>
-      <span class="text-sm font-medium text-gray-700 hidden sm:block">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300 hidden sm:block">
         {{ user?.name || 'Usuário' }}
       </span>
-      <ChevronDownIcon class="text-gray-500 w-4 h-4" />
+      <ChevronDownIcon class="text-gray-500 dark:text-gray-400 w-4 h-4" />
     </div>
 
     <!-- Dropdown Menu -->
     <div v-if="isOpen"
-      class="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+      class="absolute top-full right-0 mt-2 w-48 bg-white dark:bg-dark-secondary rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
 
       <!-- Perfil - Ocultar quando hideProfile for true -->
       <Link v-if="!hideProfile" href="/profile/info"
-        class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-gray-700 hover:bg-gray-50"
+        class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-accent"
         @click="isOpen = false">
       <UserIcon class="w-4 h-4" />
       <span>Perfil</span>
       </Link>
 
       <!-- Bloqueio de Tela -->
-      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-gray-700 hover:bg-gray-50"
+      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-accent"
         @click="handleItemClick({ text: 'Bloqueio de Tela' })">
         <LockClosedIcon class="w-4 h-4" />
         <span>Bloqueio de Tela</span>
       </a>
 
       <!-- Sair - URL direta -->
-      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-red-600 hover:bg-red-50"
+      <a class="flex items-center gap-3 px-4 py-2 text-sm transition-colors cursor-pointer text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
         @click="handleLogout">
         <ArrowRightOnRectangleIcon class="w-4 h-4" />
         <span>Sair</span>
@@ -49,6 +50,7 @@ import {
   LockClosedIcon,
   ArrowRightOnRectangleIcon
 } from '@heroicons/vue/24/outline'
+
 
 const props = defineProps({
   user: {
@@ -80,9 +82,7 @@ const toggleDropdown = () => {
 }
 
 const handleLogout = () => {
-  if (confirm('Tem certeza que deseja sair?')) {
-    router.post('/logout')
-  }
+  router.post('/logout')
   isOpen.value = false
 }
 

@@ -1,16 +1,27 @@
 <template>
     <div class="min-h-screen bg-gray-100">
+        <!-- Spinner Global do Inertia -->
+        <div v-if="inertiaLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[60]">
+            <div class="text-center py-8">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-brand mx-auto mb-4"></div>
+                <p class="text-white text-lg font-medium">A redirecionar...</p>
+                <p class="text-gray-300 text-sm mt-2">Por favor, aguarde</p>
+            </div>
+        </div>
+
+
         <!-- Mobile Layout -->
         <div class="md:hidden w-full h-screen flex flex-col">
             <!-- Login Form (Mobile) -->
             <div v-if="!isRightPanelActive" class="bg-white flex-1 flex flex-col">
-                <LoginForm :loading="loading" :errors="errors" :success="success" @submit="handleLogin"
-                    @switch-to-register="switchToRegister" />
+                <LoginForm :loading="loginLoading" :errors="errors" :success="success" @submit="handleLogin"
+                    @switch-to-register="switchToRegister" @show-error="showErrorPopup"
+                    @show-success="showSuccessPopup" />
             </div>
 
             <!-- Register Form (Mobile) -->
-            <div v-if="isRightPanelActive" class="bg-white flex-1 flex flex-col">
-                <RegisterForm :loading="loading" :errors="errors" @submit="handleRegister"
+            <div v-else-if="isRightPanelActive" class="bg-white flex-1 flex flex-col">
+                <RegisterForm :loading="registerLoading" :errors="errors" @submit="handleRegister"
                     @switch-to-login="switchToLogin" />
             </div>
 
@@ -24,7 +35,7 @@
                             <div
                                 class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
                                 <p class="text-base leading-6 text-white text-justify text-center">
-                                    Denuncie aqui! É importante que suas reclamações sejam ouvidas e que possamos
+                                    Queixe-se aqui! É importante que suas reclamações sejam ouvidas e que possamos
                                     tomar as medidas necessárias para resolver os problemas.
                                 </p>
                             </div>
@@ -33,7 +44,7 @@
                             <div
                                 class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
                                 <p class="text-base leading-6 text-white text-justify text-center">
-                                    Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer falha
+                                    Percebeu algum problema? Estamos aqui para ouvir você! Queixe-se de qualquer falha
                                     que tenha identificado. Sua participação é fundamental para corrigirmos
                                     rapidamente e assegurarmos o sucesso e a excelência do projeto.
                                 </p>
@@ -71,14 +82,15 @@
                 <!-- Login Form -->
                 <div
                     class="form-container sign-in-container absolute top-0 h-full w-1/2 transition-all duration-600 ease-in-out z-20">
-                    <LoginForm :loading="loading" :errors="errors" @submit="handleLogin"
-                        @switch-to-register="switchToRegister" />
+                    <LoginForm :loading="loginLoading" :errors="errors" :success="success" @submit="handleLogin"
+                        @switch-to-register="switchToRegister" @show-error="showErrorPopup"
+                        @show-success="showSuccessPopup" />
                 </div>
 
                 <!-- Register Form -->
                 <div
                     class="form-container sign-up-container absolute top-0 h-full w-1/2 transition-all duration-600 ease-in-out z-10 opacity-0 left-0">
-                    <RegisterForm :loading="loading" :errors="errors" @submit="handleRegister"
+                    <RegisterForm :loading="registerLoading" :errors="errors" @submit="handleRegister"
                         @switch-to-login="switchToLogin" />
                 </div>
 
@@ -101,7 +113,7 @@
                                         <div
                                             class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Denuncie aqui! É importante que suas reclamações sejam ouvidas e que
+                                                Queixe-se aqui! É importante que suas reclamações sejam ouvidas e que
                                                 possamos
                                                 tomar as medidas necessárias para resolver os problemas.
                                             </p>
@@ -111,7 +123,7 @@
                                         <div
                                             class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer
+                                                Percebeu algum problema? Estamos aqui para ouvir você! Queixe-se de qualquer
                                                 falha
                                                 que tenha identificado. Sua participação é fundamental para corrigirmos
                                                 rapidamente e assegurarmos o sucesso e a excelência do projeto.
@@ -156,7 +168,7 @@
                                         <div
                                             class="slide absolute top-0 left-0 w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Denuncie aqui! É importante que suas reclamações sejam ouvidas e que
+                                                Queixe-se aqui! É importante que suas reclamações sejam ouvidas e que
                                                 possamos
                                                 tomar as medidas necessárias para resolver os problemas.
                                             </p>
@@ -166,7 +178,7 @@
                                         <div
                                             class="slide absolute top-0 left-full w-full h-full flex flex-col items-center justify-center p-4">
                                             <p class="text-base leading-6 text-white text-justify text-center">
-                                                Percebeu algum problema? Estamos aqui para ouvir você! Denuncie qualquer
+                                                Percebeu algum problema? Estamos aqui para ouvir você! Queixe-se de qualquer
                                                 falha
                                                 que tenha identificado. Sua participação é fundamental para corrigirmos
                                                 rapidamente e assegurarmos o sucesso e a excelência do projeto.
@@ -202,6 +214,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- Success Popup -->
         <div v-if="showSuccessPopup"
             class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-auto shadow-xl">
@@ -214,7 +228,29 @@
                     </div>
                     <h3 class="text-lg font-semibold text-gray-900 mb-2">Sucesso!</h3>
                     <p class="text-gray-600 mb-4">Login realizado com sucesso</p>
-                    <button @click="showSuccessPopup = false"
+                    <p class="text-gray-500 text-sm mb-4">A redirecionar automaticamente...</p>
+                    <button @click="closeSuccessPopup"
+                        class="w-full bg-[#F15F22] text-white py-2 px-4 rounded-lg hover:bg-[#e5561a] transition-colors">
+                        OK
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Error Popup -->
+        <div v-if="showErrorPopup"
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-auto shadow-xl">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Erro!</h3>
+                    <p class="text-gray-600 mb-4">{{ errorMessage }}</p>
+                    <button @click="showErrorPopup = false"
                         class="w-full bg-[#F15F22] text-white py-2 px-4 rounded-lg hover:bg-[#e5561a] transition-colors">
                         OK
                     </button>
@@ -232,31 +268,73 @@ import RegisterForm from '../../Components/Authenticate/RegisterForm.vue'
 
 const page = usePage()
 const isRightPanelActive = ref(page.props.initialPanel === 'register')
-const loading = ref(false)
+const loginLoading = ref(false)
+const registerLoading = ref(false)
+const showRouteLoading = ref(false)
 const currentLeftSlide = ref(0)
 const currentRightSlide = ref(0)
 const currentMobileSlide = ref(0)
 const showSuccessPopup = ref(false)
-
-// Watch para detectar login bem-sucedido
-watch(() => usePage().props.auth.user, (newUser) => {
-    if (newUser) {
-        showSuccessPopup.value = true
-        // Fechar popup automaticamente após 3 segundos e redirecionar
-        setTimeout(() => {
-            showSuccessPopup.value = false
-        }, 3000)
-    }
-}, { deep: true })
+const showErrorPopup = ref(false)
+const errorMessage = ref('')
 const success = ref(false)
+const inertiaLoading = ref(false)
+const redirecting = ref(false)
 
 const errors = computed(() => {
     return usePage().props.errors || {}
 })
 
-// Atualize o handleLogin para detectar sucesso:
+// Configurar listeners globais do Inertia
+router.on('start', () => {
+    inertiaLoading.value = true
+})
+
+router.on('finish', () => {
+    inertiaLoading.value = false
+})
+
+// Funções para mostrar popups
+const showSuccessPopupModal = () => {
+    showSuccessPopup.value = true
+    setTimeout(() => {
+        showSuccessPopup.value = false
+        redirecting.value = true
+    }, 5000)
+}
+
+const showErrorPopupModal = (message = 'Credenciais inválidas. Por favor, tente novamente.') => {
+    errorMessage.value = message
+    showErrorPopup.value = true
+}
+
+// Fechar popup de sucesso
+const closeSuccessPopup = () => {
+    showSuccessPopup.value = false
+    redirecting.value = true
+}
+
+// Funções para alternar entre formulários
+const switchToRegister = () => {
+    router.get('/register', {}, {
+        onSuccess: () => {
+            isRightPanelActive.value = true
+        }
+    })
+}
+
+const switchToLogin = () => {
+    router.get('/login', {}, {
+        onSuccess: () => {
+            isRightPanelActive.value = false
+        }
+    })
+}
+
 const handleLogin = async (e) => {
-    loading.value = true
+    loginLoading.value = true
+    success.value = false // Resetar estado de sucesso
+
     const form = new FormData(e.target)
     const data = {
         username: form.get('username'),
@@ -266,22 +344,67 @@ const handleLogin = async (e) => {
 
     try {
         await router.post('/login', data, {
-            onSuccess: () => {
-                success.value = true
-                // O popup será mostrado automaticamente pelo watch no LoginForm
+            onStart: () => {
+                loginLoading.value = true
+            },
+            onSuccess: (page) => {
+                // Verificar se o login foi bem-sucedido (usuário autenticado)
+                if (page.props.auth && page.props.auth.user) {
+                    success.value = true
+                    loginLoading.value = false
+                    showSuccessPopupModal()
+                }
             },
             onError: (errors) => {
                 success.value = false
+                loginLoading.value = false
+                if (errors.auth_error) {
+                    showErrorPopupModal(errors.auth_error)
+                }
+            },
+            onFinish: () => {
+                loginLoading.value = false
             }
         })
     } catch (err) {
         console.error("Erro de login:", err)
         success.value = false
-    } finally {
-        loading.value = false
+        loginLoading.value = false
+        showErrorPopupModal('Erro ao fazer login. Tente novamente.')
     }
 }
 
+const handleRegister = async (e) => {
+    registerLoading.value = true
+    const form = new FormData(e.target)
+    const data = {
+        name: form.get('name'),
+        username: form.get('username'),
+        email: form.get('email'),
+        password: form.get('password'),
+        password_confirmation: form.get('password_confirmation')
+    }
+
+    try {
+        await router.post('/register', data, {
+            onStart: () => {
+                registerLoading.value = true
+            },
+            onSuccess: () => {
+                registerLoading.value = false
+            },
+            onError: (errors) => {
+                registerLoading.value = false
+            },
+            onFinish: () => {
+                registerLoading.value = false
+            }
+        })
+    } catch (err) {
+        console.error("Erro de cadastro:", err)
+        registerLoading.value = false
+    }
+}
 
 let leftSlideInterval
 let rightSlideInterval
@@ -343,35 +466,6 @@ const resetMobileInterval = () => {
     }, 10000)
 }
 
-const switchToRegister = () => {
-    router.get('/register')
-}
-
-const switchToLogin = () => {
-    router.get('/login')
-}
-
-const handleRegister = async (e) => {
-    loading.value = true
-    const form = new FormData(e.target)
-    const data = {
-        name: form.get('name'),
-        username: form.get('username'),
-        email: form.get('email'),
-        password: form.get('password'),
-        password_confirmation: form.get('password_confirmation')
-    }
-
-    try {
-        await router.post('/register', data)
-    } catch (err) {
-        console.error("Erro de cadastro:", err)
-    } finally {
-        loading.value = false
-    }
-}
-
-
 onMounted(() => {
     startSlideRotation()
 })
@@ -379,7 +473,6 @@ onMounted(() => {
 onUnmounted(() => {
     stopSlideRotation()
 })
-
 </script>
 
 <style scoped>

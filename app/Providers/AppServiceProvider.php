@@ -2,8 +2,12 @@
 
 namespace App\Providers;
 
+use App\Events\GrievanceAutoAssigned;
+use App\Listeners\NotifyTechnicianOfAssignment;
 use App\Models\Grievance;
 use App\Observers\GrievanceObserver;
+use App\Observers\GrievanceAssignmentObserver;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -31,5 +35,12 @@ class AppServiceProvider extends ServiceProvider
 
         // Register model observers
         Grievance::observe(GrievanceObserver::class);
+        Grievance::observe(GrievanceAssignmentObserver::class);
+
+        // Register event listeners
+        Event::listen(
+            GrievanceAutoAssigned::class,
+            NotifyTechnicianOfAssignment::class
+        );
     }
 }

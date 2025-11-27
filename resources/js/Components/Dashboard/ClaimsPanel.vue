@@ -199,11 +199,11 @@ const tableData = ref([
 ])
 
 const viewDetails = (row) => {
-    alert(`Visualizando detalhes da reclamação: ${row.name}\nBairro: ${row.neighborhood}\nEstado: ${row.status.text}`)
+    console.log(`Visualizando detalhes da reclamação: ${row.name}, Bairro: ${row.neighborhood}, Estado: ${row.status.text}`)
 }
 
 const registerNew = () => {
-    alert('Abrir formulário para registrar nova reclamação')
+    console.log('Abrir formulário para registrar nova reclamação')
 }
 </script>
 

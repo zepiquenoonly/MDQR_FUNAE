@@ -3,7 +3,7 @@ Nova Atualização
 
 Prezado(a),
 
-Foi adicionado um novo comentário à sua reclamação.
+Foi adicionado um novo comentário à sua {{ $grievance->type_label_lowercase }}.
 
 Número de Referência: {{ $grievance->reference_number }}
 
@@ -18,7 +18,7 @@ Número de Referência: {{ $grievance->reference_number }}
 Para ver todas as atualizações, aceda a:
 {{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
 
-Continue a acompanhar o progresso da sua reclamação através do link acima.
+Continue a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} através do link acima.
 
 Atenciosamente,
 Equipa FUNAE

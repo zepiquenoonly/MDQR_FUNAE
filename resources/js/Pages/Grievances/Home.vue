@@ -4,15 +4,12 @@
         <header class="sticky top-0 z-40 bg-white shadow-sm">
             <div class="px-4 py-4">
                 <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                        <div class="flex items-center justify-center w-10 h-10 shadow-lg rounded-xl bg-gradient-to-br from-orange-500 to-orange-600">
-                            <span class="text-xl font-bold text-white">F</span>
+                    <a href="/">
+                        <div class="flex items-center space-x-3">
+
+                            <img src="/images/Logotipo-scaled.png" class="w-20" />
                         </div>
-                        <div>
-                            <h1 class="text-lg font-bold text-gray-900">FUNAE</h1>
-                            <p class="text-xs text-gray-500">Reclamações</p>
-                        </div>
-                    </div>
+                    </a>
                     <a
                         href="/login"
                         class="flex items-center px-3 py-2 space-x-2 text-sm font-medium text-gray-700 transition-all bg-gray-100 rounded-xl hover:bg-gray-200 active:scale-95"
@@ -70,10 +67,17 @@
                     </button>
 
                     <!-- Rastrear Reclamação -->
+                     <a href="/track">
+
+
                     <button
+
+                        class="w-full p-5 mt-5 transition-all bg-white border-2 border-transparent shadow-lg rounded-2xl hover:shadow-xl active:scale-95 hover:border-orange-100"
+                    >
+                    <!-- <button
                         @click="openTracking"
                         class="w-full p-5 transition-all bg-white border-2 border-transparent shadow-lg rounded-2xl hover:shadow-xl active:scale-95 hover:border-orange-100"
-                    >
+                    > -->
                         <div class="flex items-start space-x-4">
                             <div class="flex-shrink-0">
                                 <div class="flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl">
@@ -91,6 +95,7 @@
                             </svg>
                         </div>
                     </button>
+                         </a>
                 </div>
 
                 <!-- Info Cards -->
@@ -120,16 +125,7 @@
                 </div>
 
                 <!-- Stats -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="p-4 text-center bg-white shadow-sm rounded-xl">
-                        <div class="mb-1 text-2xl font-bold text-orange-600">24h</div>
-                        <div class="text-xs text-gray-600">Tempo médio de resposta</div>
-                    </div>
-                    <div class="p-4 text-center bg-white shadow-sm rounded-xl">
-                        <div class="mb-1 text-2xl font-bold text-green-600">95%</div>
-                        <div class="text-xs text-gray-600">Taxa de resolução</div>
-                    </div>
-                </div>
+
             </section>
 
             <!-- Complaint Form Section -->
