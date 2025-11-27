@@ -27,7 +27,7 @@
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
         }
         .email-header {
-            /* background-color: #F15F22; */
+            background-color: #ffffff;
             padding: 32px 40px;
             text-align: center;
         }
@@ -295,8 +295,8 @@
         <div class="email-container">
             <div class="email-header">
                 <img src="{{ asset('images/Logotipo-scaled.png') }}" alt="FUNAE Logo" class="email-header-logo">
-                {{-- <h1>@yield('title', 'FUNAE')</h1> --}}
             </div>
+
             @yield('content')
 
             <div class="email-footer">
