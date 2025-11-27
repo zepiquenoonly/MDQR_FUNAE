@@ -53,6 +53,7 @@ class GrievanceFactory extends Factory
 
         return [
             'reference_number' => Grievance::generateReferenceNumber(),
+            'type' => $this->faker->randomElement(['grievance', 'complaint', 'suggestion']),
             'description' => $this->faker->paragraphs(3, true),
             'category' => $this->faker->randomElement($categories),
             'subcategory' => $this->faker->optional(0.7)->word(),
