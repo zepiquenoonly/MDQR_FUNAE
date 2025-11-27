@@ -204,8 +204,9 @@
             text-decoration: line-through;
         }
         .status-new {
-            background: linear-gradient(135deg, #F15F22 0%, #e54d10 100%);
-            color: #ffffff;
+            background-color: #f3f4f6;
+            color: #ea580c;
+            text-decoration: line-through;
         }
         .status-arrow {
             display: inline-block;
