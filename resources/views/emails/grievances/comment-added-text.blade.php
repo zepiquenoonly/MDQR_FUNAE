@@ -15,9 +15,6 @@ Número de Referência: {{ $grievance->reference_number }}
 {{ $update->description }}
 @endif
 
-Para ver todas as atualizações, aceda a:
-{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
-
 Continue a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} através do link acima.
 
 Atenciosamente,

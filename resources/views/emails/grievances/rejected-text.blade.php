@@ -16,9 +16,6 @@ Justificativa:
 {{ $reason }}
 @endif
 
-Para ver os detalhes completos, aceda a:
-{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
-
 O que fazer agora?
 - Pode rever os detalhes da análise através do link acima
 - Se discordar da decisão, pode submeter uma nova reclamação com informações adicionais

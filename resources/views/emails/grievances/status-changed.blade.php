@@ -15,7 +15,7 @@
         <div class="reference-number">{{ $grievance->reference_number }}</div>
     </div>
 
-    <div class="status-change">
+    <div class="status-change" style="border-color: #ff7300; background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);">
         <span class="status-badge status-old">{{ $oldStatusLabel }}</span>
         <span class="status-arrow">→</span>
         <span class="status-badge status-new">{{ $newStatusLabel }}</span>

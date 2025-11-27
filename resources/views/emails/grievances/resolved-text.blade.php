@@ -21,9 +21,6 @@ Detalhes da Resolução:
 {{ $grievance->resolution_notes }}
 @endif
 
-Para ver todos os detalhes, aceda a:
-{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
-
 Agradecemos a sua colaboração!
 
 Se tiver alguma dúvida sobre a resolução ou se o problema persistir, 
