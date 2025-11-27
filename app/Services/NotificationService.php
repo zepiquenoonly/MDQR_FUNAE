@@ -36,7 +36,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_GRIEVANCE_CREATED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Recebida - {$grievance->reference_number}",
+            'subject' => "Reclamação Recebida - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => "A sua reclamação foi recebida com sucesso e está a ser analisada pela nossa equipa.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -74,7 +74,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_STATUS_CHANGED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Atualização de Status - {$grievance->reference_number}",
+            'subject' => "Atualização de Status - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => $this->getStatusChangeMessage($oldStatus, $newStatus),
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -107,7 +107,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_ASSIGNED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Atribuída - {$grievance->reference_number}",
+            'subject' => "Reclamação Atribuída - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => "A sua reclamação foi atribuída a {$assignedUser->name} e está a ser analisada.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -145,7 +145,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_COMMENT_ADDED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Nova Atualização - {$grievance->reference_number}",
+            'subject' => "Nova Atualização - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => "Foi adicionado um novo comentário à sua reclamação.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -178,7 +178,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_RESOLVED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Resolvida - {$grievance->reference_number}",
+            'subject' => "Reclamação Resolvida - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => "A sua reclamação foi resolvida. Consulte os detalhes da resolução.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -211,7 +211,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_REJECTED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Não Procedente - {$grievance->reference_number}",
+            'subject' => "Reclamação Não Procedente - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => "A sua reclamação foi analisada e considerada não procedente.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -471,5 +471,18 @@ class NotificationService
     protected function isSMSEnabled(): bool
     {
         return config('services.sms.enabled', false);
+    }
+
+    /**
+     * Obter rótulo do tipo de reclamação
+     */
+    protected function getTypeLabel(string $type): string
+    {
+        return match($type) {
+            'grievance' => 'Reclamação',
+            'complaint' => 'Queixa',
+            'suggestion' => 'Sugestão',
+            default => ucfirst($type),
+        };
     }
 }
