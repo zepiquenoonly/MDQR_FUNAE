@@ -47,7 +47,7 @@ class GrievanceController extends Controller
 
     // Query para TODOS os dados (sem filtros)
     $allGrievancesQuery = Grievance::query();
-    
+
     if ($user->hasRole('utente')) {
         $allGrievancesQuery->where('user_id', $user->id)
             ->orWhere(function ($query) use ($user) {
@@ -105,6 +105,8 @@ class GrievanceController extends Controller
         try {
             // Validação dos dados
             $validated = $request->validate([
+                'project_id' => 'nullable|exists:projects,id',
+                'type' => 'required|in:complaint,grievance,suggestion',
                 'description' => 'required|string|min:10',
                 'category' => 'required|string',
                 'subcategory' => 'nullable|string',
@@ -123,6 +125,8 @@ class GrievanceController extends Controller
 
             // Preparar dados da reclamação
             $grievanceData = [
+                'project_id' => $validated['project_id'] ?? null,
+                'type' => $validated['type'],
                 'description' => $validated['description'],
                 'category' => $validated['category'],
                 'subcategory' => $validated['subcategory'] ?? null,
@@ -162,7 +166,7 @@ class GrievanceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Reclamação submetida com sucesso!',
+                'message' => 'Submissão feita com sucesso!',
                 'reference_number' => $grievance->reference_number,
                 'grievance' => $grievance->load('attachments')
             ], 201);
@@ -176,14 +180,14 @@ class GrievanceController extends Controller
             ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao submeter reclamação: ' . $e->getMessage(), [
+            $erro = Log::error('Erro ao submeter reclamação: ' . $e->getMessage(), [
                 'exception' => $e,
                 'user_id' => auth()->id(),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao submeter reclamação. Por favor, tente novamente.'
+                'message' => $erro, // 'Erro ao submeter reclamação. Por favor, tente novamente.'
             ], 500);
         }
     }
@@ -367,6 +371,25 @@ class GrievanceController extends Controller
     }
 
     /**
+     * Get projects for grievance form.
+     */
+    public function getProjects()
+    {
+        $projects = \App\Models\Project::select('id', 'name', 'provincia', 'distrito')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($project) {
+                return [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'location' => trim(($project->provincia ?? '') . ' - ' . ($project->distrito ?? ''), ' - '),
+                ];
+            });
+
+        return response()->json($projects);
+    }
+
+    /**
      * Bulk assign grievances to technicians
      */
     public function bulkAssign()
@@ -388,7 +411,7 @@ class GrievanceController extends Controller
 
             foreach ($unassignedGrievances as $grievance) {
                 $technician = $technicians[$technicianIndex];
-                
+
                 $grievance->update([
                     'assigned_to' => $technician->id,
                     'status' => 'in_progress',
@@ -414,9 +437,9 @@ class GrievanceController extends Controller
     {
         try {
             $filters = $request->only(['priority', 'status', 'category', 'type']);
-            
+
             $query = Grievance::query();
-            
+
             // Aplicar filtros
             foreach ($filters as $field => $value) {
                 if ($value) {
