@@ -100,6 +100,9 @@ Route::middleware('auth')->group(function () {
             Route::post('/grievances/bulk-assign', [GrievanceController::class, 'bulkAssign'])->name('complaints.bulk-assign');
 Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('complaints.export');
 
+         Route::get('/{grievance}', [ManagerGrievanceController::class, 'show'])
+        ->name('grievance.show');
+
     });
 
 
