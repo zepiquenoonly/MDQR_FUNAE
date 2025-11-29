@@ -116,7 +116,12 @@ Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('
 
         Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
         Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
+        //Route::patch('/extended', [ProfileController::class, 'updateExtended'])->name('profile.update.extended');
         Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+        Route::post('/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar.upload');
+        Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('profile.avatar.delete');
+        Route::get('/avatar', [ProfileController::class, 'getAvatar'])->name('profile.avatar.get');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -215,7 +220,6 @@ Route::get('/api/tecnicos/{tecnicoId}/desempenho', function ($tecnicoId) {
         return response()->json(['error' => 'Erro ao carregar dados'], 500);
     }
 })->name('api.tecnicos.desempenho');
-
 
 
 });

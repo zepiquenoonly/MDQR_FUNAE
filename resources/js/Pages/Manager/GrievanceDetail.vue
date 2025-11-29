@@ -369,7 +369,7 @@
               <button
                 @click="openPriorityModal"
                 :disabled="loading.priority"
-                class="w-full bg-brand text-white px-4 py-3 rounded-lg font-semibold hover:bg-orange-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
+                class="w-full bg-brand text-white px-4 py-3 rounded font-semibold hover:bg-orange-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
               >
                 <template v-if="loading.priority">
                   <div
@@ -387,7 +387,7 @@
               <button
                 @click="openReassignModal"
                 :disabled="loading.reassign"
-                class="w-full bg-white dark:bg-dark-accent text-gray-700 dark:text-gray-300 px-4 py-3 rounded-lg font-semibold border border-gray-300 dark:border-gray-600 hover:border-brand transition-all shadow-sm text-sm flex items-center justify-center gap-2"
+                class="w-full bg-white dark:bg-dark-accent text-gray-700 dark:text-gray-300 px-4 py-3 rounded font-semibold border border-gray-300 dark:border-gray-600 hover:border-brand transition-all shadow-sm text-sm flex items-center justify-center gap-2"
               >
                 <template v-if="loading.reassign">
                   <div
@@ -404,7 +404,7 @@
               <button
                 @click="sendToDirector"
                 :disabled="loading.sendToDirector"
-                class="w-full bg-blue-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
+                class="w-full bg-blue-600 text-white px-4 py-3 rounded font-semibold hover:bg-blue-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
               >
                 <template v-if="loading.sendToDirector">
                   <div
@@ -421,7 +421,7 @@
               <button
                 @click="markComplete"
                 :disabled="loading.markComplete"
-                class="w-full bg-green-600 text-white px-4 py-3 rounded-lg font-semibold hover:bg-green-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
+                class="w-full bg-green-600 text-white px-4 py-3 rounded font-semibold hover:bg-green-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
               >
                 <template v-if="loading.markComplete">
                   <div
@@ -444,7 +444,7 @@
     <div
       v-if="toast.show"
       :class="[
-        'fixed left-4 right-4 sm:left-auto sm:right-4 top-4 z-50 p-4 rounded-lg shadow-lg border transform transition-all duration-300 max-w-sm',
+        'fixed left-4 right-4 sm:left-auto sm:right-4 top-4 z-50 p-4 rounded shadow-lg border transform transition-all duration-300 max-w-sm',
         toast.type === 'success'
           ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300'
           : toast.type === 'error'
@@ -681,17 +681,23 @@ const reassignTechnician = async (technicianId) => {
             }
           }
           showReassignModal.value = false;
-          showToast("Técnico Alocado", "success");
+
+          // Mostrar toast com mensagem de sucesso
+          if (response.props.message) {
+            showToast(response.props.message, "success");
+          } else {
+            showToast("Técnico atribuído com sucesso!", "success");
+          }
         },
         onError: (errors) => {
           console.error("Erro ao reatribuir técnico:", errors);
-          showToast("Erro ao alocar técnico", "error");
+          showToast("Erro ao atribuir técnico", "error");
         },
       }
     );
   } catch (error) {
     console.error("Erro na requisição:", error);
-    showToast("Erro ao alocar técnico", "error");
+    showToast("Erro ao atribuir técnico", "error");
   } finally {
     loading.reassign = false;
   }

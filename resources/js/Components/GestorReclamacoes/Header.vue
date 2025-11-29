@@ -8,7 +8,7 @@
         <!-- Botão hambúrguer - SEMPRE VISÍVEL EM MOBILE -->
         <button
           @click="$emit('toggle-sidebar')"
-          class="hover:text-orange-600 dark:hover:text-orange-400 transition-colors p-1 sm:p-2"
+          class="hover:text-orange-600 dark:text-white dark:hover:text-orange-400 transition-colors p-1 sm:p-2"
         >
           <Bars3Icon class="w-5 h-5 sm:w-6 sm:h-6" />
         </button>

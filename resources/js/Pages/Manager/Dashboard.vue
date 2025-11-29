@@ -84,7 +84,7 @@
             </button>
           </div>
           <div class="p-3 sm:p-6">
-            <ComplaintDetails
+            <GrievanceDetails
               :complaint="selectedComplaint"
               :technicians="safeTechnicians"
               :hide-buttons="true"
@@ -108,7 +108,7 @@ import { XMarkIcon } from "@heroicons/vue/24/outline";
 import Layout from "@/Layouts/ManagerLayout.vue";
 import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
 import ComplaintsList from "@/Components/GestorReclamacoes/ComplaintsList.vue";
-import ComplaintDetails from "@/Components/GestorReclamacoes/ComplaintDetails.vue";
+import GrievanceDetails from "./GrievanceDetail.vue";
 import ProjectsManager from "@/Components/Dashboard/ProjectsManager.vue";
 import TecnicoList from "@/Components/GestorReclamacoes/TecnicoList.vue";
 

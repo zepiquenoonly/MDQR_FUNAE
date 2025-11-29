@@ -44,6 +44,8 @@ class User extends Authenticatable
         'district',
         'neighborhood',
         'street',
+        'avatar_path',
+        'avatar_url', 
         'workload_capacity',
         'current_workload',
         'is_available',
@@ -194,4 +196,6 @@ class User extends Authenticatable
         
         return $specialization ? $specialization->proficiency_level : 0;
     }
+
+    
 }
