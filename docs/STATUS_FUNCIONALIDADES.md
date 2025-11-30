@@ -6,12 +6,15 @@
 |-------|--------|------|--------|
 | 1     | Utente | Acede à plataforma via web/app | ✅ Implementado |
 | 2     | Utente | Escolhe entre submissão anónima ou identificada | ✅ Implementado |
-| 3     | Utente | Preenche o formulário (tipo, descrição, localização, categoria, anexos) | ✅ Implementado |
-| 4     | Sistema| Valida os dados do formulário | ✅ Implementado |
-| 5     | Sistema| Gera código único de rastreio | ✅ Implementado |
-| 6     | Sistema| Envia notificação de confirmação (email/SMS) | ✅ Implementado |
-| 7     | Sistema| Aloca automaticamente a reclamação a um técnico | ✅ Implementado |
-| 8     | Sistema| Notifica o Gestor e Técnico alocado | ✅ Implementado |
+| 3     | Utente | Escolhe um Projecto | 🚧 Por Implementar |
+| 4     | Utente | Escolhe um tipo (Reclamação, Sugestão ou Dúvida) | 🚧 Por Implementar |
+| 5     | Utente | Preenche o formulário (descrição, localização, categoria) | ✅ Implementado |
+| 6     | Utente | Possibilidade de falar ou anexar um áudio | 🚧 Por Implementar |
+| 7     | Sistema| Valida os dados do formulário | ✅ Implementado |
+| 8     | Sistema| Gera código único de rastreio | ✅ Implementado |
+| 9     | Sistema| Envia notificação de confirmação (email) | ✅ Implementado |
+| 10    | Sistema| Aloca automaticamente a reclamação a um técnico | 🚧 Parcial |
+| 11    | Sistema| Notifica o Gestor e Técnico alocado | 🚧 Parcial |
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
