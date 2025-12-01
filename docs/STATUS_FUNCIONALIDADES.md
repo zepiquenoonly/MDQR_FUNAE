@@ -19,6 +19,17 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - 🚧 Parcialmente Implementado
 - ❌ Por Implementar
 
+## Resumo por Fluxo (visão rápida)
+
+| Fluxo | Descrição curta | Estado agregado |
+|-------|-----------------|-----------------|
+| Fluxo 1 | Submissão de Reclamações | 🚧 Parcial / Por Implementar |
+| Fluxo 2 | Triagem e Atribuição | ✅ Implementado |
+| Fluxo 3 | Resolução pelo Técnico | ✅ Implementado |
+| Fluxo 4 | Acompanhamento pelo Utente | ✅ Implementado |
+| Fluxo 5 | Relatórios e Estatísticas | 🚧 Parcial |
+
+
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
 
@@ -146,17 +157,35 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 **Observação:** O sistema de notificações depende da correta configuração dos emails automáticos (SMTP). Recomenda-se validar as configurações em ambiente de produção para garantir o envio confiável de todas as notificações.
 
 
-## Backlog (Por Implementar)
+## Backlog (Por Implementar) — Agrupado
+
+### UX / Produto
+
+- Segmentação do formulário e feedback visual (toast, loading)
+- Onboarding guiado e documentação multilíngue (PT, EN, Changana)
+- Melhorias de UX: toast notifications, loading spinners, pop-ups de confirmação
+
+### Relatórios / Dados
 
 - Exportação avançada de relatórios (PDF/Excel customizado)
 - Relatórios agendados por email
 - Análise preditiva e alertas automáticos
-- Filtros avançados e comparação de períodos
-- Onboarding guiado e documentação multilíngue (PT, EN, Changana)
-- Alertas automáticos para métricas críticas (SLA, prazos)
 - Comparação entre períodos nos relatórios
-- Integração com SMS gateway alternativos
-- Melhorias de UX: toast notifications, loading spinners, pop-ups de confirmação
+- Relatórios customizados por perfil (Gestor, PCA, Técnico)
+
+### Técnicas / Infraestrutura
+
 - Refino de validações finais e tratamento de excepções
-- Integração com sistemas de autenticação externa (SSO, OAuth)
 - Auditoria detalhada de acções e logs de sistema
+- Painel de administração para gestão de parâmetros do sistema
+
+### Integrações
+
+- Integração com SMS gateway alternativos
+- Integração com sistemas de autenticação externa (SSO, OAuth)
+
+### Ações rápidas / Prioridade para apresentação
+
+- Finalizar padronização de layout e components críticos
+- Implementar gravação de áudio mínima (MP3) para submissão
+- Garantir SMTP configurado e testes de envio OK
