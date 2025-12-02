@@ -42,117 +42,121 @@
             <!-- Gestão de Casos Section -->
             <MenuSection :is-collapsed="isCollapsed && !isMobile" :stats="stats" :user="user" @item-clicked="handleMenuItemClick" />
         </div>
-    </aside>
+      </div>
+    </div>
+
+    <!-- Menu Sections -->
+    <div class="flex-1 overflow-y-auto overflow-x-hidden">
+      <!-- Gestão de Casos Section -->
+      <MenuSection
+        :is-collapsed="isCollapsed && !isMobile"
+        :stats="stats"
+        :user="user"
+        @item-clicked="handleMenuItemClick"
+      />
+    </div>
+  </aside>
 </template>
 
 <script setup>
-import { inject, computed, ref, onMounted, onUnmounted } from 'vue'
-import { router } from '@inertiajs/vue3'
-import {
-    Bars3Icon,
-    XMarkIcon
-} from '@heroicons/vue/24/outline'
-import MenuSection from './MenuSection.vue'
+import { inject, computed, ref, onMounted, onUnmounted } from "vue";
+import { router } from "@inertiajs/vue3";
+import { Bars3Icon, XMarkIcon } from "@heroicons/vue/24/outline";
+import MenuSection from "./MenuSection.vue";
 
 // Props
 const props = defineProps({
-    user: {
-        type: Object,
-        required: true
-    },
-    stats: {
-        type: Object,
-        default: () => ({})
-    },
-    isCollapsed: {
-        type: Boolean,
-        default: false
-    }
-})
+  user: {
+    type: Object,
+    required: true,
+  },
+  stats: {
+    type: Object,
+    default: () => ({}),
+  },
+  isCollapsed: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 // Emits
-const emit = defineEmits(['toggle-sidebar'])
+const emit = defineEmits(["toggle-sidebar"]);
 
 // Estado do dashboard e sidebar injetados
-const dashboardState = inject('dashboardState')
-const sidebarState = inject('sidebarState')
-const isMobile = ref(false)
+const dashboardState = inject("dashboardState");
+const sidebarState = inject("sidebarState");
+const isMobile = ref(false);
 
 // Computed para determinar role do usuário
 const userRole = computed(() => {
-    return props.user?.roles?.[0]?.name || props.user?.role || 'Gestor'
-})
+  return props.user?.roles?.[0]?.name || props.user?.role || "Gestor";
+});
 
 // Computed para título do dashboard baseado no role
 const dashboardTitle = computed(() => {
-    const titles = {
-        'PCA': 'Dashboard PCA',
-        'Gestor': 'Gestor de Reclamações',
-        'Técnico': 'Dashboard Técnico'
-    }
-    return titles[userRole.value] || 'Dashboard'
-})
+  const titles = {
+    PCA: "Dashboard PCA",
+    Gestor: "Gestor de Reclamações",
+    Técnico: "Dashboard Técnico",
+  };
+  return titles[userRole.value] || "Dashboard";
+});
 
 // Computed para subtítulo do dashboard
 const dashboardSubtitle = computed(() => {
-    const subtitles = {
-        'PCA': 'Painel Executivo',
-        'Gestor': 'Painel do Gestor',
-        'Técnico': 'Painel do Técnico'
-    }
-    return subtitles[userRole.value] || 'Painel'
-})
+  const subtitles = {
+    PCA: "Painel Executivo",
+    Gestor: "Painel do Gestor",
+    Técnico: "Painel do Técnico",
+  };
+  return subtitles[userRole.value] || "Painel";
+});
 
 // Computed para iniciais do logo
 const logoInitials = computed(() => {
-    const initials = {
-        'PCA': 'PCA',
-        'Gestor': 'GR',
-        'Técnico': 'TEC'
-    }
-    return initials[userRole.value] || 'GR'
-})
+  const initials = {
+    PCA: "PCA",
+    Gestor: "GR",
+    Técnico: "TEC",
+  };
+  return initials[userRole.value] || "GR";
+});
 
 // Computed para painel ativo
 const activePanel = computed(() => {
-    return dashboardState?.activePanel?.value || 'dashboard'
-})
+  return dashboardState?.activePanel?.value || "dashboard";
+});
 
 // Detectar mobile
 const checkMobile = () => {
-    isMobile.value = window.innerWidth < 640
-}
+  isMobile.value = window.innerWidth < 640;
+};
 
 // Função para alternar sidebar
 const toggleSidebar = () => {
-    console.log('Toggle sidebar clicked in Sidebar component')
-    emit('toggle-sidebar')
-}
+  emit("toggle-sidebar");
+};
 
 // Handlers para cliques nos itens do menu
 const handleMenuItemClick = (item) => {
-    console.log('Menu item clicked:', item)
-
-    // Em mobile, fechar a sidebar após clicar em um item
-    if (isMobile.value) {
-        emit('toggle-sidebar', true)
-    }
-
-    // Navegar para a rota correspondente usando Inertia
-    if (item.href) {
-        router.visit(item.href)
-    } else if (item.id) {
-        router.visit(route(`dashboard.${item.id}`))
-    }
-}
+  if (isMobile.value) {
+    emit("toggle-sidebar", true);
+  }
+  if (item.href) {
+    router.visit(item.href);
+  } else if (item.id) {
+    router.visit(route(`dashboard.${item.id}`));
+  }
+};
 
 // Lifecycle
 onMounted(() => {
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-})
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+});
 
 onUnmounted(() => {
-    window.removeEventListener('resize', checkMobile)
-})
+  window.removeEventListener("resize", checkMobile);
+});
 </script>

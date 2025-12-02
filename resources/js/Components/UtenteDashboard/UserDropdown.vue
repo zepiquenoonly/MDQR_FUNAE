@@ -69,82 +69,100 @@ const props = defineProps({
   user: {
     type: Object,
     default: () => ({
-      name: 'Usuário',
-      email: ''
-    })
+      name: "Usuário",
+      email: "",
+    }),
   },
   hideProfile: {
     type: Boolean,
-    default: false
+    default: false,
   },
   bgColor: {
     type: String,
-    default: 'hover:bg-gray-50'
+    default: "hover:bg-gray-50",
   },
   textColor: {
     type: String,
-    default: 'text-gray-700'
-  }
-})
+    default: "text-gray-700",
+  },
+});
 
-const isOpen = ref(false)
-const logoutLoading = ref(false)
+const isOpen = ref(false);
+const logoutLoading = ref(false);
+
+// Função simples para mostrar toast (substitua pelo seu sistema de toast quando disponível)
+const showToast = (message, type = "error") => {
+  // Criar elemento de toast temporário
+  const toast = document.createElement("div");
+  toast.className = `fixed top-5 right-5 px-4 py-3 rounded-lg shadow-lg text-white z-[100] ${
+    type === "error" ? "bg-red-600" : "bg-green-600"
+  }`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  // Remover após 3 segundos
+  setTimeout(() => {
+    toast.remove();
+  }, 3000);
+};
 
 const toggleDropdown = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const handleLogout = async () => {
-
-
-  logoutLoading.value = true
-  isOpen.value = false
+  logoutLoading.value = true;
+  isOpen.value = false;
 
   try {
-    await router.post('/logout', {}, {
-      onStart: () => {
-        logoutLoading.value = true
-      },
-      onSuccess: () => {
-        // O redirecionamento será feito automaticamente pelo Laravel
-        logoutLoading.value = false
-      },
-      onError: () => {
-        logoutLoading.value = false
-        error('Erro ao fazer logout. Tente novamente.')
-      },
-      onFinish: () => {
-        // Garante que o loading seja desativado mesmo em caso de erro
-        setTimeout(() => {
-          logoutLoading.value = false
-        }, 1000)
+    await router.post(
+      "/logout",
+      {},
+      {
+        onStart: () => {
+          logoutLoading.value = true;
+        },
+        onSuccess: () => {
+          // O redirecionamento será feito automaticamente pelo Laravel
+          logoutLoading.value = false;
+        },
+        onError: () => {
+          logoutLoading.value = false;
+          showToast("Erro ao fazer logout. Tente novamente.", "error");
+        },
+        onFinish: () => {
+          // Garante que o loading seja desativado mesmo em caso de erro
+          setTimeout(() => {
+            logoutLoading.value = false;
+          }, 1000);
+        },
       }
-    })
+    );
   } catch (err) {
-    logoutLoading.value = false
-    console.error('Erro no logout:', err)
-    error('Erro ao fazer logout. Tente novamente.')
+    logoutLoading.value = false;
+    console.error("Erro no logout:", err);
+    showToast("Erro ao fazer logout. Tente novamente.", "error");
   }
-}
+};
 
 const handleItemClick = (item) => {
-  console.log('Action:', item.text)
-  isOpen.value = false
-}
+  console.log("Action:", item.text);
+  isOpen.value = false;
+};
 
 // Close dropdown when clicking outside
 const handleClickOutside = (event) => {
-  const dropdown = event.target.closest('.relative')
+  const dropdown = event.target.closest(".relative");
   if (!dropdown) {
-    isOpen.value = false
+    isOpen.value = false;
   }
-}
+};
 
 onMounted(() => {
-  document.addEventListener('click', handleClickOutside)
-})
+  document.addEventListener("click", handleClickOutside);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('click', handleClickOutside)
-})
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
