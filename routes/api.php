@@ -17,6 +17,7 @@ Route::post('/grievances/track', [GrievanceController::class, 'track'])->name('a
 // Rotas auxiliares
 Route::get('/grievances/categories', [GrievanceController::class, 'getCategories'])->name('api.grievances.categories');
 Route::get('/grievances/locations', [GrievanceController::class, 'getLocations'])->name('api.grievances.locations');
+Route::get('/grievances/projects', [GrievanceController::class, 'getProjects'])->name('api.grievances.projects');
 
 // Rotas protegidas (requerem autenticação)
 Route::middleware('auth:sanctum')->group(function () {

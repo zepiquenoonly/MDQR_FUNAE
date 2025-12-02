@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Grievance;
 use App\Models\GrievanceUpdate;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
@@ -27,11 +28,19 @@ class GrievanceSeeder extends Seeder
             $query->where('name', 'Gestor');
         })->first();
 
+        // Get some projects for association
+        $project1 = Project::where('name', 'PROJETO PARQUE EÓLICO DE PEMBA')->first();
+        $project2 = Project::where('name', 'CENTRO DE SAÚDE COMUNITÁRIO')->first();
+        $project3 = Project::where('name', 'ESCOLA PRIMÁRIA COMPLETA')->first();
+        $project4 = Project::where('name', 'SISTEMA DE ÁGUA POTÁVEL')->first();
+        $project5 = Project::where('name', 'MERCADO MUNICIPAL')->first();
+
         // 1. Reclamação Submetida (recente)
         $grievance1 = Grievance::updateOrCreate(
             ['reference_number' => 'GRM-2025-R20UUE0R'],
             [
                 'user_id' => $utente?->id,
+                'project_id' => $project1?->id, // Parque Eólico de Pemba
                 'type' => 'complaint',
                 'description' => 'Verificamos que o projeto de construção da linha de transmissão está a causar desflorestação excessiva na área de Moamba. As árvores centenárias estão a ser cortadas sem autorização ambiental adequada.',
                 'category' => 'ambiental',
@@ -63,6 +72,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-38INYZQH'],
             [
                 'user_id' => $utente?->id,
+                'project_id' => $project3?->id, // Escola Primária Completa
                 'type' => 'grievance',
                 'description' => 'As obras de construção do posto de transformação estão a ser realizadas durante a noite, causando ruído excessivo que perturba o sono dos moradores locais. Já reclamamos várias vezes mas nada foi feito.',
                 'category' => 'social',
@@ -105,6 +115,7 @@ class GrievanceSeeder extends Seeder
             ['reference_number' => 'GRM-2025-M9KPQXZL'],
             [
                 'user_id' => null,
+                'project_id' => $project2?->id, // Centro de Saúde Comunitário
                 'type' => 'complaint',
                 'description' => 'Quero reportar que os trabalhadores da FUNAE não estão a usar equipamento de segurança adequado. Vejo-os a trabalhar em postes de alta tensão sem capacetes ou arneses de segurança. Isto é muito perigoso.',
                 'category' => 'social',
