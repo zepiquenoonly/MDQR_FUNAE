@@ -36,16 +36,17 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 ### Implementado (Fluxo 1)
 
 - Acesso à plataforma via web/app
-- Escolha entre submissão anónima ou identificada
-- **Escolha de Projecto** *(lista de projectos do FUNAE disponível)*
-- **Escolha de tipo (Reclamação, Sugestão ou Dúvida)** *(cards visuais interactivos)*
-- Preenchimento do formulário (descrição, localização, categoria)
-- **Gravação ou anexo de áudio** *(suporte a gravação via microfone e upload de ficheiros)*
+- Escolha entre submissão anónima ou identificada *(toggle visual SIM/NÃO com cards)*
+- **Escolha de Projecto** *(lista de projectos do FUNAE disponível, opcional)*
+- **Escolha de tipo (Reclamação, Sugestão ou Queixa)** *(cards visuais interactivos com ícones)*
+- Preenchimento do formulário (descrição com limite 50-1500 caracteres, localização)
+- **Gravação ou anexo de áudio** *(suporte a gravação via microfone até 2min e upload de ficheiros)*
 - **Segmentação clara do formulário em passos/seções** *(3 steps: Informações, Localização, Evidências)*
 - **Feedback visual após submissão** *(toast notifications, loading states, modal de confirmação com código de rastreio)*
 - Validação dos dados do formulário
 - Geração de código único de rastreio
 - Envio de notificação de confirmação por email *(configuração de emails automáticos realizada, recomenda-se validação em produção)*
+- **Uso consistente de ícones (sem emojis)** *(Heroicons implementados em todo o formulário)*
 
 ### Parcialmente Implementado (Fluxo 1)
 
@@ -59,6 +60,10 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ Possibilidade de falar ou anexar um áudio *(implementado em 02/12/2025)*
 - ✅ Segmentação clara do formulário em passos/seções *(implementado em 02/12/2025)*
 - ✅ Feedback visual após submissão (toast, loading, confirmação) *(implementado em 02/12/2025)*
+- ✅ Remoção de categoria/subcategoria (simplificação) *(implementado em 03/12/2025)*
+- ✅ Toggle anónimo melhorado com SIM/NÃO visual *(implementado em 03/12/2025)*
+- ✅ Limite de descrição 50-1500 caracteres *(implementado em 03/12/2025)*
+- ✅ Substituição de emojis por ícones *(implementado em 03/12/2025)*
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
