@@ -7,7 +7,7 @@ Temos o prazer de informar que a sua {{ $grievance->type_label_lowercase }} foi 
 
 Número de Referência: {{ $grievance->reference_number }}
 
-✓ Reclamação Resolvida
+[RESOLVIDA] Reclamação Resolvida
 
 @if($grievance->resolved_at)
 Data de Resolução: {{ $grievance->resolved_at->format('d/m/Y H:i') }}
@@ -23,7 +23,7 @@ Detalhes da Resolução:
 
 Agradecemos a sua colaboração!
 
-Se tiver alguma dúvida sobre a resolução ou se o problema persistir, 
+Se tiver alguma dúvida sobre a resolução ou se o problema persistir,
 não hesite em entrar em contacto connosco.
 
 Obrigado por utilizar o nosso sistema de reclamações.
