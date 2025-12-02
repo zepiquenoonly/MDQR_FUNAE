@@ -214,8 +214,9 @@
                     <XMarkIcon class="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </div>
-                <p class="text-green-600 text-xs sm:text-sm mt-2 font-medium">
-                  ✓ Imagem selecionada: {{ form.image.name }}
+                <p class="text-green-600 text-xs sm:text-sm mt-2 font-medium flex items-center gap-1">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                  Imagem selecionada: {{ form.image.name }}
                 </p>
                 <p class="text-gray-500 text-xs mt-1">
                   Clique para alterar ou arraste uma nova imagem
@@ -848,7 +849,7 @@ const submitForm = async () => {
       },
     });
 
-    showNotification(true, response.data.message || "✅ Projecto criado com sucesso!");
+    showNotification(true, response.data.message || "Projecto criado com sucesso!");
     emit("project-created", response.data.project);
 
     // Reset form after successful submission
@@ -862,13 +863,13 @@ const submitForm = async () => {
     if (error.response?.data?.errors) {
       showNotification(
         false,
-        error.response.data.message || "❌ Erro ao criar projecto.",
+        error.response.data.message || "Erro ao criar projecto.",
         error.response.data.errors
       );
     } else {
       showNotification(
         false,
-        error.response?.data?.message || "❌ Erro ao criar projecto."
+        error.response?.data?.message || "Erro ao criar projecto."
       );
     }
   } finally {
