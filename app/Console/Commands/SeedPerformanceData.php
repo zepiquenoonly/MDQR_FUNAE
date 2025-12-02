@@ -40,21 +40,21 @@ class SeedPerformanceData extends Command
 
         // Verificar se deve fazer migrate:fresh
         if ($this->option('fresh')) {
-            if (!$this->confirm('⚠️  ATENÇÃO: Isso irá apagar TODOS os dados existentes. Deseja continuar?')) {
+            if (!$this->confirm('[ATENÇÃO] Isso irá apagar TODOS os dados existentes. Deseja continuar?')) {
                 $this->info('Operação cancelada.');
                 return Command::SUCCESS;
             }
 
-            $this->warn('🔄 Executando migrate:fresh...');
+            $this->warn('[PROCESSANDO] Executando migrate:fresh...');
             $this->call('migrate:fresh');
-            $this->info('✅ Migrations executadas');
+            $this->info('[OK] Migrations executadas');
             $this->newLine();
 
             // Criar roles e usuários admin
-            $this->info('📋 Criando roles e usuários admin...');
+            $this->info('[INFO] Criando roles e usuários admin...');
             $this->call('db:seed', ['--class' => 'RoleSeeder']);
             $this->call('db:seed', ['--class' => 'AdminUserSeeder']);
-            $this->info('✅ Roles e usuários admin criados');
+            $this->info('[OK] Roles e usuários admin criados');
             $this->newLine();
         }
 
@@ -66,12 +66,12 @@ class SeedPerformanceData extends Command
 
         // Validar parâmetros
         if ($utentes < 1 || $tecnicos < 1 || $gestores < 1 || $reclamacoes < 1) {
-            $this->error('❌ Todos os valores devem ser maiores que zero!');
+            $this->error('[ERRO] Todos os valores devem ser maiores que zero!');
             return Command::FAILURE;
         }
 
         // Mostrar resumo
-        $this->info('📊 Configuração do Seed:');
+        $this->info('[INFO] Configuração do Seed:');
         $this->table(
             ['Tipo', 'Quantidade'],
             [
@@ -85,7 +85,7 @@ class SeedPerformanceData extends Command
 
         // Estimativa de tempo
         $estimatedTime = $this->estimateTime($utentes, $tecnicos, $gestores, $reclamacoes);
-        $this->info("⏱️  Tempo estimado: {$estimatedTime}");
+        $this->info("[TEMPO] Tempo estimado: {$estimatedTime}");
         $this->newLine();
 
         if (!$this->confirm('Deseja continuar?')) {
@@ -98,7 +98,7 @@ class SeedPerformanceData extends Command
         $seeder->configure($utentes, $tecnicos, $gestores, $reclamacoes);
 
         // Executar seeder
-        $this->info('🚀 Iniciando seed de performance...');
+        $this->info('[PROCESSANDO] Iniciando seed de performance...');
         $this->newLine();
 
         $startTime = microtime(true);
@@ -106,7 +106,7 @@ class SeedPerformanceData extends Command
         try {
             $seeder->run();
         } catch (\Exception $e) {
-            $this->error('❌ Erro durante o seed: ' . $e->getMessage());
+            $this->error('[ERRO] Erro durante o seed: ' . $e->getMessage());
             $this->error($e->getTraceAsString());
             return Command::FAILURE;
         }
@@ -117,10 +117,10 @@ class SeedPerformanceData extends Command
         // Estatísticas finais
         $this->newLine();
         $this->info('═══════════════════════════════════════════════════════════');
-        $this->info('  ✅ Seed de Performance Concluído!');
+        $this->info('  [OK] Seed de Performance Concluído!');
         $this->info('═══════════════════════════════════════════════════════════');
         $this->newLine();
-        $this->info("⏱️  Tempo de execução: {$executionTime} segundos");
+        $this->info("[TEMPO] Tempo de execução: {$executionTime} segundos");
         $this->newLine();
 
         return Command::SUCCESS;

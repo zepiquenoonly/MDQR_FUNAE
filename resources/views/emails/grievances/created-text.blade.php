@@ -13,9 +13,6 @@ Estado Atual: {{ $grievance->status_label }}
 
 Guarde este número de referência para poder acompanhar o progresso da sua reclamação.
 
-Para acompanhar a sua {{ $grievance->type_label_lowercase }} online, aceda a:
-{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
-
 Próximos Passos:
 - A sua {{ $grievance->type_label_lowercase }} será analisada pela nossa equipa
 - Receberá notificações por email sobre cada atualização

@@ -26,7 +26,7 @@ class GrievanceCreated extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: "Reclamação Recebida - {$this->grievance->reference_number}",
+            subject: "{$this->grievance->type_label} Recebida - {$this->grievance->reference_number}",
         );
     }
 

@@ -4,7 +4,7 @@
 
             <!-- Header -->
             <div class="border-b border-gray-200 p-6 flex justify-between items-center bg-gradient-to-r from-orange-500 to-orange-600">
-                <h2 class="text-2xl font-bold text-white flex-1 text-center">Nova Reclamação</h2>
+                <h2 class="text-2xl font-bold text-white flex-1 text-center">Nova Submissão</h2>
                 <button @click="$emit('close')" class="text-white hover:text-gray-200 transition-colors ml-4">
                     <XMarkIcon class="w-6 h-6" />
                 </button>
@@ -70,6 +70,41 @@
                             <p class="text-sm text-blue-800">
                                 <strong>Importante:</strong> Todas as informações fornecidas serão tratadas com confidencialidade.
                             </p>
+                        </div>
+
+                        <!-- Tipo de Reclamação -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                Tipo de Reclamação <span class="text-red-500">*</span>
+                            </label>
+                            <select v-model="formData.type" @change="errors.type = ''"
+                                :class="[
+                                    'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                    errors.type ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                ]">
+                                <option value="complaint">Reclamação</option>
+                                <option value="grievance">Queixa</option>
+                                <option value="suggestion">Sugestão</option>
+                            </select>
+                            <p v-if="errors.type" class="text-red-500 text-xs mt-1 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ errors.type }}
+                            </p>
+                        </div>
+
+                        <!-- Projeto -->
+                        <div class="space-y-2">
+                            <label class="block text-sm font-semibold text-gray-700">Projeto Relacionado (Opcional)</label>
+                            <select v-model="formData.project_id" @change="errors.project_id = ''"
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                <option value="">Selecione um projeto (opcional)</option>
+                                <option v-for="project in projects" :key="project.id" :value="project.id">
+                                    {{ project.name }} {{ project.location ? '(' + project.location + ')' : '' }}
+                                </option>
+                            </select>
+                            <p class="text-xs text-gray-500">Selecione o projeto relacionado à sua submissão, se aplicável.</p>
                         </div>
 
                         <!-- Categoria -->
@@ -300,7 +335,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import {
     XMarkIcon,
     DocumentTextIcon,
@@ -327,6 +362,8 @@ const fileInputRef = ref(null)
 const isSubmitting = ref(false)
 
 const formData = ref({
+    project_id: '',
+    type: 'complaint',
     category: '',
     subcategory: '',
     description: '',
@@ -341,6 +378,7 @@ const formData = ref({
 
 const files = ref([])
 const errors = ref({})
+const projects = ref([])
 
 const categories = ref({
     'Serviços Públicos': ['Fornecimento de Energia', 'Qualidade do Serviço', 'Atendimento ao Cliente', 'Faturação'],
@@ -426,6 +464,27 @@ const handleDrop = (event) => {
 const removeFile = (index) => {
     files.value = files.value.filter((_, i) => i !== index)
 }
+
+const fetchProjects = async () => {
+    try {
+        const response = await fetch('/api/grievances/projects', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        if (response.ok) {
+            projects.value = await response.json()
+        }
+    } catch (error) {
+        console.error('Erro ao carregar projetos:', error)
+    }
+}
+
+// Fetch projects on component mount
+onMounted(() => {
+    fetchProjects()
+})
 
 const handleSubmit = async () => {
     if (!validateStep()) {
@@ -524,3 +583,4 @@ const handleSubmit = async () => {
     }
 }
 </script>
+

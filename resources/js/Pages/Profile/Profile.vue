@@ -28,22 +28,88 @@
                 </div>
             </div>
         </div>
-    </Layout>
+        <div class="ml-3">
+          <p
+            :class="[
+              'text-sm font-medium',
+              globalToast.type === 'success'
+                ? 'text-green-800 dark:text-green-300'
+                : 'text-red-800 dark:text-red-300',
+            ]"
+          >
+            {{ globalToast.message }}
+          </p>
+        </div>
+        <button
+          @click="hideGlobalToast"
+          class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8"
+          :class="[
+            globalToast.type === 'success'
+              ? 'text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50'
+              : 'text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50',
+          ]"
+        >
+          <XMarkIcon class="w-4 h-4" />
+        </button>
+      </div>
+    </div>
+  </Layout>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
-import Layout from '@/Layouts/ProfileLayout.vue'
-import ProfileSidebar from '@/Components/Profile/ProfileSidebar.vue'
-import ProfileInfoTab from '@/Components/Profile/ProfileInfoTab.vue'
-import ProfileSecurityTab from '@/Components/Profile/ProfileSecurityTab.vue'
-import ProfileNotificationsTab from '@/Components/Profile/ProfileNotificationsTab.vue'
-import ProfilePreferencesTab from '@/Components/Profile/ProfilePreferencesTab.vue'
-import { ChevronRightIcon } from '@heroicons/vue/24/outline'
+import { Link, router } from "@inertiajs/vue3";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
+import Layout from "@/Layouts/ProfileLayout.vue";
+import ProfileInfoTab from "@/Components/Profile/ProfileInfoTab.vue";
+import ProfileSecurityTab from "@/Components/Profile/ProfileSecurityTab.vue";
+import ProfileNotificationsTab from "@/Components/Profile/ProfileNotificationsTab.vue";
+import ProfilePreferencesTab from "@/Components/Profile/ProfilePreferencesTab.vue";
+import {
+  ChevronRightIcon,
+  ArrowLeftIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+} from "@heroicons/vue/24/outline";
 
 const props = defineProps({
-    user: Object,
-    stats: Object,
-    activeTab: String
-})
+  user: Object,
+  stats: Object,
+  activeTab: String,
+  showStats: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const globalToast = ref({
+  show: false,
+  message: "",
+  type: "success",
+});
+
+router.on("success", (event) => {
+  const props = event.detail.page.props;
+
+  if (props.flash?.success) {
+    showGlobalToast(props.flash.success, "success");
+  } else if (props.flash?.error) {
+    showGlobalToast(props.flash.error, "error");
+  }
+});
+
+const showGlobalToast = (message, type = "success") => {
+  globalToast.value = {
+    show: true,
+    message,
+    type,
+  };
+
+  setTimeout(() => {
+    globalToast.value.show = false;
+  }, 5000);
+};
+
+const goBack = () => {
+  window.history.length > 1 ? router.visit("/home") : router.visit("/home");
+};
 </script>

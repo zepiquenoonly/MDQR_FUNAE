@@ -63,8 +63,9 @@
                     <p class="text-xs text-gray-500 text-left">
                         {{ form.password.length }}/8 caracteres
                     </p>
-                    <p class="text-xs" :class="form.password.length >= 8 ? 'text-green-500' : 'text-red-500'">
-                        {{ form.password.length >= 8 ? '✓ Mínimo atendido' : 'Mínimo 8 caracteres' }}
+                    <p class="text-xs flex items-center gap-1" :class="form.password.length >= 8 ? 'text-green-500' : 'text-red-500'">
+                        <svg v-if="form.password.length >= 8" class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                        {{ form.password.length >= 8 ? 'Mínimo atendido' : 'Mínimo 8 caracteres' }}
                     </p>
                 </div>
             </div>

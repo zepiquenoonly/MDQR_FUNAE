@@ -15,9 +15,6 @@ O que isto significa?
 - O técnico irá investigar a situação e trabalhar na resolução
 - Receberá atualizações regulares sobre o progresso
 
-Para acompanhar o progresso, aceda a:
-{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
-
 Continuamos comprometidos em resolver a sua reclamação no menor tempo possível.
 
 Atenciosamente,

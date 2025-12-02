@@ -35,7 +35,7 @@ class GrievanceAssignmentObserver
 
         // Update workload when assignment changes
         if ($grievance->wasChanged('assigned_to')) {
-            $oldAssignee = $original['assigned_to'];
+            $oldAssignee = $original['assigned_to'] ?? null;
             $newAssignee = $grievance->assigned_to;
 
             if ($oldAssignee && $user = \App\Models\User::find($oldAssignee)) {

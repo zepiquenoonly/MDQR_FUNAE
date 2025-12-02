@@ -111,7 +111,7 @@
                     </div>
                     <div class="ml-4 flex-1">
                         <h4 class="text-lg font-semibold text-blue-900 mb-3">
-                            📧 Templates que serão testados
+                            Templates que serão testados
                         </h4>
                         <ul class="space-y-2 text-blue-800">
                             <li class="flex items-start">
@@ -143,16 +143,16 @@
             <div class="bg-white rounded-2xl shadow-lg p-8">
                 <form method="POST" action="{{ route('email-test.send') }}" class="space-y-6" id="emailTestForm">
                     @csrf
-                    
+
                     <div>
                         <label for="email" class="block text-sm font-semibold text-gray-900 mb-2">
-                            📩 Endereço de Email
+                            Endereço de Email
                         </label>
-                        <input 
-                            type="email" 
-                            id="email" 
-                            name="email" 
-                            placeholder="seu.email@example.com" 
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="seu.email@example.com"
                             required
                             value="{{ old('email') }}"
                             class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-brand focus:border-brand transition-all duration-200 text-gray-900 placeholder-gray-400"
@@ -167,8 +167,8 @@
                         @enderror
                     </div>
 
-                    <button 
-                        type="submit" 
+                    <button
+                        type="submit"
                         id="submitBtn"
                         class="w-full bg-brand hover:bg-[#d94f1a] text-white font-bold py-4 px-6 rounded-lg transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5 flex items-center justify-center gap-3 text-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none disabled:hover:translate-y-0"
                     >
@@ -206,7 +206,7 @@
                 transform: translateY(0);
             }
         }
-        
+
         .animate-fade-in {
             animation: fade-in 0.3s ease-out;
         }
@@ -223,7 +223,7 @@
             form.addEventListener('submit', function() {
                 // Desabilitar botão
                 submitBtn.disabled = true;
-                
+
                 // Trocar texto e ícone
                 btnText.textContent = 'Enviando emails...';
                 iconDefault.classList.add('hidden');
