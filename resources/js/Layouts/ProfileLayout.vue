@@ -1,40 +1,136 @@
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-dark-primary">
-        <!-- Header -->
-        <header class="bg-brand shadow-sm border-b border-gray-200 dark:border-gray-700">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Logo e Navegação -->
-                    <div class="flex items-center">
-                        <Link href="/dashboard" class="flex items-center space-x-3">
-                        <div class="w-8 h-8 flex items-center justify-center">
-                            <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
-                                class="h-20 w-20 md:h-24 md:w-24 mx-auto object-contain" />
-                        </div>
-                        <span class="text-xl font-bold text-white">MDQR</span>
-                        </Link>
-                    </div>
-
-                    <!-- User Menu -->
-                    <div class="flex items-center space-x-4">
-                        <div
-                            class="hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-all duration-200">
-                            <UserDropdown :user="$page.props.auth.user" :hide-profile="true"
-                                bg-color="hover:bg-orange-100 dark:hover:bg-orange-900/30" text-color="text-white" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main>
-            <slot />
-        </main>
+  <div class="min-h-screen bg-gray-50 dark:bg-dark-primary flex transition-colors duration-200">
+    <!-- Sidebar para desktop - sempre visível e fixa -->
+    <div class="hidden sm:block transition-all duration-300 fixed left-0 top-0 h-full z-30"
+      :class="sidebarCollapsed ? 'w-16 sm:w-20' : 'w-56 sm:w-64'">
+      <ProfileSidebar :user="user" :stats="safeStats" :active-tab="activeTab" :is-collapsed="sidebarCollapsed"
+        :show-stats="showStats" @close-sidebar="handleSidebarToggle(true)" @toggle-collapse="handleSidebarToggle" />
     </div>
+
+    <!-- Sidebar para mobile - overlay absoluto que cobre TUDO -->
+    <div v-if="!sidebarCollapsed && isMobile" class="sm:hidden fixed inset-0 z-50">
+      <!-- Overlay escuro -->
+      <div class="absolute inset-0 bg-black bg-opacity-50" @click="handleSidebarToggle(true)"></div>
+      <!-- Sidebar que cobre toda a altura incluindo header -->
+      <div class="absolute left-0 top-0 h-full w-64 bg-white dark:bg-dark-secondary shadow-xl z-50">
+        <ProfileSidebar :user="user" :stats="stats" :active-tab="activeTab" :show-stats="showStats"
+          :is-collapsed="false" @close-sidebar="handleSidebarToggle(true)" />
+      </div>
+    </div>
+
+    <!-- Main Content Area - com margem para a sidebar fixa -->
+    <div class="flex-1 flex flex-col min-w-0 w-full transition-all duration-300"
+      :class="sidebarCollapsed && !isMobile ? 'sm:ml-16 lg:ml-20' : 'sm:ml-56 lg:ml-64'">
+      <!-- Header Fixo no Topo -->
+      <ProfileHeader :sidebar-collapsed="sidebarCollapsed" :user="user" @toggle-sidebar="handleSidebarToggle"
+        class="flex-shrink-0 sticky top-0 z-40" />
+
+      <!-- Loading Spinner Global -->
+      <div v-if="loading"
+        class="fixed inset-0 bg-white dark:bg-dark-primary bg-opacity-75 flex items-center justify-center z-50">
+        <div class="text-center">
+          <div
+            class="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 border-b-2 border-orange-500 mx-auto">
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mt-2 text-xs sm:text-sm">
+            A carregar...
+          </p>
+        </div>
+      </div>
+
+      <!-- Page Content Scrollável -->
+      <main class="flex-1 overflow-auto">
+        <div class="p-3 sm:p-4 lg:p-6">
+          <slot />
+        </div>
+      </main>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
-import UserDropdown from '@/Components/Dashboard/UserDropdown.vue'
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { router } from "@inertiajs/vue3";
+import ProfileSidebar from "@/Components/Profile/ProfileSidebar.vue";
+import ProfileHeader from "@/Components/GestorReclamacoes/Header.vue";
+
+// Props
+const props = defineProps({
+  user: {
+    type: Object,
+    required: true,
+  },
+  stats: {
+    type: [Object, null],
+    default: () => ({}),
+  },
+  activeTab: {
+    type: String,
+    default: "info",
+  },
+  showStats: {
+    type: Boolean,
+    default: false,
+  },
+});
+
+const safeStats = computed(() => props.stats || {});
+
+const sidebarCollapsed = ref(false);
+const loading = ref(false);
+const isMobile = ref(false);
+
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 640;
+  if (isMobile.value) {
+    sidebarCollapsed.value = true;
+  }
+};
+
+function handleSidebarToggle(isCollapsed = null) {
+  if (isCollapsed !== null) {
+    sidebarCollapsed.value = isCollapsed;
+  } else {
+    sidebarCollapsed.value = !sidebarCollapsed.value;
+  }
+}
+
+// Função para fechar o sidebar no mobile
+const closeSidebar = () => {
+  if (isMobile.value) {
+    sidebarCollapsed.value = true;
+  }
+};
+
+let loadingTimeout = null;
+
+const startLoading = () => {
+  loadingTimeout = setTimeout(() => {
+    loading.value = true;
+  }, 300);
+};
+
+const finishLoading = () => {
+  if (loadingTimeout) {
+    clearTimeout(loadingTimeout);
+    loadingTimeout = null;
+  }
+  loading.value = false;
+};
+
+onMounted(() => {
+  const removeStartListener = router.on("start", startLoading);
+  const removeFinishListener = router.on("finish", finishLoading);
+
+  checkMobile();
+  window.addEventListener("resize", checkMobile);
+});
+
+// Cleanup
+onUnmounted(() => {
+  if (loadingTimeout) {
+    clearTimeout(loadingTimeout);
+  }
+  window.removeEventListener("resize", checkMobile);
+});
 </script>

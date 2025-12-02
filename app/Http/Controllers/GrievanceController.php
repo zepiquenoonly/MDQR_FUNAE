@@ -16,78 +16,84 @@ class GrievanceController extends Controller
     /**
      * Display a listing of grievances for the authenticated user.
      */
- public function index(Request $request)
-{
-    $user = auth()->user();
-    $filters = $request->only(['priority', 'status', 'category', 'type']);
+    public function index(Request $request)
+    {
+        $user = auth()->user();
+        $filters = $request->only(['priority', 'status', 'category', 'type']);
 
-    // Query base
-    $query = Grievance::query();
+        // Query base para TODOS os tipos de grievances
+        $query = Grievance::query();
 
-    // Se o usuário for utente, mostrar apenas suas reclamações
-    if ($user->hasRole('utente')) {
-        $query->where('user_id', $user->id)
-            ->orWhere(function ($query) use ($user) {
-                $query->where('is_anonymous', false)
-                    ->where('contact_email', $user->email);
-            });
-    }
-
-    // Aplicar filtros para a visualização normal
-    foreach ($filters as $field => $value) {
-        if ($value) {
-            $query->where($field, $value);
+        // Se o usuário for utente, mostrar apenas suas reclamações
+        if ($user->hasRole('utente')) {
+            $query->where('user_id', $user->id)
+                ->orWhere(function ($query) use ($user) {
+                    $query->where('is_anonymous', false)
+                        ->where('contact_email', $user->email);
+                });
         }
-    }
 
-    // Dados filtrados para a visualização normal
-    $grievances = $query->with(['attachments'])
-        ->orderBy('submitted_at', 'desc')
-        ->get();
+        // Aplicar filtros para a visualização normal
+        foreach ($filters as $field => $value) {
+            if ($value) {
+                $query->where($field, $value);
+            }
+        }
 
-    // Query para TODOS os dados (sem filtros)
-    $allGrievancesQuery = Grievance::query();
-    
-    if ($user->hasRole('utente')) {
-        $allGrievancesQuery->where('user_id', $user->id)
-            ->orWhere(function ($query) use ($user) {
-                $query->where('is_anonymous', false)
-                    ->where('contact_email', $user->email);
+        // Dados filtrados para a visualização normal - INCLUIR TODOS OS TIPOS
+        $grievances = $query->with(['attachments'])
+            ->orderBy('submitted_at', 'desc')
+            ->get();
+
+        // Query para TODOS os dados (sem filtros) - INCLUIR TODOS OS TIPOS
+        $allGrievancesQuery = Grievance::query();
+        
+        if ($user->hasRole('utente')) {
+            $allGrievancesQuery->where('user_id', $user->id)
+                ->orWhere(function ($query) use ($user) {
+                    $query->where('is_anonymous', false)
+                        ->where('contact_email', $user->email);
+                });
+        }
+
+        $allComplaints = $allGrievancesQuery->with(['user', 'assignedUser', 'attachments'])
+            ->orderBy('submitted_at', 'desc')
+            ->get()
+            ->map(function ($grievance) {
+                return [
+                    'id' => $grievance->id,
+                    'title' => $grievance->title ?? $grievance->description, 
+                    'description' => $grievance->description,
+                    'type' => $grievance->type, // Incluir todos os tipos: complaint, grievance, suggestion
+                    'priority' => $grievance->priority,
+                    'status' => $grievance->status,
+                    'category' => $grievance->category,
+                    'subcategory' => $grievance->subcategory,
+                    'created_at' => $grievance->created_at,
+                    'submitted_at' => $grievance->submitted_at,
+                    'reference_number' => $grievance->reference_number,
+                    'province' => $grievance->province,
+                    'district' => $grievance->district,
+                    'location_details' => $grievance->location_details,
+                    'assigned_user' => $grievance->assignedUser ? [
+                        'name' => $grievance->assignedUser->name,
+                    ] : null,
+                    'user' => $grievance->user ? [
+                        'name' => $grievance->user->name,
+                        'email' => $grievance->user->email,
+                    ] : null,
+                    'technician' => $grievance->assignedUser ? [
+                        'name' => $grievance->assignedUser->name,
+                    ] : null,
+                ];
             });
+
+        return Inertia::render('Grievances/Index', [
+            'grievances' => $grievances,
+            'allComplaints' => $allComplaints,
+            'filters' => $filters,
+        ]);
     }
-
-    $allComplaints = $allGrievancesQuery->with(['user', 'assignedUser', 'attachments'])
-        ->orderBy('submitted_at', 'desc')
-        ->get()
-        ->map(function ($grievance) {
-            return [
-                'id' => $grievance->id,
-                'title' => $grievance->description, // Usando description como título
-                'description' => $grievance->description,
-                'type' => 'complaint', // Defina conforme seu modelo
-                'priority' => $grievance->priority,
-                'status' => $grievance->status,
-                'category' => $grievance->category,
-                'subcategory' => $grievance->subcategory,
-                'created_at' => $grievance->created_at,
-                'submitted_at' => $grievance->submitted_at,
-                // Adicione outros campos necessários do seu modelo
-                'reference_number' => $grievance->reference_number,
-                'province' => $grievance->province,
-                'district' => $grievance->district,
-                'location_details' => $grievance->location_details,
-                'assigned_user' => $grievance->assignedUser ? [
-                    'name' => $grievance->assignedUser->name,
-                ] : null,
-            ];
-        });
-
-    return Inertia::render('Grievances/Index', [
-        'grievances' => $grievances,
-        'allComplaints' => $allComplaints, // ← AGORA ESTÁ SENDO USADA
-        'filters' => $filters,
-    ]);
-}
 
     /**
      * Show the form for creating a new grievance.
@@ -105,6 +111,7 @@ class GrievanceController extends Controller
         try {
             // Validação dos dados
             $validated = $request->validate([
+                'type' => 'required|string|in:grievance,complaint,suggestion',
                 'description' => 'required|string|min:10',
                 'category' => 'required|string',
                 'subcategory' => 'nullable|string',
@@ -116,13 +123,14 @@ class GrievanceController extends Controller
                 'contact_email' => 'required_if:is_anonymous,true|nullable|email|max:255',
                 'contact_phone' => 'nullable|string|max:20',
                 'attachments' => 'nullable|array|max:5',
-                'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx|max:10240', // 10MB max
+                'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx|max:10240',
             ]);
 
             DB::beginTransaction();
 
             // Preparar dados da reclamação
             $grievanceData = [
+                'type' => $validated['type'],
                 'description' => $validated['description'],
                 'category' => $validated['category'],
                 'subcategory' => $validated['subcategory'] ?? null,
@@ -131,11 +139,11 @@ class GrievanceController extends Controller
                 'location_details' => $validated['location_details'] ?? null,
                 'is_anonymous' => $validated['is_anonymous'] ?? false,
                 'status' => 'submitted',
-                'priority' => 'medium', // Prioridade padrão
+                'priority' => 'medium',
                 'submitted_at' => now(),
             ];
 
-            // Se for reclamação identificada e o usuário estiver autenticado
+            // Se for reclamação identificada e o usuário estender autenticado
             if (!$validated['is_anonymous'] && auth()->check()) {
                 $grievanceData['user_id'] = auth()->id();
             } else {
