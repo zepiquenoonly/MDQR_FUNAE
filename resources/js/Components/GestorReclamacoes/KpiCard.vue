@@ -1,28 +1,28 @@
 <template>
     <div
-        class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 hover:shadow-md transition-all duration-200">
+        class="glass-card hover:scale-[1.02] cursor-pointer">
         <div class="flex items-center justify-between">
             <div>
-                <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">{{ title }}</h3>
-                <div class="text-3xl font-bold text-black dark:text-dark-text-primary mt-2">{{ value }}</div>
-                <p class="text-gray-400 dark:text-gray-500 text-sm mt-1">{{ description }}</p>
+                <h3 class="text-gray-600 text-sm font-semibold">{{ title }}</h3>
+                <div class="text-3xl font-bold gradient-text mt-2">{{ value }}</div>
+                <p class="text-gray-500 text-sm mt-1">{{ description }}</p>
             </div>
 
             <!-- Icon & Trend -->
             <div class="flex flex-col items-end">
-                <div class="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center">
-                    <component :is="dynamicIcon" class="w-6 h-6 text-orange-500 dark:text-orange-400" />
+                <div class="w-14 h-14 bg-gradient-to-br from-primary-50 to-orange-50 rounded-xl flex items-center justify-center shadow-glass border border-primary-200">
+                    <component :is="dynamicIcon" class="w-7 h-7 text-primary-600" />
                 </div>
 
                 <!-- Trend Indicator -->
                 <div v-if="trend" :class="[
-                    'flex items-center gap-1 mt-2 text-xs font-medium',
-                    trend === 'up' ? 'text-green-500 dark:text-green-400' :
-                        trend === 'down' ? 'text-red-500 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'
+                    'flex items-center gap-1 mt-2 text-xs font-semibold px-2 py-1 rounded-full',
+                    trend === 'up' ? 'bg-green-100 text-green-700' :
+                        trend === 'down' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
                 ]">
-                    <ArrowTrendingUpIcon v-if="trend === 'up'" class="w-4 h-4" />
-                    <ArrowTrendingDownIcon v-else-if="trend === 'down'" class="w-4 h-4" />
-                    <MinusIcon v-else class="w-4 h-4" />
+                    <ArrowTrendingUpIcon v-if="trend === 'up'" class="w-3 h-3" />
+                    <ArrowTrendingDownIcon v-else-if="trend === 'down'" class="w-3 h-3" />
+                    <MinusIcon v-else class="w-3 h-3" />
                     <span>{{ trendText }}</span>
                 </div>
             </div>
