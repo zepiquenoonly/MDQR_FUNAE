@@ -1,61 +1,72 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4 mb-6">
+    <!-- Nova Reclamação - Primary Action -->
     <button
       @click="createNewComplaint"
-      class="flex items-center justify-between p-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+      class="flex items-center justify-between p-4 bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 text-white rounded-xl shadow-lg border border-orange-400/30 transition-all duration-300 transform hover:scale-105 hover:shadow-2xl relative overflow-hidden group"
     >
-      <div class="flex items-center">
-        <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center mr-4">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Shine effect -->
+      <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+      <div class="flex items-center gap-3 min-w-0 flex-1 relative z-10">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform duration-300">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
         </div>
-        <div class="text-left">
-          <div class="font-semibold">Nova Reclamação</div>
-          <div class="text-xs opacity-90">Submeter nova reclamação</div>
+        <div class="text-left min-w-0">
+          <div class="font-semibold text-sm sm:text-base truncate drop-shadow-sm">Nova Reclamação</div>
+          <div class="text-xs opacity-90 truncate">Submeter nova reclamação</div>
         </div>
       </div>
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 flex-shrink-0 ml-2 group-hover:translate-x-1 transition-transform duration-300 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
     </button>
 
+    <!-- Minhas Reclamações -->
     <button
       @click="viewAllComplaints"
-      class="flex items-center justify-between p-4 bg-white border-2 border-gray-200 text-gray-800 rounded-xl shadow-sm hover:shadow-md hover:border-orange-500 transition-all duration-300"
+      class="flex items-center justify-between p-4 glass-card hover:scale-105 group transition-all duration-300 hover:shadow-xl border border-white/40 relative overflow-hidden"
     >
-      <div class="flex items-center">
-        <div class="w-12 h-12 bg-orange-50 rounded-lg flex items-center justify-center mr-4">
-          <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Gradient overlay on hover -->
+      <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+      <div class="flex items-center gap-3 min-w-0 flex-1 relative z-10">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-50 to-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
         </div>
-        <div class="text-left">
-          <div class="font-semibold">Minhas Reclamações</div>
-          <div class="text-xs text-gray-600">Ver todas as submissões</div>
+        <div class="text-left min-w-0">
+          <div class="font-semibold text-sm sm:text-base text-gray-800 group-hover:text-primary-600 transition-colors truncate">Minhas Reclamações</div>
+          <div class="text-xs text-gray-600 truncate">Ver todas as submissões</div>
         </div>
       </div>
-      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-600 transition-all flex-shrink-0 ml-2 group-hover:translate-x-1 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
     </button>
 
+    <!-- Acompanhar Status -->
     <button
       @click="trackComplaint"
-      class="flex items-center justify-between p-4 bg-white border-2 border-gray-200 text-gray-800 rounded-xl shadow-sm hover:shadow-md hover:border-blue-500 transition-all duration-300"
+      class="flex items-center justify-between p-4 glass-card hover:scale-105 group transition-all duration-300 sm:col-span-2 md:col-span-1 hover:shadow-xl border border-white/40 relative overflow-hidden"
     >
-      <div class="flex items-center">
-        <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center mr-4">
-          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Gradient overlay on hover -->
+      <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+      <div class="flex items-center gap-3 min-w-0 flex-1 relative z-10">
+        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-blue-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm">
+          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
         </div>
-        <div class="text-left">
-          <div class="font-semibold">Acompanhar Status</div>
-          <div class="text-xs text-gray-600">Verificar progresso</div>
+        <div class="text-left min-w-0">
+          <div class="font-semibold text-sm sm:text-base text-gray-800 group-hover:text-blue-600 transition-colors truncate">Acompanhar Status</div>
+          <div class="text-xs text-gray-600 truncate">Verificar progresso</div>
         </div>
       </div>
-      <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-600 transition-all flex-shrink-0 ml-2 group-hover:translate-x-1 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
     </button>
