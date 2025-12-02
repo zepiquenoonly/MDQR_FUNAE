@@ -1,44 +1,44 @@
 <template>
-    <aside class="bg-brand dark:bg-dark-secondary text-white h-full flex flex-col overflow-hidden">
+    <aside class="glass rounded-2xl h-full flex flex-col overflow-hidden shadow-glass m-3">
         <!-- Brand/Logo Section -->
-        <div class="p-4 sm:p-6 flex-shrink-0 overflow-hidden">
+        <div class="p-4 sm:p-6 flex-shrink-0 overflow-hidden bg-gradient-to-br from-primary-50 to-orange-50 rounded-t-2xl">
             <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
                 <!-- Botão de fechar para mobile (apenas no overlay) -->
                 <button v-if="isMobile" @click="toggleSidebar"
-                    class="p-2 flex items-center justify-center hover:bg-white/30 transition-colors flex-shrink-0 rounded">
-                    <XMarkIcon class="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                    class="p-2 flex items-center justify-center hover:glass transition-all flex-shrink-0 rounded-xl text-primary-600">
+                    <XMarkIcon class="w-5 h-5 sm:w-6 sm:h-6" />
                 </button>
 
                 <!-- Logo quando em mobile overlay -->
                 <div v-if="isMobile" class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                     <div
-                        class="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg flex-shrink-0">
+                        class="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-orange-600 rounded-xl flex items-center justify-center font-bold text-sm sm:text-lg shadow-glass text-white flex-shrink-0">
                         {{ logoInitials }}
                     </div>
                     <div class="transition-all duration-300 overflow-hidden min-w-0 flex-1">
-                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate">{{ dashboardTitle }}
+                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate text-gray-900">{{ dashboardTitle }}
                         </h1>
-                        <p class="text-orange-100 dark:text-orange-200 text-xs sm:text-sm truncate">{{ dashboardSubtitle }}</p>
+                        <p class="text-primary-600 text-xs sm:text-sm truncate">{{ dashboardSubtitle }}</p>
                     </div>
                 </div>
 
                 <!-- Logo normal para desktop -->
                 <div v-else class="flex items-center space-x-2 sm:space-x-3 flex-1 min-w-0">
                     <div
-                        class="w-8 h-8 sm:w-12 sm:h-12 bg-white/20 rounded-lg flex items-center justify-center font-bold text-sm sm:text-lg shadow-lg flex-shrink-0">
+                        class="w-8 h-8 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-500 to-orange-600 rounded-xl flex items-center justify-center font-bold text-sm sm:text-lg shadow-glass text-white flex-shrink-0">
                         {{ logoInitials }}
                     </div>
                     <div v-if="!isCollapsed" class="transition-all duration-300 overflow-hidden min-w-0 flex-1">
-                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate">{{ dashboardTitle }}
+                        <h1 class="font-semibold text-base sm:text-lg whitespace-nowrap truncate text-gray-900">{{ dashboardTitle }}
                         </h1>
-                        <p class="text-orange-100 dark:text-orange-200 text-xs sm:text-sm truncate">{{ dashboardSubtitle }}</p>
+                        <p class="text-primary-600 text-xs sm:text-sm truncate">{{ dashboardSubtitle }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Menu Sections -->
-        <div class="flex-1 overflow-y-auto overflow-x-hidden">
+        <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin">
             <!-- Gestão de Casos Section -->
             <MenuSection :is-collapsed="isCollapsed && !isMobile" :stats="stats" :user="user" @item-clicked="handleMenuItemClick" />
         </div>
