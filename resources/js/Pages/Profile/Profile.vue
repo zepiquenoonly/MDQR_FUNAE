@@ -1,14 +1,14 @@
 <template>
     <Layout>
-        <div class="container mx-auto px-6 py-8">
+        <div class="px-6 mx-auto mt-5 ">
             <!-- Breadcrumb -->
-            <nav class="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400 mb-8">
-                <Link href="/home" class="hover:text-orange-600 transition-colors">Painel</Link>
+            <nav class="flex items-center mb-8 space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                <Link href="/home" class="transition-colors hover:text-orange-600">Painel</Link>
                 <ChevronRightIcon class="w-3 h-3 text-gray-400" />
-                <span class="text-orange-600 font-medium">Gestão de Perfil</span>
+                <span class="font-medium text-orange-600">Gestão de Perfil</span>
             </nav>
 
-            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
                 <!-- Sidebar do Perfil -->
                 <ProfileSidebar :user="user" :stats="stats" :active-tab="activeTab" />
 
