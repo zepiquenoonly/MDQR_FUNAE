@@ -1,18 +1,18 @@
 <template>
   <header
-    class="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-40">
+    class="glass-nav shadow-glass px-4 sm:px-6 py-3 sm:py-4 sticky top-0 z-40 m-3 rounded-2xl">
     <div class="flex items-center justify-between">
       <!-- Left Section -->
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Botão hambúrguer - SEMPRE VISÍVEL EM MOBILE -->
         <button @click="$emit('toggle-sidebar')"
-          class="hover:text-orange-600 dark:hover:text-orange-400 transition-colors p-1 sm:p-2">
+          class="text-gray-700 hover:glass hover:text-primary-600 transition-all p-2 rounded-xl">
           <Bars3Icon class="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
         <!-- Logo para mobile -->
         <div class="sm:hidden flex items-center">
-          <div class="w-8 h-8 bg-brand rounded-lg flex items-center justify-center text-white font-bold text-sm">
+          <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-orange-600 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-glass">
             GR
           </div>
         </div>
@@ -20,8 +20,8 @@
         <!-- Search Bar -->
         <div class="hidden sm:flex gap-0">
           <input type="text" placeholder="Pesquisar..."
-            class="w-40 md:w-64 px-3 py-2 text-sm md:text-base border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring-0 focus:ring-brand focus:border-transparent dark:bg-dark-accent dark:text-dark-text-primary">
-          <button class="bg-brand text-white px-3 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
+            class="w-40 md:w-64 px-3 py-2 text-sm md:text-base glass border-r-0 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200">
+          <button class="bg-gradient-to-r from-primary-500 to-orange-600 text-white px-3 py-2 rounded-r-xl hover:from-primary-600 hover:to-orange-700 transition-all duration-300 shadow-glass">
             <MagnifyingGlassIcon class="w-4 h-4" />
           </button>
         </div>
@@ -31,24 +31,24 @@
       <div class="flex items-center gap-2 sm:gap-4">
         <!-- Toggle Theme Button -->
         <button @click="toggleTheme"
-          class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-orange-400 transition-colors p-1 sm:p-2">
+          class="text-gray-700 hover:glass hover:text-primary-600 transition-all p-2 rounded-xl">
           <component :is="themeIcon" class="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
 
         <!-- Notifications Dropdown -->
         <div class="relative">
           <button @click="toggleNotifications"
-            class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-orange-400 transition-colors p-1 sm:p-2 relative">
+            class="text-gray-700 hover:glass hover:text-primary-600 transition-all p-2 rounded-xl relative">
             <BellIcon class="w-4 h-4 sm:w-5 sm:h-5" />
             <span v-if="unreadCount > 0"
-              class="absolute -top-1 -right-1 bg-brand text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 text-[10px] sm:text-xs flex items-center justify-center font-bold">
+              class="absolute -top-1 -right-1 bg-gradient-to-r from-primary-500 to-orange-600 text-white rounded-full w-3 h-3 sm:w-4 sm:h-4 text-[10px] sm:text-xs flex items-center justify-center font-bold shadow-glass animate-pulse">
               {{ unreadCount > 9 ? '9+' : unreadCount }}
             </span>
           </button>
 
           <!-- Notifications Dropdown Menu -->
           <div v-if="showNotifications"
-            class="absolute right-0 mt-2 w-72 sm:w-80 bg-white dark:bg-dark-secondary rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+            class="absolute right-0 mt-2 w-72 sm:w-80 glass rounded-2xl shadow-glass-lg border border-white/30 z-50">
             <!-- ... resto do código do dropdown ... -->
           </div>
         </div>
@@ -62,8 +62,8 @@
     <div class="mt-2 sm:mt-3 sm:hidden">
       <div class="flex gap-0">
         <input type="text" placeholder="Pesquisar..."
-          class="flex-1 px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-l-lg focus:outline-none focus:ring focus:ring-brand focus:border-brand dark:bg-dark-accent dark:text-dark-text-primary">
-        <button class="bg-brand text-white px-3 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
+          class="flex-1 px-3 py-2 text-sm glass border-r-0 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500 transition-all duration-200">
+        <button class="bg-gradient-to-r from-primary-500 to-orange-600 text-white px-3 py-2 rounded-r-xl hover:from-primary-600 hover:to-orange-700 transition-all duration-300 shadow-glass">
           <MagnifyingGlassIcon class="w-4 h-4" />
         </button>
       </div>
