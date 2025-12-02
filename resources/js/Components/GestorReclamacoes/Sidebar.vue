@@ -50,6 +50,7 @@
       <!-- Gestão de Casos Section -->
       <MenuSection
         :is-collapsed="isCollapsed && !isMobile"
+        :is-mobile="isMobile"
         :stats="stats"
         :user="user"
         @item-clicked="handleMenuItemClick"

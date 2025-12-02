@@ -54,7 +54,7 @@
         </div>
 
         <!-- User Profile -->
-        <UserDropdown :user="user" />
+        <UserDropdown :user="user" :hide-profile="hideProfile" />
       </div>
     </div>
 
@@ -93,6 +93,10 @@ defineProps({
   user: {
     type: Object,
     required: true,
+  },
+  hideProfile: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -150,7 +154,6 @@ const loadNotifications = async () => {
     await new Promise((resolve) => setTimeout(resolve, 1000));
     notifications.value = [...sampleNotifications];
   } catch (error) {
-    console.error("Erro ao carregar notificações:", error);
   } finally {
     loading.value = false;
   }

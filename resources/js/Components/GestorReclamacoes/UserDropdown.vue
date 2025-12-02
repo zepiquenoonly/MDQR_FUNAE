@@ -88,7 +88,6 @@ const handleLogout = () => {
 };
 
 const handleItemClick = (item) => {
-  console.log("Action:", item.text);
   isOpen.value = false;
 };
 
