@@ -43,4 +43,21 @@ class Project extends Model
     {
         return $this->hasOne(Deadline::class);
     }
+
+    /**
+     * Get the technicians assigned to this project.
+     */
+    public function technicians()
+    {
+        return $this->belongsToMany(User::class, 'project_user')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the grievances related to this project.
+     */
+    public function grievances()
+    {
+        return $this->hasMany(Grievance::class);
+    }
 }
