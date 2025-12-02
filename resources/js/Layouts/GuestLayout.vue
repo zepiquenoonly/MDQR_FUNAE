@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen bg-white">
+    <div style="zoom: 90%;" class="min-h-screen bg-white">
         <Header :auth-routes="authRoutes" />
         <main class="pt-20">
             <slot />
