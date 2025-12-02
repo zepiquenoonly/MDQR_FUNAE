@@ -1,38 +1,24 @@
 <template>
-  <header class="bg-white dark:bg-dark-secondary border-b border-gray-200 dark:border-gray-700 px-4 sm:px-6 py-4 transition-colors duration-200">
-    <div class="flex items-center justify-between">
-      <!-- Left Section -->
-      <div class="flex items-center gap-4">
-        <!-- Botão para abrir sidebar quando fechada -->
-        <button v-if="sidebarCollapsed" @click="$emit('toggle-sidebar')"
-          class="text-gray-600 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 transition-colors">
-          <Bars3Icon class="w-5 h-5" />
-        </button>
+  <header class="relative px-3 py-3 m-3 overflow-hidden transition-all duration-300 border glass-nav shadow-glass sm:px-6 sm:py-4 rounded-2xl backdrop-blur-xl border-white/20 hover:shadow-xl">
+    <!-- Decorative gradient overlay -->
+    <div class="absolute top-0 right-0 w-64 h-full pointer-events-none bg-gradient-to-l from-primary-500/5 to-transparent"></div>
 
-        <!-- Search Bar -->
-        <div class="hidden md:flex gap-0">
-          <input type="text" placeholder="Pesquisar..."
-            class="w-64 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg bg-white dark:bg-dark-primary text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand">
-          <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
-            <MagnifyingGlassIcon class="w-4 h-4" />
-          </button>
-        </div>
+    <div class="relative z-10 flex items-center justify-between gap-3">
+      <!-- Left Section -->
+      <div class="flex items-center flex-1 min-w-0 gap-2 sm:gap-4">
+        <!-- Botão Menu Mobile -->
+        <button @click="$emit('toggle-sidebar')" class="flex-shrink-0 p-2 text-gray-700 transition-all duration-200 sm:hidden hover:text-primary-600 rounded-xl hover:bg-primary-50 hover:scale-110">
+          <Bars3Icon class="w-6 h-6" />
+        </button>
       </div>
 
       <!-- Right Section -->
-      <div class="flex items-center gap-4">
-        <!-- Theme Toggle -->
-        <button @click="toggleTheme" 
-          class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-brand transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
-          :title="isDark ? 'Mudar para modo claro' : 'Mudar para modo escuro'">
-          <SunIcon v-if="isDark" class="w-5 h-5" />
-          <MoonIcon v-else class="w-5 h-5" />
-        </button>
-
-        <button class="text-gray-600 dark:text-gray-300 hover:text-brand dark:hover:text-brand transition-colors p-2 relative">
-          <BellIcon class="w-5 h-5" />
+      <div class="flex items-center flex-shrink-0 gap-2 sm:gap-3">
+        <!-- Notifications -->
+        <button class="relative flex-shrink-0 p-2 text-gray-700 transition-all hover:text-primary-600 rounded-xl hover:bg-primary-50 group">
+          <BellIcon class="w-5 h-5 group-hover:animate-pulse" />
           <span
-            class="absolute -top-1 -right-1 bg-brand text-white rounded-full w-4 h-4 text-xs flex items-center justify-center font-bold">
+            class="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-lg -top-1 -right-1 bg-gradient-to-r from-primary-500 to-orange-600 animate-bounce">
             1
           </span>
         </button>
@@ -41,33 +27,17 @@
         <UserDropdown :user="user" />
       </div>
     </div>
-
-    <!-- Search Bar para mobile -->
-    <div class="mt-3 md:hidden">
-      <div class="flex gap-0">
-        <input type="text" placeholder="Pesquisar..."
-          class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg bg-white dark:bg-dark-primary text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent">
-        <button class="bg-brand text-white px-4 py-2 rounded-r-lg hover:bg-orange-600 transition-colors">
-          <MagnifyingGlassIcon class="w-4 h-4" />
-        </button>
-      </div>
-    </div>
   </header>
 </template>
 
 <script setup>
 import {
   Bars3Icon,
-  MagnifyingGlassIcon,
-  MoonIcon,
-  SunIcon,
   BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
-import { useTheme } from './Composables/useTheme'
 
 defineProps({
-  sidebarCollapsed: Boolean,
   user: {
     type: Object,
     required: true
@@ -75,6 +45,4 @@ defineProps({
 })
 
 defineEmits(['toggle-sidebar'])
-
-const { isDark, toggleTheme } = useTheme()
 </script>
