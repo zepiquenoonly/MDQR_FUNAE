@@ -667,6 +667,27 @@ const formData = ref({
     contact_email: '',
     contact_phone: ''
 })
+const projects = ref([])
+const fetchProjects = async () => {
+    try {
+        const response = await fetch('/api/grievances/projects', {
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        if (response.ok) {
+            projects.value = await response.json()
+        }
+    } catch (error) {
+        console.error('Erro ao carregar projetos:', error)
+    }
+}
+
+// Fetch projects on component mount
+onMounted(() => {
+    fetchProjects()
+})
 
 const projects = ref([])
 const files = ref([])

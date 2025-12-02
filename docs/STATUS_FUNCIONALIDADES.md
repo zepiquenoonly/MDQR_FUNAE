@@ -23,7 +23,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 | Fluxo | Descrição curta | Estado agregado |
 |-------|-----------------|-----------------|
-| Fluxo 1 | Submissão de Reclamações | ✅ Implementado |
+| Fluxo 1 | Submissão de Reclamações | 🚧 Parcial / Por Implementar |
 | Fluxo 2 | Triagem e Atribuição | ✅ Implementado |
 | Fluxo 3 | Resolução pelo Técnico | ✅ Implementado |
 | Fluxo 4 | Acompanhamento pelo Utente | ✅ Implementado |
