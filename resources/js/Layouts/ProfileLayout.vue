@@ -18,8 +18,9 @@
       />
     </div>
 
-    <!-- Sidebar Mobile - overlay -->
-    <div v-if="sidebarOpen && isMobile" class="fixed inset-0 z-50 sm:hidden">
+    <!-- Sidebar para mobile - overlay absoluto que cobre TUDO -->
+    <div v-if="!sidebarCollapsed && isMobile" class="sm:hidden fixed inset-0 z-50">
+      <!-- Overlay escuro -->
       <div
         class="absolute inset-0 bg-black bg-opacity-50"
         @click="handleSidebarToggle(true)"

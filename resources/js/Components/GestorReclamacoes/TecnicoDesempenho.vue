@@ -439,36 +439,16 @@ const carregarDadosDesempenho = async () => {
   error.value = null;
 
   try {
+    console.log("Carregando dados de desempenho para técnico:", props.tecnico.id);
+
     const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`);
 
-<<<<<<< Updated upstream
-        const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`)
-
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`)
-        }
-
-        const data = await response.json()
-        console.log('Dados de desempenho recebidos:', data)
-
-        dadosDesempenho.value = data.estatisticas_gerais || {}
-        historicoMensal.value = data.historico_mensal || []
-
-        // Carregar dados do mês atual
-        await carregarDadosMensais()
-
-    } catch (err) {
-        console.error('[ERRO] Erro ao carregar dados de desempenho:', err)
-        error.value = err.message || 'Erro ao carregar dados do técnico'
-    } finally {
-        loading.value = false
-=======
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
->>>>>>> Stashed changes
     }
 
     const data = await response.json();
+    console.log("Dados de desempenho recebidos:", data);
 
     dadosDesempenho.value = data.estatisticas_gerais || {};
     historicoMensal.value = data.historico_mensal || [];
@@ -476,6 +456,7 @@ const carregarDadosDesempenho = async () => {
     // Carregar dados do mês atual
     await carregarDadosMensais();
   } catch (err) {
+    console.error("[ERRO] Erro ao carregar dados de desempenho:", err);
     error.value = err.message || "Erro ao carregar dados do técnico";
   } finally {
     loading.value = false;
@@ -485,39 +466,24 @@ const carregarDadosDesempenho = async () => {
 // Função para carregar dados específicos do mês
 const carregarDadosMensais = async () => {
   try {
+    console.log("Carregando dados do mês:", mesSelecionado.value);
+
     const response = await fetch(
       `/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`
     );
 
-<<<<<<< Updated upstream
-        const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`)
-
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`)
-        }
-
-        const data = await response.json()
-        console.log('Dados mensais recebidos:', data)
-
-        dadosMensais.value = data.dados_mensais || {}
-        casosMensais.value = data.casos_mensais || []
-
-    } catch (err) {
-        console.error('[ERRO] Erro ao carregar dados mensais:', err)
-        // Não definir error global aqui para não quebrar a interface completa
-        dadosMensais.value = {}
-        casosMensais.value = []
-=======
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
->>>>>>> Stashed changes
     }
 
     const data = await response.json();
+    console.log("Dados mensais recebidos:", data);
 
     dadosMensais.value = data.dados_mensais || {};
     casosMensais.value = data.casos_mensais || [];
   } catch (err) {
+    console.error("[ERRO] Erro ao carregar dados mensais:", err);
+    // Não definir error global aqui para não quebrar a interface completa
     dadosMensais.value = {};
     casosMensais.value = [];
   }
