@@ -13,7 +13,7 @@
         </div>
 
         <!-- Modals -->
-        <ComplaintForm v-if="showComplaintForm" @close="closeComplaintForm" @submit="handleNewComplaint" />
+        <ComplaintForm :visible="showComplaintForm" @close="closeComplaintForm" @submit="handleNewComplaint" />
         <GrievanceDetails v-if="selectedGrievance" :grievance="selectedGrievance" @close="selectedGrievance = null" />
 
         <!-- Notificações -->

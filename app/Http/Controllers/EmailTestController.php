@@ -44,7 +44,7 @@ class EmailTestController extends Controller
         try {
             // 1. Email de Reclamação Criada
             Mail::to($email)->send(new GrievanceCreated($grievance));
-            $emailsSent[] = '✅ Reclamação Criada';
+            $emailsSent[] = '[OK] Reclamação Criada';
 
             // 2. Email de Status Alterado (para cada status único)
             $statuses = [
@@ -57,20 +57,20 @@ class EmailTestController extends Controller
 
             foreach ($statuses as $newStatus => $label) {
                 Mail::to($email)->send(new GrievanceStatusChanged($grievance, 'submitted', $newStatus));
-                $emailsSent[] = "✅ Status Alterado: {$label}";
+                $emailsSent[] = "[OK] Status Alterado: {$label}";
             }
 
             // 3. Email de Reclamação Atribuída
             Mail::to($email)->send(new GrievanceAssigned($grievance, $testUser));
-            $emailsSent[] = '✅ Reclamação Atribuída';
+            $emailsSent[] = '[OK] Reclamação Atribuída';
 
             // 4. Email de Reclamação Resolvida
             Mail::to($email)->send(new GrievanceResolved($grievance));
-            $emailsSent[] = '✅ Reclamação Resolvida';
+            $emailsSent[] = '[OK] Reclamação Resolvida';
 
             // 5. Email de Reclamação Rejeitada
             Mail::to($email)->send(new GrievanceRejected($grievance, 'Esta reclamação foi rejeitada após análise detalhada. O motivo não se enquadra nos critérios estabelecidos.'));
-            $emailsSent[] = '✅ Reclamação Rejeitada';
+            $emailsSent[] = '[OK] Reclamação Rejeitada';
 
             return back()->with('success', [
                 'message' => "Todos os emails de teste foram enviados para: {$email}",

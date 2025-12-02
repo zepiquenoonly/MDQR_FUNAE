@@ -45,16 +45,16 @@ class GrievanceController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->get();
 
-        // Query para TODOS os dados (sem filtros) - INCLUIR TODOS OS TIPOS
-        $allGrievancesQuery = Grievance::query();
-        
-        if ($user->hasRole('utente')) {
-            $allGrievancesQuery->where('user_id', $user->id)
-                ->orWhere(function ($query) use ($user) {
-                    $query->where('is_anonymous', false)
-                        ->where('contact_email', $user->email);
-                });
-        }
+    // Query para TODOS os dados (sem filtros)
+    $allGrievancesQuery = Grievance::query();
+
+    if ($user->hasRole('utente')) {
+        $allGrievancesQuery->where('user_id', $user->id)
+            ->orWhere(function ($query) use ($user) {
+                $query->where('is_anonymous', false)
+                    ->where('contact_email', $user->email);
+            });
+    }
 
         $allComplaints = $allGrievancesQuery->with(['user', 'assignedUser', 'attachments'])
             ->orderBy('submitted_at', 'desc')
@@ -62,7 +62,7 @@ class GrievanceController extends Controller
             ->map(function ($grievance) {
                 return [
                     'id' => $grievance->id,
-                    'title' => $grievance->title ?? $grievance->description, 
+                    'title' => $grievance->title ?? $grievance->description,
                     'description' => $grievance->description,
                     'type' => $grievance->type, // Incluir todos os tipos: complaint, grievance, suggestion
                     'priority' => $grievance->priority,
@@ -111,28 +111,29 @@ class GrievanceController extends Controller
         try {
             // Validação dos dados
             $validated = $request->validate([
-                'type' => 'required|string|in:grievance,complaint,suggestion',
-                'description' => 'required|string|min:10',
-                'category' => 'required|string',
-                'subcategory' => 'nullable|string',
+                'project_id' => 'required|exists:projects,id',
+                'type' => 'required|in:complaint,grievance,suggestion',
+                'description' => 'required|string|min:50|max:1500',
                 'province' => 'nullable|string',
                 'district' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
-                'contact_name' => 'required_if:is_anonymous,true|nullable|string|max:255',
-                'contact_email' => 'required_if:is_anonymous,true|nullable|email|max:255',
+                'contact_name' => 'required_if:is_anonymous,false,0|nullable|string|max:255',
+                'contact_email' => 'required_if:is_anonymous,false,0|nullable|email|max:255',
                 'contact_phone' => 'nullable|string|max:20',
                 'attachments' => 'nullable|array|max:5',
                 'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx|max:10240',
+                'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a|max:10240',
             ]);
 
             DB::beginTransaction();
 
             // Preparar dados da reclamação
             $grievanceData = [
+                'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
                 'description' => $validated['description'],
-                'category' => $validated['category'],
+                'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
                 'district' => $validated['district'] ?? null,
@@ -157,10 +158,16 @@ class GrievanceController extends Controller
             $grievance = Grievance::create($grievanceData);
 
             // Processar anexos se existirem
+            // Processar anexos de ficheiros
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
                     $this->storeAttachment($grievance, $file);
                 }
+            }
+
+            // Processar anexo de áudio
+            if ($request->hasFile('audio_attachment')) {
+                $this->storeAttachment($grievance, $request->file('audio_attachment'), 'audio');
             }
 
             DB::commit();
@@ -170,28 +177,35 @@ class GrievanceController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Reclamação submetida com sucesso!',
+                'message' => 'Submissão feita com sucesso!',
                 'reference_number' => $grievance->reference_number,
                 'grievance' => $grievance->load('attachments')
             ], 201);
 
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            DB::rollBack();
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $e->errors()
-            ], 422);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao submeter reclamação: ' . $e->getMessage(), [
+
+            // Se for erro de validação, retornar 422
+            if ($e instanceof \Illuminate\Validation\ValidationException) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro de validação',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+
+            // Para outros erros, determinar mensagem baseada no tipo de erro
+            $errorMessage = $this->getUserFriendlyErrorMessage($e);
+
+            Log::error('Erro ao submeter submissão: ' . $e->getMessage(), [
                 'exception' => $e,
                 'user_id' => auth()->id(),
+                'error_type' => get_class($e),
             ]);
 
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao submeter reclamação. Por favor, tente novamente.'
+                'message' => $errorMessage
             ], 500);
         }
     }
@@ -250,7 +264,7 @@ class GrievanceController extends Controller
     /**
      * Store an attachment for a grievance.
      */
-    private function storeAttachment(Grievance $grievance, $file)
+    private function storeAttachment(Grievance $grievance, $file, $type = 'document')
     {
         try {
             $originalFilename = $file->getClientOriginalName();
@@ -280,6 +294,7 @@ class GrievanceController extends Controller
                 'is_encrypted' => false,
                 'uploaded_by' => auth()->id(),
                 'uploaded_at' => now(),
+                'type' => $type,
             ]);
 
             return true;
@@ -375,6 +390,25 @@ class GrievanceController extends Controller
     }
 
     /**
+     * Get projects for grievance form.
+     */
+    public function getProjects()
+    {
+        $projects = \App\Models\Project::select('id', 'name', 'provincia', 'distrito')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($project) {
+                return [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'location' => trim(($project->provincia ?? '') . ' - ' . ($project->distrito ?? ''), ' - '),
+                ];
+            });
+
+        return response()->json($projects);
+    }
+
+    /**
      * Bulk assign grievances to technicians
      */
     public function bulkAssign()
@@ -396,7 +430,7 @@ class GrievanceController extends Controller
 
             foreach ($unassignedGrievances as $grievance) {
                 $technician = $technicians[$technicianIndex];
-                
+
                 $grievance->update([
                     'assigned_to' => $technician->id,
                     'status' => 'in_progress',
@@ -416,40 +450,47 @@ class GrievanceController extends Controller
     }
 
     /**
-     * Export grievances data
+     * Get user-friendly error message based on exception type
      */
-    public function export(Request $request)
+    private function getUserFriendlyErrorMessage(\Exception $e): string
     {
-        try {
-            $filters = $request->only(['priority', 'status', 'category', 'type']);
-            
-            $query = Grievance::query();
-            
-            // Aplicar filtros
-            foreach ($filters as $field => $value) {
-                if ($value) {
-                    $query->where($field, $value);
-                }
-            }
+        $message = $e->getMessage();
 
-            $grievances = $query->with(['user', 'assignedUser'])
-                ->orderBy('submitted_at', 'desc')
-                ->get();
-
-            // Aqui você pode implementar a lógica de exportação para CSV, Excel, etc.
-            // Por enquanto, retornamos JSON
-            return response()->json([
-                'success' => true,
-                'data' => $grievances,
-                'filters' => $filters
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Erro ao exportar dados: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao exportar dados.'
-            ], 500);
+        // Database connection errors
+        if (str_contains($message, 'Connection refused') ||
+            str_contains($message, 'Connection timed out') ||
+            str_contains($message, 'No connection could be made')) {
+            return 'Erro de conexão com o servidor. Verifique sua conexão com a internet e tente novamente.';
         }
+
+        // Database constraint violations
+        if (str_contains($message, 'Integrity constraint violation') ||
+            str_contains($message, 'foreign key constraint')) {
+            return 'Erro nos dados enviados. Verifique se todas as informações estão corretas.';
+        }
+
+        // File upload errors
+        if (str_contains($message, 'upload') ||
+            str_contains($message, 'file') ||
+            str_contains($message, 'storage')) {
+            return 'Erro ao processar os arquivos anexados. Verifique o tamanho e formato dos arquivos.';
+        }
+
+        // Disk space errors
+        if (str_contains($message, 'disk') ||
+            str_contains($message, 'space') ||
+            str_contains($message, 'quota')) {
+            return 'Erro de armazenamento. Entre em contato com o suporte técnico.';
+        }
+
+        // Permission errors
+        if (str_contains($message, 'permission') ||
+            str_contains($message, 'access denied')) {
+            return 'Erro de permissão. Entre em contato com o suporte técnico.';
+        }
+
+        // Generic fallback
+        return 'Ocorreu um erro inesperado. Por favor, tente novamente ou entre em contato com o suporte.';
     }
+
 }
