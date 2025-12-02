@@ -1,40 +1,97 @@
 <template>
-    <div class="min-h-screen bg-gray-50 dark:bg-dark-primary">
-        <!-- Header -->
-        <header class="bg-brand shadow-sm border-b border-gray-200 dark:border-gray-700">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between items-center h-16">
-                    <!-- Logo e Navegação -->
-                    <div class="flex items-center">
-                        <Link href="/dashboard" class="flex items-center space-x-3">
-                        <div class="w-8 h-8 flex items-center justify-center">
-                            <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
-                                class="h-20 w-20 md:h-24 md:w-24 mx-auto object-contain" />
-                        </div>
-                        <span class="text-xl font-bold text-white">MDQR</span>
-                        </Link>
-                    </div>
-
-                    <!-- User Menu -->
-                    <div class="flex items-center space-x-4">
-                        <div
-                            class="hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-lg transition-all duration-200">
-                            <UserDropdown :user="$page.props.auth.user" :hide-profile="true"
-                                bg-color="hover:bg-orange-100 dark:hover:bg-orange-900/30" text-color="text-white" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main>
-            <slot />
-        </main>
+  <div  class="relative flex min-h-screen overflow-hidden" style="background: url('/background.min.svg') center/cover fixed no-repeat;zoom: 90%;">
+    <!-- Sidebar Desktop - sempre visível -->
+    <div class="fixed top-0 left-0 z-30 hidden w-64 h-full sm:block">
+      <Sidebar @change-view="handleChangeView" />
     </div>
+
+    <!-- Sidebar Mobile - overlay -->
+    <div v-if="sidebarOpen && isMobile" class="fixed inset-0 z-50 sm:hidden">
+      <!-- Overlay escuro -->
+      <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeSidebar"></div>
+      <!-- Sidebar -->
+      <div class="absolute top-0 left-0 h-full shadow-2xl w-72 animate-slide-in-left">
+        <Sidebar :is-mobile="true" @toggle-sidebar="closeSidebar" @change-view="handleMobileMenuClick" />
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex flex-col flex-1 w-full min-w-0 sm:ml-64">
+      <!-- Header -->
+      <Header :user="$page.props.auth.user" @toggle-sidebar="openSidebar" class="flex-shrink-0" />
+
+      <!-- Loading Spinner -->
+      <div v-if="loading"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-white/75 backdrop-blur-sm">
+        <div class="text-center">
+          <div class="w-12 h-12 mx-auto border-b-2 rounded-full animate-spin border-primary-500"></div>
+          <p class="mt-4 text-sm font-medium text-gray-600">A carregar...</p>
+        </div>
+      </div>
+
+      <!-- Page Content -->
+      <main class="flex-1 overflow-auto">
+        <slot />
+      </main>
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
-import UserDropdown from '@/Components/Dashboard/UserDropdown.vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
+import Sidebar from '@/Components/UtenteDashboard/Sidebar.vue'
+import Header from '@/Components/UtenteDashboard/Header.vue'
+
+const sidebarOpen = ref(false)
+const loading = ref(false)
+const isMobile = ref(false)
+
+// Detectar se é mobile
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 640
+  // Fechar sidebar automaticamente se mudar para desktop
+  if (!isMobile.value) {
+    sidebarOpen.value = false
+  }
+}
+
+const openSidebar = () => {
+  if (isMobile.value) {
+    sidebarOpen.value = true
+  }
+}
+
+const closeSidebar = () => {
+  sidebarOpen.value = false
+}
+
+const handleChangeView = (view) => {
+  // Quando estiver na página de perfil e tentar navegar para outra view,
+  // redirecionar para o dashboard com a view desejada
+  router.visit(`/home?view=${view}`)
+}
+
+const handleMobileMenuClick = (view) => {
+  handleChangeView(view)
+  closeSidebar()
+}
+
+// Listener para loading state do Inertia
+router.on('start', () => {
+  loading.value = true
+})
+
+router.on('finish', () => {
+  loading.value = false
+})
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 </script>
