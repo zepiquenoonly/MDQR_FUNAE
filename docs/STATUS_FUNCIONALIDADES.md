@@ -23,7 +23,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 | Fluxo | Descrição curta | Estado agregado |
 |-------|-----------------|-----------------|
-| Fluxo 1 | Submissão de Reclamações | 🚧 Parcial / Por Implementar |
+| Fluxo 1 | Submissão de Reclamações | ✅ Implementado |
 | Fluxo 2 | Triagem e Atribuição | ✅ Implementado |
 | Fluxo 3 | Resolução pelo Técnico | ✅ Implementado |
 | Fluxo 4 | Acompanhamento pelo Utente | ✅ Implementado |
@@ -37,7 +37,12 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 - Acesso à plataforma via web/app
 - Escolha entre submissão anónima ou identificada
+- **Escolha de Projecto** *(lista de projectos do FUNAE disponível)*
+- **Escolha de tipo (Reclamação, Sugestão ou Dúvida)** *(cards visuais interactivos)*
 - Preenchimento do formulário (descrição, localização, categoria)
+- **Gravação ou anexo de áudio** *(suporte a gravação via microfone e upload de ficheiros)*
+- **Segmentação clara do formulário em passos/seções** *(3 steps: Informações, Localização, Evidências)*
+- **Feedback visual após submissão** *(toast notifications, loading states, modal de confirmação com código de rastreio)*
 - Validação dos dados do formulário
 - Geração de código único de rastreio
 - Envio de notificação de confirmação por email *(configuração de emails automáticos realizada, recomenda-se validação em produção)*
@@ -47,13 +52,13 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Alocação automática da reclamação a um técnico *(algoritmo de auto-assign precisa de ajustes para casos complexos)*
 - Notificação ao Gestor e Técnico alocado *(funciona, mas pode falhar se email não estiver corretamente configurado)*
 
-### Por Implementar (Fluxo 1)
+### Concluído (Fluxo 1) - Anteriormente "Por Implementar"
 
-- Escolha de Projecto
-- Escolha de tipo (Reclamação, Sugestão ou Dúvida)
-- Possibilidade de falar ou anexar um áudio
-- Segmentação clara do formulário em passos/seções
-- Feedback visual após submissão (toast, loading, confirmação)
+- ✅ Escolha de Projecto *(implementado em 02/12/2025)*
+- ✅ Escolha de tipo (Reclamação, Sugestão ou Dúvida) *(implementado em 02/12/2025)*
+- ✅ Possibilidade de falar ou anexar um áudio *(implementado em 02/12/2025)*
+- ✅ Segmentação clara do formulário em passos/seções *(implementado em 02/12/2025)*
+- ✅ Feedback visual após submissão (toast, loading, confirmação) *(implementado em 02/12/2025)*
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
