@@ -1,5 +1,46 @@
 <template>
     <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <!-- Toast Notification -->
+        <transition name="slide-fade">
+            <div v-if="toast.show" :class="[
+                'fixed top-5 right-5 z-[100] px-6 py-4 rounded-lg shadow-2xl flex items-center gap-3 min-w-[300px]',
+                toast.type === 'success' ? 'bg-green-500 text-white' :
+                toast.type === 'error' ? 'bg-red-500 text-white' :
+                toast.type === 'warning' ? 'bg-yellow-500 text-white' : 'bg-blue-500 text-white'
+            ]">
+                <component :is="toastIcon" class="w-6 h-6 flex-shrink-0" />
+                <div>
+                    <p class="font-semibold">{{ toast.title }}</p>
+                    <p class="text-sm opacity-90">{{ toast.message }}</p>
+                </div>
+                <button @click="toast.show = false" class="ml-auto hover:opacity-75">
+                    <XMarkIcon class="w-5 h-5" />
+                </button>
+            </div>
+        </transition>
+
+        <!-- Success Modal -->
+        <transition name="zoom">
+            <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
+                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <CheckCircleIcon class="w-12 h-12 text-green-500" />
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">Submissão Enviada!</h3>
+                    <p class="text-gray-600 mb-4">A sua reclamação foi submetida com sucesso.</p>
+                    <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+                        <p class="text-sm text-gray-600 mb-1">Código de Rastreio:</p>
+                        <p class="text-2xl font-mono font-bold text-orange-600">{{ submissionResult.reference_number }}</p>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-6">Guarde este código para acompanhar o estado da sua reclamação.</p>
+                    <button @click="closeSuccessAndForm"
+                        class="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
+                        Entendido
+                    </button>
+                </div>
+            </div>
+        </transition>
+
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-[1200px] h-[90vh] flex flex-col">
 
             <!-- Header -->
@@ -72,20 +113,63 @@
                             </p>
                         </div>
 
-                        <!-- Tipo de Reclamação -->
-                        <div class="space-y-2">
+                        <!-- Tipo de Submissão com Cards -->
+                        <div class="space-y-3 md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700">
-                                Tipo de Reclamação <span class="text-red-500">*</span>
+                                Tipo de Submissão <span class="text-red-500">*</span>
                             </label>
-                            <select v-model="formData.type" @change="errors.type = ''"
-                                :class="[
-                                    'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
-                                    errors.type ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
-                                ]">
-                                <option value="complaint">Reclamação</option>
-                                <option value="grievance">Queixa</option>
-                                <option value="suggestion">Sugestão</option>
-                            </select>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                <button type="button" @click="formData.type = 'complaint'; errors.type = ''"
+                                    :class="[
+                                        'p-4 rounded-xl border-2 transition-all duration-200 text-left group',
+                                        formData.type === 'complaint'
+                                            ? 'border-red-500 bg-red-50 ring-2 ring-red-200'
+                                            : 'border-gray-200 hover:border-red-300 hover:bg-red-25'
+                                    ]">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div :class="['w-10 h-10 rounded-full flex items-center justify-center',
+                                            formData.type === 'complaint' ? 'bg-red-500 text-white' : 'bg-red-100 text-red-600']">
+                                            <ExclamationCircleIcon class="w-6 h-6" />
+                                        </div>
+                                        <span class="font-semibold text-gray-900">Reclamação</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Reportar um problema ou insatisfação com serviços</p>
+                                </button>
+
+                                <button type="button" @click="formData.type = 'suggestion'; errors.type = ''"
+                                    :class="[
+                                        'p-4 rounded-xl border-2 transition-all duration-200 text-left group',
+                                        formData.type === 'suggestion'
+                                            ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200'
+                                            : 'border-gray-200 hover:border-blue-300 hover:bg-blue-25'
+                                    ]">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div :class="['w-10 h-10 rounded-full flex items-center justify-center',
+                                            formData.type === 'suggestion' ? 'bg-blue-500 text-white' : 'bg-blue-100 text-blue-600']">
+                                            <LightBulbIcon class="w-6 h-6" />
+                                        </div>
+                                        <span class="font-semibold text-gray-900">Sugestão</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Propor melhorias ou ideias para os serviços</p>
+                                </button>
+
+                                <button type="button" @click="formData.type = 'question'; errors.type = ''"
+                                    :class="[
+                                        'p-4 rounded-xl border-2 transition-all duration-200 text-left group',
+                                        formData.type === 'question'
+                                            ? 'border-green-500 bg-green-50 ring-2 ring-green-200'
+                                            : 'border-gray-200 hover:border-green-300 hover:bg-green-25'
+                                    ]">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <div :class="['w-10 h-10 rounded-full flex items-center justify-center',
+                                            formData.type === 'question' ? 'bg-green-500 text-white' : 'bg-green-100 text-green-600']">
+                                            <QuestionMarkCircleIcon class="w-6 h-6" />
+                                        </div>
+                                        <span class="font-semibold text-gray-900">Dúvida</span>
+                                    </div>
+                                    <p class="text-xs text-gray-500">Esclarecer informações sobre serviços ou projetos</p>
+                                </button>
+                            </div>
                             <p v-if="errors.type" class="text-red-500 text-xs mt-1 flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                     <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
@@ -94,17 +178,22 @@
                             </p>
                         </div>
 
-                        <!-- Projeto -->
-                        <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700">Projeto Relacionado (Opcional)</label>
+                        <!-- Projeto com destaque -->
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center gap-2">
+                                    <FolderIcon class="w-5 h-5 text-orange-500" />
+                                    Projeto Relacionado
+                                </span>
+                            </label>
                             <select v-model="formData.project_id" @change="errors.project_id = ''"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                <option value="">Selecione um projeto (opcional)</option>
+                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white">
+                                <option value="">-- Selecione um projeto (opcional) --</option>
                                 <option v-for="project in projects" :key="project.id" :value="project.id">
-                                    {{ project.name }} {{ project.location ? '(' + project.location + ')' : '' }}
+                                    {{ project.name }} {{ project.provincia ? '• ' + project.provincia : '' }} {{ project.distrito ? '/ ' + project.distrito : '' }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500">Selecione o projeto relacionado à sua submissão, se aplicável.</p>
+                            <p class="text-xs text-gray-500">Se a sua submissão está relacionada a um projeto específico do FUNAE, selecione-o aqui.</p>
                         </div>
 
                         <!-- Categoria -->
@@ -206,15 +295,15 @@
                         <!-- Descrição -->
                         <div class="space-y-2 md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700">
-                                Descrição da Reclamação <span class="text-red-500">*</span>
+                                Descrição <span class="text-red-500">*</span>
                             </label>
-                            <p class="mb-2 text-xs text-gray-500">Descreva detalhadamente a sua reclamação (mínimo 10 caracteres).</p>
-                            <textarea v-model="formData.description" @input="errors.description = ''" rows="6"
+                            <p class="mb-2 text-xs text-gray-500">Descreva detalhadamente a sua {{ formData.type === 'complaint' ? 'reclamação' : formData.type === 'suggestion' ? 'sugestão' : 'dúvida' }} (mínimo 10 caracteres).</p>
+                            <textarea v-model="formData.description" @input="errors.description = ''" rows="4"
                                 :class="[
                                     'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
                                     errors.description ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
                                 ]"
-                                placeholder="Descreva sua reclamação com o máximo de detalhes possível..."></textarea>
+                                :placeholder="descriptionPlaceholder"></textarea>
                             <div class="flex items-center justify-between">
                                 <p v-if="errors.description" class="flex items-center text-xs text-red-500">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -223,6 +312,51 @@
                                     {{ errors.description }}
                                 </p>
                                 <p class="text-xs text-gray-500">{{ formData.description.length }} caracteres</p>
+                            </div>
+                        </div>
+
+                        <!-- Gravação de Áudio -->
+                        <div class="space-y-3 md:col-span-2">
+                            <label class="block text-sm font-semibold text-gray-700">
+                                <span class="flex items-center gap-2">
+                                    <MicrophoneIcon class="w-5 h-5 text-orange-500" />
+                                    Mensagem de Voz (Opcional)
+                                </span>
+                            </label>
+                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
+                                <p class="text-xs text-gray-500 mb-3">Grave uma mensagem de voz para complementar ou substituir a descrição escrita.</p>
+
+                                <!-- Audio Recording Controls -->
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <button v-if="!isRecording && !audioBlob" type="button" @click="startRecording"
+                                        class="flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors">
+                                        <MicrophoneIcon class="w-5 h-5" />
+                                        Iniciar Gravação
+                                    </button>
+
+                                    <button v-if="isRecording" type="button" @click="stopRecording"
+                                        class="flex items-center gap-2 px-4 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-800 transition-colors animate-pulse">
+                                        <StopIcon class="w-5 h-5" />
+                                        Parar ({{ recordingTime }}s)
+                                    </button>
+
+                                    <div v-if="audioBlob && !isRecording" class="flex items-center gap-3 flex-1">
+                                        <audio ref="audioPlayerRef" :src="audioUrl" controls class="flex-1 h-10"></audio>
+                                        <button type="button" @click="deleteRecording"
+                                            class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                            <TrashIcon class="w-5 h-5" />
+                                        </button>
+                                    </div>
+
+                                    <!-- Or upload audio file -->
+                                    <div class="w-full mt-2 pt-2 border-t border-gray-200">
+                                        <label class="flex items-center gap-2 text-sm text-gray-600 cursor-pointer hover:text-orange-600">
+                                            <input type="file" accept="audio/*" @change="handleAudioUpload" class="hidden" />
+                                            <ArrowUpTrayIcon class="w-4 h-4" />
+                                            Ou carregar ficheiro de áudio
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -335,7 +469,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import {
     XMarkIcon,
     DocumentTextIcon,
@@ -345,7 +479,18 @@ import {
     ArrowLeftIcon,
     ArrowRightIcon,
     CheckIcon,
-    DocumentIcon
+    DocumentIcon,
+    ExclamationCircleIcon,
+    LightBulbIcon,
+    QuestionMarkCircleIcon,
+    FolderIcon,
+    MicrophoneIcon,
+    StopIcon,
+    TrashIcon,
+    ArrowUpTrayIcon,
+    CheckCircleIcon,
+    ExclamationTriangleIcon,
+    InformationCircleIcon
 } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -399,6 +544,144 @@ onMounted(() => {
 
 const files = ref([])
 const errors = ref({})
+
+// Toast notification state
+const toast = ref({
+    show: false,
+    type: 'success',
+    title: '',
+    message: ''
+})
+
+// Success modal state
+const showSuccessModal = ref(false)
+const submissionResult = ref({})
+
+// Audio recording state
+const isRecording = ref(false)
+const audioBlob = ref(null)
+const audioUrl = ref(null)
+const mediaRecorder = ref(null)
+const audioChunks = ref([])
+const recordingTime = ref(0)
+const recordingInterval = ref(null)
+const audioPlayerRef = ref(null)
+
+// Computed properties
+const descriptionPlaceholder = computed(() => {
+    switch (formData.value.type) {
+        case 'complaint':
+            return 'Descreva sua reclamação com o máximo de detalhes possível...'
+        case 'suggestion':
+            return 'Descreva sua sugestão e como ela pode melhorar os serviços...'
+        case 'question':
+            return 'Descreva sua dúvida de forma clara...'
+        default:
+            return 'Descreva com detalhes...'
+    }
+})
+
+const toastIcon = computed(() => {
+    switch (toast.value.type) {
+        case 'success': return CheckCircleIcon
+        case 'error': return ExclamationCircleIcon
+        case 'warning': return ExclamationTriangleIcon
+        default: return InformationCircleIcon
+    }
+})
+
+// Toast helper function
+const showToast = (type, title, message, duration = 4000) => {
+    toast.value = { show: true, type, title, message }
+    setTimeout(() => {
+        toast.value.show = false
+    }, duration)
+}
+
+// Audio recording functions
+const startRecording = async () => {
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        mediaRecorder.value = new MediaRecorder(stream)
+        audioChunks.value = []
+
+        mediaRecorder.value.ondataavailable = (event) => {
+            audioChunks.value.push(event.data)
+        }
+
+        mediaRecorder.value.onstop = () => {
+            audioBlob.value = new Blob(audioChunks.value, { type: 'audio/webm' })
+            audioUrl.value = URL.createObjectURL(audioBlob.value)
+            stream.getTracks().forEach(track => track.stop())
+        }
+
+        mediaRecorder.value.start()
+        isRecording.value = true
+        recordingTime.value = 0
+
+        recordingInterval.value = setInterval(() => {
+            recordingTime.value++
+            if (recordingTime.value >= 120) { // Max 2 minutes
+                stopRecording()
+                showToast('warning', 'Limite atingido', 'A gravação foi parada após 2 minutos.')
+            }
+        }, 1000)
+
+        showToast('info', 'Gravação iniciada', 'A gravar áudio...')
+    } catch (error) {
+        console.error('Error accessing microphone:', error)
+        showToast('error', 'Erro', 'Não foi possível aceder ao microfone. Verifique as permissões.')
+    }
+}
+
+const stopRecording = () => {
+    if (mediaRecorder.value && isRecording.value) {
+        mediaRecorder.value.stop()
+        isRecording.value = false
+        clearInterval(recordingInterval.value)
+        showToast('success', 'Gravação concluída', `Áudio gravado (${recordingTime.value}s)`)
+    }
+}
+
+const deleteRecording = () => {
+    if (audioUrl.value) {
+        URL.revokeObjectURL(audioUrl.value)
+    }
+    audioBlob.value = null
+    audioUrl.value = null
+    recordingTime.value = 0
+    showToast('info', 'Áudio removido', 'A gravação foi eliminada.')
+}
+
+const handleAudioUpload = (event) => {
+    const file = event.target.files[0]
+    if (file) {
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit
+            showToast('error', 'Ficheiro muito grande', 'O ficheiro de áudio deve ter no máximo 10MB.')
+            return
+        }
+        audioBlob.value = file
+        audioUrl.value = URL.createObjectURL(file)
+        showToast('success', 'Áudio carregado', file.name)
+    }
+    event.target.value = ''
+}
+
+const closeSuccessAndForm = () => {
+    showSuccessModal.value = false
+    emit('success', submissionResult.value)
+    emit('close')
+}
+
+// Cleanup on unmount
+onUnmounted(() => {
+    if (audioUrl.value) {
+        URL.revokeObjectURL(audioUrl.value)
+    }
+    if (recordingInterval.value) {
+        clearInterval(recordingInterval.value)
+    }
+})
 
 const categories = ref({
     'Serviços Públicos': ['Fornecimento de Energia', 'Qualidade do Serviço', 'Atendimento ao Cliente', 'Faturação'],
@@ -516,6 +799,14 @@ const handleSubmit = async () => {
             formDataToSend.append(`attachments[${index}]`, file)
         })
 
+        // Adicionar áudio se existir
+        if (audioBlob.value) {
+            const audioFile = audioBlob.value instanceof File
+                ? audioBlob.value
+                : new File([audioBlob.value], 'voice_message.webm', { type: 'audio/webm' })
+            formDataToSend.append('audio_attachment', audioFile)
+        }
+
         console.log('Enviando reclamação...', {
             category: formData.value.category,
             is_anonymous: formData.value.is_anonymous,
@@ -552,7 +843,9 @@ const handleSubmit = async () => {
 
         if (response.ok && data.success) {
             console.log('Sucesso! Número:', data.reference_number)
-            emit('submitted', data)
+            submissionResult.value = data
+            showSuccessModal.value = true
+            showToast('success', 'Submissão enviada!', 'A sua reclamação foi registada com sucesso.')
         } else {
             console.error('Erro na resposta:', data)
 
@@ -563,6 +856,7 @@ const handleSubmit = async () => {
 
                 // Voltar para o primeiro passo se houver erros
                 currentStep.value = 1
+                showToast('error', 'Erro de validação', 'Por favor, corrija os erros indicados.')
 
                 // Scroll para o topo do formulário para ver os erros
                 setTimeout(() => {
@@ -576,12 +870,57 @@ const handleSubmit = async () => {
     } catch (error) {
         console.error('Erro crítico ao submeter:', error)
 
-        // Mostrar erro genérico no console
+        // Mostrar erro genérico
         if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            console.error('Problema de conexão - Servidor pode não estar rodando')
+            showToast('error', 'Erro de conexão', 'Verifique a sua ligação à internet e tente novamente.')
+        } else {
+            showToast('error', 'Erro inesperado', 'Ocorreu um erro ao processar a sua submissão.')
         }
     } finally {
         isSubmitting.value = false
     }
 }
 </script>
+
+<style scoped>
+/* Toast slide animation */
+.slide-fade-enter-active {
+    transition: all 0.3s ease-out;
+}
+.slide-fade-leave-active {
+    transition: all 0.2s ease-in;
+}
+.slide-fade-enter-from {
+    transform: translateX(100%);
+    opacity: 0;
+}
+.slide-fade-leave-to {
+    transform: translateX(100%);
+    opacity: 0;
+}
+
+/* Success modal zoom animation */
+.zoom-enter-active {
+    transition: all 0.3s ease-out;
+}
+.zoom-leave-active {
+    transition: all 0.2s ease-in;
+}
+.zoom-enter-from {
+    transform: scale(0.9);
+    opacity: 0;
+}
+.zoom-leave-to {
+    transform: scale(0.9);
+    opacity: 0;
+}
+
+/* Recording pulse animation */
+@keyframes pulse-recording {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+.animate-pulse {
+    animation: pulse-recording 1.5s ease-in-out infinite;
+}
+</style>
