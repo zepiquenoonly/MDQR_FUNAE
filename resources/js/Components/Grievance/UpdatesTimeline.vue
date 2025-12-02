@@ -1,17 +1,5 @@
 <script setup>
-import {
-  ClockIcon,
-  DocumentTextIcon,
-  ArrowPathIcon,
-  UserIcon,
-  ArrowsRightLeftIcon,
-  ChatBubbleLeftIcon,
-  BoltIcon,
-  PaperClipIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  LockOpenIcon,
-} from "@heroicons/vue/24/outline";
+import { ClockIcon, DocumentTextIcon, ArrowPathIcon, UserIcon, ArrowsRightLeftIcon, ChatBubbleLeftIcon, BoltIcon, PaperClipIcon, CheckCircleIcon, XCircleIcon, LockOpenIcon } from '@heroicons/vue/24/outline';
 
 defineProps({
   updates: {
@@ -21,19 +9,19 @@ defineProps({
 });
 
 const getIconForActionType = (actionType) => {
-  const icons = {
-    created: DocumentTextIcon,
-    status_changed: ArrowPathIcon,
-    assigned: UserIcon,
-    reassigned: ArrowsRightLeftIcon,
-    comment_added: ChatBubbleLeftIcon,
-    priority_changed: BoltIcon,
-    attachment_added: PaperClipIcon,
-    resolved: CheckCircleIcon,
-    rejected: XCircleIcon,
-    reopened: LockOpenIcon,
-  };
-  return icons[actionType] || ClockIcon;
+    const icons = {
+        created: DocumentTextIcon,
+        status_changed: ArrowPathIcon,
+        assigned: UserIcon,
+        reassigned: ArrowsRightLeftIcon,
+        comment_added: ChatBubbleLeftIcon,
+        priority_changed: BoltIcon,
+        attachment_added: PaperClipIcon,
+        resolved: CheckCircleIcon,
+        rejected: XCircleIcon,
+        reopened: LockOpenIcon
+    };
+    return icons[actionType] || ClockIcon;
 };
 
 const formatDate = (dateString) => {

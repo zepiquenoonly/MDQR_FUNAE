@@ -1,7 +1,5 @@
 <template>
-  <div
-    class="min-h-screen bg-gray-50 dark:bg-dark-primary flex transition-colors duration-200"
-  >
+  <div style="zoom: 90%;" class="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-100 dark:bg-dark-primary flex transition-colors duration-200">
     <!-- Sidebar para desktop - sempre visível e fixa -->
     <div
       class="hidden sm:block transition-all duration-300 fixed left-0 top-0 h-full z-30"
@@ -23,15 +21,9 @@
         @click="handleSidebarToggle(true)"
       ></div>
       <!-- Sidebar que cobre toda a altura incluindo header -->
-      <div
-        class="absolute left-0 top-0 h-full w-64 bg-brand dark:bg-dark-secondary text-white shadow-xl z-50"
-      >
-        <Sidebar
-          :user="$page.props.auth.user"
-          :stats="safeStats"
-          :is-collapsed="false"
-          @toggle-sidebar="handleSidebarToggle(true)"
-        />
+      <div class="absolute left-0 top-0 h-full w-64 glass text-gray-900 shadow-glass-lg z-50 m-2 rounded-2xl">
+        <Sidebar :user="$page.props.auth.user" :stats="safeStats" :is-collapsed="false"
+          @toggle-sidebar="handleSidebarToggle(true)" />
       </div>
     </div>
 

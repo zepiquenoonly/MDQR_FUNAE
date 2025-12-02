@@ -1,78 +1,110 @@
 <template>
   <div>
     <!-- Loading State -->
-    <div v-if="loading" class="flex justify-center items-center py-8">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand"></div>
+    <div v-if="loading" class="glass-card p-12 text-center hover:shadow-2xl transition-all duration-300 border border-white/40">
+      <div class="w-16 h-16 mx-auto mb-6 border-4 border-primary-500 rounded-full animate-spin border-t-transparent"></div>
+      <p class="text-lg font-semibold text-gray-800">Carregando projetos...</p>
+      <p class="text-sm text-gray-600 mt-2">Aguarde um momento</p>
     </div>
 
     <!-- Error State -->
-    <div v-else-if="error" class="text-center py-8">
-      <p class="text-red-500">Erro ao carregar projetos: {{ error }}</p>
-      <button @click="fetchProjects" class="mt-4 bg-brand text-white px-4 py-2 rounded-lg">
-        Tentar Novamente
-      </button>
+    <div v-else-if="error" class="glass-card p-8 text-center hover:shadow-2xl transition-all duration-300 border border-red-200 relative overflow-hidden group">
+      <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+      <div class="relative z-10">
+        <div class="p-4 bg-red-50 rounded-2xl inline-block mb-4">
+          <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+        </div>
+        <p class="mb-2 text-xl font-bold text-gray-900">Erro ao carregar projetos</p>
+        <p class="mb-6 text-gray-600">{{ error }}</p>
+        <button @click="fetchProjects" class="px-6 py-3 font-semibold text-white bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl border border-orange-400/30">
+          Tentar Novamente
+        </button>
+      </div>
     </div>
 
     <!-- Success State -->
     <div v-else>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         <div v-for="(project, index) in displayedProjects" :key="project.id" :class="[
-          'bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden min-h-[230px] flex flex-col',
+          'bg-white rounded-xl overflow-hidden min-h-[250px] flex flex-col hover:shadow-lg transition-all duration-200 border group',
           getBorderClass()
         ]">
           <!-- CABEÇALHO COM IMAGEM E NOME DO PROJECTO -->
-          <div class="flex items-center p-4 flex-shrink-0">
+          <div class="flex items-center p-5 flex-shrink-0 border-b border-gray-100">
             <!-- IMAGEM DO PROJECTO -->
-            <div class="w-20 h-20 flex items-center justify-center">
-              <img :src="project.image_url || '/images/Emblem_of_Mozambique.svg-2.png'" 
-                   :alt="project.name" 
-                   class="w-20 h-20 object-contain" />
+            <div class="w-16 h-16 flex items-center justify-center flex-shrink-0 bg-gray-50 rounded-lg border border-gray-200">
+              <img :src="project.image_url || '/images/Emblem_of_Mozambique.svg-2.png'"
+                   :alt="project.name"
+                   class="w-12 h-12 object-contain" />
             </div>
 
             <!-- NOME DO PROJECTO -->
             <div class="ml-4 flex-1">
-              <h3 class="font-bold text-gray-800 text-lg leading-tight">
+              <h3 class="font-semibold text-gray-900 text-base leading-tight mb-2">
                 {{ project.name }}
               </h3>
+              <span :class="['inline-block px-2.5 py-1 text-xs font-medium rounded-md', getStatusBadgeClass()]">
+                {{ getStatusText() }}
+              </span>
             </div>
           </div>
 
           <!-- CONTEÚDO PRINCIPAL DA CARD -->
           <div class="flex-1 flex flex-col">
             <!-- BOTÃO MOSTRAR DETALHES -->
-            <div v-if="!expandedStates[project.id]" class="px-4 py-3 flex items-center justify-center flex-1">
-              <button @click="toggleDetails(project.id)" :class="[
-                'text-white w-full py-3 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors',
-                getButtonClass()
-              ]">
-                <span class="text-lg">⌄</span> Mais detalhes
+            <div v-if="!expandedStates[project.id]" class="px-5 py-4 flex items-center justify-center flex-1 bg-gray-50">
+              <button @click="toggleDetails(project.id)" class="w-full py-2.5 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 hover:border-gray-400 transition-all duration-200 flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+                <span>Mais detalhes</span>
               </button>
             </div>
 
             <!-- DETALHES EXPANDIDOS -->
             <transition name="slide-fade">
-              <div v-if="expandedStates[project.id]" class="px-4 py-4 space-y-3 flex-1">
-                <div class="space-y-2">
-                  <p class="text-sm"><strong>Localização:</strong> {{ getLocation(project) }}</p>
-                  <p class="text-sm"><strong>Responsável do Projeto:</strong> {{ project.finance?.responsavel || 'N/A' }}</p>
-                  <p class="text-sm"><strong>Data de Início:</strong> {{ formatDate(project.deadline?.data_inicio) }}</p>
-                  <p class="text-sm"><strong>Data de Termino:</strong> {{ formatDate(project.deadline?.data_finalizacao) }}</p>
-                  <p class="text-sm"><strong>Orçamento:</strong> {{ project.finance?.valor_financiado || 'N/A' }}</p>
+              <div v-if="expandedStates[project.id]" class="px-5 py-4 space-y-3 flex-1 bg-gray-50 border-t border-gray-100">
+                <div class="space-y-2.5">
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 font-medium">Localização:</span>
+                    <span class="text-gray-900">{{ getLocation(project) }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 font-medium">Responsável:</span>
+                    <span class="text-gray-900">{{ project.finance?.responsavel || 'N/A' }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 font-medium">Data de Início:</span>
+                    <span class="text-gray-900">{{ formatDate(project.deadline?.data_inicio) }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 font-medium">Data de Término:</span>
+                    <span class="text-gray-900">{{ formatDate(project.deadline?.data_finalizacao) }}</span>
+                  </div>
+                  <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 font-medium">Orçamento:</span>
+                    <span class="text-gray-900 font-semibold">{{ project.finance?.valor_financiado || 'N/A' }}</span>
+                  </div>
                 </div>
 
-                <div class="mt-auto space-y-2">
+                <div class="mt-4 space-y-2 pt-3 border-t border-gray-200">
                   <!-- BOTÃO "VER DETALHES" -->
                   <button @click="viewProjectDetails(project.id)" :class="[
-                    'text-white w-full mt-4 mb-2 py-2 rounded-lg font-semibold transition-colors',
+                    'text-white w-full py-2.5 rounded-lg font-medium transition-all duration-200 text-sm',
                     getDetailsButtonClass()
                   ]">
-                    Ver detalhes
+                    Ver detalhes completos
                   </button>
 
                   <!-- BOTÃO OCULTAR -->
                   <button @click="toggleDetails(project.id)"
-                    class="bg-gray-500 hover:bg-gray-600 text-white w-full mt-4 mb-4 py-2 rounded-lg flex items-center justify-center gap-2 font-semibold transition-colors">
-                    <span class="text-lg">⌃</span> Ocultar detalhes
+                    class="bg-white hover:bg-gray-50 text-gray-700 w-full py-2.5 rounded-lg flex items-center justify-center gap-2 font-medium transition-all duration-200 border border-gray-300 hover:border-gray-400 text-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                    </svg>
+                    <span>Ocultar detalhes</span>
                   </button>
                 </div>
               </div>
@@ -82,8 +114,14 @@
       </div>
 
       <!-- Empty State -->
-      <div v-if="displayedProjects.length === 0 && !loading" class="text-center py-8">
-        <p class="text-gray-500">Nenhum projeto encontrado.</p>
+      <div v-if="displayedProjects.length === 0 && !loading" class="glass-card p-12 text-center hover:shadow-2xl transition-all duration-300 border border-white/40">
+        <div class="p-6 bg-gray-50 rounded-2xl inline-block mb-4">
+          <svg class="w-16 h-16 text-gray-400 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+          </svg>
+        </div>
+        <p class="text-xl font-bold text-gray-900 mb-2">Nenhum projeto encontrado</p>
+        <p class="text-gray-600">Não há projetos disponíveis no momento.</p>
       </div>
     </div>
   </div>
@@ -186,32 +224,58 @@ const viewProjectDetails = (projectId) => {
 }
 
 const getDetailsButtonClass = () => {
-  return 'bg-brand-blue hover:bg-blue-600'
+  return 'bg-blue-600 hover:bg-blue-700'
 }
 
 const getBorderClass = () => {
   switch (props.type) {
     case 'andamento':
-      return 'border border-brand'
+      return 'border-gray-200 hover:border-primary-300'
     case 'parados':
-      return 'border border-brand-red'
+      return 'border-gray-200 hover:border-red-300'
     case 'finalizados':
-      return 'border border-brand-green'
+      return 'border-gray-200 hover:border-green-300'
     default:
-      return 'border border-brand'
+      return 'border-gray-200 hover:border-primary-300'
   }
 }
 
 const getButtonClass = () => {
   switch (props.type) {
     case 'andamento':
-      return 'bg-brand hover:bg-orange-600'
+      return 'bg-primary-600 hover:bg-primary-700'
     case 'parados':
-      return 'bg-brand-red hover:bg-red-700'
+      return 'bg-red-600 hover:bg-red-700'
     case 'finalizados':
-      return 'bg-brand-green hover:bg-green-700'
+      return 'bg-green-600 hover:bg-green-700'
     default:
-      return 'bg-brand hover:bg-orange-600'
+      return 'bg-primary-600 hover:bg-primary-700'
+  }
+}
+
+const getStatusBadgeClass = () => {
+  switch (props.type) {
+    case 'andamento':
+      return 'bg-primary-50 text-primary-700 border border-primary-200'
+    case 'parados':
+      return 'bg-red-50 text-red-700 border border-red-200'
+    case 'finalizados':
+      return 'bg-green-50 text-green-700 border border-green-200'
+    default:
+      return 'bg-primary-50 text-primary-700 border border-primary-200'
+  }
+}
+
+const getStatusText = () => {
+  switch (props.type) {
+    case 'andamento':
+      return 'Em andamento'
+    case 'parados':
+      return 'Parado'
+    case 'finalizados':
+      return 'Finalizado'
+    default:
+      return 'Projeto'
   }
 }
 

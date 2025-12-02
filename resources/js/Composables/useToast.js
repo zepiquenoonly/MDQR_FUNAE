@@ -1,23 +1,54 @@
-import { ref } from 'vue'
+import { ref } from 'vue';
 
-const toast = ref(null)
+const toasts = ref([]);
+let toastId = 0;
 
 export function useToast() {
-    const show = (message, type = 'success') => {
-        if (toast.value) {
-            toast.value.showToast(message, type)
-        }
-    }
+    const addToast = (message, type = 'info', duration = 3000) => {
+        const id = toastId++;
+        const toast = { id, message, type, duration };
 
-    const success = (message) => show(message, 'success')
-    const error = (message) => show(message, 'error')
+        toasts.value.push(toast);
+
+        if (duration > 0) {
+            setTimeout(() => {
+                removeToast(id);
+            }, duration);
+        }
+
+        return id;
+    };
+
+    const removeToast = (id) => {
+        const index = toasts.value.findIndex(toast => toast.id === id);
+        if (index !== -1) {
+            toasts.value.splice(index, 1);
+        }
+    };
+
+    const success = (message, duration = 3000) => {
+        return addToast(message, 'success', duration);
+    };
+
+    const error = (message, duration = 3000) => {
+        return addToast(message, 'error', duration);
+    };
+
+    const warning = (message, duration = 3000) => {
+        return addToast(message, 'warning', duration);
+    };
+
+    const info = (message, duration = 3000) => {
+        return addToast(message, 'info', duration);
+    };
 
     return {
-        show,
+        toasts,
+        addToast,
+        removeToast,
         success,
         error,
-        setToast: (toastInstance) => {
-            toast.value = toastInstance
-        }
-    }
+        warning,
+        info
+    };
 }
