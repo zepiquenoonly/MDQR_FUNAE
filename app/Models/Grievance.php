@@ -287,6 +287,7 @@ class Grievance extends Model
         return match($this->status) {
             'submitted' => 'Submetida',
             'under_review' => 'Em Análise',
+            'pending_review' => 'Pendente de Revisão',
             'assigned' => 'Atribuída',
             'in_progress' => 'Em Andamento',
             'pending_approval' => 'Pendente de Aprovação',

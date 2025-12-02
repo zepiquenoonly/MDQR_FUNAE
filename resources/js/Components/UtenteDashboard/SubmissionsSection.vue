@@ -211,7 +211,7 @@ const getTypeLabel = (type) => {
     'all': 'submissões',
     'complaint': 'Reclamação',
     'grievance': 'Queixa',
-    'suggestion': 'Sugestão'
+    'suggestion': 'Sugestão',
   }
   return labels[type] || type
 }
@@ -220,7 +220,7 @@ const getTypeBadgeClass = (type) => {
   const classes = {
     'complaint': 'bg-red-100 text-red-800',
     'grievance': 'bg-orange-100 text-orange-800',
-    'suggestion': 'bg-blue-100 text-blue-800'
+    'suggestion': 'bg-blue-100 text-blue-800',
   }
   return classes[type] || 'bg-gray-100 text-gray-800'
 }

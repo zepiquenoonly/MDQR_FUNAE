@@ -287,7 +287,7 @@ const carregarDadosDesempenho = async () => {
         await carregarDadosMensais()
 
     } catch (err) {
-        console.error('❌ Erro ao carregar dados de desempenho:', err)
+        console.error('[ERRO] Erro ao carregar dados de desempenho:', err)
         error.value = err.message || 'Erro ao carregar dados do técnico'
     } finally {
         loading.value = false
@@ -312,7 +312,7 @@ const carregarDadosMensais = async () => {
         casosMensais.value = data.casos_mensais || []
 
     } catch (err) {
-        console.error('❌ Erro ao carregar dados mensais:', err)
+        console.error('[ERRO] Erro ao carregar dados mensais:', err)
         // Não definir error global aqui para não quebrar a interface completa
         dadosMensais.value = {}
         casosMensais.value = []

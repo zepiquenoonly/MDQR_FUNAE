@@ -14,3 +14,9 @@ Schedule::command('queue:work --stop-when-empty --tries=3 --timeout=60')
     ->withoutOverlapping()
     ->runInBackground()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
+
+// Auto-assign grievances pending for 24+ hours (runs every hour)
+Schedule::command('grievance:auto-assign --force')
+    ->hourly()
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/auto-assignment.log'));

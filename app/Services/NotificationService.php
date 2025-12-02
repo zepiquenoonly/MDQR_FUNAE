@@ -36,8 +36,8 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_GRIEVANCE_CREATED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Recebida - {$grievance->reference_number}",
-            'message' => "A sua reclamação foi recebida com sucesso e está a ser analisada pela nossa equipa.",
+            'subject' => "{$this->getTypeLabel($grievance->type)} Recebida - {$grievance->reference_number}",
+            'message' => "A sua {$this->getTypeLabel($grievance->type)} foi recebida com sucesso e está a ser analisada pela nossa equipa.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
                 'category' => $grievance->category,
@@ -52,7 +52,7 @@ class NotificationService
 
         // Enviar SMS se disponível
         $this->sendSMSIfEnabled($grievance,
-            "FUNAE: Reclamacao {$grievance->reference_number} recebida com sucesso. Acompanhe em " . route('grievance.track')
+            "FUNAE: {$this->getTypeLabel($grievance->type)} {$grievance->reference_number} recebida com sucesso. Acompanhe em " . route('grievance.track')
         );
     }
 
@@ -74,8 +74,8 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_STATUS_CHANGED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Atualização de Status - {$grievance->reference_number}",
-            'message' => $this->getStatusChangeMessage($oldStatus, $newStatus),
+            'subject' => "Atualização de Status - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
+            'message' => $this->getStatusChangeMessage($grievance, $oldStatus, $newStatus),
             'data' => [
                 'reference_number' => $grievance->reference_number,
                 'old_status' => $oldStatus,
@@ -107,8 +107,8 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_ASSIGNED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Atribuída - {$grievance->reference_number}",
-            'message' => "A sua reclamação foi atribuída a {$assignedUser->name} e está a ser analisada.",
+            'subject' => "{$this->getTypeLabel($grievance->type)} Atribuída - {$grievance->reference_number}",
+            'message' => "A sua {$this->getTypeLabel($grievance->type)} foi atribuída a {$assignedUser->name} e está a ser analisada.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
                 'assigned_to' => $assignedUser->name,
@@ -145,7 +145,7 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_COMMENT_ADDED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Nova Atualização - {$grievance->reference_number}",
+            'subject' => "Nova Atualização - {$grievance->reference_number} (Tipo: {$this->getTypeLabel($grievance->type)})",
             'message' => "Foi adicionado um novo comentário à sua reclamação.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
@@ -178,8 +178,8 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_RESOLVED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Resolvida - {$grievance->reference_number}",
-            'message' => "A sua reclamação foi resolvida. Consulte os detalhes da resolução.",
+            'subject' => "{$this->getTypeLabel($grievance->type)} Resolvida - {$grievance->reference_number}",
+            'message' => "A sua {$this->getTypeLabel($grievance->type)} foi resolvida. Consulte os detalhes da resolução.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
                 'resolved_at' => $grievance->resolved_at?->toISOString(),
@@ -211,8 +211,8 @@ class NotificationService
             'type' => GrievanceNotification::TYPE_REJECTED,
             'channel' => GrievanceNotification::CHANNEL_EMAIL,
             'recipient_email' => $recipientEmail,
-            'subject' => "Reclamação Não Procedente - {$grievance->reference_number}",
-            'message' => "A sua reclamação foi analisada e considerada não procedente.",
+            'subject' => "{$this->getTypeLabel($grievance->type)} Não Procedente - {$grievance->reference_number}",
+            'message' => "A sua {$this->getTypeLabel($grievance->type)} foi analisada e considerada não procedente.",
             'data' => [
                 'reference_number' => $grievance->reference_number,
                 'reason' => $reason,
@@ -273,16 +273,17 @@ class NotificationService
     /**
      * Obter mensagem personalizada para mudança de status
      */
-    protected function getStatusChangeMessage(string $oldStatus, string $newStatus): string
+    protected function getStatusChangeMessage(Grievance $grievance, string $oldStatus, string $newStatus): string
     {
+        $typeLabel = $this->getTypeLabel($grievance->type);
         return match($newStatus) {
-            'under_review' => 'A sua reclamação está a ser analisada pela nossa equipa técnica.',
-            'assigned' => 'A sua reclamação foi atribuída a um técnico especializado.',
-            'in_progress' => 'O processamento da sua reclamação está em andamento.',
-            'pending_approval' => 'A resolução da sua reclamação está pendente de aprovação.',
-            'resolved' => 'A sua reclamação foi resolvida com sucesso.',
-            'rejected' => 'A sua reclamação foi considerada não procedente após análise.',
-            default => 'O status da sua reclamação foi atualizado.',
+            'under_review' => "A sua {$typeLabel} está a ser analisada pela nossa equipa técnica.",
+            'assigned' => "A sua {$typeLabel} foi atribuída a um técnico especializado.",
+            'in_progress' => "O processamento da sua {$typeLabel} está em andamento.",
+            'pending_approval' => "A resolução da sua {$typeLabel} está pendente de aprovação.",
+            'resolved' => "A sua {$typeLabel} foi resolvida com sucesso.",
+            'rejected' => "A sua {$typeLabel} foi considerada não procedente após análise.",
+            default => "O status da sua {$typeLabel} foi atualizado.",
         };
     }
 
@@ -318,7 +319,7 @@ class NotificationService
         $grievance = $notification->grievance;
 
         if (!$grievance) {
-            throw new \Exception("Reclamação não encontrada");
+            throw new \Exception("{$this->getTypeLabel($grievance->type)} não encontrada");
         }
 
         // Enviar baseado no tipo
@@ -471,5 +472,18 @@ class NotificationService
     protected function isSMSEnabled(): bool
     {
         return config('services.sms.enabled', false);
+    }
+
+    /**
+     * Obter rótulo do tipo de reclamação
+     */
+    protected function getTypeLabel(string $type): string
+    {
+        return match($type) {
+            'grievance' => 'Reclamação',
+            'complaint' => 'Queixa',
+            'suggestion' => 'Sugestão',
+            default => ucfirst($type),
+        };
     }
 }

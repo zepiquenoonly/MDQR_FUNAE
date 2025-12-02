@@ -22,11 +22,13 @@ class ManagerDashboardController extends Controller
         $status = $request->input('status');
         $priority = $request->input('priority');
         $category = $request->input('category');
+        $type = $request->input('type');
 
         $filters = [
             'status' => $status !== null && $status !== '' ? $status : null,
             'priority' => $priority !== null && $priority !== '' ? $priority : null,
             'category' => $category !== null && $category !== '' ? $category : null,
+            'type' => $type !== null && $type !== '' ? $type : null,
         ];
 
         // Query base para reclamações - SEMPRE retornar dados
@@ -44,6 +46,9 @@ class ManagerDashboardController extends Controller
         if ($filters['category']) {
             $complaintsQuery->where('category', $filters['category']);
         }
+        if ($filters['type']) {
+            $complaintsQuery->where('type', $filters['type']);
+        }
 
         // Paginação para a lista principal - garantir que sempre retorna pelo menos array vazio
         $complaints = $complaintsQuery->paginate(10)->through(function ($grievance) {
@@ -51,7 +56,7 @@ class ManagerDashboardController extends Controller
                 'id' => $grievance->id,
                 'title' => $grievance->description,
                 'description' => $grievance->description,
-                'type' => 'complaint',
+                'type' => $grievance->type,
                 'priority' => $grievance->priority,
                 'status' => $grievance->status,
                 'category' => $grievance->category,
@@ -81,25 +86,35 @@ class ManagerDashboardController extends Controller
             ->with(['user:id,name,email', 'assignedUser:id,name'])
             ->latest('submitted_at');
 
-        $allComplaints = $allComplaintsQuery->get()->map(function ($grievance) {
+       $allComplaints = $allComplaintsQuery->get()->map(function ($grievance) {
+    return [
+        'id' => $grievance->id,
+        'title' => $grievance->description,
+        'description' => $grievance->description,
+        'type' => $grievance->type,
+        'priority' => $grievance->priority,
+        'status' => $grievance->status,
+        'category' => $grievance->category,
+        'created_at' => $grievance->created_at,
+        'submitted_at' => $grievance->submitted_at,
+        'reference_number' => $grievance->reference_number,
+        'province' => $grievance->province,
+        'district' => $grievance->district,
+        'user' => $grievance->user ? [
+            'name' => $grievance->user->name,
+        ] : null,
+        'technician' => $grievance->assignedUser ? [
+            'name' => $grievance->assignedUser->name,
+        ] : null,
+        'attachments' => $grievance->attachments->map(function ($attachment) {
             return [
-                'id' => $grievance->id,
-                'title' => $grievance->description,
-                'description' => $grievance->description,
-                'type' => 'complaint',
-                'priority' => $grievance->priority,
-                'status' => $grievance->status,
-                'category' => $grievance->category,
-                'created_at' => $grievance->created_at,
-                'submitted_at' => $grievance->submitted_at,
-                'reference_number' => $grievance->reference_number,
-                'province' => $grievance->province,
-                'district' => $grievance->district,
-                'assigned_user' => $grievance->assignedUser ? [
-                    'name' => $grievance->assignedUser->name,
-                ] : null,
+                'id' => $attachment->id,
+                'name' => $attachment->original_filename,
+                'size' => $attachment->size,
             ];
-        })->toArray();
+        })->toArray(),
+    ];
+});
 
         // Estatísticas - garantir valores padrão
         $stats = [

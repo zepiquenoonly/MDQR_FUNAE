@@ -44,6 +44,8 @@ class User extends Authenticatable
         'district',
         'neighborhood',
         'street',
+        'avatar_path',
+        'avatar_url', 
         'workload_capacity',
         'current_workload',
         'is_available',
@@ -194,4 +196,23 @@ class User extends Authenticatable
         
         return $specialization ? $specialization->proficiency_level : 0;
     }
+
+    /**
+     * Get the projects assigned to this technician.
+     */
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class, 'project_user')
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if user is assigned to a specific project.
+     */
+    public function isAssignedToProject(int $projectId): bool
+    {
+        return $this->projects()->where('projects.id', $projectId)->exists();
+    }
+
+    
 }

@@ -26,9 +26,6 @@ A sua {{ $grievance->type_label_lowercase }} foi considerada não procedente ap�
 O status da sua {{ $grievance->type_label_lowercase }} foi atualizado.
 @endif
 
-Para ver os detalhes completos, aceda a:
-{{ route('grievance.track') }}?ref={{ $grievance->reference_number }}
-
 Pode continuar a acompanhar o progresso da sua {{ $grievance->type_label_lowercase }} online a qualquer momento usando o número de referência acima.
 
 Atenciosamente,
