@@ -24,11 +24,11 @@
             <div v-if="showErrorModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
                 <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative">
                     <!-- Botão X no canto superior direito -->
-                    <button @click="closeErrorModal" 
+                    <button @click="closeErrorModal"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
                         <XMarkIcon class="w-6 h-6" />
                     </button>
-                    
+
                     <div class="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <ExclamationTriangleIcon class="w-12 h-12 text-red-500" />
                     </div>
@@ -56,11 +56,11 @@
             <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
                 <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative">
                     <!-- Botão X no canto superior direito -->
-                    <button @click="closeSuccessAndForm" 
+                    <button @click="closeSuccessAndForm"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
                         <XMarkIcon class="w-6 h-6" />
                     </button>
-                    
+
                     <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircleIcon class="w-12 h-12 text-green-500" />
                     </div>
@@ -101,7 +101,7 @@
                     <div class="flex items-center">
                         <div :class="[
                             'w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 border-2',
-                            currentStep === 1 ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-200' : 
+                            currentStep === 1 ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-200' :
                             currentStep > 1 ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-400 border-gray-300'
                         ]">
                             <CheckIcon v-if="currentStep > 1" class="w-6 h-6" />
@@ -119,7 +119,7 @@
                     <div class="flex items-center">
                         <div :class="[
                             'w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all duration-300 border-2',
-                            currentStep === 2 ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-200' : 
+                            currentStep === 2 ? 'bg-orange-500 text-white border-orange-500 shadow-lg shadow-orange-200' :
                             currentStep > 2 ? 'bg-green-500 text-white border-green-500' : 'bg-white text-gray-400 border-gray-300'
                         ]">
                             <CheckIcon v-if="currentStep > 2" class="w-6 h-6" />
@@ -151,11 +151,11 @@
 
             <!-- Content -->
             <div class="flex-1 p-6 overflow-y-auto bg-gray-50">
-                
+
                 <!-- ==================== PASSO 1: DADOS PESSOAIS ==================== -->
                 <template v-if="currentStep === 1">
                     <div class="max-w-2xl mx-auto space-y-6">
-                        
+
                         <!-- Toggle Anónimo -->
                         <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                             <div class="flex items-center justify-between mb-4">
@@ -167,7 +167,7 @@
                                     <p class="text-sm text-gray-500 mt-1">Escolha se deseja se identificar ou manter o anonimato</p>
                                 </div>
                             </div>
-                            
+
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <button type="button" @click="formData.is_anonymous = false"
                                     :class="[
@@ -287,7 +287,7 @@
                                     <div>
                                         <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
                                         <p class="text-sm text-orange-700">
-                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais. 
+                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
                                             No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
                                         </p>
                                     </div>
@@ -301,14 +301,14 @@
                 <!-- ==================== PASSO 2: DETALHES DA SUBMISSÃO ==================== -->
                 <template v-else-if="currentStep === 2">
                     <div class="max-w-2xl mx-auto space-y-6">
-                        
+
                         <!-- Tipo de Submissão -->
                         <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                 <TagIcon class="w-5 h-5 text-orange-500" />
                                 Tipo de Submissão <span class="text-red-500">*</span>
                             </h3>
-                            
+
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <button type="button" @click="formData.type = 'complaint'; errors.type = ''"
                                     :class="[
@@ -376,7 +376,7 @@
                                 <FolderIcon class="w-5 h-5 text-orange-500" />
                                 Projeto Relacionado <span class="text-red-500">*</span>
                             </h3>
-                            
+
                             <select v-model="formData.project_id" @change="errors.project_id = ''"
                                 :class="[
                                     'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 bg-white transition-all',
@@ -403,7 +403,7 @@
                                 <DocumentTextIcon class="w-5 h-5 text-orange-500" />
                                 Descrição <span class="text-red-500">*</span>
                             </h3>
-                            
+
                             <textarea v-model="formData.description" @input="errors.description = ''" rows="6"
                                 :class="[
                                     'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all resize-none',
@@ -411,7 +411,7 @@
                                 ]"
                                 maxlength="1500"
                                 :placeholder="descriptionPlaceholder"></textarea>
-                            
+
                             <div class="flex items-center justify-between mt-3">
                                 <p v-if="errors.description" class="flex items-center text-xs text-red-500">
                                     <ExclamationCircleIcon class="w-4 h-4 mr-1" />
@@ -443,7 +443,7 @@
                 <!-- ==================== PASSO 3: EVIDÊNCIAS ==================== -->
                 <template v-else>
                     <div class="max-w-2xl mx-auto space-y-6">
-                        
+
                         <!-- Info -->
                         <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
                             <InformationCircleIcon class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" />
@@ -459,7 +459,7 @@
                                 <PhotoIcon class="w-5 h-5 text-orange-500" />
                                 Fotos e Documentos
                             </h3>
-                            
+
                             <div @drop.prevent="handleDrop" @dragover.prevent @click="triggerFileInput"
                                 :class="[
                                     'p-8 text-center transition-all border-2 border-dashed rounded-xl cursor-pointer',
@@ -501,7 +501,7 @@
                                 <MicrophoneIcon class="w-5 h-5 text-orange-500" />
                                 Mensagem de Voz
                             </h3>
-                            
+
                             <div class="bg-gray-50 rounded-xl p-6">
                                 <!-- Controles de gravação -->
                                 <div class="flex flex-col items-center">
@@ -689,7 +689,6 @@ onMounted(() => {
     fetchProjects()
 })
 
-const projects = ref([])
 const files = ref([])
 const errors = ref({})
 
@@ -748,27 +747,6 @@ const toastIcon = computed(() => {
         case 'warning': return ExclamationTriangleIcon
         default: return InformationCircleIcon
     }
-})
-
-// Fetch projects
-const fetchProjects = async () => {
-    try {
-        const response = await fetch('/api/grievances/projects', {
-            headers: {
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        if (response.ok) {
-            projects.value = await response.json()
-        }
-    } catch (error) {
-        console.error('Erro ao carregar projetos:', error)
-    }
-}
-
-onMounted(() => {
-    fetchProjects()
 })
 
 // Toast helper
@@ -960,7 +938,7 @@ const resetForm = () => {
     files.value = []
     errors.value = {}
     currentStep.value = 1
-    
+
     // Limpar áudio
     if (audioBlob.value) {
         URL.revokeObjectURL(audioUrl.value)
@@ -968,7 +946,7 @@ const resetForm = () => {
         audioUrl.value = null
         recordingTime.value = 0
     }
-    
+
     // Limpar toast se estiver visível
     toast.value.show = false
 }
@@ -1031,14 +1009,14 @@ const handleSubmit = async () => {
 
         if (response.ok && data.success) {
             submissionResult.value = data
-            
+
             // Resetar o formulário
             resetForm()
-            
+
             // Fechar o modal do formulário e abrir o modal de sucesso
             emit('close')
             showSuccessModal.value = true
-            
+
             // Fechar automaticamente após 5 segundos
             setTimeout(() => {
                 if (showSuccessModal.value) {
@@ -1050,12 +1028,12 @@ const handleSubmit = async () => {
             if (data.errors) {
                 validationErrors.value = data.errors
                 errorModalMessage.value = data.message || 'Foram encontrados erros de validação. Por favor, corrija e tente novamente.'
-                
+
                 // Também popular errors para marcar campos
                 Object.keys(data.errors).forEach(key => {
                     errors.value[key] = Array.isArray(data.errors[key]) ? data.errors[key][0] : data.errors[key]
                 })
-                
+
                 // Voltar ao passo apropriado
                 if (errors.value.contact_name || errors.value.contact_email) {
                     currentStep.value = 1
@@ -1069,7 +1047,7 @@ const handleSubmit = async () => {
         }
     } catch (error) {
         console.error('Erro crítico ao submeter:', error)
-        
+
         if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
             errorModalMessage.value = 'Erro de conexão. Verifique a sua ligação à internet e tente novamente.'
         } else {
