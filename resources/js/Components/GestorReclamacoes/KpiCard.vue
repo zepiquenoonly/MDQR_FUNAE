@@ -1,25 +1,33 @@
 <template>
-  <div
-    :class="[
-      'bg-white dark:bg-dark-secondary rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 border-l-4',
-      borderColorClass
-    ]"
-  >
-    <div class="flex items-start justify-between">
-      <div class="flex-1">
-        <h3 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{{ title }}</h3>
-        <div :class="['text-3xl font-bold mb-1', textColorClass]">{{ value }}</div>
-        <div v-if="description" class="text-xs text-gray-500 dark:text-gray-400 mb-2">{{ description }}</div>
-        <div v-if="trend" class="flex items-center text-xs">
-          <component :is="trendIcon" class="h-4 w-4 mr-1" :class="trendColor" />
-          <span :class="trendColor">{{ trendText }}</span>
+    <div
+        class="glass-card hover:scale-[1.02] cursor-pointer">
+        <div class="flex items-center justify-between">
+            <div>
+                <h3 class="text-gray-600 text-sm font-semibold">{{ title }}</h3>
+                <div class="text-3xl font-bold gradient-text mt-2">{{ value }}</div>
+                <p class="text-gray-500 text-sm mt-1">{{ description }}</p>
+            </div>
+
+            <!-- Icon & Trend -->
+            <div class="flex flex-col items-end">
+                <div class="w-14 h-14 bg-gradient-to-br from-primary-50 to-orange-50 rounded-xl flex items-center justify-center shadow-glass border border-primary-200">
+                    <component :is="dynamicIcon" class="w-7 h-7 text-primary-600" />
+                </div>
+
+                <!-- Trend Indicator -->
+                <div v-if="trend" :class="[
+                    'flex items-center gap-1 mt-2 text-xs font-semibold px-2 py-1 rounded-full',
+                    trend === 'up' ? 'bg-green-100 text-green-700' :
+                        trend === 'down' ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'
+                ]">
+                    <ArrowTrendingUpIcon v-if="trend === 'up'" class="w-3 h-3" />
+                    <ArrowTrendingDownIcon v-else-if="trend === 'down'" class="w-3 h-3" />
+                    <MinusIcon v-else class="w-3 h-3" />
+                    <span>{{ trendText }}</span>
+                </div>
+            </div>
         </div>
-      </div>
-      <div v-if="icon" :class="['text-3xl', iconBgClass, 'w-12 h-12 rounded-lg flex items-center justify-center']">
-        <component :is="dynamicIcon" class="h-6 w-6 text-current" />
-      </div>
     </div>
-  </div>
 </template>
 
 <script setup>
@@ -39,11 +47,7 @@ const props = defineProps({
     value: [String, Number],
     description: String,
     icon: String,
-    trend: String, // 'up', 'down', 'stable'
-    color: {
-        type: String,
-        default: 'blue'
-    }
+    trend: String // 'up', 'down', 'stable'
 })
 
 // Mapeamento de ícones
@@ -65,41 +69,5 @@ const trendText = computed(() => {
         stable: '0%'
     }
     return texts[props.trend] || ''
-})
-
-const borderColorClass = computed(() => {
-  const colors = {
-    blue: 'border-blue-500',
-    green: 'border-green-500',
-    orange: 'border-orange-500',
-    yellow: 'border-yellow-500',
-    red: 'border-red-500',
-    purple: 'border-purple-500'
-  }
-  return colors[props.color] || colors.blue
-})
-
-const textColorClass = computed(() => {
-  const colors = {
-    blue: 'text-blue-600',
-    green: 'text-green-600',
-    orange: 'text-orange-600',
-    yellow: 'text-yellow-600',
-    red: 'text-red-600',
-    purple: 'text-purple-600'
-  }
-  return colors[props.color] || colors.blue
-})
-
-const iconBgClass = computed(() => {
-  const colors = {
-    blue: 'bg-blue-50',
-    green: 'bg-green-50',
-    orange: 'bg-orange-50',
-    yellow: 'bg-yellow-50',
-    red: 'bg-red-50',
-    purple: 'bg-purple-50'
-  }
-  return colors[props.color] || colors.blue
 })
 </script>

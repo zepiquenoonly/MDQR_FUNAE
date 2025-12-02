@@ -1,10 +1,7 @@
 <template>
-  <nav class="py-4 overflow-hidden">
+  <nav class="py-4">
       <!-- Navigation Label -->
-      <div :class="[
-        'px-5 py-3 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300',
-        isCollapsed ? 'opacity-0' : 'opacity-100'
-      ]">
+      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide">
         Navegação
       </div>
 
@@ -13,7 +10,6 @@
         :active="activePanel === 'dashboard'"
         :icon="HomeIcon"
         :text="'Dashboard'"
-        :is-collapsed="isCollapsed"
         @click="() => emitItem('dashboard')"
       />
 
@@ -22,21 +18,16 @@
         :active="activePanel === 'projectos'"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
-        :is-collapsed="isCollapsed"
         @click="() => emitItem('projectos')"
       />
 
       <!-- MDQR Section -->
-      <div :class="[
-        'px-5 py-3 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300 mt-3',
-        isCollapsed ? 'opacity-0' : 'opacity-100'
-      ]">MDQR</div>
+      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">MDQR</div>
 
       <!-- Submeter Reclamação/Queixa/Sugestão -->
       <MenuDropdown
         :icon="DocumentPlusIcon"
         :text="'Nova Submissão'"
-        :is-collapsed="isCollapsed"
         :items="[
           { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
           { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
@@ -50,22 +41,17 @@
         :active="false"
         :icon="MagnifyingGlassIcon"
         :text="'Acompanhamento'"
-        :is-collapsed="isCollapsed"
         @click="() => navigateToTracking()"
       />
 
       <!-- Conta / Perfil -->
-      <div :class="[
-        'px-5 py-3 text-xs text-white font-semibold uppercase tracking-wide transition-opacity duration-300 mt-4',
-        isCollapsed ? 'opacity-0' : 'opacity-100'
-      ]">Conta</div>
+      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-4">Conta</div>
 
       <!-- Meu Perfil -->
       <MenuItem
         :active="false"
         :icon="UserCircleIcon"
         :text="'Meu Perfil'"
-        :is-collapsed="isCollapsed"
         @click="() => navigateToProfile()"
       />
 
@@ -74,7 +60,6 @@
         :active="false"
         :icon="ArrowRightOnRectangleIcon"
         :text="'Sair'"
-        :is-collapsed="isCollapsed"
         @click="() => handleLogout()"
       />
   </nav>
@@ -98,9 +83,7 @@ import MenuItem from './MenuItem.vue'
 import MenuDropdown from './MenuDropdown.vue'
 import { defineEmits, defineProps } from 'vue'
 
-defineProps({
-  isCollapsed: Boolean
-})
+// No props needed
 
 const emit = defineEmits(['item-clicked'])
 

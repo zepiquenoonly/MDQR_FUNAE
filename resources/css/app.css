@@ -1,3 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-gradient-to-br from-gray-50 via-orange-50/30 to-gray-100 font-sans antialiased;
+        min-height: 100vh;
+    }
+}
+
+@layer components {
+    /* Glass Morphism Base */
+    .glass {
+        @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-glass;
+    }
+
+    .glass-dark {
+        @apply bg-gray-900/70 backdrop-blur-xl border border-gray-700/30 shadow-glass;
+    }
+
+    .glass-card {
+        @apply glass rounded-2xl p-6 transition-all duration-300 hover:shadow-glass-lg;
+    }
+
+    .glass-nav {
+        @apply glass border-b border-orange-100/20 backdrop-blur-2xl;
+    }
+
+    /* Gradientes modernos */
+    .gradient-primary {
+        @apply bg-gradient-to-r from-primary-500 to-primary-600;
+    }
+
+    .gradient-orange {
+        @apply bg-gradient-to-br from-orange-400 via-primary-500 to-orange-600;
+    }
+
+    .gradient-text {
+        @apply bg-gradient-to-r from-primary-500 to-orange-600 bg-clip-text text-transparent;
+    }
+
+    /* Botões com glass effect */
+    .btn-glass {
+        @apply glass px-6 py-2.5 rounded-xl font-medium transition-all duration-300
+               hover:shadow-glass-lg hover:scale-105 active:scale-95;
+    }
+
+    .btn-primary-glass {
+        @apply bg-gradient-to-r from-primary-500 to-orange-600 text-white
+               backdrop-blur-xl shadow-glass border border-orange-400/30
+               px-6 py-2.5 rounded-xl font-semibold transition-all duration-300
+               hover:shadow-glass-lg hover:scale-105 active:scale-95
+               hover:from-primary-600 hover:to-orange-700;
+    }
+
+    /* Cards modernos */
+    .modern-card {
+        @apply glass-card hover:scale-[1.02] cursor-pointer;
+    }
+
+    /* Inputs com glass effect */
+    .input-glass {
+        @apply glass rounded-xl px-4 py-3 w-full
+               focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500
+               transition-all duration-200 placeholder:text-gray-400;
+    }
+
+    /* Sidebar glass */
+    .sidebar-glass {
+        @apply glass-dark h-full border-r border-gray-700/30;
+    }
+
+    /* Floating elements */
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+
+    @keyframes floating {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+
+    /* Shimmer effect */
+    .shimmer {
+        background: linear-gradient(90deg,
+            rgba(255,255,255,0) 0%,
+            rgba(255,255,255,0.3) 50%,
+            rgba(255,255,255,0) 100%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+        0% { background-position: -200% 0; }
+        100% { background-position: 200% 0; }
+    }
+}
+
+@layer utilities {
+    /* Scrollbar personalizada */
+    .scrollbar-thin::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-track {
+        @apply bg-gray-100 rounded-full;
+    }
+
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+        @apply bg-primary-400 rounded-full hover:bg-primary-500;
+    }
+
+    /* Text shadows suaves */
+    .text-shadow {
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-shadow-lg {
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+}
