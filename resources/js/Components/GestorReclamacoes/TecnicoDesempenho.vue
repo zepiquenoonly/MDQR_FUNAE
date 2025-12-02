@@ -439,16 +439,24 @@ const carregarDadosDesempenho = async () => {
   error.value = null;
 
   try {
+<<<<<<< Updated upstream
     console.log("Carregando dados de desempenho para técnico:", props.tecnico.id);
 
     const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`);
 
+=======
+    const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`);
+
+>>>>>>> Stashed changes
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
 
     const data = await response.json();
+<<<<<<< Updated upstream
     console.log("Dados de desempenho recebidos:", data);
+=======
+>>>>>>> Stashed changes
 
     dadosDesempenho.value = data.estatisticas_gerais || {};
     historicoMensal.value = data.historico_mensal || [];
@@ -456,7 +464,10 @@ const carregarDadosDesempenho = async () => {
     // Carregar dados do mês atual
     await carregarDadosMensais();
   } catch (err) {
+<<<<<<< Updated upstream
     console.error("❌ Erro ao carregar dados de desempenho:", err);
+=======
+>>>>>>> Stashed changes
     error.value = err.message || "Erro ao carregar dados do técnico";
   } finally {
     loading.value = false;
@@ -466,24 +477,37 @@ const carregarDadosDesempenho = async () => {
 // Função para carregar dados específicos do mês
 const carregarDadosMensais = async () => {
   try {
+<<<<<<< Updated upstream
     console.log("Carregando dados do mês:", mesSelecionado.value);
 
     const response = await fetch(
       `/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`
     );
 
+=======
+    const response = await fetch(
+      `/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`
+    );
+
+>>>>>>> Stashed changes
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
 
     const data = await response.json();
+<<<<<<< Updated upstream
     console.log("Dados mensais recebidos:", data);
+=======
+>>>>>>> Stashed changes
 
     dadosMensais.value = data.dados_mensais || {};
     casosMensais.value = data.casos_mensais || [];
   } catch (err) {
+<<<<<<< Updated upstream
     console.error("❌ Erro ao carregar dados mensais:", err);
     // Não definir error global aqui para não quebrar a interface completa
+=======
+>>>>>>> Stashed changes
     dadosMensais.value = {};
     casosMensais.value = [];
   }
