@@ -1,5 +1,5 @@
 <script setup>
-import { ClockIcon, DocumentTextIcon, ArrowPathIcon, UserIcon, ArrowRightArrowLeftIcon, ChatBubbleLeftIcon, BoltIcon, PaperClipIcon, CheckCircleIcon, XCircleIcon, LockOpenIcon } from '@heroicons/vue/24/outline';
+import { ClockIcon, DocumentTextIcon, ArrowPathIcon, UserIcon, ArrowsRightLeftIcon, ChatBubbleLeftIcon, BoltIcon, PaperClipIcon, CheckCircleIcon, XCircleIcon, LockOpenIcon } from '@heroicons/vue/24/outline';
 
 defineProps({
     updates: {
@@ -13,7 +13,7 @@ const getIconForActionType = (actionType) => {
         created: DocumentTextIcon,
         status_changed: ArrowPathIcon,
         assigned: UserIcon,
-        reassigned: ArrowRightArrowLeftIcon,
+        reassigned: ArrowsRightLeftIcon,
         comment_added: ChatBubbleLeftIcon,
         priority_changed: BoltIcon,
         attachment_added: PaperClipIcon,
