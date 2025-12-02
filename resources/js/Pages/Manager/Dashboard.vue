@@ -18,6 +18,7 @@
           description="Reclamações não resolvidas"
           icon="ExclamationTriangleIcon"
           trend="up"
+          color="orange"
         />
 
         <KpiCard
@@ -26,6 +27,7 @@
           description="Com técnicos atribuídos"
           icon="ClockIcon"
           trend="stable"
+          color="blue"
         />
 
         <KpiCard
@@ -34,6 +36,7 @@
           description="Encaminhar se crítico"
           icon="ExclamationCircleIcon"
           trend="up"
+          color="red"
         />
 
         <KpiCard
@@ -42,6 +45,7 @@
           description="Aguardando aprovação"
           icon="CheckCircleIcon"
           trend="down"
+          color="green"
         />
       </div>
 
