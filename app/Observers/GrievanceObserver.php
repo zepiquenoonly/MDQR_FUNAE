@@ -4,15 +4,20 @@ namespace App\Observers;
 
 use App\Models\Grievance;
 use App\Models\GrievanceUpdate;
+use App\Services\GrievanceAutoAssignmentService;
 use App\Services\NotificationService;
 
 class GrievanceObserver
 {
     protected NotificationService $notificationService;
+    protected GrievanceAutoAssignmentService $autoAssignmentService;
 
-    public function __construct(NotificationService $notificationService)
-    {
+    public function __construct(
+        NotificationService $notificationService,
+        GrievanceAutoAssignmentService $autoAssignmentService
+    ) {
         $this->notificationService = $notificationService;
+        $this->autoAssignmentService = $autoAssignmentService;
     }
 
     /**
@@ -20,16 +25,28 @@ class GrievanceObserver
      */
     public function created(Grievance $grievance): void
     {
-        GrievanceUpdate::log(
-            grievanceId: $grievance->id,
-            actionType: 'created',
-            userId: $grievance->user_id,
-            description: 'Reclamação submetida com sucesso',
-            isPublic: true
-        );
+        try {
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'created',
+                userId: $grievance->user_id,
+                description: 'Reclamação submetida com sucesso',
+                isPublic: true
+            );
 
-        // Enviar notificação de criação
-        $this->notificationService->notifyGrievanceCreated($grievance);
+            // Enviar notificação de criação
+            $this->notificationService->notifyGrievanceCreated($grievance);
+
+            // Tentar auto assignment imediato se houver técnico com workload leve
+            // Se não conseguir, deixa como "submitted" para os comandos agendados (24h)
+            $this->autoAssignmentService->autoAssign($grievance);
+        } catch (\Exception $e) {
+            // Log error but don't break the grievance creation
+            \Log::error('Error in GrievanceObserver::created: ' . $e->getMessage(), [
+                'grievance_id' => $grievance->id,
+                'exception' => $e
+            ]);
+        }
     }
 
     /**
@@ -37,42 +54,47 @@ class GrievanceObserver
      */
     public function updating(Grievance $grievance): void
     {
+        try {
         // Get original values before update
         $original = $grievance->getOriginal();
+
         $userId = auth()->id();
 
         // Track status changes
         if ($grievance->isDirty('status')) {
-            $oldStatus = $original['status'];
+            $oldStatus = $original['status'] ?? null;
             $newStatus = $grievance->status;
-            
-            $description = $this->getStatusChangeDescription($oldStatus, $newStatus);
-            
-            GrievanceUpdate::log(
-                grievanceId: $grievance->id,
-                actionType: 'status_changed',
-                userId: $userId,
-                description: $description,
-                oldValue: $oldStatus,
-                newValue: $newStatus,
-                isPublic: true
-            );
 
-            // Enviar notificação de mudança de status
-            $this->notificationService->notifyStatusChanged($grievance, $oldStatus, $newStatus);
+            // Only log status changes if we have an old status (not for new records)
+            if ($oldStatus !== null) {
+                $description = $this->getStatusChangeDescription($oldStatus, $newStatus);
 
-            // Notificações específicas para resolved e rejected
-            if ($newStatus === 'resolved') {
-                $this->notificationService->notifyResolved($grievance);
-            } elseif ($newStatus === 'rejected') {
-                $reason = $grievance->resolution_notes ?? 'Sem justificativa fornecida';
-                $this->notificationService->notifyRejected($grievance, $reason);
+                GrievanceUpdate::log(
+                    grievanceId: $grievance->id,
+                    actionType: 'status_changed',
+                    userId: $userId,
+                    description: $description,
+                    oldValue: $oldStatus,
+                    newValue: $newStatus,
+                    isPublic: true
+                );
+
+                // Enviar notificação de mudança de status
+                // $this->notificationService->notifyStatusChanged($grievance, $oldStatus, $newStatus);
+
+                // Notificações específicas para resolved e rejected
+                if ($newStatus === 'resolved') {
+                    // $this->notificationService->notifyResolved($grievance);
+                } elseif ($newStatus === 'rejected') {
+                    $reason = $grievance->resolution_notes ?? 'Sem justificativa fornecida';
+                    // $this->notificationService->notifyRejected($grievance, $reason);
+                }
             }
         }
 
         // Track assignment changes
         if ($grievance->isDirty('assigned_to')) {
-            $oldAssignee = $original['assigned_to'];
+            $oldAssignee = $original['assigned_to'] ?? null;
             $newAssignee = $grievance->assigned_to;
             
             if ($oldAssignee === null && $newAssignee !== null) {
@@ -111,7 +133,7 @@ class GrievanceObserver
 
         // Track priority changes
         if ($grievance->isDirty('priority')) {
-            $oldPriority = $original['priority'];
+            $oldPriority = $original['priority'] ?? null;
             $newPriority = $grievance->priority;
             
             GrievanceUpdate::log(
@@ -125,20 +147,25 @@ class GrievanceObserver
             );
         }
 
-        // Track resolution
-        if ($grievance->isDirty('resolved_at') && $grievance->resolved_at !== null) {
-            GrievanceUpdate::log(
-                grievanceId: $grievance->id,
-                actionType: 'resolved',
-                userId: $userId,
-                description: 'Reclamação marcada como resolvida',
-                comment: $grievance->resolution_notes,
-                isPublic: true
-            );
+            // Track resolution
+            if ($grievance->isDirty('resolved_at') && $grievance->resolved_at !== null) {
+                GrievanceUpdate::log(
+                    grievanceId: $grievance->id,
+                    actionType: 'resolved',
+                    userId: $userId,
+                    description: 'Reclamação marcada como resolvida',
+                    comment: $grievance->resolution_notes,
+                    isPublic: true
+                );
+            }
+        } catch (\Exception $e) {
+            // Log error but don't break the grievance update
+            \Log::error('Error in GrievanceObserver::updating: ' . $e->getMessage(), [
+                'grievance_id' => $grievance->id,
+                'exception' => $e
+            ]);
         }
-    }
-
-    /**
+    }    /**
      * Get description for status change.
      */
     private function getStatusChangeDescription(string $oldStatus, string $newStatus): string
