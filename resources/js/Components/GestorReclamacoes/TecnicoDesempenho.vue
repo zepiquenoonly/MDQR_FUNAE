@@ -438,56 +438,56 @@ const carregarDadosDesempenho = async () => {
   loading.value = true;
   error.value = null;
 
-    try {
-        console.log('Carregando dados de desempenho para técnico:', props.tecnico.id)
+  try {
+    console.log("Carregando dados de desempenho para técnico:", props.tecnico.id);
 
-        const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`)
+    const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho`);
 
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
 
-        const data = await response.json()
-        console.log('Dados de desempenho recebidos:', data)
+    const data = await response.json();
+    console.log("Dados de desempenho recebidos:", data);
 
     dadosDesempenho.value = data.estatisticas_gerais || {};
     historicoMensal.value = data.historico_mensal || [];
 
-        // Carregar dados do mês atual
-        await carregarDadosMensais()
-
-    } catch (err) {
-        console.error('❌ Erro ao carregar dados de desempenho:', err)
-        error.value = err.message || 'Erro ao carregar dados do técnico'
-    } finally {
-        loading.value = false
-    }
-}
+    // Carregar dados do mês atual
+    await carregarDadosMensais();
+  } catch (err) {
+    console.error("❌ Erro ao carregar dados de desempenho:", err);
+    error.value = err.message || "Erro ao carregar dados do técnico";
+  } finally {
+    loading.value = false;
+  }
+};
 
 // Função para carregar dados específicos do mês
 const carregarDadosMensais = async () => {
-    try {
-        console.log('Carregando dados do mês:', mesSelecionado.value)
+  try {
+    console.log("Carregando dados do mês:", mesSelecionado.value);
 
-        const response = await fetch(`/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`)
+    const response = await fetch(
+      `/api/tecnicos/${props.tecnico.id}/desempenho/${mesSelecionado.value}`
+    );
 
     if (!response.ok) {
       throw new Error(`Erro HTTP: ${response.status}`);
     }
 
-        const data = await response.json()
-        console.log('Dados mensais recebidos:', data)
+    const data = await response.json();
+    console.log("Dados mensais recebidos:", data);
 
-        dadosMensais.value = data.dados_mensais || {}
-        casosMensais.value = data.casos_mensais || []
-
-    } catch (err) {
-        console.error('❌ Erro ao carregar dados mensais:', err)
-        // Não definir error global aqui para não quebrar a interface completa
-        dadosMensais.value = {}
-        casosMensais.value = []
-    }
-}
+    dadosMensais.value = data.dados_mensais || {};
+    casosMensais.value = data.casos_mensais || [];
+  } catch (err) {
+    console.error("❌ Erro ao carregar dados mensais:", err);
+    // Não definir error global aqui para não quebrar a interface completa
+    dadosMensais.value = {};
+    casosMensais.value = [];
+  }
+};
 
 // Funções auxiliares de formatação
 const formatStatus = (status) => {
