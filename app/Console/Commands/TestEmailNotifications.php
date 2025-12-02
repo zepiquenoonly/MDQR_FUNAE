@@ -64,7 +64,7 @@ EOF;
 
         // Verificar configuração de email
         if (config('mail.default') === 'log') {
-            $this->warn('⚠️  ATENÇÃO: O mailer está configurado como "log".');
+            $this->warn('[ATENÇÃO] O mailer está configurado como "log".');
             $this->warn('   Os emails serão apenas registados em logs, não serão enviados realmente.');
             $this->warn('   Para enviar emails reais, configure MAIL_MAILER=smtp no .env');
             $this->newLine();
@@ -80,7 +80,7 @@ EOF;
             return Command::FAILURE;
         }
 
-        $this->info("📋 Reclamação de teste: {$grievance->reference_number}");
+        $this->info("[INFO] Reclamação de teste: {$grievance->reference_number}");
         $this->info("   Tipo: {$grievance->type}");
         $this->info("   Status: {$grievance->status}");
         $this->info("   Email destinatário: " . ($grievance->user?->email ?? $grievance->contact_email ?? 'N/A'));
@@ -122,7 +122,7 @@ EOF;
 
         $table = [];
         foreach ($results as $result) {
-            $status = $result['success'] ? '✅ Enviado' : '❌ Falhou';
+            $status = $result['success'] ? '[OK] Enviado' : '[ERRO] Falhou';
             $table[] = [
                 'Tipo' => $result['type'],
                 'Status' => $status,
@@ -138,9 +138,9 @@ EOF;
 
         $this->newLine();
         if ($successCount === $totalCount) {
-            $this->info("✅ Todos os {$totalCount} emails foram enviados com sucesso!");
+            $this->info("[OK] Todos os {$totalCount} emails foram enviados com sucesso!");
         } else {
-            $this->warn("⚠️  {$successCount} de {$totalCount} emails foram enviados com sucesso.");
+            $this->warn("[ATENÇÃO] {$successCount} de {$totalCount} emails foram enviados com sucesso.");
         }
 
         return Command::SUCCESS;
@@ -151,7 +151,7 @@ EOF;
      */
     protected function createTestData(?string $testEmail, string $grievanceType = 'complaint'): Grievance
     {
-        $this->info('📦 Criando dados de teste...');
+        $this->info('[INFO] Criando dados de teste...');
 
         // Criar usuário se necessário
         $user = null;
