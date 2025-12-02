@@ -765,6 +765,14 @@ const fetchProjects = async () => {
     } catch (error) {
         console.error('Erro ao carregar projetos:', error)
     }
+})
+
+// Toast helper
+const showToast = (type, title, message, duration = 4000) => {
+    toast.value = { show: true, type, title, message }
+    setTimeout(() => {
+        toast.value.show = false
+    }, duration)
 }
 
 onMounted(() => {
