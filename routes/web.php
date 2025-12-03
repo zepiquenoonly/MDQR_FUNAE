@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
     return inertia('Grievances/Home');
 })->name('grievances.home');*/
 
-Route::get('/', [GuestController::class, 'home'])->name('home');
+Route::get('/', [GuestController::class, 'home']); // ->name('home');
 
 // Rotas de teste de emails (acessível sem autenticação para facilitar testes)
 Route::get('/email-test', [EmailTestController::class, 'showForm'])->name('email-test.form');

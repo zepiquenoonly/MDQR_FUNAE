@@ -6,7 +6,7 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-// import {  registerables } from 'chart.js'
+import { Chart, registerables } from 'chart.js'
 
 Chart.register(...registerables)
 

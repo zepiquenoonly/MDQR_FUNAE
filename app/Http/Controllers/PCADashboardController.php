@@ -124,7 +124,7 @@ class PCADashboardController extends Controller
     }
 
     /**
-     * Get complaints grouped by status
+     * Get complaints grouped by status and type
      */
     private function getComplaintsByStatus($startDate, $endDate, $department, $complaintType): array
     {
@@ -137,13 +137,25 @@ class PCADashboardController extends Controller
             $query->where('category', $complaintType);
         }
 
-        return $query->select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->status => $item->total];
-            })
-            ->toArray();
+        $results = $query->select('status', 'type', DB::raw('count(*) as total'))
+            ->groupBy('status', 'type')
+            ->get();
+
+        $statusData = [];
+        foreach ($results as $item) {
+            if (!isset($statusData[$item->status])) {
+                $statusData[$item->status] = [
+                    'total' => 0,
+                    'complaint' => 0,
+                    'grievance' => 0,
+                    'suggestion' => 0,
+                ];
+            }
+            $statusData[$item->status]['total'] += $item->total;
+            $statusData[$item->status][$item->type] = $item->total;
+        }
+
+        return $statusData;
     }
 
     /**
@@ -197,7 +209,7 @@ class PCADashboardController extends Controller
     }
 
     /**
-     * Get complaints grouped by category
+     * Get complaints grouped by category and type
      */
     private function getComplaintsByCategory($startDate, $endDate, $department, $complaintType): array
     {
@@ -210,18 +222,31 @@ class PCADashboardController extends Controller
             $query->where('category', $complaintType);
         }
 
-        return $query->select('category', DB::raw('count(*) as total'))
-            ->groupBy('category')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get()
-            ->map(function ($item) {
-                return [
+        $results = $query->select('category', 'type', DB::raw('count(*) as total'))
+            ->groupBy('category', 'type')
+            ->get();
+
+        $categoryData = [];
+        foreach ($results as $item) {
+            if (!isset($categoryData[$item->category])) {
+                $categoryData[$item->category] = [
                     'name' => $item->category,
-                    'total' => $item->total,
+                    'total' => 0,
+                    'complaint' => 0,
+                    'grievance' => 0,
+                    'suggestion' => 0,
                 ];
-            })
-            ->toArray();
+            }
+            $categoryData[$item->category]['total'] += $item->total;
+            $categoryData[$item->category][$item->type] = $item->total;
+        }
+
+        // Sort by total and limit to 10
+        usort($categoryData, function($a, $b) {
+            return $b['total'] - $a['total'];
+        });
+
+        return array_slice($categoryData, 0, 10);
     }
 
     /**
@@ -250,7 +275,7 @@ class PCADashboardController extends Controller
     }
 
     /**
-     * Get trend data for the last 6 months
+     * Get trend data for the last 6 months by type
      */
     private function getTrendData(): array
     {
@@ -261,19 +286,27 @@ class PCADashboardController extends Controller
             $month = now()->subMonths($i);
             $monthName = $month->locale('pt')->translatedFormat('M');
 
-            $count = Grievance::whereYear('created_at', $month->year)
+            $complaints = Grievance::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
+                ->where('type', 'complaint')
                 ->count();
 
-            $resolved = Grievance::whereYear('created_at', $month->year)
+            $grievances = Grievance::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
-                ->whereIn('status', ['resolved', 'closed'])
+                ->where('type', 'grievance')
+                ->count();
+
+            $suggestions = Grievance::whereYear('created_at', $month->year)
+                ->whereMonth('created_at', $month->month)
+                ->where('type', 'suggestion')
                 ->count();
 
             $months[] = $monthName;
             $data[] = [
-                'total' => $count,
-                'resolved' => $resolved,
+                'complaint' => $complaints,
+                'grievance' => $grievances,
+                'suggestion' => $suggestions,
+                'total' => $complaints + $grievances + $suggestions,
             ];
         }
 
