@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 /**
  * @property int $id
  * @property int|null $user_id
+ * @property int|null $project_id
  * @property string $reference_number
  * @property string $description
  * @property string $category
@@ -43,30 +44,31 @@ class Grievance extends Model
      *
      * @var array<int, string>
      */
-    protected $fillable = [
-        'user_id',
-        'reference_number',
-        'type',
-        'description',
-        'category',
-        'subcategory',
-        'contact_name',
-        'contact_email',
-        'contact_phone',
-        'province',
-        'district',
-        'location_details',
-        'status',
-        'priority',
-        'assigned_to',
-        'assigned_at',
-        'resolution_notes',
-        'resolved_at',
-        'resolved_by',
-        'is_anonymous',
-        'metadata',
-        'submitted_at',
-    ];
+     protected $fillable = [
+         'user_id',
+         'project_id',
+         'reference_number',
+         'type',
+         'description',
+         'category',
+         'subcategory',
+         'contact_name',
+         'contact_email',
+         'contact_phone',
+         'province',
+         'district',
+         'location_details',
+         'status',
+         'priority',
+         'assigned_to',
+         'assigned_at',
+         'resolution_notes',
+         'resolved_at',
+         'resolved_by',
+         'is_anonymous',
+         'metadata',
+         'submitted_at',
+     ];
 
     /**
      * The attributes that should be cast.
@@ -116,20 +118,29 @@ class Grievance extends Model
     }
 
     /**
-     * Get the user that owns the grievance (for identified complaints).
-     */
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
+     /**
+      * Get the user that owns the grievance (for identified complaints).
+      */
+     public function user(): BelongsTo
+     {
+         return $this->belongsTo(User::class);
+     }
 
-    /**
-     * Get the user assigned to handle this grievance.
-     */
-    public function assignedUser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'assigned_to');
-    }
+     /**
+      * Get the project associated with this grievance.
+      */
+     public function project(): BelongsTo
+     {
+         return $this->belongsTo(Project::class);
+     }
+
+     /**
+      * Get the user assigned to handle this grievance.
+      */
+     public function assignedUser(): BelongsTo
+     {
+         return $this->belongsTo(User::class, 'assigned_to');
+     }
 
     /**
      * Get the user who resolved this grievance.
@@ -276,6 +287,7 @@ class Grievance extends Model
         return match($this->status) {
             'submitted' => 'Submetida',
             'under_review' => 'Em Análise',
+            'pending_review' => 'Pendente de Revisão',
             'assigned' => 'Atribuída',
             'in_progress' => 'Em Andamento',
             'pending_approval' => 'Pendente de Aprovação',

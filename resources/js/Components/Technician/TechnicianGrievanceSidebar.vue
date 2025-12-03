@@ -49,8 +49,9 @@
             @click="handleStartWork">
             {{ isProcessing ? 'Iniciando...' : 'Iniciar Trabalho' }}
         </button>
-        <p v-else class="text-xs text-gray-500 dark:text-gray-400 text-center">
-            ✓ Trabalho iniciado
+        <p v-else class="text-xs text-green-600 dark:text-green-400 text-center flex items-center justify-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Trabalho iniciado
         </p>
 
         <!-- Utente Info -->
@@ -82,12 +83,14 @@
         </div>
 
         <!-- Completion Status -->
-        <div class="text-xs text-gray-500 dark:text-gray-400 text-center p-3 bg-gray-50 dark:bg-dark-accent rounded-lg">
-            <p v-if="grievance.can_request_completion">
-                ✅ Pronto para solicitar conclusão
+        <div class="text-xs text-center p-3 rounded-lg" :class="grievance.can_request_completion ? 'bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400' : 'bg-gray-50 dark:bg-dark-accent text-gray-500 dark:text-gray-400'">
+            <p v-if="grievance.can_request_completion" class="flex items-center justify-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Pronto para solicitar conclusão
             </p>
-            <p v-else>
-                ⏳ Continue registando atualizações
+            <p v-else class="flex items-center justify-center gap-1">
+                <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Continue registando atualizações
             </p>
         </div>
     </div>

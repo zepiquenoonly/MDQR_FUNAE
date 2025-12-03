@@ -1,41 +1,41 @@
 <template>
-  <div v-if="hasNotifications" class="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-4 shadow-sm">
-    <div class="flex items-start">
-      <div class="flex-shrink-0">
-        <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+  <div v-if="hasNotifications" class="mb-6 glass-card border-l-4 border-blue-500 transition-all duration-300 hover:shadow-glass-lg">
+    <div class="flex items-start gap-3 sm:gap-4">
+      <div class="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl flex items-center justify-center border border-blue-200">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
           <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
         </svg>
       </div>
-      <div class="ml-3 flex-1">
-        <h3 class="text-sm font-semibold text-blue-900 mb-1">
+      <div class="flex-1 min-w-0">
+        <h3 class="text-sm sm:text-base font-semibold text-blue-900 mb-2 sm:mb-3">
           Você tem {{ notifications.length }} notificação(ões) não lida(s)
         </h3>
-        <div class="space-y-2 max-h-40 overflow-y-auto">
-          <div v-for="notification in displayNotifications" :key="notification.id" 
-            class="text-sm text-blue-800 bg-white rounded p-2 hover:bg-blue-50 transition-colors cursor-pointer"
+        <div class="space-y-2 max-h-40 overflow-y-auto scrollbar-thin">
+          <div v-for="notification in displayNotifications" :key="notification.id"
+            class="bg-white/60 backdrop-blur-sm rounded-lg p-2 sm:p-3 hover:shadow-glass transition-all duration-300 cursor-pointer border border-blue-100 hover:border-blue-300 group"
             @click="viewNotification(notification)">
-            <div class="flex items-start justify-between">
-              <div class="flex-1">
-                <p class="font-medium">{{ notification.subject }}</p>
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex-1 min-w-0">
+                <p class="font-medium text-sm text-blue-900 group-hover:text-blue-700 transition-colors truncate">{{ notification.subject }}</p>
                 <p class="text-xs text-blue-600 mt-1">{{ notification.created_at }}</p>
               </div>
-              <span v-if="notification.grievance" class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded ml-2">
+              <span v-if="notification.grievance" class="text-xs bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 px-2 py-1 rounded-lg border border-blue-200 flex-shrink-0">
                 {{ notification.grievance.reference_number }}
               </span>
             </div>
           </div>
         </div>
-        <div class="mt-3 flex items-center justify-between">
-          <button 
+        <div class="mt-3 sm:mt-4 flex flex-wrap items-center justify-between gap-2">
+          <button
             @click="markAllRead"
-            class="text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors"
+            class="text-xs sm:text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
           >
             Marcar todas como lidas
           </button>
-          <button 
+          <button
             v-if="notifications.length > 3"
             @click="showAll = !showAll"
-            class="text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors"
+            class="text-xs sm:text-sm font-medium text-blue-700 hover:text-blue-900 transition-colors px-3 py-1.5 rounded-lg hover:bg-blue-50"
           >
             {{ showAll ? 'Mostrar menos' : `Ver todas (${notifications.length})` }}
           </button>

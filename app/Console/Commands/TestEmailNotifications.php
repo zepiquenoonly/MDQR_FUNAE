@@ -16,10 +16,12 @@ class TestEmailNotifications extends Command
      *
      * @var string
      */
-    protected $signature = 'email:test 
-                            {type? : Tipo de email a testar (created, status-changed, assigned, comment, resolved, rejected, all)}
-                            {--email= : Email de destino para os testes}
-                            {--grievance= : ID da reclamação existente para usar nos testes}';
+    protected $signature = <<<EOF
+email:test {type? : Tipo de email a testar (created, status-changed, assigned, comment, resolved, rejected, all)}
+{--email= : Email de destino para os testes}
+{--grievance= : ID da reclamação existente para usar nos testes}
+{--grievance-type= : Tipo da reclamação (grievance, complaint, suggestion)}
+EOF;
 
     /**
      * The console command description.
@@ -36,6 +38,24 @@ class TestEmailNotifications extends Command
         $type = $this->argument('type') ?? 'all';
         $testEmail = $this->option('email');
         $grievanceId = $this->option('grievance');
+        $grievanceType = $this->option('grievance-type');
+
+        // Se não especificado, escolher aleatoriamente um tipo diferente
+        if (!$grievanceType) {
+            $grievanceType = collect(['grievance', 'complaint', 'suggestion'])->random();
+        }
+
+        $validTypes = ['created', 'status-changed', 'assigned', 'comment', 'resolved', 'rejected', 'all'];
+        if (!in_array($type, $validTypes)) {
+            $this->error("Tipo inválido: {$type}. Tipos válidos: " . implode(', ', $validTypes));
+            return Command::FAILURE;
+        }
+
+        $validGrievanceTypes = ['grievance', 'complaint', 'suggestion'];
+        if (!in_array($grievanceType, $validGrievanceTypes)) {
+            $this->error("Tipo de reclamação inválido: {$grievanceType}. Tipos válidos: " . implode(', ', $validGrievanceTypes));
+            return Command::FAILURE;
+        }
 
         $this->info('═══════════════════════════════════════════════════════════');
         $this->info('  Teste de Envio de Emails - Sistema de Reclamações');
@@ -44,23 +64,24 @@ class TestEmailNotifications extends Command
 
         // Verificar configuração de email
         if (config('mail.default') === 'log') {
-            $this->warn('⚠️  ATENÇÃO: O mailer está configurado como "log".');
+            $this->warn('[ATENÇÃO] O mailer está configurado como "log".');
             $this->warn('   Os emails serão apenas registados em logs, não serão enviados realmente.');
             $this->warn('   Para enviar emails reais, configure MAIL_MAILER=smtp no .env');
             $this->newLine();
         }
 
         // Preparar dados de teste
-        $grievance = $grievanceId 
+        $grievance = $grievanceId
             ? Grievance::with(['user', 'assignedUser'])->find($grievanceId)
-            : $this->createTestData($testEmail);
+            : $this->createTestData($testEmail, $grievanceType);
 
         if (!$grievance) {
             $this->error('Não foi possível criar ou encontrar a reclamação de teste.');
             return Command::FAILURE;
         }
 
-        $this->info("📋 Reclamação de teste: {$grievance->reference_number}");
+        $this->info("[INFO] Reclamação de teste: {$grievance->reference_number}");
+        $this->info("   Tipo: {$grievance->type}");
         $this->info("   Status: {$grievance->status}");
         $this->info("   Email destinatário: " . ($grievance->user?->email ?? $grievance->contact_email ?? 'N/A'));
         $this->newLine();
@@ -101,7 +122,7 @@ class TestEmailNotifications extends Command
 
         $table = [];
         foreach ($results as $result) {
-            $status = $result['success'] ? '✅ Enviado' : '❌ Falhou';
+            $status = $result['success'] ? '[OK] Enviado' : '[ERRO] Falhou';
             $table[] = [
                 'Tipo' => $result['type'],
                 'Status' => $status,
@@ -117,9 +138,9 @@ class TestEmailNotifications extends Command
 
         $this->newLine();
         if ($successCount === $totalCount) {
-            $this->info("✅ Todos os {$totalCount} emails foram enviados com sucesso!");
+            $this->info("[OK] Todos os {$totalCount} emails foram enviados com sucesso!");
         } else {
-            $this->warn("⚠️  {$successCount} de {$totalCount} emails foram enviados com sucesso.");
+            $this->warn("[ATENÇÃO] {$successCount} de {$totalCount} emails foram enviados com sucesso.");
         }
 
         return Command::SUCCESS;
@@ -128,9 +149,9 @@ class TestEmailNotifications extends Command
     /**
      * Criar dados de teste
      */
-    protected function createTestData(?string $testEmail): Grievance
+    protected function createTestData(?string $testEmail, string $grievanceType = 'complaint'): Grievance
     {
-        $this->info('📦 Criando dados de teste...');
+        $this->info('[INFO] Criando dados de teste...');
 
         // Criar usuário se necessário
         $user = null;
@@ -166,6 +187,7 @@ class TestEmailNotifications extends Command
             'status' => 'submitted',
             'assigned_to' => $technician->id,
             'assigned_at' => now(),
+            'type' => $grievanceType,
         ]);
 
         return $grievance;
@@ -176,9 +198,9 @@ class TestEmailNotifications extends Command
      */
     protected function testGrievanceCreated(NotificationService $service, Grievance $grievance): array
     {
+        $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
         try {
             $service->notifyGrievanceCreated($grievance);
-            $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
             return [
                 'type' => 'Reclamação Criada',
                 'success' => true,
@@ -189,7 +211,7 @@ class TestEmailNotifications extends Command
             return [
                 'type' => 'Reclamação Criada',
                 'success' => false,
-                'email' => 'N/A',
+                'email' => $email,
                 'message' => $e->getMessage(),
             ];
         }
@@ -200,9 +222,9 @@ class TestEmailNotifications extends Command
      */
     protected function testStatusChanged(NotificationService $service, Grievance $grievance): array
     {
+        $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
         try {
             $service->notifyStatusChanged($grievance, 'submitted', 'under_review');
-            $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
             return [
                 'type' => 'Status Alterado',
                 'success' => true,
@@ -213,7 +235,7 @@ class TestEmailNotifications extends Command
             return [
                 'type' => 'Status Alterado',
                 'success' => false,
-                'email' => 'N/A',
+                'email' => $email,
                 'message' => $e->getMessage(),
             ];
         }
@@ -224,6 +246,7 @@ class TestEmailNotifications extends Command
      */
     protected function testAssigned(NotificationService $service, Grievance $grievance): array
     {
+        $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
         try {
             $assignedUser = $grievance->assignedUser;
             if (!$assignedUser) {
@@ -232,7 +255,6 @@ class TestEmailNotifications extends Command
             }
 
             $service->notifyAssigned($grievance, $assignedUser);
-            $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
             return [
                 'type' => 'Reclamação Atribuída',
                 'success' => true,
@@ -243,7 +265,7 @@ class TestEmailNotifications extends Command
             return [
                 'type' => 'Reclamação Atribuída',
                 'success' => false,
-                'email' => 'N/A',
+                'email' => $email,
                 'message' => $e->getMessage(),
             ];
         }
@@ -254,6 +276,7 @@ class TestEmailNotifications extends Command
      */
     protected function testCommentAdded(NotificationService $service, Grievance $grievance): array
     {
+        $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
         try {
             $technician = User::factory()->create(['name' => 'Técnico Comentário']);
             $update = GrievanceUpdate::create([
@@ -265,7 +288,6 @@ class TestEmailNotifications extends Command
             ]);
 
             $service->notifyCommentAdded($grievance, $update);
-            $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
             return [
                 'type' => 'Comentário Adicionado',
                 'success' => true,
@@ -276,7 +298,7 @@ class TestEmailNotifications extends Command
             return [
                 'type' => 'Comentário Adicionado',
                 'success' => false,
-                'email' => 'N/A',
+                'email' => $email,
                 'message' => $e->getMessage(),
             ];
         }
@@ -287,6 +309,7 @@ class TestEmailNotifications extends Command
      */
     protected function testResolved(NotificationService $service, Grievance $grievance): array
     {
+        $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
         try {
             $grievance->update([
                 'status' => 'resolved',
@@ -296,7 +319,6 @@ class TestEmailNotifications extends Command
             ]);
 
             $service->notifyResolved($grievance);
-            $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
             return [
                 'type' => 'Reclamação Resolvida',
                 'success' => true,
@@ -307,7 +329,7 @@ class TestEmailNotifications extends Command
             return [
                 'type' => 'Reclamação Resolvida',
                 'success' => false,
-                'email' => 'N/A',
+                'email' => $email,
                 'message' => $e->getMessage(),
             ];
         }
@@ -318,6 +340,7 @@ class TestEmailNotifications extends Command
      */
     protected function testRejected(NotificationService $service, Grievance $grievance): array
     {
+        $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
         try {
             $grievance->update([
                 'status' => 'rejected',
@@ -325,7 +348,6 @@ class TestEmailNotifications extends Command
             ]);
 
             $service->notifyRejected($grievance, 'A reclamação não atende aos critérios estabelecidos.');
-            $email = $grievance->user?->email ?? $grievance->contact_email ?? 'N/A';
             return [
                 'type' => 'Reclamação Rejeitada',
                 'success' => true,
@@ -336,7 +358,7 @@ class TestEmailNotifications extends Command
             return [
                 'type' => 'Reclamação Rejeitada',
                 'success' => false,
-                'email' => 'N/A',
+                'email' => $email,
                 'message' => $e->getMessage(),
             ];
         }

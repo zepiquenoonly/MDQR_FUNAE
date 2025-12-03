@@ -13,9 +13,37 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ManagerGrievanceController extends Controller
 {
+    /**
+     * Display the specified grievance.
+     */
+    public function show(Grievance $grievance): Response
+    {
+        $this->ensureManager(auth()->user());
+
+        // Carregar relações necessárias - INCLUIR TODOS OS TIPOS
+        $grievance->load([
+            'user',
+            'assignedUser', 
+            'updates.user',
+            'attachments'
+        ]);
+
+        // Buscar técnicos disponíveis
+        $technicians = User::whereHas('roles', function($query) {
+            $query->where('name', 'Técnico');
+        })->get(['id', 'name', 'email']);
+
+        return Inertia::render('Manager/GrievanceDetail', [
+            'complaint' => $grievance,
+            'technicians' => $technicians
+        ]);
+    }
+
     /**
      * Update priority for a grievance.
      */
@@ -35,7 +63,7 @@ class ManagerGrievanceController extends Controller
     /**
      * Reassign grievance to another technician.
      */
-    public function reassign(Request $request, Grievance $grievance): RedirectResponse
+    public function reassign(Request $request, Grievance $grievance)
     {
         $this->ensureManager($request->user());
 
@@ -46,15 +74,60 @@ class ManagerGrievanceController extends Controller
             ],
         ]);
 
-        $technician = User::role('Técnico')->findOrFail($data['technician_id']);
+        try {
+            DB::beginTransaction();
 
-        $grievance->update([
-            'assigned_to' => $technician->id,
-            'assigned_at' => now(),
-        ]);
+            $technician = User::role('Técnico')->findOrFail($data['technician_id']);
 
-        return back()->with('success', 'Reclamação atribuída ao técnico selecionado.');
+            $previousTechnician = $grievance->assigned_to;
+
+            $grievance->update([
+                'assigned_to' => $technician->id,
+                'assigned_at' => now(),
+                'status' => 'assigned', // Garantir que o status seja atualizado
+            ]);
+
+            // Log da atividade
+            if ($grievance->activities) {
+                $grievance->activities()->create([
+                    'type' => 'technician_assigned',
+                    'description' => "Técnico reatribuído: {$technician->name}",
+                    'user_id' => $request->user()->id,
+                    'metadata' => [
+                        'previous_technician_id' => $previousTechnician,
+                        'new_technician_id' => $technician->id,
+                        'new_technician_name' => $technician->name,
+                    ],
+                    'created_at' => now(),
+                ]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Técnico reatribuído com sucesso.',
+                'technician' => [
+                    'id' => $technician->id,
+                    'name' => $technician->name,
+                    'email' => $technician->email,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao reatribuir técnico: ' . $e->getMessage(), [
+                'grievance_id' => $grievance->id,
+                'technician_id' => $data['technician_id'],
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao reatribuir técnico.'
+            ], 500);
+        }
     }
+
 
     /**
      * Mark grievance as resolved after manager approval.
@@ -237,4 +310,3 @@ class ManagerGrievanceController extends Controller
         ]);
     }
 }
-

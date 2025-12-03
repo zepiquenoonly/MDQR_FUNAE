@@ -1,78 +1,110 @@
 <template>
     <form @submit.prevent="handleSubmit"
-        class="bg-white flex justify-center items-center flex-col text-center h-full w-full py-8 px-6 md:px-12">
-        <div class="mb-6 mt-4 text-center">
-            <img src="/images/Logotipo-scaled.png" alt="Ícone de autenticação"
-                class="max-w-[180px] w-full h-auto md:max-w-none md:h-20 md:w-44 object-contain mx-auto" />
+        class="glass flex justify-center items-center flex-col text-center h-full w-full py-8 px-6 md:px-12 backdrop-blur-2xl border border-white/40 shadow-2xl relative overflow-hidden">
+        <!-- Decorative gradient overlays -->
+        <div class="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-primary-500/10 to-orange-500/5 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-orange-500/10 to-primary-500/5 rounded-full blur-3xl"></div>
+
+        <!-- Animated background SVG -->
+        <div class="absolute top-8 left-8 opacity-5 pointer-events-none animate-pulse">
+            <img src='/background.min.svg' class='w-32 h-32'/>
         </div>
 
-        <h2 class="text-lg text-brand md:text-xl mb-2"><strong>Já tem conta?</strong></h2>
-        <div class="w-full max-w-xs">
+        <div class="mb-8 text-center relative z-10 animate-slide-up">
+            <h1 class="mb-2 text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">Bem-vindo de Volta</h1>
+            <p class="text-gray-600 text-sm md:text-base">Entre na sua conta</p>
+        </div>
+        <div class="w-full max-w-md relative z-10 animate-slide-up space-y-6">
             <!-- Campo Username -->
-            <div class="w-full">
-                <input type="text" name="username" placeholder="Digite o nome de usuário" required
-                    v-model="form.username" @blur="validateField('username')" @input="clearError('username')"
-                    class="w-full py-3 px-4 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
-                    :class="{
-                        'border-red-500 focus:border-red-500': hasError('username') || hasAuthError,
-                        'border-green-500 focus:border-green-500': fieldValid.username && !hasError('username') && !hasAuthError
-                    }" :disabled="loading" />
-                <p v-if="validationErrors.username" class="text-red-500 text-xs mt-1 w-full text-left min-h-[16px]">
+            <div class="relative group">
+                <label for="username" class="block mb-2 text-sm font-medium text-gray-700 text-left">Nome de Usuário</label>
+                <div class="relative">
+                    <UserIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200 group-focus-within:text-primary-600" />
+                    <input
+                        id="username"
+                        type="text"
+                        name="username"
+                        placeholder="Digite seu nome de usuário"
+                        required
+                        v-model="form.username"
+                        @blur="validateField('username')"
+                        @input="clearError('username')"
+                        class="w-full py-3 pl-10 pr-4 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-md outline-none focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm md:text-base shadow-sm hover:shadow-md"
+                        :class="{
+                            'border-red-500 focus:border-red-500 focus:ring-red-500/20 animate-shake': hasError('username') || hasAuthError,
+                            'border-green-500 focus:border-green-500 focus:ring-green-500/20': fieldValid.username && !hasError('username') && !hasAuthError
+                        }"
+                        :disabled="loading"
+                    />
+                </div>
+                <p v-if="validationErrors.username" class="text-red-600 text-xs mt-2 text-left animate-shake">
                     {{ validationErrors.username }}
                 </p>
             </div>
 
-
             <!-- Campo Password -->
-            <div class="w-full mt-2">
+            <div class="relative group">
+                <label for="password" class="block mb-2 text-sm font-medium text-gray-700 text-left">Senha</label>
                 <div class="relative">
-                    <input :type="showPassword ? 'text' : 'password'" name="password" placeholder="Digite a senha"
-                        required v-model="form.password" @blur="validateField('password')"
+                    <LockClosedIcon class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 transition-colors duration-200 group-focus-within:text-primary-600" />
+                    <input
+                        id="password"
+                        :type="showPassword ? 'text' : 'password'"
+                        name="password"
+                        placeholder="Digite sua senha"
+                        required
+                        v-model="form.password"
+                        @blur="validateField('password')"
                         @input="clearError('password')"
-                        class="w-full py-3 px-4 pr-10 bg-gray-50 border border-gray-200 rounded-lg my-1 outline-none focus:bg-white focus:border-brand focus:ring-0 focus:ring-brand transition-all duration-200 text-sm md:text-base shadow-sm"
+                        class="w-full py-3 pl-10 pr-10 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-md outline-none focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500/20 transition-all duration-200 text-sm md:text-base shadow-sm hover:shadow-md"
                         :class="{
-                            'border-red-500 focus:border-red-500': hasError('password') || hasAuthError,
-                            'border-green-500 focus:border-green-500': fieldValid.password && !hasError('password') && !hasAuthError
-                        }" :disabled="loading" />
-                    <button type="button" @click="showPassword = !showPassword"
-                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-600 hover:text-brand transition-colors"
-                        :disabled="loading">
+                            'border-red-500 focus:border-red-500 focus:ring-red-500/20 animate-shake': hasError('password') || hasAuthError,
+                            'border-green-500 focus:border-green-500 focus:ring-green-500/20': fieldValid.password && !hasError('password') && !hasAuthError
+                        }"
+                        :disabled="loading"
+                    />
+                    <button
+                        type="button"
+                        @click="showPassword = !showPassword"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-primary-600 transition-colors p-1"
+                        :disabled="loading"
+                    >
                         <EyeIcon v-if="!showPassword" class="w-5 h-5" />
                         <EyeSlashIcon v-else class="w-5 h-5" />
                     </button>
                 </div>
-                <p v-if="validationErrors.password" class="text-red-500 text-xs mt-1 w-full text-left min-h-[16px]">
+                <p v-if="validationErrors.password" class="text-red-600 text-xs mt-2 text-left animate-shake">
                     {{ validationErrors.password }}
                 </p>
             </div>
 
-            <!--<div class="flex items-center justify-between w-full my-4">
-                
-                <a href="#" class="text-xs md:text-sm text-gray-600 hover:text-gray-800"
-                    :class="{ 'pointer-events-none opacity-50': loading }">Esqueceu a senha?</a>
-            </div>-->
-
-            <button type="submit" :disabled="loading || !isFormValid"
-                class="w-full border border-[#F15F22] bg-[#F15F22] text-white font-bold py-3 rounded uppercase tracking-wider transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed mt-4 hover:bg-[#e5561a] text-sm md:text-base flex items-center justify-center">
-                <div v-if="loading" class="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                <span>{{ loading ? 'Entrando...' : 'Entrar' }}</span>
+            <!-- Submit Button -->
+            <button
+                type="submit"
+                :disabled="loading || !isFormValid"
+                class="flex items-center justify-center w-full px-10 py-3 transition-all duration-200 ease-in-out transform bg-primary-600 text-white font-semibold rounded-md hover:bg-orange-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none shadow-md hover:shadow-lg relative overflow-hidden group"
+            >
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                <span class="mr-2 relative z-10">{{ loading ? 'Entrando...' : 'Entrar' }}</span>
+                <div v-if="loading" class="loader-circle relative z-10"></div>
+                <ArrowRightIcon v-else class="w-5 h-5 relative z-10" />
             </button>
 
             <!-- Link para cadastro -->
-            <p class="text-xs md:text-sm text-gray-600 mt-6 text-center">
+            <p class="text-xs md:text-sm text-gray-700 mt-6 text-center">
                 Não tem uma conta?
                 <button type="button" @click="switchToRegister"
-                    class="text-[#F15F22] font-medium hover:text-[#e5561a] ml-1 focus:outline-none" :disabled="loading">
+                    class="text-primary-600 font-semibold hover:text-orange-600 ml-1 focus:outline-none transition-colors duration-200 underline decoration-primary-500/30 hover:decoration-orange-600" :disabled="loading">
                     Cadastre-se agora
                 </button>
             </p>
 
             <!-- Link para voltar à página principal -->
-            <div class="mt-4 pt-4 border-t border-gray-200">
+            <div class="mt-4 pt-4 border-t border-gray-200/50">
                 <a href="/"
-                    class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2"
+                    class="text-xs md:text-sm text-gray-700 hover:text-primary-600 font-medium flex items-center justify-center gap-2 transition-all duration-200 group"
                     :class="{ 'pointer-events-none opacity-50': loading }">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4 group-hover:-translate-x-1 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -87,7 +119,10 @@
 import { ref, reactive, computed, watch } from 'vue'
 import {
     EyeIcon,
-    EyeSlashIcon
+    EyeSlashIcon,
+    UserIcon,
+    LockClosedIcon,
+    ArrowRightIcon
 } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
@@ -239,3 +274,52 @@ watch(() => props.success, (newSuccess) => {
     }
 })
 </script>
+
+<style scoped>
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+}
+
+.animate-shake {
+    animation: shake 0.5s ease-in-out;
+}
+
+.loader-circle {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>

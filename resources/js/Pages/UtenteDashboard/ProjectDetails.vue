@@ -1,10 +1,7 @@
 <template>
     <div class="min-h-screen bg-gray-50 p-4 -mt-6 relative">
-        <!-- Formulário de Reclamação (Overlay) -->
-        <div v-if="showComplaintForm"
-            class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-            <ComplaintForm :project="project" @close="showComplaintForm = false" @submit="handleComplaintSubmit" />
-        </div>
+        <!-- Formulário de Reclamação -->
+        <ComplaintForm :project="project" :visible="showComplaintForm" @close="showComplaintForm = false" @submit="handleComplaintSubmit" />
 
         <!-- Formulário de Queixa (Overlay) -->
         <div v-if="showComplaintRegister"
