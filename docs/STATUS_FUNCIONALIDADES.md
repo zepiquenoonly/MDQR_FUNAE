@@ -11,7 +11,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - [Fluxo 4 — Acompanhamento pelo Utente](#fluxo-4-acompanhamento-da-reclamação-pelo-utente)
 - [Fluxo 5 — Relatórios e Estatísticas](#fluxo-5-gera%C3%A7%C3%A3o-de-relat%C3%B3rios-e-estat%C3%ADsticas)
 - [Sistema de Notificações](#sistema-de-notificações)
-- [Backlog (Por Implementar)](#backlog-por-implementar)
+- [Backlog (Por Implementar)](#backlog-por-implementar-agrupado)
 
 ## Legenda de Status
 
@@ -32,7 +32,9 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 07 | Dashboard de Gestor | 🚧 Parcial |
 | Fluxo 08 | Dashboard de Técnico | 🚧 Parcial |
 | Fluxo 09 | Dashboard de Director | 🚧 Parcial |
-| Fluxo 10 | Dashboard de PCA | 🚧 Iniciado |
+| Fluxo 10 | Dashboard de PCA | 🚧 Parcialmente Implementado |
+| Fluxo 11 | Sistema de Anexos | ✅ Implementado |
+| Fluxo 12 | Downloads de Evidências | ✅ Implementado |
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
@@ -139,6 +141,64 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 - Exportação avançada customizada
 - Relatórios customizados por perfil
+
+## Fluxo 10: Dashboard de PCA (Reimaginado)
+
+### Implementado (Fluxo 10)
+
+- **Dashboard reimaginado com foco nos tipos de submissão** *(Reclamação, Queixa, Sugestão)*
+- **Distribuição por Estado e Tipo** *(cada estado mostra breakdown por tipo de submissão)*
+- **Tendência de Submissões por Tipo** *(gráfico de linha com 3 linhas distintas para cada tipo)*
+- **Insights de Projetos** *(submissões por projeto, projetos com técnicos disponíveis)*
+- **Métricas de Projeto** *(total de projetos, projetos com técnicos, média de submissões)*
+- **Filtros por período** *(últimos 7 dias, 30 dias, 3 meses, 6 meses)*
+- **Visualização color-coded** *(Reclamações: vermelho, Queixas: laranja, Sugestões: verde)*
+
+### Parcialmente Implementado (Fluxo 10)
+
+- Exportação de relatórios (funcionalidade básica implementada)
+- Filtros avançados por departamento/categoria
+
+### Concluído (Fluxo 10) - Implementado recentemente
+
+- ✅ **Reimaginação completa do dashboard** *(implementado em 03/12/2025)*
+- ✅ **Foco nos 3 tipos de submissão** *(Reclamação, Queixa, Sugestão)*
+- ✅ **Seções reimaginadas**: Distribuição por Estado, Tendências, Categorias *(implementado em 03/12/2025)*
+- ✅ **Insights de projetos** *(submissões por projeto, técnicos disponíveis)*
+- ✅ **Correção de bugs Chart.js** *(importações corrigidas para funcionamento adequado)*
+
+## Fluxo 11: Sistema de Anexos
+
+### Implementado (Fluxo 11)
+
+- **Upload de múltiplos anexos** *(suporte a imagens, documentos, áudio)*
+- **Armazenamento seguro** *(disco privado com controle de acesso)*
+- **Validação de tipos de arquivo** *(limitações por tamanho e tipo)*
+- **Associação com reclamações** *(relacionamento direto no banco de dados)*
+- **Visualização de anexos** *(ícones e nomes de arquivo)*
+
+### Concluído (Fluxo 11) - Implementado recentemente
+
+- ✅ **Sistema completo de anexos implementado** *(implementado em 02/12/2025)*
+- ✅ **Suporte a gravação de áudio** *(até 2 minutos via microfone)*
+- ✅ **Upload de arquivos** *(imagens, documentos, áudio)*
+
+## Fluxo 12: Downloads de Evidências
+
+### Implementado (Fluxo 12)
+
+- **Download para usuários autenticados** *(utentes podem baixar seus próprios anexos)*
+- **Download para usuários não autenticados** *(via rastreamento público)*
+- **Abertura inline no navegador** *(PDFs, imagens, áudio abrem diretamente)*
+- **Controle de permissões** *(utentes só acessam seus próprios arquivos)*
+- **URLs seguras** *(roteamento protegido com validação)*
+
+### Concluído (Fluxo 12) - Implementado recentemente
+
+- ✅ **Download de anexos habilitado** *(implementado em 02/12/2025)*
+- ✅ **Abertura inline no navegador** *(implementado em 03/12/2025)*
+- ✅ **Acesso público via rastreamento** *(implementado em 03/12/2025)*
+- ✅ **Correção de rotas** *(URLs corrigidas para funcionamento adequado)*
 
 ## Estados da Reclamação
 
