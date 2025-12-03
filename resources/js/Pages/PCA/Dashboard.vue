@@ -148,44 +148,6 @@
                 <TrendChart :data="trendData" />
             </div>
 
-            <!-- Category Analysis -->
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Top 10 Categorias por Tipo de Submissão
-                </h3>
-                <div class="space-y-3">
-                    <div v-for="(category, index) in complaintsByCategory" :key="index"
-                        class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="flex items-center justify-center w-6 h-6 bg-brand text-white rounded-full text-xs font-bold">
-                                    {{ index + 1 }}
-                                </span>
-                                <span class="font-medium text-gray-900 dark:text-white">{{ category.name }}</span>
-                            </div>
-                            <span class="text-lg font-bold text-brand">{{ category.total }}</span>
-                        </div>
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="bg-red-50 dark:bg-red-900/20 rounded px-3 py-2">
-                                <p class="text-xs text-red-600 dark:text-red-400">Reclamações</p>
-                                <p class="text-lg font-bold text-red-700 dark:text-red-300">{{ category.complaint }}</p>
-                            </div>
-                            <div class="bg-orange-50 dark:bg-orange-900/20 rounded px-3 py-2">
-                                <p class="text-xs text-orange-600 dark:text-orange-400">Queixas</p>
-                                <p class="text-lg font-bold text-orange-700 dark:text-orange-300">{{ category.grievance }}</p>
-                            </div>
-                            <div class="bg-green-50 dark:bg-green-900/20 rounded px-3 py-2">
-                                <p class="text-xs text-green-600 dark:text-green-400">Sugestões</p>
-                                <p class="text-lg font-bold text-green-700 dark:text-green-300">{{ category.suggestion }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div v-if="complaintsByCategory.length === 0" class="text-center py-8 text-gray-500">
-                        Nenhuma categoria encontrada no período selecionado
-                    </div>
-                </div>
-            </div>
-
             <!-- Project Insights -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Submissions by Project -->
@@ -324,7 +286,6 @@ import StatusChart from '@/Components/PCA/StatusChart.vue'
 import PriorityChart from '@/Components/PCA/PriorityChart.vue'
 import TypeChart from '@/Components/PCA/TypeChart.vue'
 import TrendChart from '@/Components/PCA/TrendChart.vue'
-import CategoryChart from '@/Components/PCA/CategoryChart.vue'
 import TechniciansTable from '@/Components/PCA/TechniciansTable.vue'
 import ActivitiesList from '@/Components/PCA/ActivitiesList.vue'
 
@@ -351,10 +312,6 @@ const props = defineProps({
     complaintsByType: {
         type: Object,
         default: () => ({})
-    },
-    complaintsByCategory: {
-        type: Array,
-        default: () => []
     },
     performanceMetrics: {
         type: Object,
