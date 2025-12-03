@@ -112,6 +112,91 @@
                 <CategoryChart :data="complaintsByCategory" />
             </div>
 
+            <!-- Project Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Submissions by Project -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Submissões por Projeto (Top 10)
+                    </h3>
+                    <div class="space-y-4">
+                        <div v-for="project in submissionsByProject" :key="project.id"
+                            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900 dark:text-white">{{ project.name }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ project.province }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-brand">{{ project.total_submissions }}</p>
+                                <p class="text-sm text-green-600">{{ project.resolution_rate }}% resolvidas</p>
+                            </div>
+                        </div>
+                        <div v-if="submissionsByProject.length === 0" class="text-center py-8 text-gray-500">
+                            Nenhum projeto com submissões no período selecionado
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects with Technicians -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Projetos com Técnicos Disponíveis
+                    </h3>
+                    <div class="space-y-4">
+                        <div v-for="project in projectsWithTechnicians" :key="project.id"
+                            class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="font-medium text-gray-900 dark:text-white">{{ project.name }}</p>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
+                                    {{ project.technicians_count }} técnicos
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ project.province }}</p>
+                            <div class="flex flex-wrap gap-1">
+                                <span v-for="tech in project.technicians.slice(0, 3)" :key="tech.id"
+                                    class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">
+                                    {{ tech.name }}
+                                </span>
+                                <span v-if="project.technicians.length > 3" class="px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs rounded">
+                                    +{{ project.technicians.length - 3 }} mais
+                                </span>
+                            </div>
+                            <p class="text-sm text-orange-600 mt-2">
+                                {{ project.active_grievances }} reclamações ativas
+                            </p>
+                        </div>
+                        <div v-if="projectsWithTechnicians.length === 0" class="text-center py-8 text-gray-500">
+                            Nenhum projeto com técnicos atribuídos
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Performance Metrics -->
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                    Métricas de Projetos
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-brand">{{ projectPerformance.total_projects }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Total de Projetos</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-green-600">{{ projectPerformance.projects_with_technicians }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Com Técnicos</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-purple-600">{{ projectPerformance.projects_with_submissions }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Com Submissões</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-orange-600">{{ projectPerformance.average_submissions_per_project }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Média Submissões/Projeto</p>
+                    </div>
+                </div>
+            </div>
+
             <!-- Bottom Row -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <!-- Top Technicians Performance -->
@@ -216,6 +301,23 @@ const props = defineProps({
     recentActivities: {
         type: Array,
         default: () => []
+    },
+    submissionsByProject: {
+        type: Array,
+        default: () => []
+    },
+    projectsWithTechnicians: {
+        type: Array,
+        default: () => []
+    },
+    projectPerformance: {
+        type: Object,
+        default: () => ({
+            total_projects: 0,
+            projects_with_technicians: 0,
+            projects_with_submissions: 0,
+            average_submissions_per_project: 0,
+        })
     },
     filters: {
         type: Object,

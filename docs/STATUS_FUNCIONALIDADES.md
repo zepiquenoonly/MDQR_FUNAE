@@ -23,12 +23,16 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 | Fluxo | Descrição curta | Estado agregado |
 |-------|-----------------|-----------------|
-| Fluxo 1 | Submissão de Reclamações | 🚧 Parcial / Por Implementar |
-| Fluxo 2 | Triagem e Atribuição | ✅ Implementado |
-| Fluxo 3 | Resolução pelo Técnico | ✅ Implementado |
-| Fluxo 4 | Acompanhamento pelo Utente | ✅ Implementado |
-| Fluxo 5 | Relatórios e Estatísticas | 🚧 Parcial |
-
+| Fluxo 01 | Submissão de Reclamações | ✅ Implementado |
+| Fluxo 02 | Triagem e Atribuição (Sistema Automático) | ✅ Implementado |
+| Fluxo 03 | Resolução pelo Técnico | ✅ Implementado |
+| Fluxo 04 | Acompanhamento pelo Utente | ✅ Implementado |
+| Fluxo 05 | Notificações via Email | Implementado |
+| Fluxo 06 | Dashboard de Utente | 🚧 Parcialmente Implementado |
+| Fluxo 07 | Dashboard de Gestor | 🚧 Parcial |
+| Fluxo 08 | Dashboard de Técnico | 🚧 Parcial |
+| Fluxo 09 | Dashboard de Director | 🚧 Parcial |
+| Fluxo 10 | Dashboard de PCA | 🚧 Iniciado |
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
