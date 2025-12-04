@@ -51,4 +51,31 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
         $response->assertRedirect('/');
     }
+
+    public function test_authenticated_users_are_redirected_from_login_page(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/login');
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_authenticated_users_are_redirected_from_register_page(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/register');
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_authenticated_users_are_redirected_from_auth_main_page(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->get('/auth');
+
+        $response->assertRedirect(route('dashboard', absolute: false));
+    }
 }

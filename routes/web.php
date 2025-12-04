@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Route;
     return inertia('Grievances/Home');
 })->name('grievances.home');*/
 
-Route::get('/', [GuestController::class, 'home']); // ->name('home');
+Route::get('/', [GuestController::class, 'home'])->name('home');
 
 // Rotas de teste de emails (acessível sem autenticação para facilitar testes)
 Route::get('/email-test', [EmailTestController::class, 'showForm'])->name('email-test.form');
@@ -52,6 +52,7 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::get('/home', [AuthController::class, 'home'])->name('home');
+    Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard'); // Rota genérica para compatibilidade
 
     // Rotas específicas por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
