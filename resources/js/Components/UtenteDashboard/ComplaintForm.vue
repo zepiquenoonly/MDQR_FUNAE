@@ -511,7 +511,7 @@
                                             <MicrophoneIcon class="w-10 h-10" />
                                         </button>
                                         <p class="text-sm text-gray-600 mt-4">Clique para iniciar a gravação</p>
-                                        <p class="text-xs text-gray-400 mt-1">Máximo 2 minutos</p>
+                                        <p class="text-xs text-gray-400 mt-1">Máximo 1 minuto</p>
                                     </template>
 
                                     <template v-if="isRecording">
@@ -524,7 +524,7 @@
                                         </div>
                                         <p class="text-sm text-gray-900 font-semibold mt-4">A gravar... {{ recordingTime }}s</p>
                                         <div class="w-full max-w-xs bg-gray-200 rounded-full h-1.5 mt-3">
-                                            <div class="bg-red-500 h-1.5 rounded-full transition-all" :style="{ width: `${(recordingTime / 120) * 100}%` }"></div>
+                                            <div class="bg-red-500 h-1.5 rounded-full transition-all" :style="{ width: `${(recordingTime / 60) * 100}%` }"></div>
                                         </div>
                                     </template>
 
@@ -780,9 +780,9 @@ const startRecording = async () => {
 
         recordingInterval.value = setInterval(() => {
             recordingTime.value++
-            if (recordingTime.value >= 120) {
+            if (recordingTime.value >= 60) {
                 stopRecording()
-                showToast('warning', 'Limite atingido', 'A gravação foi parada após 2 minutos.')
+                showToast('warning', 'Limite atingido', 'A gravação foi parada após 1 minuto.')
             }
         }, 1000)
 
