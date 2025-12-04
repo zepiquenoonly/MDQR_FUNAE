@@ -3,16 +3,6 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-## Sumário Rápido
-
-- [Fluxo 1 — Submissão de Reclamação](#fluxo-1-submissão-de-reclamação-pelo-utente)
-- [Fluxo 2 — Triagem e Atribuição](#fluxo-2-triagem-e-atribuição-de-reclamação)
-- [Fluxo 3 — Resolução pelo Técnico](#fluxo-3-resolução-da-reclamação-pelo-técnico)
-- [Fluxo 4 — Acompanhamento pelo Utente](#fluxo-4-acompanhamento-da-reclamação-pelo-utente)
-- [Fluxo 5 — Relatórios e Estatísticas](#fluxo-5-gera%C3%A7%C3%A3o-de-relat%C3%B3rios-e-estat%C3%ADsticas)
-- [Sistema de Notificações](#sistema-de-notificações)
-- [Backlog (Por Implementar)](#backlog-por-implementar-agrupado)
-
 ## Legenda de Status
 
 - ✅ Implementado
@@ -27,11 +17,11 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 02 | Triagem e Atribuição (Sistema Automático) | ✅ Implementado |
 | Fluxo 03 | Resolução pelo Técnico | ✅ Implementado |
 | Fluxo 04 | Acompanhamento pelo Utente | ✅ Implementado |
-| Fluxo 05 | Notificações via Email | Implementado |
-| Fluxo 06 | Dashboard de Utente | 🚧 Parcialmente Implementado |
-| Fluxo 07 | Dashboard de Gestor | 🚧 Parcialmente Implementado |
-| Fluxo 08 | Dashboard de Técnico | 🚧 Parcialmente Implementado |
-| Fluxo 09 | Dashboard de Director |    Por Implementar |
+| Fluxo 05 | Notificações via Email |  ✅ Implementado |
+| Fluxo 06 | Dashboard de Utente |  ✅ Implementado |
+| Fluxo 07 | Dashboard de Gestor |  ✅ Implementado |
+| Fluxo 08 | Dashboard de Técnico | ✅ Implementado |
+| Fluxo 09 | Dashboard de Director | ❌ Por Implementar |
 | Fluxo 10 | Dashboard de PCA | ✅ Implementado  |
 | Fluxo 11 | Sistema de Anexos | ✅ Implementado |
 | Fluxo 12 | Downloads de Evidências | ✅ Implementado |
@@ -297,7 +287,6 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 ### Integrações
 
 - Integração com SMS gateway alternativos
-- Integração com sistemas de autenticação externa (SSO, OAuth)
 
 ### Ações rápidas / Prioridade para apresentação
 
@@ -315,4 +304,3 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **PerformanceTestSeeder**: criado/ajustado para gerar 15 projetos, associar técnicos, criar grandes volumes de dados (500 utentes, 2000 reclamações) e priorizar atribuição por projeto.
 - **Anexos & Downloads**: suporte a upload múltiplo, armazenamento seguro, abertura inline no navegador e downloads por utente/público via rastreamento.
 - **Testes**: novos testes de redirecionamento de autenticação e seeding validados via tinker.
-
