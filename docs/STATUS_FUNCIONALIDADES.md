@@ -304,3 +304,15 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Finalizar padronização de layout e components críticos
 - Implementar gravação de áudio mínima (MP3) para submissão
 - Garantir SMTP configurado e testes de envio OK
+
+## Novas funcionalidades (04/12/2025)
+
+- **Limite de gravação reduzido para 1 minuto**: UX e backend atualizados para encurtar gravações de áudio a 60s.
+- **Campo `description` opcional**: `description` agora aceita null no banco de dados e é opcional no formulário; validação só é aplicada se preenchido.
+- **`project_id` opcional no frontend**: o formulário aceita submissões sem projeto; backend aceita `project_id` como `nullable`.
+- **PCA Dashboard reimaginado**: reorganização de seções, foco nos 3 tipos (Reclamação/Queixa/Sugestão), métricas e insights de projetos.
+- **RedirectIfAuthenticated**: middleware refatorado para redirecionamento por papel (PCA, Gestor, Técnico, Utente) e cobertura de todas rotas de autenticação.
+- **PerformanceTestSeeder**: criado/ajustado para gerar 15 projetos, associar técnicos, criar grandes volumes de dados (500 utentes, 2000 reclamações) e priorizar atribuição por projeto.
+- **Anexos & Downloads**: suporte a upload múltiplo, armazenamento seguro, abertura inline no navegador e downloads por utente/público via rastreamento.
+- **Testes**: novos testes de redirecionamento de autenticação e seeding validados via tinker.
+
