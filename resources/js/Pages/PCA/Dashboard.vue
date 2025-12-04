@@ -49,49 +49,6 @@
                     color="teal" />
             </div>
 
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Status Distribution by Type -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Distribuição por Estado e Tipo
-                    </h3>
-                    <div class="space-y-4">
-                        <div v-for="(data, status) in complaintsByStatus" :key="status"
-                            class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="font-medium text-gray-900 dark:text-white capitalize">
-                                    {{ getStatusLabel(status) }}
-                                </span>
-                                <span class="text-lg font-bold text-brand">{{ data.total }}</span>
-                            </div>
-                            <div class="grid grid-cols-3 gap-2 text-sm">
-                                <div class="flex items-center justify-between px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded">
-                                    <span class="text-red-600 dark:text-red-400">Recl.</span>
-                                    <span class="font-semibold text-red-700 dark:text-red-300">{{ data.complaint }}</span>
-                                </div>
-                                <div class="flex items-center justify-between px-2 py-1 bg-orange-50 dark:bg-orange-900/20 rounded">
-                                    <span class="text-orange-600 dark:text-orange-400">Queixa</span>
-                                    <span class="font-semibold text-orange-700 dark:text-orange-300">{{ data.grievance }}</span>
-                                </div>
-                                <div class="flex items-center justify-between px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded">
-                                    <span class="text-green-600 dark:text-green-400">Sugest.</span>
-                                    <span class="font-semibold text-green-700 dark:text-green-300">{{ data.suggestion }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Priority Distribution -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Distribuição por Prioridade
-                    </h3>
-                    <PriorityChart :data="complaintsByPriority" />
-                </div>
-            </div>
-
             <!-- Submission Types Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -270,6 +227,49 @@
                         <p class="text-3xl font-bold text-purple-600">{{
                             performanceMetrics.average_complaints_per_technician }}</p>
                         <p class="text-gray-600 dark:text-gray-400 mt-2">Média de Reclamações/Técnico</p>
+                    </div>
+                </div>
+            </div>
+
+                        <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Priority Distribution -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Distribuição por Prioridade
+                    </h3>
+                    <PriorityChart :data="complaintsByPriority" />
+                </div>
+
+                <!-- Status Distribution by Type -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Distribuição por Estado e Tipo
+                    </h3>
+                    <div class="space-y-4">
+                        <div v-for="(data, status) in complaintsByStatus" :key="status"
+                            class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium text-gray-900 dark:text-white capitalize">
+                                    {{ getStatusLabel(status) }}
+                                </span>
+                                <span class="text-lg font-bold text-brand">{{ data.total }}</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-sm">
+                                <div class="flex items-center justify-between px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded">
+                                    <span class="text-red-600 dark:text-red-400">Recl.</span>
+                                    <span class="font-semibold text-red-700 dark:text-red-300">{{ data.complaint }}</span>
+                                </div>
+                                <div class="flex items-center justify-between px-2 py-1 bg-orange-50 dark:bg-orange-900/20 rounded">
+                                    <span class="text-orange-600 dark:text-orange-400">Queixa</span>
+                                    <span class="font-semibold text-orange-700 dark:text-orange-300">{{ data.grievance }}</span>
+                                </div>
+                                <div class="flex items-center justify-between px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded">
+                                    <span class="text-green-600 dark:text-green-400">Sugest.</span>
+                                    <span class="font-semibold text-green-700 dark:text-green-300">{{ data.suggestion }}</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
