@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Grievance;
 use App\Models\GrievanceUpdate;
+use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +18,7 @@ class PerformanceTestSeeder extends Seeder
     private int $totalUtentes = 500;
     private int $totalTecnicos = 20;
     private int $totalGestores = 5;
+    private int $totalProjects = 15;
     private int $totalGrievances = 2000;
     private int $updatesPerGrievance = 3; // Média de atualizações por reclamação
 
@@ -43,11 +45,12 @@ class PerformanceTestSeeder extends Seeder
     /**
      * Configurar os volumes de dados
      */
-    public function configure(int $utentes = 500, int $tecnicos = 20, int $gestores = 5, int $grievances = 2000): self
+    public function configure(int $utentes = 500, int $tecnicos = 20, int $gestores = 5, int $projects = 15, int $grievances = 2000): self
     {
         $this->totalUtentes = $utentes;
         $this->totalTecnicos = $tecnicos;
         $this->totalGestores = $gestores;
+        $this->totalProjects = $projects;
         $this->totalGrievances = $grievances;
         return $this;
     }
@@ -73,13 +76,16 @@ class PerformanceTestSeeder extends Seeder
             return;
         }
 
+        // Criar projetos
+        $projects = $this->createProjects();
+
         // Criar usuários
         $utentes = $this->createUtentes($utenteRole);
-        $tecnicos = $this->createTecnicos($tecnicoRole);
+        $tecnicos = $this->createTecnicos($tecnicoRole, $projects);
         $gestores = $this->createGestores($gestorRole);
 
         // Criar reclamações
-        $grievances = $this->createGrievances($utentes, $tecnicos, $gestores);
+        $grievances = $this->createGrievances($utentes, $tecnicos, $gestores, $projects);
 
         // Criar atualizações/histórico
         $this->createGrievanceUpdates($grievances, $tecnicos, $gestores);
@@ -87,6 +93,7 @@ class PerformanceTestSeeder extends Seeder
         $this->newLine();
         $this->output('✅ Seed de performance concluído!');
         $this->output("📊 Estatísticas:");
+        $this->output("   - Projetos criados: {$projects->count()}");
         $this->output("   - Utentes criados: {$utentes->count()}");
         $this->output("   - Técnicos criados: {$tecnicos->count()}");
         $this->output("   - Gestores criados: {$gestores->count()}");
@@ -103,6 +110,99 @@ class PerformanceTestSeeder extends Seeder
         foreach ($roles as $roleName) {
             Role::firstOrCreate(['name' => $roleName]);
         }
+    }
+
+    /**
+     * Criar projetos
+     */
+    private function createProjects()
+    {
+        $this->output("🏗️ Criando {$this->totalProjects} projetos...");
+
+        $projects = collect();
+        $batchSize = 10;
+
+        $projectTemplates = [
+            [
+                'name' => 'Linha de Transmissão %s kV',
+                'description' => 'Projeto de construção de linha de transmissão de energia elétrica de alta tensão na região de %s.',
+                'provincia' => 'Maputo',
+                'category' => 'andamento'
+            ],
+            [
+                'name' => 'Subestação Elétrica %s',
+                'description' => 'Construção e instalação de subestação elétrica para distribuição de energia na região de %s.',
+                'provincia' => 'Sofala',
+                'category' => 'andamento'
+            ],
+            [
+                'name' => 'Parque Eólico %s',
+                'description' => 'Desenvolvimento de parque eólico para geração de energia renovável em %s.',
+                'provincia' => 'Cabo Delgado',
+                'category' => 'parados'
+            ],
+            [
+                'name' => 'Sistema Solar Fotovoltaico %s',
+                'description' => 'Instalação de sistema solar fotovoltaico para fornecimento de energia sustentável em %s.',
+                'provincia' => 'Inhambane',
+                'category' => 'finalizados'
+            ],
+            [
+                'name' => 'Rede de Distribuição %s',
+                'description' => 'Expansão e modernização da rede de distribuição elétrica na região de %s.',
+                'provincia' => 'Nampula',
+                'category' => 'andamento'
+            ]
+        ];
+
+        $locations = [
+            'Pemba', 'Beira', 'Nampula', 'Quelimane', 'Xai-Xai',
+            'Tete', 'Maputo', 'Matola', 'Inhambane', 'Chimoio',
+            'Lichinga', 'Gurúè', 'Angoche', 'Cuamba', 'Montepuez'
+        ];
+
+        for ($i = 0; $i < $this->totalProjects; $i += $batchSize) {
+            $currentBatch = min($batchSize, $this->totalProjects - $i);
+            $batch = [];
+
+            for ($j = 0; $j < $currentBatch; $j++) {
+                $template = fake()->randomElement($projectTemplates);
+                $location = fake()->randomElement($locations);
+
+                $project = [
+                    'name' => sprintf($template['name'], fake()->numberBetween(66, 400)),
+                    'description' => sprintf($template['description'], $location),
+                    'image_url' => '/images/projects/' . fake()->uuid() . '.jpg',
+                    'provincia' => $template['provincia'],
+                    'distrito' => $location,
+                    'bairro' => fake()->randomElement([
+                        'Centro', 'Zimpeto', 'Mavalane', 'Polana', 'KaMpfumu',
+                        'KaMaxaquene', 'KaMavota', 'KaTembe', 'Nlhamankulu',
+                        'KaMubukwana', 'Beira Centro', 'Nampula Centro'
+                    ]),
+                    'category' => $template['category'],
+                    'data_criacao' => fake()->dateTimeBetween('-2 years', 'now')->format('Y-m-d'),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+
+                $batch[] = $project;
+            }
+
+            // Inserir em batch
+            DB::table('projects')->insert($batch);
+
+            // Recuperar projetos inseridos
+            $insertedProjects = Project::whereIn('name', collect($batch)->pluck('name'))->get();
+            $projects = $projects->merge($insertedProjects);
+
+            if (($i + $currentBatch) % 50 === 0) {
+                $this->output("   ✓ Criados " . ($i + $currentBatch) . " projetos...");
+            }
+        }
+
+        $this->output("   ✅ {$projects->count()} projetos criados");
+        return $projects;
     }
 
     /**
@@ -135,21 +235,37 @@ class PerformanceTestSeeder extends Seeder
     }
 
     /**
-     * Criar técnicos
+     * Criar técnicos e associá-los a projetos
      */
-    private function createTecnicos(Role $role)
+    private function createTecnicos(Role $role, $projects)
     {
-        $this->output("🔧 Criando {$this->totalTecnicos} técnicos...");
+        $this->output("🔧 Criando {$this->totalTecnicos} técnicos e associando a projetos...");
 
         $tecnicos = collect();
         $batch = User::factory($this->totalTecnicos)->create();
-        
+
         foreach ($batch as $user) {
             $user->assignRole($role);
+
+            // Associar técnico a 1-3 projetos aleatórios
+            $numProjects = fake()->numberBetween(1, 3);
+            $assignedProjects = $projects->random(min($numProjects, $projects->count()));
+
+            if ($assignedProjects instanceof Project) {
+                $assignedProjects = collect([$assignedProjects]);
+            }
+
+            foreach ($assignedProjects as $project) {
+                $user->projects()->attach($project->id, [
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            }
+
             $tecnicos->push($user);
         }
 
-        $this->output("   ✅ {$tecnicos->count()} técnicos criados");
+        $this->output("   ✅ {$tecnicos->count()} técnicos criados e associados a projetos");
         return $tecnicos;
     }
 
@@ -173,11 +289,11 @@ class PerformanceTestSeeder extends Seeder
     }
 
     /**
-     * Criar reclamações com distribuição realista de status
+     * Criar reclamações com distribuição realista de status e associação a projetos
      */
-    private function createGrievances($utentes, $tecnicos, $gestores)
+    private function createGrievances($utentes, $tecnicos, $gestores, $projects)
     {
-        $this->output("📋 Criando {$this->totalGrievances} reclamações...");
+        $this->output("📋 Criando {$this->totalGrievances} reclamações com associação a projetos...");
 
         $grievances = collect();
         $batchSize = 100;
@@ -229,6 +345,12 @@ class PerformanceTestSeeder extends Seeder
                     $contactPhone = fake()->optional(0.6)->phoneNumber();
                 }
 
+                // Escolher projeto relacionado (70% das reclamações estão relacionadas a projetos)
+                $projectId = null;
+                if (rand(1, 100) <= 70 && $projects->isNotEmpty()) {
+                    $projectId = $projects->random()->id;
+                }
+
                 // Atribuir técnico baseado no status
                 $assignedTo = null;
                 $assignedAt = null;
@@ -237,7 +359,17 @@ class PerformanceTestSeeder extends Seeder
                 $resolutionNotes = null;
 
                 if (in_array($status, ['assigned', 'in_progress', 'pending_approval', 'resolved', 'rejected'])) {
-                    $assignedTo = $tecnicos->random()->id;
+                    // Se há projeto associado, priorizar técnicos do projeto
+                    if ($projectId) {
+                        $project = $projects->firstWhere('id', $projectId);
+                        if ($project && $project->technicians->isNotEmpty()) {
+                            $assignedTo = $project->technicians->random()->id;
+                        } else {
+                            $assignedTo = $tecnicos->random()->id;
+                        }
+                    } else {
+                        $assignedTo = $tecnicos->random()->id;
+                    }
                     $assignedAt = fake()->dateTimeBetween('-6 months', 'now');
                 }
 
@@ -259,6 +391,7 @@ class PerformanceTestSeeder extends Seeder
 
                 $grievance = [
                     'user_id' => $user?->id,
+                    'project_id' => $projectId,
                     'reference_number' => $referenceNumber,
                     'description' => $this->generateRealisticDescription(),
                     'category' => $this->getRandomCategory(),
