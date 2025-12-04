@@ -401,7 +401,7 @@
                         <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
                                 <DocumentTextIcon class="w-5 h-5 text-orange-500" />
-                                Descrição <span class="text-red-500">*</span>
+                                Descrição
                             </h3>
 
                             <textarea v-model="formData.description" @input="errors.description = ''" rows="6"
@@ -893,11 +893,14 @@ const validateStep = () => {
         if (!formData.value.project_id) {
             errors.value.project_id = 'Selecione o projeto relacionado'
         }
-        if (!formData.value.description || formData.value.description.length < 50) {
-            errors.value.description = 'A descrição deve ter pelo menos 50 caracteres'
-        }
-        if (formData.value.description && formData.value.description.length > 1500) {
-            errors.value.description = 'A descrição não pode exceder 1500 caracteres'
+        // `description` is optional; validate only when provided
+        if (formData.value.description && formData.value.description.length > 0) {
+            if (formData.value.description.length < 50) {
+                errors.value.description = 'A descrição deve ter pelo menos 50 caracteres'
+            }
+            if (formData.value.description.length > 1500) {
+                errors.value.description = 'A descrição não pode exceder 1500 caracteres'
+            }
         }
     }
 
