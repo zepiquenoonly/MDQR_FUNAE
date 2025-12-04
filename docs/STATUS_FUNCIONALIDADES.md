@@ -48,7 +48,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Escolha de Projecto** *(lista de projectos do FUNAE disponível, opcional)*
 - **Escolha de tipo (Reclamação, Sugestão ou Queixa)** *(cards visuais interactivos com ícones)*
 - Preenchimento do formulário (descrição com limite 50-1500 caracteres, localização)
-- **Gravação ou anexo de áudio** *(suporte a gravação via microfone até 2min e upload de ficheiros)*
+- **Gravação ou anexo de áudio** *(suporte a gravação via microfone até 1 minuto e upload de ficheiros — limite reduzido em 04/12/2025)*
 - **Segmentação clara do formulário em passos/seções** *(3 steps: Informações, Localização, Evidências)*
 - **Feedback visual após submissão** *(toast notifications, loading states, modal de confirmação com código de rastreio)*
 - Validação dos dados do formulário
@@ -73,7 +73,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ Limite de descrição 50-1500 caracteres *(implementado em 03/12/2025)*
 - ✅ Substituição de emojis por ícones *(implementado em 03/12/2025)*
 - ✅ Campo `description` agora pode ser nulo *(migration e controller atualizados — implementado em 04/12/2025)*
-- ✅ Campo `project_id` no formulário é obrigatório e aceito pelo backend *(implementado em 04/12/2025)*
+- ✅ Campo `project_id` no formulário é opcional no frontend e aceito como `nullable` pelo backend *(implementado em 04/12/2025)*
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
@@ -184,11 +184,8 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 ### Concluído (Fluxo 11) - Implementado recentemente
 
-- ✅ **Sistema completo de anexos implementado** *(implementado em 02/12/2025)*
-- ✅ **Suporte a gravação de áudio** *(até 2 minutos via microfone)*
-- ✅ **Upload de arquivos** *(imagens, documentos, áudio)*
 
-## Fluxo 12: Downloads de Evidências
+ ✅ **Suporte a gravação de áudio** *(até 1 minuto via microfone — limite reduzido em 04/12/2025)*
 
 ### Implementado (Fluxo 12)
 
