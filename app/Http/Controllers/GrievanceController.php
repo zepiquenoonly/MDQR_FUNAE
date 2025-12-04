@@ -113,7 +113,8 @@ class GrievanceController extends Controller
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'type' => 'required|in:complaint,grievance,suggestion',
-                'description' => 'required|string|min:50|max:1500',
+                // Description can be nullable; ensure it's either null or a string
+                'description' => 'nullable|string|max:1500',
                 'province' => 'nullable|string',
                 'district' => 'nullable|string',
                 'location_details' => 'nullable|string',
