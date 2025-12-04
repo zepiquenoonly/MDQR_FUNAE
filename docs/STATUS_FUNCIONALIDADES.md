@@ -29,12 +29,14 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 04 | Acompanhamento pelo Utente | ✅ Implementado |
 | Fluxo 05 | Notificações via Email | Implementado |
 | Fluxo 06 | Dashboard de Utente | 🚧 Parcialmente Implementado |
-| Fluxo 07 | Dashboard de Gestor | 🚧 Parcial |
-| Fluxo 08 | Dashboard de Técnico | 🚧 Parcial |
-| Fluxo 09 | Dashboard de Director | 🚧 Parcial |
-| Fluxo 10 | Dashboard de PCA | 🚧 Parcialmente Implementado |
+| Fluxo 07 | Dashboard de Gestor | 🚧 Parcialmente Implementado |
+| Fluxo 08 | Dashboard de Técnico | 🚧 Parcialmente Implementado |
+| Fluxo 09 | Dashboard de Director |    Por Implementar |
+| Fluxo 10 | Dashboard de PCA | ✅ Implementado  |
 | Fluxo 11 | Sistema de Anexos | ✅ Implementado |
 | Fluxo 12 | Downloads de Evidências | ✅ Implementado |
+| Fluxo 13 | Sistema de Autenticação Aprimorado | ✅ Implementado |
+| Fluxo 14 | Seeder de Performance Avançado | ✅ Implementado |
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
@@ -70,6 +72,8 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ Toggle anónimo melhorado com SIM/NÃO visual *(implementado em 03/12/2025)*
 - ✅ Limite de descrição 50-1500 caracteres *(implementado em 03/12/2025)*
 - ✅ Substituição de emojis por ícones *(implementado em 03/12/2025)*
+- ✅ Campo `description` agora pode ser nulo *(migration e controller atualizados — implementado em 04/12/2025)*
+- ✅ Campo `project_id` no formulário é obrigatório e aceito pelo backend *(implementado em 04/12/2025)*
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
@@ -166,6 +170,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Seções reimaginadas**: Distribuição por Estado, Tendências, Categorias *(implementado em 03/12/2025)*
 - ✅ **Insights de projetos** *(submissões por projeto, técnicos disponíveis)*
 - ✅ **Correção de bugs Chart.js** *(importações corrigidas para funcionamento adequado)*
+- ✅ **Reorganização do layout** *(Distribuição por Prioridade movida acima da Distribuição por Estado e Tipo - implementado em 04/12/2025)*
 
 ## Fluxo 11: Sistema de Anexos
 
@@ -199,6 +204,45 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Abertura inline no navegador** *(implementado em 03/12/2025)*
 - ✅ **Acesso público via rastreamento** *(implementado em 03/12/2025)*
 - ✅ **Correção de rotas** *(URLs corrigidas para funcionamento adequado)*
+
+## Fluxo 13: Sistema de Autenticação Aprimorado
+
+### Implementado (Fluxo 13)
+
+- **Redirecionamento inteligente baseado no papel** *(PCA → pca.dashboard, Gestor → manager.dashboard, etc.)*
+- **Proteção completa contra acesso não autorizado** *(usuários logados não acessam login/register)*
+- **Middleware aprimorado** *(RedirectIfAuthenticated com lógica avançada)*
+- **Cobertura de todas as rotas de autenticação** *(login, register, auth, password reset)*
+- **Testes automatizados** *(cobertura completa de cenários de redirecionamento)*
+
+### Concluído (Fluxo 13) - Implementado recentemente
+
+- ✅ **Middleware de redirecionamento refatorado** *(implementado em 04/12/2025)*
+- ✅ **Lógica baseada em papéis implementada** *(PCA, Gestor, Técnico, Utente)*
+- ✅ **Proteção contra acesso não autorizado** *(usuários logados redirecionados automaticamente)*
+- ✅ **Testes de autenticação expandidos** *(cobertura de todos os cenários)*
+- ✅ **Rota dashboard genérica adicionada** *(compatibilidade com controladores padrão)*
+
+## Fluxo 14: Seeder de Performance Avançado
+
+### Implementado (Fluxo 14)
+
+- **Criação automática de projetos** *(15 projetos com dados realistas)*
+- **Associação de técnicos a projetos** *(1-3 projetos por técnico)*
+- **Reclamações associadas a projetos** *(70% das reclamações relacionadas)*
+- **Atribuição inteligente de técnicos** *(prioriza técnicos do projeto relacionado)*
+- **Dados de performance massivos** *(500 utentes, 20 técnicos, 2000 reclamações)*
+- **Configuração flexível** *(parâmetros ajustáveis via método configure())*
+
+### Concluído (Fluxo 14) - Implementado recentemente
+
+- ✅ **PerformanceTestSeeder completamente aprimorado** *(implementado em 04/12/2025)*
+- ✅ **Sistema de projetos integrado** *(criação automática + associações)*
+- ✅ **Lógica de atribuição inteligente** *(técnicos especializados por projeto)*
+- ✅ **Dados realistas e distribuídos** *(70% reclamações com projetos)*
+ - ✅ **Seed executado com sucesso** *(seed completo: 15 projetos, 500 utentes, 20 técnicos, 5 gestores, 2000 reclamações; implementado em 04/12/2025)*
+ - ✅ **Verificação pós-seed** *(migrations aplicadas e queries verificadas via tinker)*
+- ✅ **Inserção otimizada em batch** *(performance mantida com volumes altos)*
 
 ## Estados da Reclamação
 
