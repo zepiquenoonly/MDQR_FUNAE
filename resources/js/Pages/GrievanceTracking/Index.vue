@@ -215,11 +215,19 @@ const categoryLabels = {
                                 <button
                                     @click="searchGrievance"
                                     :disabled="isLoading || !referenceNumber.trim()"
-                                    class="relative sm:px-10 px-6 py-5 bg-gradient-to-r from-brand via-brand to-brand-dark text-white font-semibold rounded-xl hover:shadow-2xl hover:shadow-brand/30 focus:outline-none focus:ring-3 focus:ring-brand/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 shadow-lg group/btn overflow-hidden sm:w-auto w-full"
+                                    class="relative sm:px-10 px-6 py-5 bg-gradient-to-r from-primary-500 via-primary-600 to-orange-600 text-white font-semibold rounded-2xl hover:shadow-2xl hover:shadow-primary-500/40 focus:outline-none focus:ring-3 focus:ring-primary-500/30 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-3 shadow-xl group/btn overflow-hidden sm:w-auto w-full backdrop-blur-sm border border-white/20 hover:border-white/30"
                                 >
-                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000"></div>
-                                    <MagnifyingGlassIcon class="w-6 h-6 relative z-10" />
-                                    <span class="relative z-10 font-medium">
+                                    <!-- Glassmorphism overlay -->
+                                    <div class="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+
+                                    <!-- Shimmer effect -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-1000 rounded-2xl"></div>
+
+                                    <!-- Inner glow -->
+                                    <div class="absolute inset-0 bg-gradient-to-r from-primary-400/20 via-transparent to-orange-400/20 rounded-2xl opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"></div>
+
+                                    <MagnifyingGlassIcon class="w-6 h-6 relative z-10 drop-shadow-sm" />
+                                    <span class="relative z-10 font-medium drop-shadow-sm">
                                         {{ isLoading ? 'Buscando...' : 'Rastrear Agora' }}
                                     </span>
                                 </button>
