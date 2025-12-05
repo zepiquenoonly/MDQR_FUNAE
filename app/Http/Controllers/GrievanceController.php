@@ -133,7 +133,7 @@ class GrievanceController extends Controller
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
-                'description' => $validated['description'],
+                'description' => $validated['description'] ?? null,
                 'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
