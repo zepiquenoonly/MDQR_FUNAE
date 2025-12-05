@@ -76,9 +76,22 @@
                                 </div>
 
                                 <!-- Title -->
-                                <h3 v-if="title" class="mb-2 text-xl font-bold text-gray-900">
-                                    {{ title }}
-                                </h3>
+                                <div class="flex items-start justify-between">
+                                    <h3 v-if="title" class="mb-2 text-xl font-bold text-gray-900">
+                                        {{ title }}
+                                    </h3>
+                                    <button
+                                        v-if="props.closeable"
+                                        @click="handleCancel"
+                                        type="button"
+                                        aria-label="Fechar"
+                                        class="ml-4 text-gray-400 hover:text-gray-600"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    </button>
+                                </div>
 
                                 <!-- Message -->
                                 <div v-if="message" class="mb-6 text-base text-gray-600">
