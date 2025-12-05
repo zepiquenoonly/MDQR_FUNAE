@@ -201,7 +201,7 @@
                         <p v-if="errors.distrito" class="text-red-500 text-xs mt-1 text-left">{{ errors.distrito }}</p>
                     </div>
 
-                    
+
 
                     <div class="flex flex-col">
                         <label for="rua" class="text-left text-xs sm:text-sm font-medium text-gray-700 mb-1">Rua</label>
