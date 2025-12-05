@@ -48,21 +48,19 @@
                   >
                     {{ globalToast.message }}
                   </p>
-                </div>
-                <button
-                  @click="hideGlobalToast"
-                  class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8"
-                  :class="[
-                    globalToast.type === 'success'
-                      ? 'text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50'
-                      : 'text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50',
-                  ]"
-                >
-                  <XMarkIcon class="w-4 h-4" />
-                </button>
+                          <button
+                    @click="hideGlobalToast"
+                    class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8"
+                    :class="[
+                      globalToast.type === 'success'
+                        ? 'text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50'
+                        : 'text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50',
+                    ]"
+                  >
+                    <XMarkIcon class="w-4 h-4" />
+                  </button>
               </div>
-            </div>
-        </div>
+                  </div>
   </Layout>
 </template>
 

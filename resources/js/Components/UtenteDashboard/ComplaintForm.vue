@@ -748,7 +748,42 @@ const toastIcon = computed(() => {
     }
 })
 
+// // Fetch projects
+// const fetchProjects = async () => {
+//     try {
+//         const response = await fetch('/api/grievances/projects', {
+//             headers: {
+//                 'Accept': 'application/json',
+//                 'X-Requested-With': 'XMLHttpRequest'
+//             }
+//         })
+//         if (response.ok) {
+//             projects.value = await response.json()
+//         }
+//     } catch (error) {
+//         console.error('Erro ao carregar projetos:', error)
+//     }
+// })
 
+// // Toast helper
+// const showToast = (type, title, message, duration = 4000) => {
+//     toast.value = { show: true, type, title, message }
+//     setTimeout(() => {
+//         toast.value.show = false
+//     }, duration)
+// }
+
+// onMounted(() => {
+//     fetchProjects()
+// })
+
+// Toast helper
+const showToast = (type, title, message, duration = 4000) => {
+    toast.value = { show: true, type, title, message }
+    setTimeout(() => {
+        toast.value.show = false
+    }, duration)
+}
 
 // Audio recording functions
 const startRecording = async () => {
