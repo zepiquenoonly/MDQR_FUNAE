@@ -1025,12 +1025,12 @@ const handleSubmit = async () => {
             emit('close')
             showSuccessModal.value = true
 
-            // Fechar automaticamente após 5 segundos
+            // Fechar automaticamente após 60 segundos
             setTimeout(() => {
                 if (showSuccessModal.value) {
                     closeSuccessAndForm()
                 }
-            }, 5000)
+            }, 60000)
         } else {
             // Mostrar modal de erro com detalhes
             if (data.errors) {
