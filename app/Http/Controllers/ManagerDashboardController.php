@@ -33,18 +33,23 @@ class ManagerDashboardController extends Controller
         ];
 
         // Get technicians under this manager
-        $technicians = User::where('manager_id', $user->id)
-            ->whereHas('roles', fn($query) => $query->where('name', 'Técnico'))
-            ->pluck('id');
+        // For now, return empty collection as manager_id relationship is not fully implemented
+        $technicians = collect(); // User::where('manager_id', $user->id)
+            // ->whereHas('roles', fn($query) => $query->where('name', 'Técnico'))
+            // ->pluck('id');
 
-        $baseQuery = Grievance::query()->whereIn('assigned_to', $technicians);
+        // For now, show all grievances assigned to any technician
+        // TODO: Implement proper manager-technician hierarchy
+        $baseQuery = Grievance::query()->whereHas('assignedUser.roles', function($query) {
+            $query->where('name', 'Técnico');
+        });
 
         $stats = [
             'pending_complaints' => (clone $baseQuery)->whereIn('status', ['submitted', 'under_review'])->count(),
             'in_progress' => (clone $baseQuery)->where('status', 'in_progress')->count(),
             'high_priority' => (clone $baseQuery)->where('priority', 'high')->whereNotIn('status', ['resolved'])->count(),
             'pending_completion_requests' => (clone $baseQuery)->where('status', 'pending_approval')->count(),
-            'active_technicians' => $technicians->count(),
+            'active_technicians' => User::whereHas('roles', fn($query) => $query->where('name', 'Técnico'))->count(),
             'resolved_this_month' => (clone $baseQuery)
                 ->where('status', 'resolved')
                 ->whereBetween('resolved_at', [now()->startOfMonth(), now()->endOfMonth()])
@@ -54,9 +59,10 @@ class ManagerDashboardController extends Controller
         $data = [];
 
         if ($activePanel === 'technicians') {
-            $techniciansData = User::where('manager_id', $user->id)
-                ->whereHas('roles', fn($query) => $query->where('name', 'Técnico'))
-                ->with(['specializations', 'grievances' => function($query) {
+            // For now, show all technicians
+            // TODO: Filter by manager when hierarchy is implemented
+            $techniciansData = User::whereHas('roles', fn($query) => $query->where('name', 'Técnico'))
+                ->with(['grievances' => function($query) {
                     $query->selectRaw('assigned_to, COUNT(*) as total_grievances, COUNT(CASE WHEN status = "resolved" THEN 1 END) as resolved_this_month')
                         ->whereBetween('resolved_at', [now()->startOfMonth(), now()->endOfMonth()])
                         ->groupBy('assigned_to');
@@ -72,7 +78,7 @@ class ManagerDashboardController extends Controller
                         'created_at' => $technician->created_at?->format('d/m/Y'),
                         'workload' => $technician->workload ?? 0,
                         'is_active' => $technician->is_active ?? true,
-                        'specializations' => $technician->specializations->pluck('name')->toArray(),
+                        'specializations' => [], // $technician->specializations->pluck('name')->toArray(),
                         'total_grievances' => $grievanceStats->total_grievances ?? 0,
                         'resolved_this_month' => $grievanceStats->resolved_this_month ?? 0,
                         'completion_rate' => $grievanceStats && $grievanceStats->total_grievances > 0

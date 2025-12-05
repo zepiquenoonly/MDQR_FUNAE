@@ -1,8 +1,7 @@
 <template>
   <Layout
     :user="user"
-    :stats="stats"
-  >
+    :stats="stats">
     <div class="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       <!-- Breadcrumb com botão Voltar -->
       <div class="flex items-center justify-between -mt-4 mb-4 sm:mb-6 lg:mb-8">
@@ -63,6 +62,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </Layout>
 </template>

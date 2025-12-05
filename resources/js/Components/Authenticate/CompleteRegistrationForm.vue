@@ -170,16 +170,7 @@
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.provincia }"
                             required>
                             <option value="">Selecione...</option>
-                            <option value="Maputo">Maputo</option>
-                            <option value="Gaza">Gaza</option>
-                            <option value="Inhambane">Inhambane</option>
-                            <option value="Sofala">Sofala</option>
-                            <option value="Manica">Manica</option>
-                            <option value="Tete">Tete</option>
-                            <option value="Zambézia">Zambézia</option>
-                            <option value="Nampula">Nampula</option>
-                            <option value="Niassa">Niassa</option>
-                            <option value="Cabo Delgado">Cabo Delgado</option>
+                            <option v-for="province in provinces" :key="province" :value="province">{{ province }}</option>
                         </select>
                         <p v-if="errors.provincia" class="text-red-500 text-xs mt-1 text-left">{{ errors.provincia }}
                         </p>
@@ -193,15 +184,8 @@
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.distrito }"
                             required>
                             <option value="">Selecione...</option>
-                            <option value="KaMavota">KaMavota</option>
-                            <option value="Nlhamankulu">Nlhamankulu</option>
-                            <option value="KaMaxakeni">KaMaxakeni</option>
-                            <option value="KaMubukwana">KaMubukwana</option>
-                            <option value="KaMpfumo">KaMpfumo</option>
-                            <option value="KaTembe">KaTembe</option>
-                            <option value="KaNyaka">KaNyaka</option>
+                            <option v-for="district in availableDistricts" :key="district" :value="district">{{ district }}</option>
                         </select>
-                        <p v-if="errors.distrito" class="text-red-500 text-xs mt-1 text-left">{{ errors.distrito }}</p>
                     </div>
 
                     <div class="flex flex-col">
@@ -212,14 +196,12 @@
                             :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.bairro }"
                             required>
                             <option value="">Selecione...</option>
-                            <option value="Magoanine">Magoanine</option>
-                            <option value="Zimpeto">Zimpeto</option>
-                            <option value="Albazine">Albazine</option>
-                            <option value="Hulene">Hulene</option>
-                            <option value="Mahotas">Mahotas</option>
+                            <option v-for="neighborhood in availableNeighborhoods" :key="neighborhood" :value="neighborhood">{{ neighborhood }}</option>
                         </select>
-                        <p v-if="errors.bairro" class="text-red-500 text-xs mt-1 text-left">{{ errors.bairro }}</p>
+                        <p v-if="errors.distrito" class="text-red-500 text-xs mt-1 text-left">{{ errors.distrito }}</p>
                     </div>
+
+                    
 
                     <div class="flex flex-col">
                         <label for="rua" class="text-left text-xs sm:text-sm font-medium text-gray-700 mb-1">Rua</label>
@@ -304,9 +286,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useToast } from '@/Composables/useToast'
+import { useMozambiqueLocations } from '@/composables/useMozambiqueLocations'
 import {
     UserIcon,
     MapPinIcon,
@@ -349,6 +332,21 @@ const formData = ref({
 
 const fileInput = ref(null)
 
+// Usar composable dinâmico de localizações
+const { provinces, getDistrictsForProvince, getNeighborhoodsForDistrict, isValidDistrictForProvince } = useMozambiqueLocations()
+
+// Computed para distritos da província selecionada
+const availableDistricts = computed(() => {
+    console.log('CompleteRegistration - Computing available districts for province:', formData.value.provincia)
+    return getDistrictsForProvince(formData.value.provincia)
+})
+
+// Computed para bairros do distrito selecionado
+const availableNeighborhoods = computed(() => {
+    console.log('CompleteRegistration - Computing available neighborhoods for province:', formData.value.provincia, 'district:', formData.value.distrito)
+    return getNeighborhoodsForDistrict(formData.value.provincia, formData.value.distrito)
+})
+
 const progressWidth = computed(() => {
     if (currentStep.value === 1) return '0%'
     if (currentStep.value === 2) return '35%'
@@ -361,8 +359,45 @@ const isStep1Valid = computed(() => {
     return formData.value.nome && formData.value.apelido && celularValid
 })
 
+// Watch para limpar distrito quando província muda
+watch(() => formData.value.provincia, (newProvince, oldProvince) => {
+    console.log('CompleteRegistration - Province changed from', oldProvince, 'to', newProvince)
+    if (newProvince !== oldProvince && newProvince) {
+        console.log('CompleteRegistration - Clearing district and neighborhood')
+        formData.value.distrito = ''
+        formData.value.bairro = ''
+    }
+})
+
+// Watch para limpar bairro quando distrito muda
+watch(() => formData.value.distrito, (newDistrict, oldDistrict) => {
+    console.log('CompleteRegistration - District changed from', oldDistrict, 'to', newDistrict)
+    if (newDistrict !== oldDistrict && newDistrict) {
+        console.log('CompleteRegistration - Clearing neighborhood')
+        formData.value.bairro = ''
+    }
+})
+
 const isStep2Valid = computed(() => {
-    return formData.value.provincia && formData.value.distrito && formData.value.bairro
+    const basicFields = formData.value.provincia && formData.value.distrito && formData.value.bairro
+
+    // Validação adicional: garantir que distrito pertence à província e bairro ao distrito
+    const locationValid = (!formData.value.provincia || !formData.value.distrito ||
+                          isValidDistrictForProvince(formData.value.provincia, formData.value.distrito)) &&
+                         (!formData.value.distrito || !formData.value.bairro ||
+                          availableNeighborhoods.value.includes(formData.value.bairro))
+
+    console.log('CompleteRegistration - Step 2 validation:', {
+        basicFields,
+        locationValid,
+        provincia: formData.value.provincia,
+        distrito: formData.value.distrito,
+        bairro: formData.value.bairro,
+        availableDistricts: availableDistricts.value.length,
+        availableNeighborhoods: availableNeighborhoods.value.length
+    })
+
+    return basicFields && locationValid
 })
 
 const nextStep = async () => {

@@ -158,6 +158,9 @@ const props = defineProps({
 });
 
 // Usar composable para safe props - elimina repetição
+// Estado local - definir ANTES dos watchers
+const selectedComplaint = ref(null);
+
 const { getSafeProp } = usePageProps(props);
 const safeComplaints = getSafeProp('complaints', { data: [] });
 const safeAllComplaints = getSafeProp('allComplaints', []);
@@ -171,9 +174,6 @@ const debugDataTypes = () => {
     return acc;
   }, {});
 };
-
-// Estado local
-const selectedComplaint = ref(null);
 const localFilters = ref({ ...safeFilters.value });
 const showModal = ref(false);
 const dataLoaded = ref(false);
@@ -221,7 +221,7 @@ watch(
 
 // Watcher para detectar quando as props são atualizadas via Inertia
 watch(
-  () => page.props.allComplaints,
+  () => safeAllComplaints.value,
   (newAllComplaints) => {
     if (newAllComplaints?.length && !selectedComplaint.value) {
       selectedComplaint.value = newAllComplaints[0];
