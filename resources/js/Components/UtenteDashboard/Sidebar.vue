@@ -28,7 +28,7 @@
 
     <!-- Menu Items -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-primary-300 scrollbar-track-transparent hover:scrollbar-thumb-primary-400 transition-colors">
-      <MenuSection @item-clicked="handleMenuItemClick" />
+      <MenuSection @item-clicked="handleMenuItemClick" :role="role" />
     </div>
   </aside>
 </template>

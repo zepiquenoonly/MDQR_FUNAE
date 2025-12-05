@@ -2,7 +2,7 @@
   <div  class="relative flex min-h-screen overflow-hidden" style="background: url('/background.min.svg') center/cover fixed no-repeat; zoom: 90%;">
     <!-- Sidebar Desktop - sempre visível -->
     <div class="fixed top-0 left-0 z-30 hidden w-64 h-full sm:block">
-      <Sidebar @change-view="$emit('change-view', $event)" :role="role" />
+      <Sidebar @change-view="$emit('change-view', $event)" :role="detectedRole" />
     </div>
 
     <!-- Sidebar Mobile - overlay -->
@@ -11,14 +11,14 @@
       <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" @click="closeSidebar"></div>
       <!-- Sidebar -->
       <div class="absolute top-0 left-0 h-full shadow-2xl w-72 animate-slide-in-left">
-        <Sidebar :is-mobile="true" @toggle-sidebar="closeSidebar" @change-view="handleMobileMenuClick" :role="role" />
+        <Sidebar :is-mobile="true" @toggle-sidebar="closeSidebar" @change-view="handleMobileMenuClick" :role="detectedRole" />
       </div>
     </div>
 
     <!-- Main Content -->
     <div class="flex flex-col flex-1 w-full min-w-0 sm:ml-64">
       <!-- Header -->
-      <Header :user="user" @toggle-sidebar="openSidebar" class="flex-shrink-0" />
+      <Header :user="safeUser" @toggle-sidebar="openSidebar" class="flex-shrink-0" />
 
       <!-- Loading Spinner -->
       <div v-if="loading"
@@ -38,23 +38,58 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { router } from '@inertiajs/vue3'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { router, usePage } from '@inertiajs/vue3'
 import Sidebar from '@/Components/UtenteDashboard/Sidebar.vue'
 import Header from '@/Components/UtenteDashboard/Header.vue'
+
+const page = usePage()
 
 const props = defineProps({
   user: {
     type: Object,
-    required: true
+    default: null
   },
   role: {
     type: String,
-    default: 'technician' // technician, manager, pca
+    default: null // Será detectado automaticamente se não fornecido
+  },
+  stats: {
+    type: Object,
+    default: () => ({})
   }
 })
 
 const emit = defineEmits(['change-view'])
+
+// Obter user automaticamente se não for passado
+const safeUser = computed(() => {
+  return props.user || page.props.auth?.user || {}
+})
+
+// Detectar role automaticamente do user se não for fornecido
+const detectedRole = computed(() => {
+  if (props.role) return props.role
+
+  // Tentar detectar do user.roles
+  const userRoles = safeUser.value?.roles || []
+  if (userRoles.length > 0) {
+    const roleName = userRoles[0]?.name?.toLowerCase()
+    // Mapear nomes de roles para os valores esperados
+    const roleMap = {
+      'técnico': 'technician',
+      'tecnico': 'technician',
+      'gestor': 'manager',
+      'pca': 'pca',
+      'utente': 'utente',
+      'admin': 'admin'
+    }
+    return roleMap[roleName] || roleName || 'utente'
+  }
+
+  // Fallback padrão
+  return 'utente'
+})
 
 const sidebarOpen = ref(false)
 const loading = ref(false)

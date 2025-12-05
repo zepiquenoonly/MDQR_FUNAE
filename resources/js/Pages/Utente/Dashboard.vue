@@ -1,5 +1,5 @@
 <template>
-    <Layout @change-view="handleViewChange">
+    <Layout :user="user" :role="'utente'" @change-view="handleViewChange">
         <!-- Breadcrumb dinâmico -->
         <!-- <div class="p-4 sm:p-6">
             <Breadcrumb :active-view="activePanel" />

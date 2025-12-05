@@ -10,6 +10,19 @@
         <button @click="$emit('toggle-sidebar')" class="flex-shrink-0 p-2 text-gray-700 transition-all duration-200 sm:hidden hover:text-primary-600 rounded-xl hover:bg-primary-50 hover:scale-110">
           <Bars3Icon class="w-6 h-6" />
         </button>
+
+        <!-- Logo FUNAE -->
+        <button
+          @click="navigateToDashboard"
+          class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer group"
+        >
+          <img
+            src="/images/Logotipo-scaled.png"
+            alt="FUNAE Logo"
+            class="h-8 sm:h-10 lg:h-12 w-auto object-contain flex-shrink-0 transition-transform group-hover:scale-105"
+          />
+          
+        </button>
       </div>
 
       <!-- Right Section -->
@@ -31,13 +44,15 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { router } from '@inertiajs/vue3'
 import {
   Bars3Icon,
   BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
 
-defineProps({
+const props = defineProps({
   user: {
     type: Object,
     required: true
@@ -45,4 +60,30 @@ defineProps({
 })
 
 defineEmits(['toggle-sidebar'])
+
+// Função para obter a rota do dashboard baseado no role
+const getDashboardRoute = () => {
+  const roles = props.user?.roles || []
+  const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
+
+  // PCA
+  if (roleNames.has('pca')) {
+    return route('pca.dashboard')
+  }
+  // Gestor
+  if (roleNames.has('gestor')) {
+    return route('manager.dashboard')
+  }
+  // Técnico
+  if (roleNames.has('técnico') || roleNames.has('tecnico')) {
+    return route('technician.dashboard')
+  }
+  // Utente (padrão)
+  return route('user.dashboard')
+}
+
+// Navegar para o dashboard apropriado
+const navigateToDashboard = () => {
+  router.visit(getDashboardRoute())
+}
 </script>

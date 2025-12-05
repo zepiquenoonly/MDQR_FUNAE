@@ -2,9 +2,6 @@
   <Layout
     :user="user"
     :stats="stats"
-    :active-tab="activeTab"
-    :show-stats="showStats"
-    :hide-profile="true"
   >
     <div class="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
       <!-- Breadcrumb com botão Voltar -->
