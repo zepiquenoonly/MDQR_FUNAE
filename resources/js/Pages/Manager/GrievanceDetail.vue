@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :role="'manager'">
     <div class="space-y-4 sm:space-y-6">
       <!-- Breadcrumb & Header -->
       <div class="flex flex-col gap-3 sm:gap-4">
@@ -137,7 +137,7 @@
 
                 <!-- Itens da timeline -->
                 <div
-                  v-for="(state, index) in getStatusTimeline()"
+                  v-for="(state, _) in getStatusTimeline()"
                   :key="state.status"
                   class="relative flex gap-4 pb-6 last:pb-0"
                 >
@@ -496,7 +496,7 @@
 import { router } from "@inertiajs/vue3";
 import { ref, reactive } from "vue";
 import { Link } from "@inertiajs/vue3";
-import Layout from "@/Layouts/ManagerLayout.vue";
+import Layout from "@/Layouts/UnifiedLayout.vue";
 import StatusBadge from "@/Components/Grievance/StatusBadge.vue";
 import PriorityModal from "@/Components/GestorReclamacoes/PriorityModal.vue";
 import ReassignModal from "@/Components/GestorReclamacoes/ReassignModal.vue";

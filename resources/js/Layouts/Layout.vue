@@ -1,7 +1,7 @@
 <template>
   <div style="zoom: 90%;" class="flex min-h-screen bg-gray-50">
     <!-- Sidebar (Fixed) -->
-    <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
+    <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :role="role" />
 
     <!-- Main Content -->
     <div class="flex flex-col flex-1 h-screen">
@@ -25,6 +25,10 @@ defineProps({
   user: {
     type: Object,
     required: true
+  },
+  role: {
+    type: String,
+    default: 'technician' // technician, manager, pca
   }
 })
 

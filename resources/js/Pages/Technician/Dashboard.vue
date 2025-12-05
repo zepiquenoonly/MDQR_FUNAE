@@ -1,5 +1,5 @@
 <template>
-    <Layout :stats="safeStats">
+    <Layout :stats="safeStats" :role="'technician'">
         <div class="space-y-3 sm:space-y-6 px-3 sm:px-0">
             <!-- Header com bem-vindo -->
             <div>
@@ -65,7 +65,7 @@
 <script setup>
 import { computed } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
-import Layout from '@/Layouts/Layout.vue'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import GrievancesList from '@/Components/Technician/GrievancesList.vue'
 

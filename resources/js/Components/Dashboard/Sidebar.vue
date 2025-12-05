@@ -37,6 +37,7 @@
     <div class="flex-1 overflow-y-auto overflow-x-hidden">
       <MenuSection
         :is-collapsed="isCollapsed"
+        :role="role"
         @item-clicked="handleMenuItemClick"
       />
     </div>
@@ -61,11 +62,20 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import MenuSection from './MenuSection.vue'
 
+// Import route helper
+const route = window.route
+
 const props = defineProps({
-  isCollapsed: Boolean
+  isCollapsed: Boolean,
+  isMobile: Boolean,
+  role: {
+    type: String,
+    default: 'technician'
+  }
 })
 
 const emit = defineEmits(['toggle-sidebar'])
@@ -86,6 +96,49 @@ const handleMenuItemClick = (item) => {
   if (isMobile.value) {
     emit('toggle-sidebar')
   }
+
+  // Navegar para a rota apropriada baseada no item clicado
+  navigateToRoute(item)
+}
+
+const navigateToRoute = (item) => {
+  const routeMap = {
+    // Dashboard principal baseado no role
+    'dashboard': getDashboardRoute(),
+
+    // MDQR items (filtro para técnico)
+    'sugestoes': route('technician.dashboard', { type: 'suggestion' }),
+    'queixas': route('technician.dashboard', { type: 'grievance' }),
+    'reclamacoes': route('technician.dashboard', { type: 'complaint' }),
+
+    // Gestão de projetos (manager/pca)
+    'projectos': route('manager.dashboard'), // ou pca.dashboard dependendo do role
+
+    // Gestão de técnicos (manager)
+    'tecnicos': route('manager.dashboard'), // rota específica pode ser adicionada
+
+    // Estatísticas (manager/pca)
+    'estatisticas': route(props.role === 'manager' ? 'manager.dashboard' : 'pca.dashboard'),
+
+    // Gestão de usuários (pca)
+    'gestao-usuarios': route('pca.dashboard')
+  }
+
+  const targetRoute = routeMap[item]
+  if (targetRoute) {
+    router.visit(targetRoute)
+  }
+}
+
+const getDashboardRoute = () => {
+  const roleRoutes = {
+    'technician': route('technician.dashboard'),
+    'manager': route('manager.dashboard'),
+    'pca': route('pca.dashboard'),
+    'admin': route('admin.dashboard')
+  }
+
+  return roleRoutes[props.role] || route('home')
 }
 
 onMounted(() => {

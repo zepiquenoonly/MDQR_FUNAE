@@ -27,40 +27,51 @@
                     <ProfilePreferencesTab v-else-if="activeTab === 'preferences'" />
                 </div>
             </div>
+
+            <!-- Global Toast Notification -->
+            <div v-if="globalToast.show" class="fixed bottom-4 right-4 z-50">
+              <div class="flex items-center p-4 mb-4 text-sm border rounded-lg"
+                :class="[
+                  globalToast.type === 'success'
+                    ? 'text-green-800 border-green-300 bg-green-50 dark:text-green-300 dark:border-green-800 dark:bg-gray-800'
+                    : 'text-red-800 border-red-300 bg-red-50 dark:text-red-300 dark:border-red-800 dark:bg-gray-800',
+                ]"
+              >
+                <div class="ml-3">
+                  <p
+                    :class="[
+                      'text-sm font-medium',
+                      globalToast.type === 'success'
+                        ? 'text-green-800 dark:text-green-300'
+                        : 'text-red-800 dark:text-red-300',
+                    ]"
+                  >
+                    {{ globalToast.message }}
+                  </p>
+                </div>
+                <button
+                  @click="hideGlobalToast"
+                  class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8"
+                  :class="[
+                    globalToast.type === 'success'
+                      ? 'text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50'
+                      : 'text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50',
+                  ]"
+                >
+                  <XMarkIcon class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
         </div>
-        <div class="ml-3">
-          <p
-            :class="[
-              'text-sm font-medium',
-              globalToast.type === 'success'
-                ? 'text-green-800 dark:text-green-300'
-                : 'text-red-800 dark:text-red-300',
-            ]"
-          >
-            {{ globalToast.message }}
-          </p>
-        </div>
-        <button
-          @click="hideGlobalToast"
-          class="ml-auto -mx-1.5 -my-1.5 rounded-lg p-1.5 inline-flex items-center justify-center h-8 w-8"
-          :class="[
-            globalToast.type === 'success'
-              ? 'text-green-500 hover:bg-green-100 dark:hover:bg-green-900/50'
-              : 'text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50',
-          ]"
-        >
-          <XMarkIcon class="w-4 h-4" />
-        </button>
-      </div>
-    </div>
   </Layout>
 </template>
 
 <script setup>
 import { Link, router } from "@inertiajs/vue3";
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import Layout from "@/Layouts/ProfileLayout.vue";
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import ProfileInfoTab from "@/Components/Profile/ProfileInfoTab.vue";
+import ProfileSidebar from "@/Components/Profile/ProfileSidebar.vue";
 import ProfileSecurityTab from "@/Components/Profile/ProfileSecurityTab.vue";
 import ProfileNotificationsTab from "@/Components/Profile/ProfileNotificationsTab.vue";
 import ProfilePreferencesTab from "@/Components/Profile/ProfilePreferencesTab.vue";

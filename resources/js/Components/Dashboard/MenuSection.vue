@@ -12,18 +12,24 @@
     <MenuItem :active="false" :icon="HomeIcon" :text="'Início'" :is-collapsed="isCollapsed"
       @click="handleItemClick('dashboard')" />
 
-    <!-- MDQR Dropdown -->
-    <MenuDropdown id="mdqr" :icon="DocumentTextIcon" :text="'MDQR'" :badge="5" :is-collapsed="isCollapsed"
+    <!-- MDQR Dropdown - Only for Technician -->
+    <MenuDropdown v-if="role === 'technician'" id="mdqr" :icon="DocumentTextIcon" :text="'MDQR'" :badge="5" :is-collapsed="isCollapsed"
       :items="mdqrItems" :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
 
-    <MenuItem :icon="FolderIcon" :text="'Gestão dos Projectos'" :is-collapsed="isCollapsed"
-      @click="handleItemClick('gestao-projetos')" />
+    <!-- Projects Management - For Manager and PCA -->
+    <MenuItem v-if="role === 'manager' || role === 'pca'" :icon="FolderIcon" :text="'Gestão dos Projectos'" :is-collapsed="isCollapsed"
+      @click="handleItemClick('projectos')" />
 
-    <!-- Estatísticas Dropdown -->
-    <MenuDropdown id="estatisticas" :icon="ChartBarSquareIcon" :text="'Estatísticas'" :is-collapsed="isCollapsed"
+    <!-- Technicians Management - For Manager -->
+    <MenuItem v-if="role === 'manager'" :icon="UserGroupIcon" :text="'Gestão dos Técnicos'" :is-collapsed="isCollapsed"
+      @click="handleItemClick('tecnicos')" />
+
+    <!-- Statistics Dropdown - For Manager and PCA -->
+    <MenuDropdown v-if="role === 'manager' || role === 'pca'" id="estatisticas" :icon="ChartBarSquareIcon" :text="'Estatísticas'" :is-collapsed="isCollapsed"
       :items="estatisticasItems" :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
 
-    <MenuItem :icon="UserGroupIcon" :text="'Gestão dos Usuários'" :is-collapsed="isCollapsed"
+    <!-- Users Management - For PCA -->
+    <MenuItem v-if="role === 'pca'" :icon="UserGroupIcon" :text="'Gestão dos Usuários'" :is-collapsed="isCollapsed"
       @click="handleItemClick('gestao-usuarios')" />
   </nav>
 </template>
@@ -45,7 +51,11 @@ import MenuItem from './MenuItem.vue'
 import MenuDropdown from './MenuDropdown.vue'
 
 defineProps({
-  isCollapsed: Boolean
+  isCollapsed: Boolean,
+  role: {
+    type: String,
+    default: 'technician' // technician, manager, pca
+  }
 })
 
 const emit = defineEmits(['item-clicked'])

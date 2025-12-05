@@ -1,5 +1,5 @@
 <template>
-    <Layout>
+    <Layout :role="'pca'">
         <div class="p-4 lg:p-6 space-y-6">
             <!-- Header Section -->
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
@@ -159,7 +159,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { router } from '@inertiajs/vue3'
-import Layout from '@/Layouts/ManagerLayout.vue'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import StatCard from '@/Components/PCA/StatCard.vue'
 import StatusChart from '@/Components/PCA/StatusChart.vue'
 import PriorityChart from '@/Components/PCA/PriorityChart.vue'

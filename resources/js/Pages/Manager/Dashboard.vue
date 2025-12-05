@@ -1,5 +1,5 @@
 <template>
-  <Layout :stats="safeStats">
+  <Layout :stats="safeStats" :role="'manager'">
     <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
     <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
 
@@ -109,7 +109,7 @@
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { router, usePage } from "@inertiajs/vue3";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
-import Layout from "@/Layouts/ManagerLayout.vue";
+import Layout from "@/Layouts/UnifiedLayout.vue";
 import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
 import ComplaintsList from "@/Components/GestorReclamacoes/ComplaintsList.vue";
 import GrievanceDetails from "./GrievanceDetail.vue";
