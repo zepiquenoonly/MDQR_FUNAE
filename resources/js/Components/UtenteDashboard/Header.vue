@@ -21,7 +21,7 @@
             alt="FUNAE Logo"
             class="h-8 sm:h-10 lg:h-12 w-auto object-contain flex-shrink-0 transition-transform group-hover:scale-105"
           />
-          
+
         </button>
       </div>
 
@@ -44,13 +44,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { router } from '@inertiajs/vue3'
 import {
   Bars3Icon,
   BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
+import { useNavigation } from '@/composables/useNavigation'
 
 const props = defineProps({
   user: {
@@ -61,29 +60,6 @@ const props = defineProps({
 
 defineEmits(['toggle-sidebar'])
 
-// Função para obter a rota do dashboard baseado no role
-const getDashboardRoute = () => {
-  const roles = props.user?.roles || []
-  const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
-
-  // PCA
-  if (roleNames.has('pca')) {
-    return route('pca.dashboard')
-  }
-  // Gestor
-  if (roleNames.has('gestor')) {
-    return route('manager.dashboard')
-  }
-  // Técnico
-  if (roleNames.has('técnico') || roleNames.has('tecnico')) {
-    return route('technician.dashboard')
-  }
-  // Utente (padrão)
-  return route('user.dashboard')
-}
-
-// Navegar para o dashboard apropriado
-const navigateToDashboard = () => {
-  router.visit(getDashboardRoute())
-}
+// Usar composable de navegação para navegação baseada em role
+const { navigateToDashboard } = useNavigation({ user: props.user })
 </script>

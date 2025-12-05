@@ -67,7 +67,7 @@
 import { ref, provide, computed, onMounted, onUnmounted } from "vue";
 import { router } from "@inertiajs/vue3";
 import { useDropdownManager } from "@/Components/GestorReclamacoes/Composables/useDropdownManager";
-import { useDashboardState } from "@/Components/GestorReclamacoes/Composables/useDashboardState";
+import { useDashboard } from "@/composables/useDashboard";
 import { useTheme } from "@/Components/GestorReclamacoes/Composables/useTheme";
 import Sidebar from "@/Components/GestorReclamacoes/Sidebar.vue";
 import Header from "@/Components/GestorReclamacoes/Header.vue";
@@ -87,7 +87,7 @@ const loading = ref(false);
 const isMobile = ref(false);
 
 const dropdownManager = useDropdownManager();
-const dashboardState = useDashboardState();
+const dashboardState = useDashboard();
 const theme = useTheme();
 
 const checkMobile = () => {

@@ -113,7 +113,7 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
 import Layout from "@/Layouts/UnifiedLayout.vue";
 import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
@@ -122,11 +122,9 @@ import GrievanceDetails from "./GrievanceDetail.vue";
 import ProjectsManager from "@/Components/Dashboard/ProjectsManager.vue";
 import TecnicoList from "@/Components/GestorReclamacoes/TecnicoList.vue";
 import ProjectDetail from "@/Pages/Common/ProjectDetail.vue";
+import { usePageProps } from "@/composables/usePageProps";
 
-// Usar usePage() para acessar as props de forma reativa
-const page = usePage();
-
-// Props do backend com valores padrão seguros - agora reativos via usePage()
+// Props do backend com valores padrão seguros
 const props = defineProps({
   showProjectDetails: Boolean,
   project: {
@@ -159,16 +157,13 @@ const props = defineProps({
   },
 });
 
-// Computed properties seguras para evitar null errors - agora reativas
-const safeComplaints = computed(
-  () => page.props.complaints || props.complaints || { data: [] }
-);
-const safeAllComplaints = computed(
-  () => page.props.allComplaints || props.allComplaints || []
-);
-const safeStats = computed(() => page.props.stats || props.stats || {});
-const safeTechnicians = computed(() => page.props.technicians || props.technicians || []);
-const safeFilters = computed(() => page.props.filters || props.filters || {});
+// Usar composable para safe props - elimina repetição
+const { getSafeProp } = usePageProps(props);
+const safeComplaints = getSafeProp('complaints', { data: [] });
+const safeAllComplaints = getSafeProp('allComplaints', []);
+const safeStats = getSafeProp('stats', {});
+const safeTechnicians = getSafeProp('technicians', []);
+const safeFilters = getSafeProp('filters', {});
 
 const debugDataTypes = () => {
   const typeCount = safeAllComplaints.value.reduce((acc, item) => {

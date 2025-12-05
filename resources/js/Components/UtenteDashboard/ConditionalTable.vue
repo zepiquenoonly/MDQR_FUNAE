@@ -242,96 +242,15 @@ const filteredAndSortedData = computed(() => {
     })
 })
 
-// Métodos
+// Métodos - usar dados via props ao invés de mock
 const getSampleData = () => {
-    const sampleData = {
-        suggestions: [
-            {
-                id: 'SUG-001',
-                title: 'Melhoria na Distribuição de Água',
-                description: 'Sugestão para melhor sistema de distribuição de água em áreas urbanas',
-                project: 'Sistema de Abastecimento de Água',
-                date: '2024-01-15',
-                status: 'Aprovada'
-            },
-            {
-                id: 'SUG-002',
-                title: 'Implementação de Energia Solar',
-                description: 'Proposta para implementação de energia solar em edifícios públicos',
-                project: 'Projecto de Energia Renovável',
-                date: '2024-01-10',
-                status: 'Em Análise'
-            },
-            {
-                id: 'SUG-003',
-                title: 'Renovação do Centro Comunitário',
-                description: 'Proposta de renovação para as instalações do centro comunitário',
-                project: 'Desenvolvimento Urbano',
-                date: '2024-01-05',
-                status: 'Pendente'
-            }
-        ],
-        claims: [
-            {
-                id: 'QUE-001',
-                title: 'Queixa de Danos à Propriedade',
-                description: 'Danos à propriedade residencial devido a actividades de construção',
-                project: 'Desenvolvimento de Infraestrutura',
-                date: '2024-01-14',
-                priority: 'Alta',
-                status: 'Em Análise'
-            },
-            {
-                id: 'QUE-002',
-                title: 'Queixa de Compensação',
-                description: 'Pedido de compensação devido a atrasos e perturbações no projecto',
-                project: 'Obras Públicas',
-                date: '2024-01-09',
-                priority: 'Média',
-                status: 'Pendente'
-            },
-            {
-                id: 'QUE-003',
-                title: 'Queixa de Impacto Ambiental',
-                description: 'Queixa sobre danos ambientais de actividades industriais',
-                project: 'Operação Mineira',
-                date: '2024-01-04',
-                priority: 'Urgente',
-                status: 'Validada'
-            }
-        ],
-        complaints: [
-            {
-                id: 'REC-001',
-                title: 'Danos Ambientais',
-                description: 'Reclamação sobre impacto ambiental de actividades de construção',
-                project: 'Projecto de Energia Eólica',
-                date: '2024-01-12',
-                impactType: 'Ambiental',
-                status: 'Em Progresso'
-            },
-            {
-                id: 'REC-002',
-                title: 'Poluição Sonora',
-                description: 'Ruído excessivo durante a noite afectando residentes',
-                project: 'Desenvolvimento Urbano',
-                date: '2024-01-08',
-                impactType: 'Social',
-                status: 'Resolvida'
-            },
-            {
-                id: 'REC-003',
-                title: 'Bloqueio de Estrada',
-                description: 'Construção a bloquear estrada principal de acesso por período prolongado',
-                project: 'Projecto de Infraestrutura',
-                date: '2024-01-03',
-                impactType: 'Económico',
-                status: 'Aberta'
-            }
-        ]
+    // Se dados foram passados via props, usar eles
+    if (props.data && props.data.length > 0) {
+        return props.data
     }
-
-    return sampleData[props.type] || []
+    
+    // Fallback para dados vazios ao invés de mock
+    return []
 }
 
 const sortTable = (key) => {

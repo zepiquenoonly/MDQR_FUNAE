@@ -39,11 +39,10 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import Sidebar from '@/Components/UtenteDashboard/Sidebar.vue'
 import Header from '@/Components/UtenteDashboard/Header.vue'
-
-const page = usePage()
+import { useAuth } from '@/composables/useAuth'
 
 const props = defineProps({
   user: {
@@ -62,33 +61,10 @@ const props = defineProps({
 
 const emit = defineEmits(['change-view'])
 
-// Obter user automaticamente se não for passado
-const safeUser = computed(() => {
-  return props.user || page.props.auth?.user || {}
-})
-
-// Detectar role automaticamente do user se não for fornecido
-const detectedRole = computed(() => {
-  if (props.role) return props.role
-
-  // Tentar detectar do user.roles
-  const userRoles = safeUser.value?.roles || []
-  if (userRoles.length > 0) {
-    const roleName = userRoles[0]?.name?.toLowerCase()
-    // Mapear nomes de roles para os valores esperados
-    const roleMap = {
-      'técnico': 'technician',
-      'tecnico': 'technician',
-      'gestor': 'manager',
-      'pca': 'pca',
-      'utente': 'utente',
-      'admin': 'admin'
-    }
-    return roleMap[roleName] || roleName || 'utente'
-  }
-
-  // Fallback padrão
-  return 'utente'
+// Usar composable de autenticação para obter user e role de forma segura
+const { user: safeUser, role: detectedRole } = useAuth({
+  user: props.user,
+  role: props.role
 })
 
 const sidebarOpen = ref(false)

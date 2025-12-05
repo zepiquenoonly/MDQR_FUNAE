@@ -240,12 +240,46 @@
 </template>
 
 <script setup>
-import { ref, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject } from 'vue'
 import { usePage } from '@inertiajs/vue3'
 import ComplaintForm from './ComplaintForm.vue'
 import GrievanceDetails from './GrievanceDetails.vue'
 
+const props = defineProps({
+    complaints: {
+        type: Array,
+        default: () => []
+    },
+    complaintsStats: {
+        type: Object,
+        default: () => ({
+            total: 0,
+            validated: 0,
+            in_analysis: 0,
+            rejected: 0
+        })
+    }
+})
+
 const page = usePage()
+
+// Usar dados do backend ou props
+const complaintsData = computed(() => {
+    return props.complaints?.length > 0 
+        ? props.complaints 
+        : (page.props.complaints || [])
+})
+
+const complaintsStatsData = computed(() => {
+    return props.complaintsStats?.total !== undefined
+        ? props.complaintsStats
+        : (page.props.complaintsStats || {
+            total: 0,
+            validated: 0,
+            in_analysis: 0,
+            rejected: 0
+        })
+})
 
 const loading = ref(false)
 const error = ref(null)
@@ -285,8 +319,6 @@ const loadGrievances = async () => {
 
     try {
         // Usar os dados já disponíveis da página ao invés de fazer fetch
-        const page = usePage()
-        
         if (page.props.stats) {
             stats.value = page.props.stats
         }

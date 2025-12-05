@@ -65,9 +65,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import MenuSection from './MenuSection.vue'
-
-// Import route helper
-const route = window.route
+import { useNavigation } from '@/composables/useNavigation'
+import { buildRoute } from '@/utils/routes'
 
 const props = defineProps({
   isCollapsed: Boolean,
@@ -91,6 +90,9 @@ const sidebarStyle = computed(() => {
   return {}
 })
 
+// Usar composable de navegação
+const { getDashboardUrl, navigateTo } = useNavigation({ role: props.role })
+
 const handleMenuItemClick = (item) => {
   // Em mobile, fechar sidebar ao clicar em um item
   if (isMobile.value) {
@@ -104,41 +106,30 @@ const handleMenuItemClick = (item) => {
 const navigateToRoute = (item) => {
   const routeMap = {
     // Dashboard principal baseado no role
-    'dashboard': getDashboardRoute(),
+    'dashboard': getDashboardUrl(),
 
     // MDQR items (filtro para técnico)
-    'sugestoes': route('technician.dashboard', { type: 'suggestion' }),
-    'queixas': route('technician.dashboard', { type: 'grievance' }),
-    'reclamacoes': route('technician.dashboard', { type: 'complaint' }),
+    'sugestoes': buildRoute('technician.dashboard', { type: 'suggestion' }),
+    'queixas': buildRoute('technician.dashboard', { type: 'grievance' }),
+    'reclamacoes': buildRoute('technician.dashboard', { type: 'complaint' }),
 
     // Gestão de projetos (manager/pca)
-    'projectos': route('manager.dashboard'), // ou pca.dashboard dependendo do role
+    'projectos': buildRoute('manager.dashboard'),
 
     // Gestão de técnicos (manager)
-    'tecnicos': route('manager.dashboard'), // rota específica pode ser adicionada
+    'tecnicos': buildRoute('manager.dashboard'),
 
     // Estatísticas (manager/pca)
-    'estatisticas': route(props.role === 'manager' ? 'manager.dashboard' : 'pca.dashboard'),
+    'estatisticas': buildRoute(props.role === 'manager' ? 'manager.dashboard' : 'pca.dashboard'),
 
     // Gestão de usuários (pca)
-    'gestao-usuarios': route('pca.dashboard')
+    'gestao-usuarios': buildRoute('pca.dashboard')
   }
 
   const targetRoute = routeMap[item]
   if (targetRoute) {
     router.visit(targetRoute)
   }
-}
-
-const getDashboardRoute = () => {
-  const roleRoutes = {
-    'technician': route('technician.dashboard'),
-    'manager': route('manager.dashboard'),
-    'pca': route('pca.dashboard'),
-    'admin': route('admin.dashboard')
-  }
-
-  return roleRoutes[props.role] || route('home')
 }
 
 onMounted(() => {

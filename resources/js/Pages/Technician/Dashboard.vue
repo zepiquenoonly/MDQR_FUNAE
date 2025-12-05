@@ -63,14 +63,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import Layout from '@/Layouts/UnifiedLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import GrievancesList from '@/Components/Technician/GrievancesList.vue'
-
-// Usar usePage() para acessar as props de forma reativa
-const page = usePage()
+import { useCommonSafeProps } from '@/composables/usePageProps'
+import { buildRoute } from '@/utils/routes'
 
 const props = defineProps({
     user: {
@@ -103,20 +101,20 @@ const props = defineProps({
     },
 })
 
-// Computed properties seguras para evitar null errors
-const safeStats = computed(() => page.props.stats || props.stats || {})
-const safeGrievances = computed(() => page.props.grievances || props.grievances || { data: [] })
-const safeFilters = computed(() => page.props.filters || props.filters || {})
+// Usar composable para safe props - elimina repetição
+const { safeStats, safeGrievances, safeFilters } = useCommonSafeProps(props)
 
 // Handlers
 const navigateToGrievance = (grievance) => {
-    router.visit(route('technician.grievances.show', grievance.id), {
+    const url = buildRoute('technician.grievances.show', { grievance: grievance.id })
+    router.visit(url, {
         method: 'get',
     })
 }
 
 const updateFilters = (newFilters) => {
-    router.get(route('technician.dashboard'), newFilters, {
+    const url = buildRoute('technician.dashboard')
+    router.get(url, newFilters, {
         preserveState: true,
         preserveScroll: true,
         replace: true,

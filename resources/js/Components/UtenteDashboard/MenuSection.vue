@@ -166,8 +166,8 @@ import {
   ChartBarIcon,
   UsersIcon
 } from '@heroicons/vue/24/outline'
-import { router } from '@inertiajs/vue3'
-import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
+import { useDashboard } from '@/composables/useDashboard'
+import { useNavigation } from '@/composables/useNavigation'
 import MenuItem from './MenuItem.vue'
 import MenuDropdown from './MenuDropdown.vue'
 
@@ -180,7 +180,9 @@ const props = defineProps({
 
 const emit = defineEmits(['item-clicked'])
 
-const { activePanel, setActivePanel } = useDashboardState()
+// Usar composables centralizados
+const { activePanel, setActivePanel } = useDashboard()
+const { navigateToProfile, navigateToTracking, logout } = useNavigation({ role: props.role })
 
 const emitItem = (panel) => {
   console.log('MenuSection - emit item:', panel)
@@ -188,15 +190,7 @@ const emitItem = (panel) => {
   emit('item-clicked', panel)
 }
 
-const navigateToProfile = () => {
-  router.visit('/profile')
-}
-
-const navigateToTracking = () => {
-  router.visit('/track')
-}
-
 const handleLogout = () => {
-  router.post('/logout')
+  logout()
 }
 </script>

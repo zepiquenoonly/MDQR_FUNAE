@@ -23,7 +23,7 @@
 
 <script setup>
 import { inject } from 'vue'
-import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
+import { useDashboard } from '@/composables/useDashboard'
 
 const props = defineProps({
   active: {
@@ -36,7 +36,7 @@ const props = defineProps({
 
 const emit = defineEmits(['click'])
 
-const { closeDropdown } = useDashboardState()
+const { closeDropdown } = useDashboard()
 
 // Obter o gerenciador de dropdowns do contexto
 const dropdownManager = inject('dropdownManager')

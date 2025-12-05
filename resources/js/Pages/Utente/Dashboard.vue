@@ -49,28 +49,23 @@
                     <!-- Chart Component -->
                     <ChartBarComponent
                         title="Estatísticas por Tipo"
-                        period="Este Mês"
-                        :data="[
-                            { label: 'Reclamações', value: 45, percentage: 75, color: 'bg-gradient-to-r from-primary-500 to-orange-600' },
-                            { label: 'Queixas', value: 32, percentage: 53, color: 'bg-gradient-to-r from-blue-500 to-indigo-600' },
-                            { label: 'Sugestões', value: 18, percentage: 30, color: 'bg-gradient-to-r from-green-500 to-emerald-600' }
-                        ]"
+                        period="Últimos 7 dias"
+                        :data="chartDataByType"
                     />
 
                     <!-- Chart Component 2 -->
                     <ChartBarComponent
                         title="Status das Submissões"
                         period="Últimos 7 dias"
-                        :data="[
-                            { label: 'Resolvidas', value: 28, percentage: 70, color: 'bg-gradient-to-r from-green-500 to-emerald-600' },
-                            { label: 'Em Análise', value: 15, percentage: 37, color: 'bg-gradient-to-r from-yellow-500 to-amber-600' },
-                            { label: 'Pendentes', value: 12, percentage: 30, color: 'bg-gradient-to-r from-gray-400 to-gray-600' }
-                        ]"
+                        :data="chartDataByStatus"
                     />
                 </div>
 
                 <!-- Table Component -->
-                <TableComponent title="Minhas Submissões Recentes" />
+                <TableComponent 
+                    title="Minhas Submissões Recentes" 
+                    :rows="recentSubmissions"
+                />
             </div>
 
             <!-- Projectos View -->
@@ -80,9 +75,21 @@
 
             <!-- MDQR Views -->
             <div v-if="activePanel === 'mdqr'" class="p-3 sm:p-4 md:p-6">
-                <Suggestions v-if="activeDropdown === 'sugestoes'" />
-                <Claims v-else-if="activeDropdown === 'queixas'" />
-                <Complaints v-else-if="activeDropdown === 'reclamacoes'" />
+                <Suggestions 
+                    v-if="activeDropdown === 'sugestoes'" 
+                    :suggestions="suggestions"
+                    :suggestions-stats="suggestionsStats"
+                />
+                <Claims 
+                    v-else-if="activeDropdown === 'queixas'" 
+                    :claims="claims"
+                    :claims-stats="claimsStats"
+                />
+                <Complaints 
+                    v-else-if="activeDropdown === 'reclamacoes'" 
+                    :complaints="complaints"
+                    :complaints-stats="complaintsStats"
+                />
                 <div v-else class="glass-card p-8 sm:p-12">
                     <div class="text-center">
                         <div class="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-primary-50 to-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 border border-primary-200">
@@ -100,8 +107,10 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
-import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
+import { ref, watch, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
+import { useDashboard } from '@/composables/useDashboard'
+import { usePageProps } from '@/composables/usePageProps'
 import Layout from '@/Layouts/UnifiedLayout.vue'
 import StatsGrid from '@/Components/UtenteDashboard/StatsGrid.vue'
 import Breadcrumb from '@/Components/UtenteDashboard/Breadcrumb.vue'
@@ -135,10 +144,122 @@ const props = defineProps({
     notifications: {
         type: Array,
         default: () => []
+    },
+    complaints: {
+        type: Array,
+        default: () => []
+    },
+    claims: {
+        type: Array,
+        default: () => []
+    },
+    suggestions: {
+        type: Array,
+        default: () => []
+    },
+    complaintsStats: {
+        type: Object,
+        default: () => ({})
+    },
+    claimsStats: {
+        type: Object,
+        default: () => ({})
+    },
+    suggestionsStats: {
+        type: Object,
+        default: () => ({})
+    },
+    chartDataByType: {
+        type: Object,
+        default: () => ({})
+    },
+    chartDataByStatus: {
+        type: Object,
+        default: () => ({})
+    },
+    recentSubmissions: {
+        type: Array,
+        default: () => []
     }
 })
 
-const { activePanel, setActivePanel, activeDropdown } = useDashboardState()
+const page = usePage()
+const { statsByType } = usePageProps()
+
+// Dados computados para gráficos
+const chartDataByType = computed(() => {
+    const data = props.chartDataByType || page.props.chartDataByType || {}
+    const total = (data.complaints || 0) + (data.grievances || 0) + (data.suggestions || 0)
+    
+    if (total === 0) {
+        return [
+            { label: 'Reclamações', value: 0, percentage: 0, color: 'bg-gradient-to-r from-primary-500 to-orange-600' },
+            { label: 'Queixas', value: 0, percentage: 0, color: 'bg-gradient-to-r from-blue-500 to-indigo-600' },
+            { label: 'Sugestões', value: 0, percentage: 0, color: 'bg-gradient-to-r from-green-500 to-emerald-600' }
+        ]
+    }
+    
+    return [
+        { 
+            label: 'Reclamações', 
+            value: data.complaints || 0, 
+            percentage: Math.round(((data.complaints || 0) / total) * 100),
+            color: 'bg-gradient-to-r from-primary-500 to-orange-600' 
+        },
+        { 
+            label: 'Queixas', 
+            value: data.grievances || 0, 
+            percentage: Math.round(((data.grievances || 0) / total) * 100),
+            color: 'bg-gradient-to-r from-blue-500 to-indigo-600' 
+        },
+        { 
+            label: 'Sugestões', 
+            value: data.suggestions || 0, 
+            percentage: Math.round(((data.suggestions || 0) / total) * 100),
+            color: 'bg-gradient-to-r from-green-500 to-emerald-600' 
+        }
+    ]
+})
+
+const chartDataByStatus = computed(() => {
+    const data = props.chartDataByStatus || page.props.chartDataByStatus || {}
+    const total = (data.resolved || 0) + (data.in_progress || 0) + (data.pending || 0)
+    
+    if (total === 0) {
+        return [
+            { label: 'Resolvidas', value: 0, percentage: 0, color: 'bg-gradient-to-r from-green-500 to-emerald-600' },
+            { label: 'Em Análise', value: 0, percentage: 0, color: 'bg-gradient-to-r from-yellow-500 to-amber-600' },
+            { label: 'Pendentes', value: 0, percentage: 0, color: 'bg-gradient-to-r from-gray-400 to-gray-600' }
+        ]
+    }
+    
+    return [
+        { 
+            label: 'Resolvidas', 
+            value: data.resolved || 0, 
+            percentage: Math.round(((data.resolved || 0) / total) * 100),
+            color: 'bg-gradient-to-r from-green-500 to-emerald-600' 
+        },
+        { 
+            label: 'Em Análise', 
+            value: data.in_progress || 0, 
+            percentage: Math.round(((data.in_progress || 0) / total) * 100),
+            color: 'bg-gradient-to-r from-yellow-500 to-amber-600' 
+        },
+        { 
+            label: 'Pendentes', 
+            value: data.pending || 0, 
+            percentage: Math.round(((data.pending || 0) / total) * 100),
+            color: 'bg-gradient-to-r from-gray-400 to-gray-600' 
+        }
+    ]
+})
+
+const recentSubmissions = computed(() => {
+    return props.recentSubmissions || page.props.recentSubmissions || []
+})
+
+const { activePanel, setActivePanel, activeDropdown } = useDashboard()
 const selectedProjectId = ref(null)
 
 // Watch para mudanças no activePanel - IMPORTANTE: Fechar ProjectDetails quando o painel mudar
