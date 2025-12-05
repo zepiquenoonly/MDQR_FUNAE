@@ -102,7 +102,7 @@
 <script setup>
 import { ref, watch } from 'vue'
 import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
-import Layout from '@/Layouts/UtenteDashboardLayout.vue'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import StatsGrid from '@/Components/UtenteDashboard/StatsGrid.vue'
 import Breadcrumb from '@/Components/UtenteDashboard/Breadcrumb.vue'
 import NotificationWidget from '@/Components/UtenteDashboard/NotificationWidget.vue'

@@ -2,7 +2,7 @@
   <div  class="relative flex min-h-screen overflow-hidden" style="background: url('/background.min.svg') center/cover fixed no-repeat; zoom: 90%;">
     <!-- Sidebar Desktop - sempre visível -->
     <div class="fixed top-0 left-0 z-30 hidden w-64 h-full sm:block">
-      <Sidebar @change-view="$emit('change-view', $event)" />
+      <Sidebar @change-view="$emit('change-view', $event)" :role="role" />
     </div>
 
     <!-- Sidebar Mobile - overlay -->
@@ -47,6 +47,10 @@ const props = defineProps({
   user: {
     type: Object,
     required: true
+  },
+  role: {
+    type: String,
+    default: 'technician' // technician, manager, pca
   }
 })
 

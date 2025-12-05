@@ -20,7 +20,7 @@
           </div>
           <div class="overflow-hidden min-w-0 flex-1">
             <h1 class="font-bold text-lg whitespace-nowrap truncate text-gray-900 drop-shadow-sm">MDQR</h1>
-            <p class="text-primary-700 text-sm truncate font-medium">Painel do Utente</p>
+            <p class="text-primary-700 text-sm truncate font-medium">{{ getPanelTitle() }}</p>
           </div>
         </div>
       </div>
@@ -42,6 +42,10 @@ const props = defineProps({
   isMobile: {
     type: Boolean,
     default: false
+  },
+  role: {
+    type: String,
+    default: 'utente'
   }
 })
 
@@ -56,6 +60,16 @@ const checkMobile = () => {
 
 const handleMenuItemClick = (item) => {
   emit('change-view', item)
+}
+
+const getPanelTitle = () => {
+  const titles = {
+    'utente': 'Painel do Utente',
+    'technician': 'Painel do Técnico',
+    'manager': 'Painel do Gestor',
+    'pca': 'Painel do PCA'
+  }
+  return titles[props.role] || 'Painel do Utente'
 }
 
 onMounted(() => {
