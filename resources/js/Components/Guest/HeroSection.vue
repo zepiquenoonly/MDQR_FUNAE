@@ -12,13 +12,20 @@
                     futuro melhor!
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4">
-                    <a :href="authRoutes.register"
+                    <!-- <a :href="authRoutes.register"
                         class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center">
                         CRIA UMA CONTA
-                    </a>
+                    </a> -->
                     <a href="/grievances-home"
                         class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center">
                         RECLAME AQUI
+                    </a>
+                    <a href="/track"
+                        class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>  RASTREIO EM TEMPO REAL
                     </a>
                 </div>
             </div>
