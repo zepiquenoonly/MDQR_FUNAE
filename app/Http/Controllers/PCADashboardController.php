@@ -18,7 +18,7 @@ class PCADashboardController extends Controller
     public function __invoke(Request $request): Response
     {
         $user = $request->user();
-        
+
         abort_if(!$user || !$user->hasRole('PCA'), 403);
 
         // Get date range filters
@@ -29,30 +29,35 @@ class PCADashboardController extends Controller
 
         // Global Statistics
         $globalStats = $this->getGlobalStatistics($startDate, $endDate);
-        
+
         // Complaints by Status
         $complaintsByStatus = $this->getComplaintsByStatus($startDate, $endDate, $department, $complaintType);
-        
+
         // Complaints by Priority
         $complaintsByPriority = $this->getComplaintsByPriority($startDate, $endDate, $department, $complaintType);
-        
+
         // Complaints by Type (Reclamações, Queixas, Sugestões)
         $complaintsByType = $this->getComplaintsByType($startDate, $endDate, $department);
-        
+
         // Complaints by Category
         $complaintsByCategory = $this->getComplaintsByCategory($startDate, $endDate, $department, $complaintType);
-        
+
         // Performance Metrics
         $performanceMetrics = $this->getPerformanceMetrics($startDate, $endDate);
-        
+
         // Trend Data (last 6 months)
         $trendData = $this->getTrendData();
-        
+
         // Top Technicians Performance
         $topTechnicians = $this->getTopTechnicians($startDate, $endDate);
-        
+
         // Recent Activities
         $recentActivities = $this->getRecentActivities();
+
+        // Project Insights
+        $submissionsByProject = $this->getSubmissionsByProject($startDate, $endDate);
+        $projectsWithTechnicians = $this->getProjectsWithTechnicians();
+        $projectPerformance = $this->getProjectPerformance($startDate, $endDate);
 
         // Available filters
         $filters = [
@@ -78,6 +83,9 @@ class PCADashboardController extends Controller
             'trendData' => $trendData,
             'topTechnicians' => $topTechnicians,
             'recentActivities' => $recentActivities,
+            'submissionsByProject' => $submissionsByProject,
+            'projectsWithTechnicians' => $projectsWithTechnicians,
+            'projectPerformance' => $projectPerformance,
             'filters' => $filters,
         ]);
     }
@@ -94,7 +102,7 @@ class PCADashboardController extends Controller
             ->whereIn('status', ['submitted', 'under_review'])->count();
         $inProgressComplaints = Grievance::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'in_progress')->count();
-        
+
         $averageResolutionTime = Grievance::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'resolved')
             ->whereNotNull('resolved_at')
@@ -116,7 +124,7 @@ class PCADashboardController extends Controller
     }
 
     /**
-     * Get complaints grouped by status
+     * Get complaints grouped by status and type
      */
     private function getComplaintsByStatus($startDate, $endDate, $department, $complaintType): array
     {
@@ -129,13 +137,25 @@ class PCADashboardController extends Controller
             $query->where('category', $complaintType);
         }
 
-        return $query->select('status', DB::raw('count(*) as total'))
-            ->groupBy('status')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->status => $item->total];
-            })
-            ->toArray();
+        $results = $query->select('status', 'type', DB::raw('count(*) as total'))
+            ->groupBy('status', 'type')
+            ->get();
+
+        $statusData = [];
+        foreach ($results as $item) {
+            if (!isset($statusData[$item->status])) {
+                $statusData[$item->status] = [
+                    'total' => 0,
+                    'complaint' => 0,
+                    'grievance' => 0,
+                    'suggestion' => 0,
+                ];
+            }
+            $statusData[$item->status]['total'] += $item->total;
+            $statusData[$item->status][$item->type] = $item->total;
+        }
+
+        return $statusData;
     }
 
     /**
@@ -189,7 +209,7 @@ class PCADashboardController extends Controller
     }
 
     /**
-     * Get complaints grouped by category
+     * Get complaints grouped by category and type
      */
     private function getComplaintsByCategory($startDate, $endDate, $department, $complaintType): array
     {
@@ -202,18 +222,31 @@ class PCADashboardController extends Controller
             $query->where('category', $complaintType);
         }
 
-        return $query->select('category', DB::raw('count(*) as total'))
-            ->groupBy('category')
-            ->orderByDesc('total')
-            ->limit(10)
-            ->get()
-            ->map(function ($item) {
-                return [
+        $results = $query->select('category', 'type', DB::raw('count(*) as total'))
+            ->groupBy('category', 'type')
+            ->get();
+
+        $categoryData = [];
+        foreach ($results as $item) {
+            if (!isset($categoryData[$item->category])) {
+                $categoryData[$item->category] = [
                     'name' => $item->category,
-                    'total' => $item->total,
+                    'total' => 0,
+                    'complaint' => 0,
+                    'grievance' => 0,
+                    'suggestion' => 0,
                 ];
-            })
-            ->toArray();
+            }
+            $categoryData[$item->category]['total'] += $item->total;
+            $categoryData[$item->category][$item->type] = $item->total;
+        }
+
+        // Sort by total and limit to 10
+        usort($categoryData, function($a, $b) {
+            return $b['total'] - $a['total'];
+        });
+
+        return array_slice($categoryData, 0, 10);
     }
 
     /**
@@ -228,10 +261,10 @@ class PCADashboardController extends Controller
             })
             ->count();
 
-        $averageComplaintsPerTechnician = $activeTechnicians > 0 
+        $averageComplaintsPerTechnician = $activeTechnicians > 0
             ? Grievance::whereBetween('created_at', [$startDate, $endDate])
                 ->whereNotNull('assigned_to')
-                ->count() / $activeTechnicians 
+                ->count() / $activeTechnicians
             : 0;
 
         return [
@@ -242,7 +275,7 @@ class PCADashboardController extends Controller
     }
 
     /**
-     * Get trend data for the last 6 months
+     * Get trend data for the last 6 months by type
      */
     private function getTrendData(): array
     {
@@ -252,20 +285,28 @@ class PCADashboardController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $month = now()->subMonths($i);
             $monthName = $month->locale('pt')->translatedFormat('M');
-            
-            $count = Grievance::whereYear('created_at', $month->year)
+
+            $complaints = Grievance::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
+                ->where('type', 'complaint')
                 ->count();
 
-            $resolved = Grievance::whereYear('created_at', $month->year)
+            $grievances = Grievance::whereYear('created_at', $month->year)
                 ->whereMonth('created_at', $month->month)
-                ->whereIn('status', ['resolved', 'closed'])
+                ->where('type', 'grievance')
+                ->count();
+
+            $suggestions = Grievance::whereYear('created_at', $month->year)
+                ->whereMonth('created_at', $month->month)
+                ->where('type', 'suggestion')
                 ->count();
 
             $months[] = $monthName;
             $data[] = [
-                'total' => $count,
-                'resolved' => $resolved,
+                'complaint' => $complaints,
+                'grievance' => $grievances,
+                'suggestion' => $suggestions,
+                'total' => $complaints + $grievances + $suggestions,
             ];
         }
 
@@ -293,10 +334,10 @@ class PCADashboardController extends Controller
             ->limit(10)
             ->get()
             ->map(function ($technician) {
-                $resolutionRate = $technician->total_count > 0 
-                    ? ($technician->resolved_count / $technician->total_count) * 100 
+                $resolutionRate = $technician->total_count > 0
+                    ? ($technician->resolved_count / $technician->total_count) * 100
                     : 0;
-                
+
                 return [
                     'id' => $technician->id,
                     'name' => $technician->name,
@@ -330,5 +371,98 @@ class PCADashboardController extends Controller
                 ];
             })
             ->toArray();
+    }
+
+    /**
+     * Get submissions grouped by project
+     */
+    private function getSubmissionsByProject($startDate, $endDate): array
+    {
+        return \App\Models\Project::withCount(['grievances' => function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }])
+            ->withCount(['grievances as resolved_grievances_count' => function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate])
+                    ->whereIn('status', ['resolved', 'closed']);
+            }])
+            ->having('grievances_count', '>', 0)
+            ->orderByDesc('grievances_count')
+            ->limit(10)
+            ->get()
+            ->map(function ($project) {
+                $resolutionRate = $project->grievances_count > 0
+                    ? ($project->resolved_grievances_count / $project->grievances_count) * 100
+                    : 0;
+
+                return [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'total_submissions' => $project->grievances_count,
+                    'resolved_submissions' => $project->resolved_grievances_count,
+                    'resolution_rate' => round($resolutionRate, 1),
+                    'province' => $project->provincia,
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Get projects with technicians ready to respond
+     */
+    private function getProjectsWithTechnicians(): array
+    {
+        return \App\Models\Project::with(['technicians:id,name,email', 'grievances' => function ($query) {
+                $query->whereIn('status', ['submitted', 'under_review', 'in_progress'])
+                    ->latest()
+                    ->limit(5);
+            }])
+            ->whereHas('technicians')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($project) {
+                $activeGrievances = $project->grievances->count();
+                $techniciansCount = $project->technicians->count();
+
+                return [
+                    'id' => $project->id,
+                    'name' => $project->name,
+                    'technicians_count' => $techniciansCount,
+                    'active_grievances' => $activeGrievances,
+                    'technicians' => $project->technicians->map(function ($tech) {
+                        return [
+                            'id' => $tech->id,
+                            'name' => $tech->name,
+                            'email' => $tech->email,
+                        ];
+                    }),
+                    'province' => $project->provincia,
+                ];
+            })
+            ->toArray();
+    }
+
+    /**
+     * Get project performance metrics
+     */
+    private function getProjectPerformance($startDate, $endDate): array
+    {
+        $totalProjects = \App\Models\Project::count();
+        $projectsWithTechnicians = \App\Models\Project::whereHas('technicians')->count();
+        $projectsWithSubmissions = \App\Models\Project::whereHas('grievances', function ($query) use ($startDate, $endDate) {
+            $query->whereBetween('created_at', [$startDate, $endDate]);
+        })->count();
+
+        $averageSubmissionsPerProject = $projectsWithSubmissions > 0
+            ? \App\Models\Grievance::whereBetween('created_at', [$startDate, $endDate])
+                ->whereNotNull('project_id')
+                ->count() / $projectsWithSubmissions
+            : 0;
+
+        return [
+            'total_projects' => $totalProjects,
+            'projects_with_technicians' => $projectsWithTechnicians,
+            'projects_with_submissions' => $projectsWithSubmissions,
+            'average_submissions_per_project' => round($averageSubmissionsPerProject, 1),
+        ];
     }
 }
