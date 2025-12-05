@@ -16,11 +16,13 @@
                         class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center">
                         CRIA UMA CONTA
                     </a> -->
-                    <a href="/grievances-home?new=1"
-                        data-action="open-new-complaint"
-                        class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center">
+                    <button
+                        @click="$emit('open-complaint')"
+                        type="button"
+                        class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center"
+                    >
                         RECLAME AQUI
-                    </a>
+                    </button>
                     <a href="/track"
                         class="bg-white text-black hover:bg-gray-100 hover:text-brand px-8 py-4 rounded-full text-lg font-bold inline-block transition-all hover:shadow-xl hover:-translate-y-1 text-center text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

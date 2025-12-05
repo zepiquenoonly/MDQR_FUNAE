@@ -1,6 +1,11 @@
 <template>
     <GuestLayout :auth-routes="authRoutes">
-        <HeroSection :auth-routes="authRoutes" />
+        <HeroSection :auth-routes="authRoutes" @open-complaint="openGuestComplaintModal" />
+
+        <Modal :show="showGuestComplaintModal" @close="closeGuestComplaintModal" :closeable="true" max-width="max-w-2xl">
+            <ComplaintForm :is-anonymous="true" :embedded="true" @submitted="() => { closeGuestComplaintModal(); }" />
+        </Modal>
+
         <CardsSection />
         <PlatformSection />
         <StatsSection />
@@ -15,6 +20,8 @@ import CardsSection from '@/Components/Guest/CardsSection.vue'
 import PlatformSection from '@/Components/Guest/PlatformSection.vue'
 import StatsSection from '@/Components/Guest/StatsSection.vue'
 import FaqSection from '@/Components/Guest/FaqSection.vue'
+import Modal from '@/Components/Modal.vue'
+import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
 
 defineProps({
     authRoutes: {
@@ -26,5 +33,17 @@ defineProps({
         })
     }
 })
+
+import { ref } from 'vue'
+
+const showGuestComplaintModal = ref(false)
+
+const openGuestComplaintModal = () => {
+    showGuestComplaintModal.value = true
+}
+
+const closeGuestComplaintModal = () => {
+    showGuestComplaintModal.value = false
+}
 </script>
 

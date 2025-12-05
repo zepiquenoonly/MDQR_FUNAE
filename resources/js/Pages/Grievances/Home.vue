@@ -141,7 +141,7 @@
                         <span class="font-medium">Voltar</span>
                     </button>
                 </div>
-                <ComplaintForm :is-anonymous="isAnonymousSubmission" @submitted="handleSubmitted" />
+                <ComplaintForm :is-anonymous="isAnonymousSubmission" :embedded="true" @submitted="handleSubmitted" />
             </section>
 
             <!-- Tracking Section -->

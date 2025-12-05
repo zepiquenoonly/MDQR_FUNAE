@@ -1,5 +1,6 @@
 <template>
-    <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div v-if="visible">
+        <div v-if="!props.embedded" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"></div>
         <!-- Toast Notification -->
         <transition name="slide-fade">
             <div v-if="toast.show" :class="[
@@ -21,8 +22,8 @@
 
         <!-- Error Modal (quando submissão falha) -->
         <transition name="zoom">
-            <div v-if="showErrorModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative">
+            <div v-if="showErrorModal" :class="props.embedded ? 'relative z-10' : 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]'">
+                <div :class="props.embedded ? 'bg-white rounded-2xl shadow p-6 max-w-full mx-0 text-left' : 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative'">
                     <!-- Botão X no canto superior direito -->
                     <button @click="closeErrorModal"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
@@ -53,8 +54,8 @@
 
         <!-- Success Modal -->
         <transition name="zoom">
-            <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative">
+            <div v-if="showSuccessModal" :class="props.embedded ? 'relative z-10' : 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]'">
+                <div :class="props.embedded ? 'bg-white rounded-2xl shadow p-6 max-w-full mx-0 text-left' : 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative'">
                     <!-- Botão X no canto superior direito -->
                     <button @click="closeSuccessAndForm"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
@@ -81,7 +82,7 @@
 
         <!-- Main Form Modal -->
         <transition name="zoom">
-            <div v-if="!showSuccessModal && !showErrorModal" class="bg-white rounded-2xl shadow-2xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden">
+            <div v-if="!showSuccessModal && !showErrorModal" :class="props.embedded ? 'bg-white rounded-2xl shadow w-full max-h-[80vh] flex flex-col overflow-hidden' : 'bg-white rounded-2xl shadow-2xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden'">
 
             <!-- Header -->
             <div class="p-6 flex justify-between items-center bg-gradient-to-r from-orange-500 to-orange-600 relative">
@@ -646,6 +647,10 @@ const props = defineProps({
     visible: {
         type: Boolean,
         default: true
+    },
+    embedded: {
+        type: Boolean,
+        default: false
     }
 })
 
