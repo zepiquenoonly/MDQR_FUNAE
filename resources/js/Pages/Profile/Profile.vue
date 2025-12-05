@@ -1,27 +1,37 @@
 <template>
-    <Layout>
-        <div class="px-6 mx-auto mt-5 ">
-            <!-- Breadcrumb -->
-            <nav class="flex items-center mb-8 space-x-2 text-sm text-gray-600 dark:text-gray-400">
-                <Link href="/home" class="transition-colors hover:text-orange-600">Painel</Link>
-                <ChevronRightIcon class="w-3 h-3 text-gray-400" />
-                <span class="font-medium text-orange-600">Gestão de Perfil</span>
-            </nav>
+  <Layout
+    :user="user"
+    :stats="stats"
+    :active-tab="activeTab"
+    :show-stats="showStats"
+    :hide-profile="true"
+  >
+    <div class="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+      <!-- Breadcrumb com botão Voltar -->
+      <div class="flex items-center justify-between -mt-4 mb-4 sm:mb-6 lg:mb-8">
+        <nav
+          class="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400"
+        >
+          <Link href="/home" class="hover:text-orange-600 transition-colors truncate"
+            >Painel</Link
+          >
+          <ChevronRightIcon class="w-3 h-3 text-gray-400 flex-shrink-0" />
+          <span class="text-orange-600 font-medium truncate">Gestão de Perfil</span>
+        </nav>
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
+          <!-- Sidebar do Perfil -->
+          <ProfileSidebar :user="user" :stats="stats" :active-tab="activeTab" />
 
-            <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
-                <!-- Sidebar do Perfil -->
-                <ProfileSidebar :user="user" :stats="stats" :active-tab="activeTab" />
+          <!-- Conteúdo Principal -->
+          <div class="lg:col-span-3">
+            <!-- Informações Pessoais -->
+            <ProfileInfoTab v-if="activeTab === 'info'" :user="user" />
 
-                <!-- Conteúdo Principal -->
-                <div class="lg:col-span-3">
-                    <!-- Informações Pessoais -->
-                    <ProfileInfoTab v-if="activeTab === 'info'" :user="user" />
+            <!-- Segurança -->
+            <ProfileSecurityTab v-else-if="activeTab === 'security'" />
 
-                    <!-- Segurança -->
-                    <ProfileSecurityTab v-else-if="activeTab === 'security'" />
-
-                    <!-- Notificações -->
-                    <ProfileNotificationsTab v-else-if="activeTab === 'notifications'" />
+            <!-- Notificações -->
+            <ProfileNotificationsTab v-else-if="activeTab === 'notifications'" />
 
                     <!-- Preferências -->
                     <ProfilePreferencesTab v-else-if="activeTab === 'preferences'" />

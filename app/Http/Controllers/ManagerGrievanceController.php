@@ -21,28 +21,68 @@ class ManagerGrievanceController extends Controller
     /**
      * Display the specified grievance.
      */
-    public function show(Grievance $grievance): Response
-    {
-        $this->ensureManager(auth()->user());
+    /**
+ * Display the specified grievance.
+ */
+public function show(Grievance $grievance): Response
+{
+    $this->ensureManager(auth()->user());
 
-        // Carregar relações necessárias - INCLUIR TODOS OS TIPOS
-        $grievance->load([
-            'user',
-            'assignedUser', 
-            'updates.user',
-            'attachments'
-        ]);
-
-        // Buscar técnicos disponíveis
-        $technicians = User::whereHas('roles', function($query) {
-            $query->where('name', 'Técnico');
-        })->get(['id', 'name', 'email']);
-
-        return Inertia::render('Manager/GrievanceDetail', [
-            'complaint' => $grievance,
-            'technicians' => $technicians
-        ]);
+    // TRANSITION: submitted → under_review when manager views the complaint
+    if ($grievance->status === 'submitted') {
+        try {
+            DB::beginTransaction();
+            
+            $previousStatus = $grievance->status;
+            $grievance->update(['status' => 'under_review']);
+            
+            // Log the status change
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'status_changed',
+                userId: auth()->id(),
+                description: 'Gestor iniciou análise da reclamação',
+                metadata: [
+                    'previous_status' => $previousStatus,
+                    'new_status' => 'under_review',
+                    'changed_by' => auth()->user()->name,
+                ],
+                isPublic: true
+            );
+            
+            DB::commit();
+            
+            \Log::info('Status atualizado de submitted para under_review', [
+                'grievance_id' => $grievance->id,
+                'user_id' => auth()->id(),
+            ]);
+            
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Erro ao atualizar status para under_review: ' . $e->getMessage(), [
+                'grievance_id' => $grievance->id,
+            ]);
+        }
     }
+
+    // Carregar relações necessárias - INCLUIR TODOS OS TIPOS
+    $grievance->load([
+        'user',
+        'assignedUser', 
+        'updates.user',
+        'attachments'
+    ]);
+
+    // Buscar técnicos disponíveis
+    $technicians = User::whereHas('roles', function($query) {
+        $query->where('name', 'Técnico');
+    })->get(['id', 'name', 'email']);
+
+    return Inertia::render('Manager/GrievanceDetail', [
+        'complaint' => $grievance,
+        'technicians' => $technicians
+    ]);
+}
 
     /**
      * Update priority for a grievance.
@@ -63,72 +103,77 @@ class ManagerGrievanceController extends Controller
     /**
      * Reassign grievance to another technician.
      */
-    public function reassign(Request $request, Grievance $grievance)
-    {
-        $this->ensureManager($request->user());
 
-        $data = $request->validate([
-            'technician_id' => [
-                'required',
-                Rule::exists('users', 'id'),
-            ],
+
+public function reassign(Request $request, Grievance $grievance)
+{
+    $this->ensureManager($request->user());
+
+    $data = $request->validate([
+        'technician_id' => [
+            'required',
+            Rule::exists('users', 'id'),
+        ],
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $technician = User::role('Técnico')->findOrFail($data['technician_id']);
+
+        // Atualizar a reclamação
+        $grievance->update([
+            'assigned_to' => $technician->id,
+            'assigned_at' => now(),
+            'status' => 'assigned',
         ]);
 
-        try {
-            DB::beginTransaction();
-
-            $technician = User::role('Técnico')->findOrFail($data['technician_id']);
-
-            $previousTechnician = $grievance->assigned_to;
-
-            $grievance->update([
-                'assigned_to' => $technician->id,
-                'assigned_at' => now(),
-                'status' => 'assigned', // Garantir que o status seja atualizado
+        // Adicionar atividade (se existir o relacionamento)
+        if (method_exists($grievance, 'activities')) {
+            $grievance->activities()->create([
+                'type' => 'technician_assigned',
+                'description' => "Técnico reatribuído: {$technician->name}",
+                'user_id' => $request->user()->id,
+                'metadata' => [
+                    'new_technician_id' => $technician->id,
+                    'new_technician_name' => $technician->name,
+                ],
+                'created_at' => now(),
             ]);
-
-            // Log da atividade
-            if ($grievance->activities) {
-                $grievance->activities()->create([
-                    'type' => 'technician_assigned',
-                    'description' => "Técnico reatribuído: {$technician->name}",
-                    'user_id' => $request->user()->id,
-                    'metadata' => [
-                        'previous_technician_id' => $previousTechnician,
-                        'new_technician_id' => $technician->id,
-                        'new_technician_name' => $technician->name,
-                    ],
-                    'created_at' => now(),
-                ]);
-            }
-
-            DB::commit();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Técnico reatribuído com sucesso.',
-                'technician' => [
-                    'id' => $technician->id,
-                    'name' => $technician->name,
-                    'email' => $technician->email,
-                ]
-            ]);
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Erro ao reatribuir técnico: ' . $e->getMessage(), [
-                'grievance_id' => $grievance->id,
-                'technician_id' => $data['technician_id'],
-            ]);
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao reatribuir técnico.'
-            ], 500);
         }
+
+        DB::commit();
+
+        // IMPORTANTE: Recarregar a relação assignedUser
+        $grievance->load(['assignedUser']);
+
+        // Retornar sucesso com os dados atualizados
+        return back()->with([
+            'success' => 'Técnico reatribuído com sucesso.',
+            'updated_complaint' => [
+                'technician' => $grievance->assignedUser ? [
+                    'id' => $grievance->assignedUser->id,
+                    'name' => $grievance->assignedUser->name,
+                ] : null,
+                'status' => $grievance->status,
+                'assigned_at' => $grievance->assigned_at,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('Erro ao reatribuir técnico: ' . $e->getMessage(), [
+            'grievance_id' => $grievance->id,
+            'technician_id' => $data['technician_id'],
+            'exception' => $e,
+        ]);
+
+        // Retornar erro
+        return back()->withErrors([
+            'message' => 'Erro ao reatribuir técnico: ' . $e->getMessage(),
+        ]);
     }
-
-
+}
     /**
      * Mark grievance as resolved after manager approval.
      */

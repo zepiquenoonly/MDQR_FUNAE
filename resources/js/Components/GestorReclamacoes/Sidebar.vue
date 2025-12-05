@@ -42,6 +42,20 @@
             <!-- Gestão de Casos Section -->
             <MenuSection :is-collapsed="isCollapsed && !isMobile" :stats="stats" :user="user" @item-clicked="handleMenuItemClick" />
         </div>
+      </div>
+    </div>
+
+    <!-- Menu Sections -->
+    <div class="flex-1 overflow-y-auto overflow-x-hidden">
+      <!-- Gestão de Casos Section -->
+      <MenuSection
+        :is-collapsed="isCollapsed && !isMobile"
+        :is-mobile="isMobile"
+        :stats="stats"
+        :user="user"
+        @item-clicked="handleMenuItemClick"
+      />
+    </div>
   </aside>
 </template>
 

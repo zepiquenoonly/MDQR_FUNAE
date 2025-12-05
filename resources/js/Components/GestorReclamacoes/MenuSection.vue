@@ -16,6 +16,7 @@
         :icon="ChartBarIcon"
         :text="'Dashboard'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/pca/dashboard"
       />
 
@@ -24,6 +25,7 @@
         :icon="MagnifyingGlassIcon"
         :text="'Acompanhamento'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/track"
       />
     </template>
@@ -44,6 +46,7 @@
         :icon="HomeIcon"
         :text="'Home'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/gestor/dashboard"
       />
 
@@ -52,6 +55,7 @@
         :icon="FolderIcon"
         :text="'Ver Projectos'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/gestor/dashboard?panel=projectos"
       />
 
@@ -60,6 +64,7 @@
         :icon="UserGroupIcon"
         :text="'Ver Técnicos'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/gestor/dashboard?panel=tecnicos"
       />
     </template>
@@ -80,6 +85,7 @@
         :icon="HomeIcon"
         :text="'Dashboard'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/tecnico/dashboard"
       />
 
@@ -88,6 +94,7 @@
         :icon="MagnifyingGlassIcon"
         :text="'Acompanhamento'"
         :is-collapsed="isCollapsed"
+        :is-mobile="isMobile"
         href="/track"
       />
     </template>
@@ -108,6 +115,7 @@
       :icon="UserCircleIcon"
       :text="'Meu Perfil'"
       :is-collapsed="isCollapsed"
+      :is-mobile="isMobile"
       href="/profile"
     />
 
@@ -117,6 +125,7 @@
       :icon="ArrowRightOnRectangleIcon"
       :text="'Sair'"
       :is-collapsed="isCollapsed"
+      :is-mobile="isMobile"
       @click="handleLogout"
     />
   </nav>
@@ -139,6 +148,10 @@ import MenuItem from "./MenuItem.vue";
 
 const props = defineProps({
   isCollapsed: Boolean,
+  isMobile: {
+    type: Boolean,
+    default: false,
+  },
   user: {
     type: Object,
     required: true,
@@ -159,35 +172,6 @@ const page = usePage();
 const userRole = computed(() => {
   return props.user?.roles?.[0]?.name || props.user?.role || "Gestor";
 });
-
-// Itens de projetos (apenas para Gestor)
-const projetosItems = computed(() => [
-  {
-    icon: FolderIcon,
-    text: "Lista de Projectos",
-    id: "lista-projectos",
-    href: "/gestor/dashboard?panel=projectos",
-    active: window.location.search.includes("panel=projectos"),
-  },
-]);
-
-const handleItemClick = (item) => {
-  // Fechar todos os dropdowns ao clicar em um item
-  dropdownManager.closeDropdown();
-
-  // Navegação especial para "Lista de Projectos"
-  if (item.id === "lista-projectos") {
-    router.visit("/gestor/dashboard?panel=projectos");
-    return;
-  }
-
-  // Se o item tem href, navegar para a URL
-  if (item.href && item.href !== "#") {
-    router.visit(item.href);
-  }
-
-  emit("item-clicked", item);
-};
 
 const handleLogout = () => {
   router.post("/logout");
