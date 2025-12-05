@@ -3,16 +3,6 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-## Sumário Rápido
-
-- [Fluxo 1 — Submissão de Reclamação](#fluxo-1-submissão-de-reclamação-pelo-utente)
-- [Fluxo 2 — Triagem e Atribuição](#fluxo-2-triagem-e-atribuição-de-reclamação)
-- [Fluxo 3 — Resolução pelo Técnico](#fluxo-3-resolução-da-reclamação-pelo-técnico)
-- [Fluxo 4 — Acompanhamento pelo Utente](#fluxo-4-acompanhamento-da-reclamação-pelo-utente)
-- [Fluxo 5 — Relatórios e Estatísticas](#fluxo-5-gera%C3%A7%C3%A3o-de-relat%C3%B3rios-e-estat%C3%ADsticas)
-- [Sistema de Notificações](#sistema-de-notificações)
-- [Backlog (Por Implementar)](#backlog-por-implementar)
-
 ## Legenda de Status
 
 - ✅ Implementado
@@ -23,12 +13,20 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 | Fluxo | Descrição curta | Estado agregado |
 |-------|-----------------|-----------------|
-| Fluxo 1 | Submissão de Reclamações | 🚧 Parcial / Por Implementar |
-| Fluxo 2 | Triagem e Atribuição | ✅ Implementado |
-| Fluxo 3 | Resolução pelo Técnico | ✅ Implementado |
-| Fluxo 4 | Acompanhamento pelo Utente | ✅ Implementado |
-| Fluxo 5 | Relatórios e Estatísticas | 🚧 Parcial |
-
+| Fluxo 01 | Submissão de Reclamações | ✅ Implementado |
+| Fluxo 02 | Triagem e Atribuição (Sistema Automático) | ✅ Implementado |
+| Fluxo 03 | Resolução pelo Técnico | ✅ Implementado |
+| Fluxo 04 | Acompanhamento pelo Utente | ✅ Implementado |
+| Fluxo 05 | Notificações via Email |  ✅ Implementado |
+| Fluxo 06 | Dashboard de Utente |  ✅ Implementado |
+| Fluxo 07 | Dashboard de Gestor |  ✅ Implementado |
+| Fluxo 08 | Dashboard de Técnico | ✅ Implementado |
+| Fluxo 09 | Dashboard de Director | ❌ Por Implementar |
+| Fluxo 10 | Dashboard de PCA | ✅ Implementado  |
+| Fluxo 11 | Sistema de Anexos | ✅ Implementado |
+| Fluxo 12 | Downloads de Evidências | ✅ Implementado |
+| Fluxo 13 | Sistema de Autenticação Aprimorado | ✅ Implementado |
+| Fluxo 14 | Seeder de Performance Avançado | ✅ Implementado |
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
@@ -40,7 +38,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Escolha de Projecto** *(lista de projectos do FUNAE disponível, opcional)*
 - **Escolha de tipo (Reclamação, Sugestão ou Queixa)** *(cards visuais interactivos com ícones)*
 - Preenchimento do formulário (descrição com limite 50-1500 caracteres, localização)
-- **Gravação ou anexo de áudio** *(suporte a gravação via microfone até 2min e upload de ficheiros)*
+- **Gravação ou anexo de áudio** *(suporte a gravação via microfone até 1 minuto e upload de ficheiros — limite reduzido em 04/12/2025)*
 - **Segmentação clara do formulário em passos/seções** *(3 steps: Informações, Localização, Evidências)*
 - **Feedback visual após submissão** *(toast notifications, loading states, modal de confirmação com código de rastreio)*
 - Validação dos dados do formulário
@@ -64,6 +62,8 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ Toggle anónimo melhorado com SIM/NÃO visual *(implementado em 03/12/2025)*
 - ✅ Limite de descrição 50-1500 caracteres *(implementado em 03/12/2025)*
 - ✅ Substituição de emojis por ícones *(implementado em 03/12/2025)*
+- ✅ Campo `description` agora pode ser nulo *(migration e controller atualizados — implementado em 04/12/2025)*
+- ✅ Campo `project_id` no formulário é opcional no frontend e aceito como `nullable` pelo backend *(implementado em 04/12/2025)*
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
@@ -136,6 +136,101 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Exportação avançada customizada
 - Relatórios customizados por perfil
 
+## Fluxo 10: Dashboard de PCA (Reimaginado)
+
+### Implementado (Fluxo 10)
+
+- **Dashboard reimaginado com foco nos tipos de submissão** *(Reclamação, Queixa, Sugestão)*
+- **Distribuição por Estado e Tipo** *(cada estado mostra breakdown por tipo de submissão)*
+- **Tendência de Submissões por Tipo** *(gráfico de linha com 3 linhas distintas para cada tipo)*
+- **Insights de Projetos** *(submissões por projeto, projetos com técnicos disponíveis)*
+- **Métricas de Projeto** *(total de projetos, projetos com técnicos, média de submissões)*
+- **Filtros por período** *(últimos 7 dias, 30 dias, 3 meses, 6 meses)*
+- **Visualização color-coded** *(Reclamações: vermelho, Queixas: laranja, Sugestões: verde)*
+
+### Parcialmente Implementado (Fluxo 10)
+
+- Exportação de relatórios (funcionalidade básica implementada)
+- Filtros avançados por departamento/categoria
+
+### Concluído (Fluxo 10) - Implementado recentemente
+
+- ✅ **Reimaginação completa do dashboard** *(implementado em 03/12/2025)*
+- ✅ **Foco nos 3 tipos de submissão** *(Reclamação, Queixa, Sugestão)*
+- ✅ **Seções reimaginadas**: Distribuição por Estado, Tendências, Categorias *(implementado em 03/12/2025)*
+- ✅ **Insights de projetos** *(submissões por projeto, técnicos disponíveis)*
+- ✅ **Correção de bugs Chart.js** *(importações corrigidas para funcionamento adequado)*
+- ✅ **Reorganização do layout** *(Distribuição por Prioridade movida acima da Distribuição por Estado e Tipo - implementado em 04/12/2025)*
+
+## Fluxo 11: Sistema de Anexos
+
+### Implementado (Fluxo 11)
+
+- **Upload de múltiplos anexos** *(suporte a imagens, documentos, áudio)*
+- **Armazenamento seguro** *(disco privado com controle de acesso)*
+- **Validação de tipos de arquivo** *(limitações por tamanho e tipo)*
+- **Associação com reclamações** *(relacionamento direto no banco de dados)*
+- **Visualização de anexos** *(ícones e nomes de arquivo)*
+
+### Concluído (Fluxo 11) - Implementado recentemente
+
+
+ ✅ **Suporte a gravação de áudio** *(até 1 minuto via microfone — limite reduzido em 04/12/2025)*
+
+### Implementado (Fluxo 12)
+
+- **Download para usuários autenticados** *(utentes podem baixar seus próprios anexos)*
+- **Download para usuários não autenticados** *(via rastreamento público)*
+- **Abertura inline no navegador** *(PDFs, imagens, áudio abrem diretamente)*
+- **Controle de permissões** *(utentes só acessam seus próprios arquivos)*
+- **URLs seguras** *(roteamento protegido com validação)*
+
+### Concluído (Fluxo 12) - Implementado recentemente
+
+- ✅ **Download de anexos habilitado** *(implementado em 02/12/2025)*
+- ✅ **Abertura inline no navegador** *(implementado em 03/12/2025)*
+- ✅ **Acesso público via rastreamento** *(implementado em 03/12/2025)*
+- ✅ **Correção de rotas** *(URLs corrigidas para funcionamento adequado)*
+
+## Fluxo 13: Sistema de Autenticação Aprimorado
+
+### Implementado (Fluxo 13)
+
+- **Redirecionamento inteligente baseado no papel** *(PCA → pca.dashboard, Gestor → manager.dashboard, etc.)*
+- **Proteção completa contra acesso não autorizado** *(usuários logados não acessam login/register)*
+- **Middleware aprimorado** *(RedirectIfAuthenticated com lógica avançada)*
+- **Cobertura de todas as rotas de autenticação** *(login, register, auth, password reset)*
+- **Testes automatizados** *(cobertura completa de cenários de redirecionamento)*
+
+### Concluído (Fluxo 13) - Implementado recentemente
+
+- ✅ **Middleware de redirecionamento refatorado** *(implementado em 04/12/2025)*
+- ✅ **Lógica baseada em papéis implementada** *(PCA, Gestor, Técnico, Utente)*
+- ✅ **Proteção contra acesso não autorizado** *(usuários logados redirecionados automaticamente)*
+- ✅ **Testes de autenticação expandidos** *(cobertura de todos os cenários)*
+- ✅ **Rota dashboard genérica adicionada** *(compatibilidade com controladores padrão)*
+
+## Fluxo 14: Seeder de Performance Avançado
+
+### Implementado (Fluxo 14)
+
+- **Criação automática de projetos** *(15 projetos com dados realistas)*
+- **Associação de técnicos a projetos** *(1-3 projetos por técnico)*
+- **Reclamações associadas a projetos** *(70% das reclamações relacionadas)*
+- **Atribuição inteligente de técnicos** *(prioriza técnicos do projeto relacionado)*
+- **Dados de performance massivos** *(500 utentes, 20 técnicos, 2000 reclamações)*
+- **Configuração flexível** *(parâmetros ajustáveis via método configure())*
+
+### Concluído (Fluxo 14) - Implementado recentemente
+
+- ✅ **PerformanceTestSeeder completamente aprimorado** *(implementado em 04/12/2025)*
+- ✅ **Sistema de projetos integrado** *(criação automática + associações)*
+- ✅ **Lógica de atribuição inteligente** *(técnicos especializados por projeto)*
+- ✅ **Dados realistas e distribuídos** *(70% reclamações com projetos)*
+ - ✅ **Seed executado com sucesso** *(seed completo: 15 projetos, 500 utentes, 20 técnicos, 5 gestores, 2000 reclamações; implementado em 04/12/2025)*
+ - ✅ **Verificação pós-seed** *(migrations aplicadas e queries verificadas via tinker)*
+- ✅ **Inserção otimizada em batch** *(performance mantida com volumes altos)*
+
 ## Estados da Reclamação
 
 | Estado                  | Descrição | Estado |
@@ -192,10 +287,20 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 ### Integrações
 
 - Integração com SMS gateway alternativos
-- Integração com sistemas de autenticação externa (SSO, OAuth)
 
 ### Ações rápidas / Prioridade para apresentação
 
 - Finalizar padronização de layout e components críticos
 - Implementar gravação de áudio mínima (MP3) para submissão
 - Garantir SMTP configurado e testes de envio OK
+
+## Novas funcionalidades (04/12/2025)
+
+- **Limite de gravação reduzido para 1 minuto**: UX e backend atualizados para encurtar gravações de áudio a 60s.
+- **Campo `description` opcional**: `description` agora aceita null no banco de dados e é opcional no formulário; validação só é aplicada se preenchido.
+- **`project_id` opcional no frontend**: o formulário aceita submissões sem projeto; backend aceita `project_id` como `nullable`.
+- **PCA Dashboard reimaginado**: reorganização de seções, foco nos 3 tipos (Reclamação/Queixa/Sugestão), métricas e insights de projetos.
+- **RedirectIfAuthenticated**: middleware refatorado para redirecionamento por papel (PCA, Gestor, Técnico, Utente) e cobertura de todas rotas de autenticação.
+- **PerformanceTestSeeder**: criado/ajustado para gerar 15 projetos, associar técnicos, criar grandes volumes de dados (500 utentes, 2000 reclamações) e priorizar atribuição por projeto.
+- **Anexos & Downloads**: suporte a upload múltiplo, armazenamento seguro, abertura inline no navegador e downloads por utente/público via rastreamento.
+- **Testes**: novos testes de redirecionamento de autenticação e seeding validados via tinker.

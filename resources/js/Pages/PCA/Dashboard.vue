@@ -49,25 +49,6 @@
                     color="teal" />
             </div>
 
-            <!-- Charts Row -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Status Distribution -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Distribuição por Estado
-                    </h3>
-                    <StatusChart :data="complaintsByStatus" />
-                </div>
-
-                <!-- Priority Distribution -->
-                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                        Distribuição por Prioridade
-                    </h3>
-                    <PriorityChart :data="complaintsByPriority" />
-                </div>
-            </div>
-
             <!-- Submission Types Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
@@ -99,17 +80,114 @@
             <!-- Trend Chart -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Tendência de Reclamações (Últimos 6 Meses)
+                    Tendência de Submissões por Tipo (Últimos 6 Meses)
                 </h3>
+                <div class="mb-4">
+                    <div class="grid grid-cols-4 gap-4 text-center">
+                        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3">
+                            <p class="text-2xl font-bold text-brand">{{ getTotalFromTrend() }}</p>
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1">Total</p>
+                        </div>
+                        <div class="bg-red-50 dark:bg-red-900/20 rounded-lg p-3">
+                            <p class="text-2xl font-bold text-red-600">{{ getTypeTotal('complaint') }}</p>
+                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">Reclamações</p>
+                        </div>
+                        <div class="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+                            <p class="text-2xl font-bold text-orange-600">{{ getTypeTotal('grievance') }}</p>
+                            <p class="text-xs text-orange-600 dark:text-orange-400 mt-1">Queixas</p>
+                        </div>
+                        <div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-3">
+                            <p class="text-2xl font-bold text-green-600">{{ getTypeTotal('suggestion') }}</p>
+                            <p class="text-xs text-green-600 dark:text-green-400 mt-1">Sugestões</p>
+                        </div>
+                    </div>
+                </div>
                 <TrendChart :data="trendData" />
             </div>
 
-            <!-- Category Analysis -->
+            <!-- Project Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Submissions by Project -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Submissões por Projeto (Top 10)
+                    </h3>
+                    <div class="space-y-4">
+                        <div v-for="project in submissionsByProject" :key="project.id"
+                            class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex-1">
+                                <p class="font-medium text-gray-900 dark:text-white">{{ project.name }}</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">{{ project.province }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-lg font-bold text-brand">{{ project.total_submissions }}</p>
+                                <p class="text-sm text-green-600">{{ project.resolution_rate }}% resolvidas</p>
+                            </div>
+                        </div>
+                        <div v-if="submissionsByProject.length === 0" class="text-center py-8 text-gray-500">
+                            Nenhum projeto com submissões no período selecionado
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Projects with Technicians -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Projetos com Técnicos Disponíveis
+                    </h3>
+                    <div class="space-y-4">
+                        <div v-for="project in projectsWithTechnicians" :key="project.id"
+                            class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="font-medium text-gray-900 dark:text-white">{{ project.name }}</p>
+                                <span class="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 text-xs rounded-full">
+                                    {{ project.technicians_count }} técnicos
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">{{ project.province }}</p>
+                            <div class="flex flex-wrap gap-1">
+                                <span v-for="tech in project.technicians.slice(0, 3)" :key="tech.id"
+                                    class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs rounded">
+                                    {{ tech.name }}
+                                </span>
+                                <span v-if="project.technicians.length > 3" class="px-2 py-1 bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-300 text-xs rounded">
+                                    +{{ project.technicians.length - 3 }} mais
+                                </span>
+                            </div>
+                            <p class="text-sm text-orange-600 mt-2">
+                                {{ project.active_grievances }} reclamações ativas
+                            </p>
+                        </div>
+                        <div v-if="projectsWithTechnicians.length === 0" class="text-center py-8 text-gray-500">
+                            Nenhum projeto com técnicos atribuídos
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Performance Metrics -->
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                    Top 10 Categorias de Reclamações
+                    Métricas de Projetos
                 </h3>
-                <CategoryChart :data="complaintsByCategory" />
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-brand">{{ projectPerformance.total_projects }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Total de Projetos</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-green-600">{{ projectPerformance.projects_with_technicians }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Com Técnicos</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-purple-600">{{ projectPerformance.projects_with_submissions }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Com Submissões</p>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-3xl font-bold text-orange-600">{{ projectPerformance.average_submissions_per_project }}</p>
+                        <p class="text-gray-600 dark:text-gray-400 mt-2">Média Submissões/Projeto</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Bottom Row -->
@@ -152,6 +230,49 @@
                     </div>
                 </div>
             </div>
+
+                        <!-- Charts Row -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Priority Distribution -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Distribuição por Prioridade
+                    </h3>
+                    <PriorityChart :data="complaintsByPriority" />
+                </div>
+
+                <!-- Status Distribution by Type -->
+                <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                        Distribuição por Estado e Tipo
+                    </h3>
+                    <div class="space-y-4">
+                        <div v-for="(data, status) in complaintsByStatus" :key="status"
+                            class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium text-gray-900 dark:text-white capitalize">
+                                    {{ getStatusLabel(status) }}
+                                </span>
+                                <span class="text-lg font-bold text-brand">{{ data.total }}</span>
+                            </div>
+                            <div class="grid grid-cols-3 gap-2 text-sm">
+                                <div class="flex items-center justify-between px-2 py-1 bg-red-50 dark:bg-red-900/20 rounded">
+                                    <span class="text-red-600 dark:text-red-400">Recl.</span>
+                                    <span class="font-semibold text-red-700 dark:text-red-300">{{ data.complaint }}</span>
+                                </div>
+                                <div class="flex items-center justify-between px-2 py-1 bg-orange-50 dark:bg-orange-900/20 rounded">
+                                    <span class="text-orange-600 dark:text-orange-400">Queixa</span>
+                                    <span class="font-semibold text-orange-700 dark:text-orange-300">{{ data.grievance }}</span>
+                                </div>
+                                <div class="flex items-center justify-between px-2 py-1 bg-green-50 dark:bg-green-900/20 rounded">
+                                    <span class="text-green-600 dark:text-green-400">Sugest.</span>
+                                    <span class="font-semibold text-green-700 dark:text-green-300">{{ data.suggestion }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </Layout>
 </template>
@@ -165,7 +286,6 @@ import StatusChart from '@/Components/PCA/StatusChart.vue'
 import PriorityChart from '@/Components/PCA/PriorityChart.vue'
 import TypeChart from '@/Components/PCA/TypeChart.vue'
 import TrendChart from '@/Components/PCA/TrendChart.vue'
-import CategoryChart from '@/Components/PCA/CategoryChart.vue'
 import TechniciansTable from '@/Components/PCA/TechniciansTable.vue'
 import ActivitiesList from '@/Components/PCA/ActivitiesList.vue'
 
@@ -193,10 +313,6 @@ const props = defineProps({
         type: Object,
         default: () => ({})
     },
-    complaintsByCategory: {
-        type: Array,
-        default: () => []
-    },
     performanceMetrics: {
         type: Object,
         default: () => ({
@@ -216,6 +332,23 @@ const props = defineProps({
     recentActivities: {
         type: Array,
         default: () => []
+    },
+    submissionsByProject: {
+        type: Array,
+        default: () => []
+    },
+    projectsWithTechnicians: {
+        type: Array,
+        default: () => []
+    },
+    projectPerformance: {
+        type: Object,
+        default: () => ({
+            total_projects: 0,
+            projects_with_technicians: 0,
+            projects_with_submissions: 0,
+            average_submissions_per_project: 0,
+        })
     },
     filters: {
         type: Object,
@@ -246,5 +379,27 @@ const applyFilters = () => {
 const exportReport = () => {
     // TODO: Implementar exportação de relatório
     console.log('Funcionalidade de exportação será implementada')
+}
+
+const getStatusLabel = (status) => {
+    const labels = {
+        'submitted': 'Submetida',
+        'under_review': 'Em Análise',
+        'in_progress': 'Em Progresso',
+        'resolved': 'Resolvida',
+        'closed': 'Encerrada',
+        'rejected': 'Rejeitada'
+    }
+    return labels[status] || status
+}
+
+const getTotalFromTrend = () => {
+    if (!props.trendData?.data) return 0
+    return props.trendData.data.reduce((sum, month) => sum + month.total, 0)
+}
+
+const getTypeTotal = (type) => {
+    if (!props.trendData?.data) return 0
+    return props.trendData.data.reduce((sum, month) => sum + (month[type] || 0), 0)
 }
 </script>
