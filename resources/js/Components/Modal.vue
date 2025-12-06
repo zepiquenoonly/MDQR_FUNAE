@@ -68,7 +68,7 @@
                             </div>
 
                             <!-- Actions -->
-                            <div class="px-6 py-4 bg-gray-50">
+                            <!-- <div class="px-6 py-4 bg-gray-50">
                                 <div class="grid grid-cols-1 gap-3">
                                     <button
                                         v-if="confirmText"
@@ -89,7 +89,8 @@
                                         {{ cancelText }}
                                     </button>
                                 </div>
-                            </div>
+                            </div> -->
+
                         </div>
                     </div>
                 </div>
@@ -118,10 +119,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
-    confirmText: {
-        type: String,
-        default: 'OK',
-    },
+    // confirmText: {
+    //     type: String,
+    //     default: 'OK',
+    // },
     cancelText: {
         type: String,
         default: null,
