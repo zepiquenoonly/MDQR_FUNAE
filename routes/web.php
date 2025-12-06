@@ -30,6 +30,10 @@ Route::get('/grievances-home', function () {
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
 Route::middleware('api')->post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
 
+// Visualização pública de anexos (com restrições)
+Route::get('/attachments/{attachment}/view', [GrievanceController::class, 'viewAttachmentPublic'])
+    ->name('attachments.view');
+
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
     Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
