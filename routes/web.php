@@ -28,7 +28,7 @@ Route::get('/grievances-home', function () {
 
 // Tracking de reclamação - acessível para todos (logados ou não)
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
-Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
+Route::middleware('api')->post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
