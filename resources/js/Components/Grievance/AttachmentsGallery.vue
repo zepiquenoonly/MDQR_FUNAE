@@ -34,6 +34,17 @@ const showAttachmentInfo = (attachment) => {
     showStorageModal.value = true;
 };
 
+const viewAttachment = (attachment) => {
+    // Abrir em nova aba para visualização usando a rota pública
+    window.open(route('attachments.view', attachment.id), '_blank');
+};
+
+const canPreviewInline = (mimeType) => {
+    return mimeType.startsWith('image/') ||
+           mimeType === 'application/pdf' ||
+           mimeType.startsWith('text/');
+};
+
 const closeStorageModal = () => {
     showStorageModal.value = false;
     selectedAttachment.value = null;
@@ -53,8 +64,7 @@ const closeStorageModal = () => {
             <div
                 v-for="attachment in attachments"
                 :key="attachment.id"
-                class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-brand hover:shadow-md transition-all group cursor-pointer"
-                @click="showAttachmentInfo(attachment)"
+                class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-brand hover:shadow-md transition-all group"
             >
                 <div class="flex-shrink-0 text-3xl">
                     <component :is="getFileIcon(attachment.mime_type)" class="w-8 h-8 text-gray-400" />
@@ -79,11 +89,28 @@ const closeStorageModal = () => {
                     </p>
                 </div>
 
-                <div class="flex-shrink-0 text-gray-400 group-hover:text-brand">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
-                    </svg>
+                <div class="flex-shrink-0 flex gap-2">
+                    <button
+                        v-if="canPreviewInline(attachment.mime_type)"
+                        @click="viewAttachment(attachment)"
+                        class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                        title="Visualizar arquivo"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                    <button
+                        @click="showAttachmentInfo(attachment)"
+                        class="text-gray-400 hover:text-brand p-1 rounded transition-colors"
+                        title="Ver informações do arquivo"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
@@ -126,6 +153,13 @@ const closeStorageModal = () => {
                     </div>
 
                     <div class="flex justify-end gap-3">
+                        <button
+                            v-if="canPreviewInline(selectedAttachment.mime_type)"
+                            @click="viewAttachment(selectedAttachment)"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        >
+                            Visualizar Arquivo
+                        </button>
                         <button @click="closeStorageModal" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
                             Fechar
                         </button>
