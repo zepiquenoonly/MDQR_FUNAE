@@ -1,12 +1,16 @@
 <script setup>
-import { DocumentIcon, ArrowDownTrayIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon } from '@heroicons/vue/24/outline';
+import { DocumentIcon, ArrowDownTrayIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline';
+import { ref } from 'vue';
 
-defineProps({
+const props = defineProps({
     attachments: {
         type: Array,
         default: () => []
     }
 });
+
+const showStorageModal = ref(false);
+const selectedAttachment = ref(null);
 
 const formatFileSize = (bytes) => {
     if (bytes === 0) return '0 Bytes';
@@ -19,10 +23,33 @@ const formatFileSize = (bytes) => {
 const getFileIcon = (mimeType) => {
     if (mimeType.startsWith('image/')) return PhotoIcon;
     if (mimeType.startsWith('video/')) return FilmIcon;
+    if (mimeType.startsWith('audio/')) return MusicalNoteIcon;
     if (mimeType === 'application/pdf') return DocumentIcon;
     if (mimeType.includes('word')) return DocumentTextIcon;
     if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return TableCellsIcon;
     return PaperClipIcon;
+};
+
+const showAttachmentInfo = (attachment) => {
+    selectedAttachment.value = attachment;
+    showStorageModal.value = true;
+};
+
+const viewAttachment = (attachment) => {
+    // Abrir em nova aba para visualização usando a rota pública
+    window.open(route('attachments.view', attachment.id), '_blank');
+};
+
+const canPreviewInline = (mimeType) => {
+    return mimeType.startsWith('image/') ||
+           mimeType === 'application/pdf' ||
+           mimeType.startsWith('text/') ||
+           mimeType.startsWith('audio/');
+};
+
+const closeStorageModal = () => {
+    showStorageModal.value = false;
+    selectedAttachment.value = null;
 };
 </script>
 
@@ -36,11 +63,9 @@ const getFileIcon = (mimeType) => {
         </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
+            <div
                 v-for="attachment in attachments"
                 :key="attachment.id"
-                :href="attachment.url"
-                target="_blank"
                 class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-brand hover:shadow-md transition-all group"
             >
                 <div class="flex-shrink-0 text-3xl">
@@ -61,10 +86,88 @@ const getFileIcon = (mimeType) => {
                             year: 'numeric'
                         }) }}
                     </p>
+                    <p class="text-xs text-blue-600 mt-1">
+                        📁 Armazenado em: storage/app/private/grievances/{{ attachment.id }}
+                    </p>
                 </div>
 
-                <ArrowDownTrayIcon class="w-5 h-5 text-gray-400 group-hover:text-brand flex-shrink-0" />
-            </a>
+                <div class="flex-shrink-0 flex gap-2">
+                    <button
+                        v-if="canPreviewInline(attachment.mime_type)"
+                        @click="viewAttachment(attachment)"
+                        class="text-blue-600 hover:text-blue-800 p-1 rounded transition-colors"
+                        title="Visualizar arquivo"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                    <button
+                        @click="showAttachmentInfo(attachment)"
+                        class="text-gray-400 hover:text-brand p-1 rounded transition-colors"
+                        title="Ver informações do arquivo"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de informações de armazenamento -->
+        <div v-if="showStorageModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-gray-900">Localização do Arquivo</h3>
+                    <button @click="closeStorageModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div v-if="selectedAttachment" class="space-y-4">
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                        <component :is="getFileIcon(selectedAttachment.mime_type)" class="w-8 h-8 text-gray-600" />
+                        <div>
+                            <p class="font-medium text-gray-900">{{ selectedAttachment.original_filename }}</p>
+                            <p class="text-sm text-gray-600">{{ formatFileSize(selectedAttachment.size) }}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v2H8V5z" />
+                            </svg>
+                            <span class="font-medium text-blue-900">Diretório de Armazenamento</span>
+                        </div>
+                        <div class="bg-white rounded border p-3 font-mono text-sm text-gray-800 break-all">
+                            storage/app/private/grievances/{{ selectedAttachment.id }}/
+                        </div>
+                        <p class="text-xs text-blue-700 mt-2">
+                            Este arquivo está armazenado de forma segura no servidor em um diretório privado.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                        <button
+                            v-if="canPreviewInline(selectedAttachment.mime_type)"
+                            @click="viewAttachment(selectedAttachment)"
+                            class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+                        >
+                            Visualizar Arquivo
+                        </button>
+                        <button @click="closeStorageModal" class="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors">
+                            Fechar
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>

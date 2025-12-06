@@ -3,6 +3,8 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
+**Última atualização:** 07/12/2025
+
 ## Legenda de Status
 
 - ✅ Implementado
@@ -116,10 +118,19 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Exibição do estado actual da reclamação
 - Visualização do histórico de actualizações e comentários
 - Consulta de anexos e evidências de resolução
+- **Sistema completo de visualização de anexos** *(suporte a imagens, PDFs, áudio)*
+- **Abertura inline de arquivos** *(PDFs, imagens, áudio reproduzem diretamente no navegador)*
+- **Interface responsiva com ícones apropriados** *(nota musical para áudio, documento para PDFs)*
+- **Controle de permissões por status** *(reclamações confidenciais/restritas não permitem visualização pública)*
+- **Ocultar seção de busca após rastreamento** *(experiência mais limpa focada nos resultados)*
+- **Reexibir seção de busca ao consultar nova reclamação** *(navegação intuitiva)*
 
-### Por Implementar (Fluxo 4)
+### Concluído (Fluxo 4) - Implementado recentemente
 
-- Tracking interno no dashboard (evitar abrir nova aba)
+- ✅ **Sistema de visualização de anexos completo** *(implementado em 07/12/2025)*
+- ✅ **Suporte a arquivos de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG - implementado em 07/12/2025)*
+- ✅ **Ocultar/mostrar seção de busca** *(implementado em 07/12/2025)*
+- ✅ **Refatoração da interface de rastreamento** *(implementado em 07/12/2025)*
 
 
 ## Fluxo 5: Geração de Relatórios e Estatísticas
@@ -175,11 +186,16 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Validação de tipos de arquivo** *(limitações por tamanho e tipo)*
 - **Associação com reclamações** *(relacionamento direto no banco de dados)*
 - **Visualização de anexos** *(ícones e nomes de arquivo)*
+- **Suporte completo a arquivos de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG)*
+- **Detecção automática de tipo MIME** *(ícones apropriados para cada tipo)*
+- **Interface responsiva com galeria organizada** *(modal informativo e botões de ação)*
 
 ### Concluído (Fluxo 11) - Implementado recentemente
 
-
- ✅ **Suporte a gravação de áudio** *(até 1 minuto via microfone — limite reduzido em 04/12/2025)*
+- ✅ **Sistema de visualização de anexos completo** *(implementado em 07/12/2025)*
+- ✅ **Suporte a gravação de áudio** *(até 1 minuto via microfone — limite reduzido em 04/12/2025)*
+- ✅ **Suporte a múltiplos formatos de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG - implementado em 07/12/2025)*
+- ✅ **Ícones específicos por tipo de arquivo** *(nota musical para áudio, documento para PDFs - implementado em 07/12/2025)*
 
 ### Implementado (Fluxo 12)
 
@@ -188,6 +204,9 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Abertura inline no navegador** *(PDFs, imagens, áudio abrem diretamente)*
 - **Controle de permissões** *(utentes só acessam seus próprios arquivos)*
 - **URLs seguras** *(roteamento protegido com validação)*
+- **Suporte completo a reprodução de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG)*
+- **Controle de acesso baseado no status da reclamação** *(confidencial/restrito não permite visualização)*
+- **Cache otimizado** *(1 hora de cache para performance)*
 
 ### Concluído (Fluxo 12) - Implementado recentemente
 
@@ -195,6 +214,8 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Abertura inline no navegador** *(implementado em 03/12/2025)*
 - ✅ **Acesso público via rastreamento** *(implementado em 03/12/2025)*
 - ✅ **Correção de rotas** *(URLs corrigidas para funcionamento adequado)*
+- ✅ **Sistema de permissões por status** *(implementado em 07/12/2025)*
+- ✅ **Suporte completo a áudio** *(implementado em 07/12/2025)*
 
 ## Fluxo 13: Sistema de Autenticação Aprimorado
 
@@ -317,3 +338,19 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Modal de submissão acessível diretamente da landing page**: Implementado acesso direto ao formulário de reclamações a partir da página inicial, facilitando a submissão imediata.
 - **Melhorias no footer da landing page**: Atualizações visuais e de conteúdo no rodapé para melhor usabilidade e informações.
 - **Melhorias nos textos da landing page**: Revisão e aprimoramento dos textos para maior clareza, engajamento e alinhamento com a identidade do projeto.
+
+
+## Novas funcionalidades (07/12/2025)
+
+- **Sistema de Visualização de Anexos Completo**: Implementado sistema completo de visualização de anexos com suporte a múltiplos formatos (imagens, PDFs, áudio WebM/MP3/WAV/OGG/M4A/MPEG), abertura inline no navegador, controle de permissões por status da reclamação, e interface responsiva com ícones apropriados.
+- **Ocultar Seção de Busca Após Rastreamento**: Implementada funcionalidade onde a seção "Rastreamento Seguro" é automaticamente ocultada após uma busca bem-sucedida, reaparecendo apenas ao clicar em "Consultar Outra Reclamação" para uma experiência mais limpa e focada nos resultados.
+- **Melhorias na Interface de Rastreamento**: Refatoração completa do componente de rastreamento com melhor estrutura de código, tratamento aprimorado de erros, e experiência de usuário mais fluida.
+- **Suporte a Áudio em Anexos**: Adicionado suporte completo para arquivos de áudio (WebM, MP3, WAV, OGG, M4A, MPEG) com detecção automática de tipo MIME, ícone de nota musical, e reprodução inline no navegador.
+- **Controle de Acesso a Anexos**: Implementado sistema de permissões baseado no status da reclamação (restrito/confidencial não permite visualização pública), com validação de tipos de arquivo seguros.
+- **Melhorias na Landing Page**: Adicionado link destacado de acompanhamento, melhorias visuais no footer, atualização de textos para maior clareza e engajamento, e abertura automática do modal de submissão via parâmetro de URL.
+- **Campos de Contato Opcionais**: Implementado sistema onde campos de nome e email são opcionais para submissões anônimas, permitindo contato voluntário para acompanhamento.
+- **Timer de Auto-fechamento do Modal**: Aumentado o tempo de auto-fechamento do modal de sucesso de 5 para 60 segundos com aviso explícito para salvar o código de rastreio.
+- **Dashboard PCA Reimaginado**: Reorganização completa com foco nos 3 tipos de submissão (Reclamação/Queixa/Sugestão), métricas por projeto, distribuição por estado e tipo, e visualização color-coded.
+- **Sistema de Autenticação Aprimorado**: Middleware de redirecionamento inteligente baseado em papéis (PCA, Gestor, Técnico, Utente), proteção contra acesso não autorizado, e cobertura completa de rotas de autenticação.
+- **Seeder de Performance Avançado**: Sistema completo de seeding com 15 projetos, associação inteligente de técnicos a projetos, 2000 reclamações realistas, e priorização de atribuição por especialização.
+- **Documentação Atualizada**: README.md atualizado com mudanças de dezembro 2025, guia de deploy, revisão de notificações por email, e documentação completa do status das funcionalidades.

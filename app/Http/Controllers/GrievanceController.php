@@ -334,6 +334,72 @@ class GrievanceController extends Controller
     }
 
     /**
+     * View attachment inline (for images, PDFs, etc.).
+     */
+    public function viewAttachment(Attachment $attachment)
+    {
+        // Verificar permissões
+        $user = auth()->user();
+        $grievance = $attachment->grievance;
+
+        if ($user->hasRole('utente') && $grievance->user_id !== $user->id) {
+            abort(403, 'Não autorizado a visualizar este anexo.');
+        }
+
+        if (!Storage::disk('private')->exists($attachment->path)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        $file = Storage::disk('private')->get($attachment->path);
+        $mimeType = $attachment->mime_type ?: 'application/octet-stream';
+
+        return response($file, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $attachment->original_filename . '"',
+        ]);
+    }
+
+    /**
+     * View attachment inline for public access (with restrictions).
+     */
+    public function viewAttachmentPublic(Attachment $attachment)
+    {
+        // Para acesso público, só permitir visualização se:
+        // 1. A reclamação estiver em status público (não confidencial)
+        // 2. Só tipos de arquivo seguros (imagens, PDFs)
+        $grievance = $attachment->grievance;
+
+        // Verificar se a reclamação permite visualização pública
+        if (in_array($grievance->status, ['confidencial', 'restrito'])) {
+            abort(403, 'Este anexo não está disponível para visualização pública.');
+        }
+
+        // Só permitir tipos de arquivo seguros
+        $allowedTypes = [
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'application/pdf',
+            'audio/webm', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/mpeg'
+        ];
+
+        if (!in_array($attachment->mime_type, $allowedTypes)) {
+            abort(403, 'Este tipo de arquivo não está disponível para visualização pública.');
+        }
+
+        if (!Storage::disk('private')->exists($attachment->path)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        $file = Storage::disk('private')->get($attachment->path);
+        $mimeType = $attachment->mime_type ?: 'application/octet-stream';
+
+        return response($file, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $attachment->original_filename . '"',
+            'Cache-Control' => 'public, max-age=3600', // Cache por 1 hora
+        ]);
+    }
+
+    /**
      * Get categories for the form.
      */
     public function getCategories()
