@@ -33,6 +33,7 @@ const isLoading = ref(false);
 const grievance = ref(null);
 const error = ref('');
 const showNotFoundModal = ref(false);
+const showSearchSection = ref(true);
 
 const searchGrievance = async () => {
     if (!referenceNumber.value.trim()) {
@@ -81,6 +82,7 @@ const searchGrievance = async () => {
 
         if (data.success) {
             grievance.value = data.grievance;
+            showSearchSection.value = false; // Ocultar seção de busca após encontrar reclamação
         } else {
             showNotFoundModal.value = true;
         }
@@ -102,6 +104,7 @@ const resetSearch = () => {
     referenceNumber.value = '';
     grievance.value = null;
     error.value = '';
+    showSearchSection.value = true; // Mostrar seção de busca novamente
 };
 
 const closeNotFoundModal = () => {
@@ -169,7 +172,7 @@ const categoryLabels = {
         <!-- Main Content -->
         <main class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-20 z-10">
             <!-- Search Card - Modern Glassmorphism -->
-            <div class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 mb-12 border border-white/20 relative overflow-hidden group hover:shadow-3xl transition-all duration-500 hover:-translate-y-1 hover:bg-white/90">
+            <div v-if="showSearchSection" class="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 mb-12 border border-white/20 relative overflow-hidden group hover:shadow-3xl transition-all duration-500 hover:-translate-y-1 hover:bg-white/90">
                 <!-- Glass Effect Background -->
                 <div class="absolute inset-0 bg-gradient-to-br from-white/50 via-blue-50/30 to-indigo-50/50"></div>
                 <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5"></div>
