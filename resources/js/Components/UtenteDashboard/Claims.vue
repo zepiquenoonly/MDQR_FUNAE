@@ -25,28 +25,28 @@
                 <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-primary-700 transition-colors">Total de Queixas</h3>
-                    <div class="mb-1 text-4xl font-bold gradient-text group-hover:scale-110 transition-transform origin-left">15</div>
+                    <div class="mb-1 text-4xl font-bold gradient-text group-hover:scale-110 transition-transform origin-left">{{ stats.total }}</div>
                 </div>
             </div>
             <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-green-700 transition-colors">Validadas</h3>
-                    <div class="mb-1 text-4xl font-bold text-green-600 group-hover:scale-110 transition-transform origin-left">8</div>
+                    <div class="mb-1 text-4xl font-bold text-green-600 group-hover:scale-110 transition-transform origin-left">{{ stats.validated }}</div>
                 </div>
             </div>
             <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-orange-700 transition-colors">Em análise</h3>
-                    <div class="mb-1 text-4xl font-bold text-orange-600 group-hover:scale-110 transition-transform origin-left">4</div>
+                    <div class="mb-1 text-4xl font-bold text-orange-600 group-hover:scale-110 transition-transform origin-left">{{ stats.in_analysis }}</div>
                 </div>
             </div>
             <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-red-700 transition-colors">Rejeitadas</h3>
-                    <div class="mb-1 text-4xl font-bold text-red-600 group-hover:scale-110 transition-transform origin-left">3</div>
+                    <div class="mb-1 text-4xl font-bold text-red-600 group-hover:scale-110 transition-transform origin-left">{{ stats.rejected }}</div>
                 </div>
             </div>
         </div>
@@ -58,38 +58,46 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import ComplaintRegister from './ComplaintRegister.vue'
 
-const claims = ref([
-    {
-        id: 'QUE-001',
-        title: 'Queixa de Danos à Propriedade',
-        description: 'Danos à propriedade residencial devido à construção',
-        project: 'Desenvolvimento de Infraestrutura',
-        priority: 'Alta',
-        date: '2024-01-14',
-        status: 'Em Análise'
+const props = defineProps({
+    claims: {
+        type: Array,
+        default: () => []
     },
-    {
-        id: 'QUE-002',
-        title: 'Queixa de Compensação',
-        description: 'Pedido de compensação devido a atrasos no projecto',
-        project: 'Obras Públicas',
-        priority: 'Média',
-        date: '2024-01-09',
-        status: 'Validada'
-    },
-    {
-        id: 'QUE-003',
-        title: 'Queixa de Impacto Ambiental',
-        description: 'Queixa sobre danos ambientais',
-        project: 'Operação Mineira',
-        priority: 'Urgente',
-        date: '2024-01-04',
-        status: 'Rejeitada'
+    claimsStats: {
+        type: Object,
+        default: () => ({
+            total: 0,
+            validated: 0,
+            in_analysis: 0,
+            rejected: 0
+        })
     }
-])
+})
+
+const page = usePage()
+const { safeClaims, safeClaimsStats } = useCommonSafeProps(props)
+
+// Usar dados do backend ou props
+const claims = computed(() => {
+    return props.claims?.length > 0
+        ? props.claims
+        : (page.props.claims || [])
+})
+
+const stats = computed(() => {
+    return props.claimsStats?.total !== undefined
+        ? props.claimsStats
+        : (page.props.claimsStats || {
+            total: 0,
+            validated: 0,
+            in_analysis: 0,
+            rejected: 0
+        })
+})
 
 const showComplaintRegister = ref(false)
 
@@ -109,11 +117,8 @@ const handleEditItem = (item) => {
 
 const handleDeleteItem = (item) => {
     console.log('Eliminar queixa:', item)
-    // Remover da lista
-    const index = claims.value.findIndex(c => c.id === item.id)
-    if (index !== -1) {
-        claims.value.splice(index, 1)
-    }
+    // Nota: A eliminação real deve ser feita via API
+    // Por enquanto apenas log, pois não há endpoint de delete para utentes
 }
 
 const handleExportData = (exportData) => {

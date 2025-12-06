@@ -1,5 +1,5 @@
 <template>
-    <Layout>
+    <Layout :role="'technician'">
         <div class="space-y-4 sm:space-y-6">
             <!-- Breadcrumb & Header -->
             <div class="flex flex-col gap-3 sm:gap-4">
@@ -384,7 +384,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Link, router, useForm } from '@inertiajs/vue3'
-import Layout from '@/Layouts/Layout.vue'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import StatusBadge from '@/Components/Grievance/StatusBadge.vue'
 import { DocumentTextIcon, ClockIcon, PaperClipIcon, ArrowDownTrayIcon, RocketLaunchIcon, CheckIcon, PencilSquareIcon, FolderIcon, InformationCircleIcon, MapPinIcon, CheckBadgeIcon } from '@heroicons/vue/24/outline'
 

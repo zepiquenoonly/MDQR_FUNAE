@@ -125,8 +125,6 @@ const getUserInitials = (user) => {
 
 // Função CORRIGIDA para mapear tipos
 const getTypeText = (type) => {
-  console.log("Tipo recebido no ComplaintRow:", type);
-
   const types = {
     // Sugestões
     suggestion: "Sugestão",
@@ -153,9 +151,6 @@ const getTypeText = (type) => {
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-
-  console.log("Tipo normalizado:", normalizedType);
-
   return types[normalizedType] || type;
 };
 

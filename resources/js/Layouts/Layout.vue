@@ -1,7 +1,7 @@
 <template>
   <div style="zoom: 90%;" class="flex min-h-screen bg-gray-50">
     <!-- Sidebar (Fixed) -->
-    <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" />
+    <Sidebar :is-collapsed="sidebarCollapsed" @toggle-sidebar="toggleSidebar" :role="role" />
 
     <!-- Main Content -->
     <div class="flex flex-col flex-1 h-screen">
@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import Sidebar from '@/Components/Dashboard/Sidebar.vue'
 import Header from '@/Components/Dashboard/Header.vue'
 
@@ -25,12 +25,31 @@ defineProps({
   user: {
     type: Object,
     required: true
+  },
+  role: {
+    type: String,
+    default: 'technician' // technician, manager, pca
   }
 })
 
 const sidebarCollapsed = ref(false)
 
+// Detectar se é mobile e definir estado inicial
+const checkMobile = () => {
+  const isMobile = window.innerWidth < 1024
+  sidebarCollapsed.value = isMobile // Fechado em mobile, aberto em desktop
+}
+
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
+
+onMounted(() => {
+  checkMobile()
+  window.addEventListener('resize', checkMobile)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkMobile)
+})
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <header class="relative px-3 py-3 m-3 overflow-hidden transition-all duration-300 border glass-nav shadow-glass sm:px-6 sm:py-4 rounded-2xl backdrop-blur-xl border-white/20 hover:shadow-xl">
+  <header class="relative px-3 py-3 m-3 h-32 transition-all duration-300 border glass-nav shadow-glass sm:px-6 sm:py-4 rounded-2xl backdrop-blur-xl border-white/20 hover:shadow-xl">
     <!-- Decorative gradient overlay -->
     <div class="absolute top-0 right-0 w-64 h-full pointer-events-none bg-gradient-to-l from-primary-500/5 to-transparent"></div>
 
@@ -11,18 +11,16 @@
           <Bars3Icon class="w-6 h-6" />
         </button>
 
-        <!-- Logo FUNAE -->
-        <button
-          @click="navigateToDashboard"
-          class="flex items-center gap-2 sm:gap-3 hover:opacity-80 transition-opacity cursor-pointer group"
-        >
-          <img
-            src="/images/Logotipo-scaled.png"
-            alt="FUNAE Logo"
-            class="h-8 sm:h-10 lg:h-12 w-auto object-contain flex-shrink-0 transition-transform group-hover:scale-105"
-          />
-
-        </button>
+        <!-- Logo simples e grande -->
+        <div class="flex items-center gap-3">
+          <div class="w-28 h-28 flex items-center justify-center p-1">
+            <img src="/images/Logotipo-scaled.png" alt="FUNAE" class="w-full h-full object-contain filter drop-shadow-lg" />
+          </div>
+          <div class="hidden md:block border-l border-gray-200 pl-4">
+            <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
+            <p class="text-sm text-gray-500">Painel de Administração</p>
+          </div>
+        </div>
       </div>
 
       <!-- Right Section -->
@@ -48,10 +46,9 @@ import {
   Bars3Icon,
   BellIcon
 } from '@heroicons/vue/24/outline'
-import UserDropdown from './UserDropdown.vue'
-import { useNavigation } from '@/composables/useNavigation'
+import UserDropdown from '@/Components/UtenteDashboard/UserDropdown.vue'
 
-const props = defineProps({
+defineProps({
   user: {
     type: Object,
     required: true
@@ -59,7 +56,4 @@ const props = defineProps({
 })
 
 defineEmits(['toggle-sidebar'])
-
-// Usar composable de navegação para navegação baseada em role
-const { navigateToDashboard } = useNavigation({ user: props.user })
 </script>

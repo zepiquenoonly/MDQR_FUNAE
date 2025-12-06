@@ -5,187 +5,135 @@ namespace App\Http\Controllers;
 use App\Models\Attachment;
 use App\Models\Grievance;
 use App\Models\GrievanceUpdate;
-use App\Models\User;
-use App\Services\NotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class TechnicianGrievanceController extends Controller
 {
-    public function __construct(
-        private readonly NotificationService $notificationService
-    ) {
-    }
-
     /**
-     * Show grievance detail page for technician.
+     * Display the specified grievance for technician.
      */
-    public function show(Request $request, Grievance $grievance)
+    public function show(Grievance $grievance): Response
     {
-        $this->ensureOwnership($request->user(), $grievance);
+        $this->ensureTechnician(auth()->user());
 
+        // Ensure technician can only access assigned grievances
+        if ($grievance->assigned_to !== auth()->id()) {
+            abort(403, 'Você não tem permissão para acessar esta reclamação.');
+        }
+
+        // Load necessary relationships
         $grievance->load([
-            'updates.user',
-            'attachments',
             'user',
+            'updates.user',
+            'attachments'
         ]);
 
         return Inertia::render('Technician/GrievanceDetail', [
-            'grievance' => [
-                'id' => $grievance->id,
-                'reference_number' => $grievance->reference_number,
-                'title' => $grievance->title,
-                'description' => $grievance->description,
-                'status' => $grievance->status,
-                'status_label' => $this->getStatusLabel($grievance->status),
-                'priority' => $grievance->priority,
-                'category' => $grievance->category,
-                'district' => $grievance->district,
-                'contact_name' => $grievance->user?->name,
-                'contact_email' => $grievance->user?->email,
-                'contact_phone' => $grievance->user?->phone,
-                'submitted_at' => $grievance->created_at,
-                'updated_at' => $grievance->updated_at,
-                'created_at' => $grievance->created_at,
-                'is_pending_approval' => $grievance->status === 'pending_approval',
-                'can_start' => !in_array($grievance->status, ['in_progress', 'pending_approval', 'closed', 'rejected']),
-                'can_request_completion' => $grievance->status === 'in_progress',
-                'updates' => $grievance->updates->map(fn($update) => [
-                    'id' => $update->id,
-                    'description' => $update->description,
-                    'comment' => $update->comment,
-                    'created_at' => $update->created_at,
-                    'user' => $update->user ? [
-                        'id' => $update->user->id,
-                        'name' => $update->user->name,
-                    ] : null,
-                    'attachments' => $update->metadata['attachment_id'] ?? null ? [
-                        [
-                            'id' => $update->metadata['attachment_id'],
-                            'original_filename' => $update->metadata['filename'],
-                            'url' => route('attachments.download', $update->metadata['attachment_id']),
-                        ]
-                    ] : [],
-                ]),
-                'attachments' => $grievance->attachments->map(fn($attachment) => [
-                    'id' => $attachment->id,
-                    'original_filename' => $attachment->original_filename,
-                    'size' => $attachment->size,
-                    'url' => route('attachments.download', $attachment->id),
-                ]),
-            ]
+            'complaint' => $grievance,
         ]);
     }
 
     /**
-     * Get status label in Portuguese.
-     */
-    private function getStatusLabel(string $status): string
-    {
-        return match ($status) {
-            'submitted' => 'Submetida',
-            'under_review' => 'Sob Revisão',
-            'assigned' => 'Atribuída',
-            'in_progress' => 'Em Andamento',
-            'pending_approval' => 'Pendente Aprovação',
-            'closed' => 'Concluída',
-            'rejected' => 'Rejeitada',
-            default => 'Desconhecida',
-        };
-    }
-
-    /**
-     * Mark grievance as in progress.
+     * Start working on a grievance.
      */
     public function startWork(Request $request, Grievance $grievance): RedirectResponse
     {
-        $this->ensureOwnership($request->user(), $grievance);
+        $this->ensureTechnician($request->user());
 
-        if (!in_array($grievance->status, ['submitted', 'under_review', 'assigned'])) {
-            return back()->with('warning', 'Esta reclamação já foi iniciada ou aguarda aprovação.');
+        // Ensure technician can only work on assigned grievances
+        if ($grievance->assigned_to !== $request->user()->id) {
+            return back()->with('error', 'Você não tem permissão para trabalhar nesta reclamação.');
         }
 
-        $metadata = $grievance->metadata ?? [];
-        $metadata['started_by'] = $request->user()->id;
-        $metadata['started_at'] = now()->toIso8601String();
+        if ($grievance->status !== 'assigned') {
+            return back()->with('warning', 'Esta reclamação não pode ser iniciada.');
+        }
 
-        $grievance->update([
-            'status' => 'in_progress',
-            'metadata' => $metadata,
-        ]);
+        DB::transaction(function () use ($grievance, $request) {
+            $grievance->update(['status' => 'in_progress']);
 
-        return back()->with('success', 'Reclamação marcada como "Em Andamento".');
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'status_changed',
+                userId: $request->user()->id,
+                description: 'Técnico iniciou o trabalho na reclamação',
+                metadata: [
+                    'previous_status' => 'assigned',
+                    'new_status' => 'in_progress',
+                    'started_by' => $request->user()->name,
+                ],
+                isPublic: true
+            );
+        });
+
+        return back()->with('success', 'Trabalho iniciado com sucesso.');
     }
 
     /**
-     * Store a technician update/comment with optional attachments.
+     * Store an update for the grievance.
      */
     public function storeUpdate(Request $request, Grievance $grievance): RedirectResponse
     {
-        $this->ensureOwnership($request->user(), $grievance);
+        $this->ensureTechnician($request->user());
 
-        $validated = $request->validate([
-            'comment' => ['nullable', 'string', 'min:5'],
-            'description' => ['nullable', 'string', 'max:255'],
-            'is_public' => ['sometimes', 'boolean'],
+        // Ensure technician can only update assigned grievances
+        if ($grievance->assigned_to !== $request->user()->id) {
+            return back()->with('error', 'Você não tem permissão para atualizar esta reclamação.');
+        }
+
+        $data = $request->validate([
+            'comment' => ['required', 'string', 'min:10', 'max:2000'],
+            'is_public' => ['boolean'],
             'attachments' => ['nullable', 'array', 'max:5'],
             'attachments.*' => ['file', 'mimes:jpeg,jpg,png,pdf,doc,docx', 'max:10240'],
         ]);
 
-        if (empty($validated['comment']) && !$request->hasFile('attachments')) {
-            throw ValidationException::withMessages([
-                'comment' => 'Adicione um comentário ou anexos para registar a atualização.',
-            ]);
-        }
-
         DB::beginTransaction();
 
         try {
-            $isPublic = $validated['is_public'] ?? true;
+            // Store the update
             $update = GrievanceUpdate::log(
                 grievanceId: $grievance->id,
                 actionType: 'comment_added',
                 userId: $request->user()->id,
-                description: $validated['description'] ?? 'Atualização do técnico',
-                comment: $validated['comment'] ?? null,
-                isPublic: $isPublic
+                description: 'Técnico adicionou uma atualização',
+                comment: $data['comment'],
+                isPublic: $data['is_public'] ?? true
             );
 
+            // Handle attachments
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
-                    $attachment = $this->storeAttachment($grievance, $file);
+                    $attachment = $this->storeAttachment($grievance, $file, 'technician_update');
 
                     GrievanceUpdate::log(
                         grievanceId: $grievance->id,
                         actionType: 'attachment_added',
                         userId: $request->user()->id,
-                        description: 'Evidência anexada pelo técnico',
+                        description: 'Anexo adicionado pelo técnico',
                         metadata: [
                             'attachment_id' => $attachment->id,
                             'filename' => $attachment->original_filename,
                         ],
-                        isPublic: $isPublic
+                        isPublic: true
                     );
                 }
             }
 
             DB::commit();
 
-            if ($update->is_public) {
-                $grievance->loadMissing('user');
-                $this->notificationService->notifyCommentAdded($grievance, $update);
-            }
-
-            return back()->with('success', 'Atualização registada com sucesso.');
+            return back()->with('success', 'Atualização adicionada com sucesso.');
         } catch (\Throwable $exception) {
             DB::rollBack();
-            Log::error('Erro ao guardar atualização do técnico', [
+            Log::error('Erro ao adicionar atualização', [
                 'grievance_id' => $grievance->id,
                 'user_id' => $request->user()->id,
                 'exception' => $exception->getMessage(),
@@ -196,23 +144,23 @@ class TechnicianGrievanceController extends Controller
     }
 
     /**
-     * Request final approval from the manager.
+     * Request completion approval from manager.
      */
     public function requestCompletion(Request $request, Grievance $grievance): RedirectResponse
     {
-        $this->ensureOwnership($request->user(), $grievance);
+        $this->ensureTechnician($request->user());
 
-        if ($grievance->status === 'pending_approval') {
-            return back()->with('info', 'Esta reclamação já aguarda aprovação do gestor.');
+        // Ensure technician can only request completion for assigned grievances
+        if ($grievance->assigned_to !== $request->user()->id) {
+            return back()->with('error', 'Você não tem permissão para solicitar conclusão desta reclamação.');
         }
 
         if ($grievance->status !== 'in_progress') {
-            return back()->with('warning', 'Só é possível solicitar conclusão para reclamações em andamento.');
+            return back()->with('warning', 'Apenas reclamações em andamento podem ser solicitadas para conclusão.');
         }
 
-        $validated = $request->validate([
-            'resolution_summary' => ['required', 'string', 'min:10'],
-            'notify_user' => ['sometimes', 'boolean'],
+        $data = $request->validate([
+            'resolution_notes' => ['required', 'string', 'min:20', 'max:5000'],
             'attachments' => ['nullable', 'array', 'max:5'],
             'attachments.*' => ['file', 'mimes:jpeg,jpg,png,pdf,doc,docx', 'max:10240'],
         ]);
@@ -220,53 +168,43 @@ class TechnicianGrievanceController extends Controller
         DB::beginTransaction();
 
         try {
-            $metadata = $grievance->metadata ?? [];
-            $metadata['pending_approval_requested_at'] = now()->toIso8601String();
-            $metadata['pending_approval_requested_by'] = $request->user()->id;
-
             $grievance->update([
                 'status' => 'pending_approval',
-                'resolution_notes' => $validated['resolution_summary'],
-                'metadata' => $metadata,
+                'resolution_notes' => $data['resolution_notes'],
             ]);
 
-            $isPublic = $validated['notify_user'] ?? true;
-
-            $summaryUpdate = GrievanceUpdate::log(
+            // Log the completion request
+            GrievanceUpdate::log(
                 grievanceId: $grievance->id,
-                actionType: 'comment_added',
+                actionType: 'completion_requested',
                 userId: $request->user()->id,
-                description: 'Técnico solicitou a conclusão da reclamação',
-                comment: $validated['resolution_summary'],
-                isPublic: $isPublic
+                description: 'Técnico solicitou aprovação da conclusão',
+                comment: $data['resolution_notes'],
+                isPublic: true
             );
 
+            // Handle attachments
             if ($request->hasFile('attachments')) {
                 foreach ($request->file('attachments') as $file) {
-                    $attachment = $this->storeAttachment($grievance, $file);
+                    $attachment = $this->storeAttachment($grievance, $file, 'completion_request');
 
                     GrievanceUpdate::log(
                         grievanceId: $grievance->id,
                         actionType: 'attachment_added',
                         userId: $request->user()->id,
-                        description: 'Evidência final anexada',
+                        description: 'Evidência de conclusão adicionada',
                         metadata: [
                             'attachment_id' => $attachment->id,
                             'filename' => $attachment->original_filename,
                         ],
-                        isPublic: $isPublic
+                        isPublic: true
                     );
                 }
             }
 
             DB::commit();
 
-            if ($summaryUpdate->is_public) {
-                $grievance->loadMissing('user');
-                $this->notificationService->notifyCommentAdded($grievance, $summaryUpdate);
-            }
-
-            return back()->with('success', 'Solicitação de conclusão enviada ao gestor.');
+            return back()->with('success', 'Solicitação de conclusão enviada ao gestor para aprovação.');
         } catch (\Throwable $exception) {
             DB::rollBack();
             Log::error('Erro ao solicitar conclusão', [
@@ -280,21 +218,21 @@ class TechnicianGrievanceController extends Controller
     }
 
     /**
-     * Ensure the authenticated technician can manage the grievance.
+     * Ensure authenticated user is a technician.
      */
-    private function ensureOwnership(?User $user, Grievance $grievance): void
+    private function ensureTechnician($user): void
     {
         abort_if(!$user || !$user->hasRole('Técnico'), 403);
-        abort_if($grievance->assigned_to !== $user->id, 403, 'Esta reclamação não está atribuída a si.');
     }
 
     /**
-     * Store an attachment for a grievance.
+     * Store attachments uploaded by the technician.
      */
-    private function storeAttachment(Grievance $grievance, UploadedFile $file): Attachment
+    private function storeAttachment(Grievance $grievance, UploadedFile $file, string $source): Attachment
     {
         $originalFilename = $file->getClientOriginalName();
         $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
+
         $path = $file->storeAs(
             'grievances/' . $grievance->id . '/attachments',
             $filename,
@@ -313,11 +251,10 @@ class TechnicianGrievanceController extends Controller
             'file_hash' => $fileHash,
             'is_encrypted' => false,
             'metadata' => [
-                'uploaded_via' => 'technician_dashboard',
+                'uploaded_via' => $source,
             ],
-            'uploaded_by' => auth('web')->user()?->id ?? null,
+            'uploaded_by' => auth()->id(),
             'uploaded_at' => now(),
         ]);
     }
 }
-

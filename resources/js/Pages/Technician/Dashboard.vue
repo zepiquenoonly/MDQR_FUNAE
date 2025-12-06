@@ -1,5 +1,5 @@
 <template>
-    <Layout :stats="safeStats">
+    <Layout :stats="safeStats" :role="'technician'">
         <div class="space-y-3 sm:space-y-6 px-3 sm:px-0">
             <!-- Header com bem-vindo -->
             <div>
@@ -18,6 +18,7 @@
                     description="Total em acompanhamento"
                     icon="UserGroupIcon"
                     trend="stable"
+                    color="blue"
                 />
                 <KpiCard
                     title="Em Andamento"
@@ -25,6 +26,7 @@
                     description="Processos ativos"
                     icon="ClockIcon"
                     trend="up"
+                    color="orange"
                 />
                 <KpiCard
                     title="Pendente Aprovação"
@@ -32,6 +34,7 @@
                     description="Aguardando gestor"
                     icon="CheckCircleIcon"
                     trend="down"
+                    color="yellow"
                 />
                 <KpiCard
                     title="Resolvidas no Mês"
@@ -39,6 +42,7 @@
                     description="Reconhecidas neste mês"
                     icon="CheckIcon"
                     trend="stable"
+                    color="green"
                 />
             </div>
 
@@ -59,14 +63,12 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
-import Layout from '@/Layouts/Layout.vue'
+import { router } from '@inertiajs/vue3'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import GrievancesList from '@/Components/Technician/GrievancesList.vue'
-
-// Usar usePage() para acessar as props de forma reativa
-const page = usePage()
+import { useCommonSafeProps } from '@/composables/usePageProps'
+import { buildRoute } from '@/utils/routes'
 
 const props = defineProps({
     user: {
@@ -99,20 +101,20 @@ const props = defineProps({
     },
 })
 
-// Computed properties seguras para evitar null errors
-const safeStats = computed(() => page.props.stats || props.stats || {})
-const safeGrievances = computed(() => page.props.grievances || props.grievances || { data: [] })
-const safeFilters = computed(() => page.props.filters || props.filters || {})
+// Usar composable para safe props - elimina repetição
+const { safeStats, safeGrievances, safeFilters } = useCommonSafeProps(props)
 
 // Handlers
 const navigateToGrievance = (grievance) => {
-    router.visit(route('technician.grievances.show', grievance.id), {
+    const url = buildRoute('technician.grievances.show', { grievance: grievance.id })
+    router.visit(url, {
         method: 'get',
     })
 }
 
 const updateFilters = (newFilters) => {
-    router.get(route('technician.dashboard'), newFilters, {
+    const url = buildRoute('technician.dashboard')
+    router.get(url, newFilters, {
         preserveState: true,
         preserveScroll: true,
         replace: true,

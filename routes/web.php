@@ -15,10 +15,6 @@ use App\Http\Controllers\TechnicianGrievanceController;
 use App\Http\Controllers\UtenteDashboardController;
 use Illuminate\Support\Facades\Route;
 
-/*Route::get('/', function () {
-    return inertia('Grievances/Home');
-})->name('grievances.home');*/
-
 Route::get('/', [GuestController::class, 'home'])->name('home');
 
 // Rotas de teste de emails (acessível sem autenticação para facilitar testes)
@@ -57,7 +53,6 @@ Route::middleware('auth')->group(function () {
     // Rotas específicas por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
     Route::get('/gestor/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
-
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
 
     // Dashboard do Utente com funcionalidades completas
@@ -70,6 +65,22 @@ Route::middleware('auth')->group(function () {
         ->name('user.notifications.read');
 
     Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
+
+    // ROTA UNIVERSAL PARA DETALHES DE PROJETOS
+    Route::get('/dashboard/project/{project}', function ($projectId) {
+        $project = \App\Models\Project::with(['objectives', 'finance', 'deadline'])->findOrFail($projectId);
+        $user = auth()->user();
+        
+        // Determinar permissões baseadas no role
+        $canEdit = $user->hasAnyRole(['Gestor', 'PCA']);
+        $userRole = $user->getRoleNames()->first();
+        
+        return inertia('Common/ProjectDetail', [
+            'project' => $project,
+            'canEdit' => $canEdit,
+            'userRole' => $userRole
+        ]);
+    })->name('dashboard.project.show');
 
     // Fluxo do técnico
     Route::patch('/technician/grievances/{grievance}/start', [TechnicianGrievanceController::class, 'startWork'])
@@ -98,14 +109,12 @@ Route::middleware('auth')->group(function () {
         Route::get('/export', [ManagerGrievanceController::class, 'export'])
             ->name('export');
 
-            Route::post('/grievances/bulk-assign', [GrievanceController::class, 'bulkAssign'])->name('complaints.bulk-assign');
-Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('complaints.export');
+        Route::post('/grievances/bulk-assign', [GrievanceController::class, 'bulkAssign'])->name('complaints.bulk-assign');
+        Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('complaints.export');
 
-         Route::get('/{grievance}', [ManagerGrievanceController::class, 'show'])
-        ->name('grievance.show');
-
+        Route::get('/{grievance}', [ManagerGrievanceController::class, 'show'])
+            ->name('grievance.show');
     });
-
 
     // Rotas do Perfil
     Route::prefix('profile')->group(function () {
@@ -117,7 +126,6 @@ Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('
 
         Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
         Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
-        //Route::patch('/extended', [ProfileController::class, 'updateExtended'])->name('profile.update.extended');
         Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
         Route::post('/avatar', [ProfileController::class, 'uploadAvatar'])->name('profile.avatar.upload');
@@ -130,109 +138,96 @@ Route::get('/grievances/export', [GrievanceController::class, 'export'])->name('
     // Download seguro de anexos
     Route::get('/attachments/{attachment}/download', [GrievanceController::class, 'downloadAttachment'])
         ->name('attachments.download');
-
-        // routes/web.php - adicione esta rota
-// routes/web.php - VERSÃO SIMPLIFICADA
-Route::get('/api/tecnicos', function () {
-    try {
-        // Buscar todos os usuários primeiro (para debug)
-        $allUsers = \App\Models\User::all();
-        \Log::info('Total de usuários no sistema: ' . $allUsers->count());
-
-        // Tentar buscar técnicos de forma segura
-        $tecnicos = \App\Models\User::whereHas('roles', function($query) {
-            $query->where('name', 'Técnico');
-        })->get();
-
-        \Log::info('Técnicos encontrados: ' . $tecnicos->count());
-
-        $tecnicosData = $tecnicos->map(function ($tecnico) {
-            return [
-                'id' => $tecnico->id,
-                'name' => $tecnico->name,
-                'email' => $tecnico->email,
-                'username' => $tecnico->username,
-                'phone' => $tecnico->phone ?? 'N/A',
-                'province' => $tecnico->province ?? 'N/A',
-                'district' => $tecnico->district ?? 'N/A',
-                'is_active' => true, // Valor padrão
-                'active_cases_count' => 0, // Valor padrão
-                'total_cases' => 0, // Valor padrão
-                'created_at' => $tecnico->created_at,
-            ];
-        });
-
-        $stats = [
-            'totalTecnicos' => $tecnicosData->count(),
-            'tecnicosAtivos' => $tecnicosData->count(), // Assumindo que todos estão ativos
-            'casosAtribuidos' => 0, // Valor padrão
-        ];
-
-        return response()->json([
-            'tecnicos' => $tecnicosData,
-            'stats' => $stats
-        ]);
-
-    } catch (\Exception $e) {
-        \Log::error('Erro crítico na API Tecnicos: ' . $e->getMessage());
-
-        // Retornar dados vazios mas sem erro 500
-        return response()->json([
-            'tecnicos' => [],
-            'stats' => [
-                'totalTecnicos' => 0,
-                'tecnicosAtivos' => 0,
-                'casosAtribuidos' => 0
-            ]
-        ]);
-    }
-})->name('api.tecnicos.index');
-
-Route::get('/api/tecnicos/{tecnicoId}/desempenho', function ($tecnicoId) {
-    try {
-        $tecnico = \App\Models\User::findOrFail($tecnicoId);
-
-        // Dados de desempenho (exemplo - implemente conforme sua lógica de negócio)
-        $desempenho = [
-            'estatisticas_gerais' => [
-                'total_casos' => 150,
-                'casos_resolvidos' => 120,
-                'taxa_sucesso' => 80,
-                'tempo_medio' => 3.5,
-            ],
-            'desempenho_mensal' => [
-                'casos_atribuidos' => 15,
-                'casos_resolvidos' => 12,
-                'em_progresso' => 3,
-                'taxa_resolucao' => 80,
-            ],
-            'casos_mensais' => [
-                // Array de casos do mês
-            ],
-            'historico_mensal' => [
-                // Array de histórico dos últimos meses
-            ]
-        ];
-
-        return response()->json($desempenho);
-
-    } catch (\Exception $e) {
-        \Log::error('Erro ao carregar desempenho do técnico: ' . $e->getMessage());
-        return response()->json(['error' => 'Erro ao carregar dados'], 500);
-    }
-})->name('api.tecnicos.desempenho');
-
-
 });
 
-// Rotas de Projects (API)
-Route::get('/api/projects', [ProjectController::class, 'index'])->name('api.projects.index');
-Route::get('/api/projects/{project}', [ProjectController::class, 'show'])->name('api.projects.show');
-Route::post('/api/projects', [ProjectController::class, 'store'])->name('api.projects.store');
-Route::post('/api/projects/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
-Route::delete('/api/projects/{project}', [ProjectController::class, 'destroy'])->name('api.projects.destroy');
+// API Routes (acessível para usuários autenticados)
+Route::middleware('auth')->group(function () {
+    // API Tecnicos
+    Route::get('/api/tecnicos', function () {
+        try {
+            $tecnicos = \App\Models\User::whereHas('roles', function($query) {
+                $query->where('name', 'Técnico');
+            })->get();
 
-// Rotas de reclamações
+            $tecnicosData = $tecnicos->map(function ($tecnico) {
+                return [
+                    'id' => $tecnico->id,
+                    'name' => $tecnico->name,
+                    'email' => $tecnico->email,
+                    'username' => $tecnico->username,
+                    'phone' => $tecnico->phone ?? 'N/A',
+                    'province' => $tecnico->province ?? 'N/A',
+                    'district' => $tecnico->district ?? 'N/A',
+                    'is_active' => true,
+                    'active_cases_count' => 0,
+                    'total_cases' => 0,
+                    'created_at' => $tecnico->created_at,
+                ];
+            });
+
+            $stats = [
+                'totalTecnicos' => $tecnicosData->count(),
+                'tecnicosAtivos' => $tecnicosData->count(),
+                'casosAtribuidos' => 0,
+            ];
+
+            return response()->json([
+                'tecnicos' => $tecnicosData,
+                'stats' => $stats
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro crítico na API Tecnicos: ' . $e->getMessage());
+
+            return response()->json([
+                'tecnicos' => [],
+                'stats' => [
+                    'totalTecnicos' => 0,
+                    'tecnicosAtivos' => 0,
+                    'casosAtribuidos' => 0
+                ]
+            ]);
+        }
+    })->name('api.tecnicos.index');
+
+    Route::get('/api/tecnicos/{tecnicoId}/desempenho', function ($tecnicoId) {
+        try {
+            $tecnico = \App\Models\User::findOrFail($tecnicoId);
+
+            $desempenho = [
+                'estatisticas_gerais' => [
+                    'total_casos' => 150,
+                    'casos_resolvidos' => 120,
+                    'taxa_sucesso' => 80,
+                    'tempo_medio' => 3.5,
+                ],
+                'desempenho_mensal' => [
+                    'casos_atribuidos' => 15,
+                    'casos_resolvidos' => 12,
+                    'em_progresso' => 3,
+                    'taxa_resolucao' => 80,
+                ],
+                'casos_mensais' => [],
+                'historico_mensal' => []
+            ];
+
+            return response()->json($desempenho);
+
+        } catch (\Exception $e) {
+            \Log::error('Erro ao carregar desempenho do técnico: ' . $e->getMessage());
+            return response()->json(['error' => 'Erro ao carregar dados'], 500);
+        }
+    })->name('api.tecnicos.desempenho');
+
+    // Rotas de Projects (API)
+    Route::get('/api/projects', [ProjectController::class, 'index'])->name('api.projects.index');
+    Route::get('/api/projects/{project}', [ProjectController::class, 'show'])->name('api.projects.show');
+    Route::post('/api/projects', [ProjectController::class, 'store'])->name('api.projects.store');
+    Route::post('/api/projects/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
+    Route::delete('/api/projects/{project}', [ProjectController::class, 'destroy'])->name('api.projects.destroy');
+});
+
+// Rotas de reclamações (acessíveis sem autenticação)
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
 Route::get('/reclamacoes/acompanhar', function () {
     return inertia('Grievances/Track');
