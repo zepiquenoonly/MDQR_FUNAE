@@ -4,9 +4,30 @@
 > Sistema desenvolvido para o Fundo de Energia de Moçambique (FUNAE)
 
 ---
-## 🆕 Novidades & Changelog (Nov/2025)
+## 🆕 Novidades & Changelog
 
-### Funcionalidades Implementadas
+### Dezembro 2025
+
+#### Melhorias no Formulário de Submissão (06/12/2025)
+- ⏱️ **Aumento do tempo de auto-fechamento do modal de sucesso**: Timer aumentado de 5 para 60 segundos
+- 📧 **Campos de contato opcionais**: Nome e email agora opcionais para submissões anônimas
+- ✉️ **Melhoria da mensagem do modal**: Aviso explícito sobre fechamento em 60s e necessidade de salvar código
+- 🚀 **Modal de submissão direto da landing page**: Acesso imediato ao formulário desde a página inicial
+- 🎨 **Melhorias na landing page**: Textos revisados e footer aprimorado para melhor usabilidade
+
+#### Seeder de Performance (04/12/2025)
+- 📊 **PerformanceTestSeeder**: Geração de 15 projetos, 500 utentes, 20 técnicos, 2000 reclamações
+- 🎯 **Atribuição inteligente**: Técnicos priorizados por projeto relacionado
+- ⚡ **Inserção otimizada**: Performance mantida com grandes volumes de dados
+
+#### Sistema de Autenticação (04/12/2025)
+- 🔐 **RedirectIfAuthenticated refatorado**: Redirecionamento baseado em papel do usuário
+- 🛡️ **Proteção completa**: Usuários logados não acessam rotas de login/register
+- ✅ **Cobertura de testes**: Testes automatizados para todos cenários de redirecionamento
+
+### Novembro 2025
+
+#### Funcionalidades Implementadas
 - Dashboard Utente, PCA, Técnico e Gestor completos com análise por tipos de submissão
 - Padronização completa Dashboard Utente
 - Theme Toggle (Dark/Light Mode) funcional
@@ -16,7 +37,7 @@
 - Links "Meu Perfil" e "Acompanhamento" em todos os menus
 - Novo usuário 'Utente' com mesmas credenciais padrão
 
-### Erros Corrigidos
+#### Erros Corrigidos
 - MenuItem.vue: popupTimer duplicado removido
 - Complaints.vue: Erro "Unexpected token '<'" (fetch HTML como JSON) resolvido
 - Complaints.vue: Código duplicado (console.error e finally) removido
@@ -361,7 +382,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 0.4  
-**Última Atualização:** 24 de Novembro de 2025  
+**Versão:** 1.0  
+**Última Atualização:** 6 de Dezembro de 2025  
 **Status:** ✅ Em Produção
 
