@@ -90,9 +90,6 @@
                     <h2 class="text-2xl font-bold text-white">Nova Submissão</h2>
                     <p class="text-orange-100 text-sm mt-1">Preencha os dados abaixo para registar a sua submissão</p>
                 </div>
-                <button @click="$emit('close')" class="absolute right-4 top-4 text-white hover:text-orange-200 transition-colors p-2 rounded-full hover:bg-white/10">
-                    <XMarkIcon class="w-6 h-6" />
-                </button>
             </div>
 
             <!-- Step Indicators -->
