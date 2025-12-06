@@ -71,7 +71,7 @@
                         <p class="text-sm text-gray-600 mb-1">Código de Rastreio:</p>
                         <p class="text-2xl font-mono font-bold text-orange-600">{{ submissionResult.reference_number }}</p>
                     </div>
-                    <p class="text-sm text-gray-500 mb-6">Guarde este código para acompanhar o estado da sua submissão.</p>
+                    <p class="text-sm text-gray-500 mb-6">Esta mensagem será fechada automaticamente em 60 segundos. Guarde este código para acompanhar o estado da sua submissão.</p>
                     <!-- <button @click="closeSuccessAndForm"
                         class="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
                         Entendido
