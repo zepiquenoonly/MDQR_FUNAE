@@ -208,16 +208,34 @@
                             </div>
                         </div>
 
-                        <!-- Formulário de Dados Pessoais (visível quando NÃO é anónimo) -->
+                        <!-- Mensagem de Anonimato -->
                         <transition name="fade-slide">
-                            <div v-if="!formData.is_anonymous" class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
+                            <div v-if="formData.is_anonymous" class="bg-orange-50 border border-orange-200 rounded-xl p-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                                        <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
+                                        <p class="text-sm text-orange-700">
+                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
+                                            No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <!-- Formulário de Dados Pessoais (visível sempre — campos opcionais para anónimo) -->
+                        <transition name="fade-slide">
+                            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
                                 <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                                         <UserIcon class="w-5 h-5 text-blue-600" />
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">Seus Dados</h3>
-                                        <p class="text-sm text-gray-500">Forneça as informações para contacto</p>
+                                        <p class="text-sm text-gray-500">Forneça as informações para contacto (opcional para submissões anónimas)</p>
                                     </div>
                                 </div>
 
@@ -225,7 +243,7 @@
                                     <!-- Nome -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-semibold text-gray-700">
-                                            Nome Completo <span class="text-red-500">*</span>
+                                            Nome Completo
                                         </label>
                                         <div class="relative">
                                             <UserIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -245,7 +263,7 @@
                                     <!-- Email -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-semibold text-gray-700">
-                                            Email <span class="text-red-500">*</span>
+                                            Email
                                         </label>
                                         <div class="relative">
                                             <EnvelopeIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -273,24 +291,6 @@
                                                 class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                                                 placeholder="+258 84 XXX XXXX" />
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </transition>
-
-                        <!-- Mensagem de Anonimato -->
-                        <transition name="fade-slide">
-                            <div v-if="formData.is_anonymous" class="bg-orange-50 border border-orange-200 rounded-xl p-6">
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                                        <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
-                                        <p class="text-sm text-orange-700">
-                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
-                                            No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
-                                        </p>
                                     </div>
                                 </div>
                             </div>
