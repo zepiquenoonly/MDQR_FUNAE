@@ -1,8 +1,8 @@
 <script setup>
-import { DocumentIcon, ArrowDownTrayIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon } from '@heroicons/vue/24/outline';
+import { DocumentIcon, ArrowDownTrayIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline';
 import { ref } from 'vue';
 
-defineProps({
+const props = defineProps({
     attachments: {
         type: Array,
         default: () => []
@@ -23,6 +23,7 @@ const formatFileSize = (bytes) => {
 const getFileIcon = (mimeType) => {
     if (mimeType.startsWith('image/')) return PhotoIcon;
     if (mimeType.startsWith('video/')) return FilmIcon;
+    if (mimeType.startsWith('audio/')) return MusicalNoteIcon;
     if (mimeType === 'application/pdf') return DocumentIcon;
     if (mimeType.includes('word')) return DocumentTextIcon;
     if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return TableCellsIcon;
@@ -42,7 +43,8 @@ const viewAttachment = (attachment) => {
 const canPreviewInline = (mimeType) => {
     return mimeType.startsWith('image/') ||
            mimeType === 'application/pdf' ||
-           mimeType.startsWith('text/');
+           mimeType.startsWith('text/') ||
+           mimeType.startsWith('audio/');
 };
 
 const closeStorageModal = () => {

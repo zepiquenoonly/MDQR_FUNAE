@@ -377,7 +377,8 @@ class GrievanceController extends Controller
         // Só permitir tipos de arquivo seguros
         $allowedTypes = [
             'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-            'application/pdf'
+            'application/pdf',
+            'audio/webm', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/mpeg'
         ];
 
         if (!in_array($attachment->mime_type, $allowedTypes)) {
