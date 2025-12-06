@@ -14,6 +14,7 @@ const routes = {
   'profile.edit': '/profile',
   'logout': '/logout',
   'track': '/track',
+  'grievance.track.search': '/track',
   'login': '/login',
   'register': '/register'
 }

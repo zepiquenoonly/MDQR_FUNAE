@@ -53,7 +53,7 @@ const searchGrievance = async () => {
             return;
         }
 
-        const response = await fetch(route('grievance.track.search'), {
+        const response = await fetch(window.location.origin + window.route('grievance.track.search'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -68,8 +68,10 @@ const searchGrievance = async () => {
         if (!response.ok) {
             if (response.status === 419) {
                 error.value = 'Sessão expirada. Por favor, recarregue a página.';
-            } else {
+            } else if (response.status === 404) {
                 showNotFoundModal.value = true;
+            } else {
+                error.value = `Erro ao buscar reclamação (${response.status}). Tente novamente.`;
             }
             console.error('HTTP Error:', response.status, response.statusText);
             return;
@@ -83,7 +85,7 @@ const searchGrievance = async () => {
             showNotFoundModal.value = true;
         }
     } catch (err) {
-        showNotFoundModal.value = true;
+        error.value = 'Erro de conexão. Verifique sua internet e tente novamente.';
         console.error('Fetch error:', err);
     } finally {
         isLoading.value = false;
