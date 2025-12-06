@@ -45,6 +45,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Geração de código único de rastreio
 - Envio de notificação de confirmação por email *(configuração de emails automáticos realizada, recomenda-se validação em produção)*
 - **Uso consistente de ícones (sem emojis)** *(Heroicons implementados em todo o formulário)*
+- **Modal de submissão acessível diretamente da landing page** *(implementado em 06/12/2025)*
 
 ### Parcialmente Implementado (Fluxo 1)
 
@@ -64,6 +65,9 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ Substituição de emojis por ícones *(implementado em 03/12/2025)*
 - ✅ Campo `description` agora pode ser nulo *(migration e controller atualizados — implementado em 04/12/2025)*
 - ✅ Campo `project_id` no formulário é opcional no frontend e aceito como `nullable` pelo backend *(implementado em 04/12/2025)*
+- ✅ Aumento do tempo de auto-fechamento do modal de sucesso de 5 para 60 segundos *(implementado em 06/12/2025)*
+- ✅ Campos de contato (nome e email) tornados opcionais para submissões anônimas, permitindo que usuários anônimos forneçam informações de contato opcionais para acompanhamento *(implementado em 06/12/2025)*
+- ✅ Melhoria da mensagem do modal de sucesso para alertar explicitamente que o modal fechará em 60 segundos e que o usuário deve salvar o código de rastreio *(implementado em 06/12/2025)*
 
 ## Fluxo 2: Triagem e Atribuição de Reclamação
 
@@ -304,3 +308,12 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **PerformanceTestSeeder**: criado/ajustado para gerar 15 projetos, associar técnicos, criar grandes volumes de dados (500 utentes, 2000 reclamações) e priorizar atribuição por projeto.
 - **Anexos & Downloads**: suporte a upload múltiplo, armazenamento seguro, abertura inline no navegador e downloads por utente/público via rastreamento.
 - **Testes**: novos testes de redirecionamento de autenticação e seeding validados via tinker.
+
+## Novas funcionalidades (06/12/2025)
+
+- **Aumento do tempo de auto-fechamento do modal de sucesso**: Timer aumentado de 5 para 60 segundos para dar mais tempo aos usuários salvarem o código de rastreio.
+- **Campos de contato opcionais para submissões anônimas**: Nome e email agora são opcionais, permitindo que usuários anônimos forneçam informações de contato voluntariamente para acompanhamento.
+- **Melhoria da mensagem do modal de sucesso**: Adicionado aviso explícito de que o modal fechará em 60 segundos e instrução para salvar o código de rastreio.
+- **Modal de submissão acessível diretamente da landing page**: Implementado acesso direto ao formulário de reclamações a partir da página inicial, facilitando a submissão imediata.
+- **Melhorias no footer da landing page**: Atualizações visuais e de conteúdo no rodapé para melhor usabilidade e informações.
+- **Melhorias nos textos da landing page**: Revisão e aprimoramento dos textos para maior clareza, engajamento e alinhamento com a identidade do projeto.
