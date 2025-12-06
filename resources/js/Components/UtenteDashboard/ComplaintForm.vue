@@ -1,5 +1,6 @@
 <template>
-    <div v-if="visible" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div v-if="visible">
+        <div v-if="!props.embedded" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"></div>
         <!-- Toast Notification -->
         <transition name="slide-fade">
             <div v-if="toast.show" :class="[
@@ -21,8 +22,8 @@
 
         <!-- Error Modal (quando submissão falha) -->
         <transition name="zoom">
-            <div v-if="showErrorModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative">
+            <div v-if="showErrorModal" :class="props.embedded ? 'relative z-10' : 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]'">
+                <div :class="props.embedded ? 'bg-white rounded-2xl shadow p-6 max-w-full mx-0 text-left' : 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative'">
                     <!-- Botão X no canto superior direito -->
                     <button @click="closeErrorModal"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
@@ -53,13 +54,13 @@
 
         <!-- Success Modal -->
         <transition name="zoom">
-            <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative">
-                    <!-- Botão X no canto superior direito -->
+            <div v-if="showSuccessModal" :class="props.embedded ? 'relative z-10' : 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]'">
+                <div :class="props.embedded ? 'bg-white rounded-2xl shadow p-6 max-w-full mx-0 text-left' : 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative'">
+                    <!-- Botão X no canto superior direito
                     <button @click="closeSuccessAndForm"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
                         <XMarkIcon class="w-6 h-6" />
-                    </button>
+                    </button> -->
 
                     <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircleIcon class="w-12 h-12 text-green-500" />
@@ -70,18 +71,18 @@
                         <p class="text-sm text-gray-600 mb-1">Código de Rastreio:</p>
                         <p class="text-2xl font-mono font-bold text-orange-600">{{ submissionResult.reference_number }}</p>
                     </div>
-                    <p class="text-sm text-gray-500 mb-6">Guarde este código para acompanhar o estado da sua submissão.</p>
-                    <button @click="closeSuccessAndForm"
+                    <p class="text-sm text-gray-500 mb-6">Esta mensagem será fechada automaticamente em 60 segundos. Guarde este código para acompanhar o estado da sua submissão.</p>
+                    <!-- <button @click="closeSuccessAndForm"
                         class="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
                         Entendido
-                    </button>
+                    </button> -->
                 </div>
             </div>
         </transition>
 
         <!-- Main Form Modal -->
         <transition name="zoom">
-            <div v-if="!showSuccessModal && !showErrorModal" class="bg-white rounded-2xl shadow-2xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden">
+            <div v-if="!showSuccessModal && !showErrorModal" :class="props.embedded ? 'bg-white rounded-2xl shadow w-full max-h-[80vh] flex flex-col overflow-hidden' : 'bg-white rounded-2xl shadow-2xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden'">
 
             <!-- Header -->
             <div class="p-6 flex justify-between items-center bg-gradient-to-r from-orange-500 to-orange-600 relative">
@@ -89,9 +90,6 @@
                     <h2 class="text-2xl font-bold text-white">Nova Submissão</h2>
                     <p class="text-orange-100 text-sm mt-1">Preencha os dados abaixo para registar a sua submissão</p>
                 </div>
-                <button @click="$emit('close')" class="absolute right-4 top-4 text-white hover:text-orange-200 transition-colors p-2 rounded-full hover:bg-white/10">
-                    <XMarkIcon class="w-6 h-6" />
-                </button>
             </div>
 
             <!-- Step Indicators -->
@@ -207,16 +205,34 @@
                             </div>
                         </div>
 
-                        <!-- Formulário de Dados Pessoais (visível quando NÃO é anónimo) -->
+                        <!-- Mensagem de Anonimato -->
                         <transition name="fade-slide">
-                            <div v-if="!formData.is_anonymous" class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
+                            <div v-if="formData.is_anonymous" class="bg-orange-50 border border-orange-200 rounded-xl p-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
+                                        <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
+                                        <p class="text-sm text-orange-700">
+                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
+                                            No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <!-- Formulário de Dados Pessoais (visível sempre — campos opcionais para anónimo) -->
+                        <transition name="fade-slide">
+                            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
                                 <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                                         <UserIcon class="w-5 h-5 text-blue-600" />
                                     </div>
                                     <div>
                                         <h3 class="text-lg font-semibold text-gray-900">Seus Dados</h3>
-                                        <p class="text-sm text-gray-500">Forneça as informações para contacto</p>
+                                        <p class="text-sm text-gray-500">Forneça as informações para contacto (opcional para submissões anónimas)</p>
                                     </div>
                                 </div>
 
@@ -224,7 +240,7 @@
                                     <!-- Nome -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-semibold text-gray-700">
-                                            Nome Completo <span class="text-red-500">*</span>
+                                            Nome Completo
                                         </label>
                                         <div class="relative">
                                             <UserIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -244,7 +260,7 @@
                                     <!-- Email -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-semibold text-gray-700">
-                                            Email <span class="text-red-500">*</span>
+                                            Email
                                         </label>
                                         <div class="relative">
                                             <EnvelopeIcon class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -272,24 +288,6 @@
                                                 class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                                                 placeholder="+258 84 XXX XXXX" />
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </transition>
-
-                        <!-- Mensagem de Anonimato -->
-                        <transition name="fade-slide">
-                            <div v-if="formData.is_anonymous" class="bg-orange-50 border border-orange-200 rounded-xl p-6">
-                                <div class="flex items-start gap-4">
-                                    <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
-                                        <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
-                                        <p class="text-sm text-orange-700">
-                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
-                                            No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
-                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -646,6 +644,10 @@ const props = defineProps({
     visible: {
         type: Boolean,
         default: true
+    },
+    embedded: {
+        type: Boolean,
+        default: false
     }
 })
 
@@ -1020,12 +1022,12 @@ const handleSubmit = async () => {
             emit('close')
             showSuccessModal.value = true
 
-            // Fechar automaticamente após 5 segundos
+            // Fechar automaticamente após 60 segundos
             setTimeout(() => {
                 if (showSuccessModal.value) {
                     closeSuccessAndForm()
                 }
-            }, 5000)
+            }, 60000)
         } else {
             // Mostrar modal de erro com detalhes
             if (data.errors) {

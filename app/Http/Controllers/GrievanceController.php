@@ -119,8 +119,9 @@ class GrievanceController extends Controller
                 'district' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
-                'contact_name' => 'required_if:is_anonymous,false,0|nullable|string|max:255',
-                'contact_email' => 'required_if:is_anonymous,false,0|nullable|email|max:255',
+                // Contact fields optional; validate when present
+                'contact_name' => 'sometimes|nullable|string|max:255',
+                'contact_email' => 'sometimes|nullable|email|max:255',
                 'contact_phone' => 'nullable|string|max:20',
                 'attachments' => 'nullable|array|max:5',
                 'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx|max:10240',
@@ -133,7 +134,7 @@ class GrievanceController extends Controller
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
-                'description' => $validated['description'],
+                'description' => $validated['description'] ?? null,
                 'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,

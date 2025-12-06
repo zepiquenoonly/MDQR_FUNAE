@@ -8,111 +8,92 @@
             leave-from-class="opacity-100"
             leave-to-class="opacity-0"
         >
-            <div v-if="show" class="fixed inset-0 z-50 px-4 py-6 overflow-y-auto sm:px-0" @click="handleBackdropClick">
+            <div v-if="show" class="fixed inset-0 z-50 overflow-y-auto" @click="handleBackdropClick">
                 <!-- Backdrop -->
-                <div class="fixed inset-0 bg-gray-900/75 backdrop-blur-sm"></div>
+                <div class="fixed inset-0 bg-black/60 backdrop-blur-sm"></div>
 
-                <!-- Modal -->
-                <Transition
-                    enter-active-class="transition duration-300 ease-out transform"
-                    enter-from-class="translate-y-4 opacity-0 sm:translate-y-0 sm:scale-95"
-                    enter-to-class="translate-y-0 opacity-100 sm:scale-100"
-                    leave-active-class="transition duration-200 ease-in transform"
-                    leave-from-class="translate-y-0 opacity-100 sm:scale-100"
-                    leave-to-class="translate-y-4 opacity-0 sm:translate-y-0 sm:scale-95"
-                >
-                    <div
-                        v-if="show"
-                        class="relative flex items-end justify-center min-h-screen sm:items-center"
-                        @click.stop
-                    >
-                        <div
-                            class="w-full max-w-md overflow-hidden transition-all transform bg-white shadow-2xl rounded-t-3xl sm:rounded-2xl"
-                            :class="maxWidth"
-                        >
-                            <!-- Icon & Content -->
-                            <div class="px-6 pt-8 pb-6 text-center">
-                                <!-- Icon -->
-                                <div v-if="type" class="flex items-center justify-center mx-auto mb-4">
-                                    <!-- Success Icon -->
-                                    <div
-                                        v-if="type === 'success'"
-                                        class="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full"
-                                    >
-                                        <svg class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- Centered modal container -->
+                <div class="relative min-h-screen px-4 py-10 flex items-center justify-center" @click.stop>
+                    <div :class="['w-full px-4', maxWidth]">
+                        <div class="relative overflow-hidden bg-white shadow-xl rounded-2xl">
+                            <!-- Header / Icon -->
+                            <div class="px-6 pt-6 pb-4">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1 pr-4">
+                                        <h3 v-if="title" class="mb-1 text-lg font-semibold text-gray-900">{{ title }}</h3>
+                                        <div v-if="message" class="text-sm text-gray-600">{{ message }}</div>
+                                    </div>
+                                    <div class="flex-shrink-0 ml-2">
+                                        <button
+                                            v-if="props.closeable"
+                                            @click="handleCancel"
+                                            type="button"
+                                            aria-label="Fechar"
+                                            class="inline-flex items-center justify-center w-9 h-9 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-200"
+                                        >
+                                            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div v-if="type" class="flex items-center justify-center mt-4">
+                                    <div v-if="type === 'success'" class="flex items-center justify-center w-14 h-14 bg-green-100 rounded-full">
+                                        <svg class="w-7 h-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                         </svg>
                                     </div>
-
-                                    <!-- Error Icon -->
-                                    <div
-                                        v-if="type === 'error'"
-                                        class="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full"
-                                    >
-                                        <svg class="w-8 h-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <div v-if="type === 'error'" class="flex items-center justify-center w-14 h-14 bg-red-100 rounded-full">
+                                        <svg class="w-7 h-7 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                                         </svg>
                                     </div>
-
-                                    <!-- Warning Icon -->
-                                    <div
-                                        v-if="type === 'warning'"
-                                        class="flex items-center justify-center w-16 h-16 bg-yellow-100 rounded-full"
-                                    >
-                                        <svg class="w-8 h-8 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                                    <div v-if="type === 'warning'" class="flex items-center justify-center w-14 h-14 bg-yellow-100 rounded-full">
+                                        <svg class="w-7 h-7 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01"/>
                                         </svg>
                                     </div>
-
-                                    <!-- Info Icon -->
-                                    <div
-                                        v-if="type === 'info'"
-                                        class="flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full"
-                                    >
-                                        <svg class="w-8 h-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    <div v-if="type === 'info'" class="flex items-center justify-center w-14 h-14 bg-blue-100 rounded-full">
+                                        <svg class="w-7 h-7 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01"/>
                                         </svg>
                                     </div>
                                 </div>
+                            </div>
 
-                                <!-- Title -->
-                                <h3 v-if="title" class="mb-2 text-xl font-bold text-gray-900">
-                                    {{ title }}
-                                </h3>
-
-                                <!-- Message -->
-                                <div v-if="message" class="mb-6 text-base text-gray-600">
-                                    {{ message }}
-                                </div>
-
-                                <!-- Slot for custom content -->
+                            <!-- Content slot -->
+                            <div class="px-6 pb-6">
                                 <slot />
                             </div>
 
                             <!-- Actions -->
-                            <div class="px-6 py-4 space-y-2 bg-gray-50">
-                                <button
-                                    v-if="confirmText"
-                                    @click="handleConfirm"
-                                    type="button"
-                                    class="w-full rounded-xl px-4 py-3.5 text-base font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all"
-                                    :class="confirmButtonClass"
-                                >
-                                    {{ confirmText }}
-                                </button>
+                            <!-- <div class="px-6 py-4 bg-gray-50">
+                                <div class="grid grid-cols-1 gap-3">
+                                    <button
+                                        v-if="confirmText"
+                                        @click="handleConfirm"
+                                        type="button"
+                                        class="w-full rounded-lg px-4 py-3 text-base font-semibold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-all"
+                                        :class="confirmButtonClass"
+                                    >
+                                        {{ confirmText }}
+                                    </button>
 
-                                <button
-                                    v-if="cancelText"
-                                    @click="handleCancel"
-                                    type="button"
-                                    class="w-full rounded-xl bg-white px-4 py-3.5 text-base font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all"
-                                >
-                                    {{ cancelText }}
-                                </button>
-                            </div>
+                                    <button
+                                        v-if="cancelText"
+                                        @click="handleCancel"
+                                        type="button"
+                                        class="w-full rounded-lg bg-white px-4 py-3 text-base font-semibold text-gray-700 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-400 transition-all"
+                                    >
+                                        {{ cancelText }}
+                                    </button>
+                                </div>
+                            </div> -->
+
                         </div>
                     </div>
-                </Transition>
+                </div>
             </div>
         </Transition>
     </Teleport>
@@ -138,10 +119,10 @@ const props = defineProps({
         type: String,
         default: null,
     },
-    confirmText: {
-        type: String,
-        default: 'OK',
-    },
+    // confirmText: {
+    //     type: String,
+    //     default: 'OK',
+    // },
     cancelText: {
         type: String,
         default: null,
