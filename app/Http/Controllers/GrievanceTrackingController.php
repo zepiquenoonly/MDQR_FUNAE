@@ -23,13 +23,13 @@ class GrievanceTrackingController extends Controller
     public function track(Request $request)
     {
         \Log::info('Track request received', ['data' => $request->all()]);
-        
+
         $request->validate([
             'reference_number' => ['required', 'string'],
         ]);
 
         $referenceNumber = strtoupper(trim($request->reference_number));
-        
+
         \Log::info('Searching for grievance', ['reference' => $referenceNumber]);
 
         // Find the grievance by reference number
@@ -39,6 +39,7 @@ class GrievanceTrackingController extends Controller
                 'user:id,name,email',
                 'assignedUser:id,name',
                 'resolvedBy:id,name',
+                'project:id,name',
                 'publicUpdates' => function ($query) {
                     $query->with('user:id,name')
                         ->orderBy('created_at', 'asc');
@@ -53,7 +54,7 @@ class GrievanceTrackingController extends Controller
                 'message' => 'Reclamação não encontrada. Verifique o código de rastreamento.',
             ], 404);
         }
-        
+
         \Log::info('Grievance found', ['id' => $grievance->id]);
 
         return response()->json([
@@ -67,6 +68,9 @@ class GrievanceTrackingController extends Controller
                 'status' => $grievance->status,
                 'status_label' => $grievance->status_label,
                 'priority' => $grievance->priority,
+                'priority_label' => $this->getPriorityLabel($grievance->priority),
+                'type' => $grievance->type,
+                'type_label' => $this->getTypeLabel($grievance->type),
                 'province' => $grievance->province,
                 'district' => $grievance->district,
                 'location_details' => $grievance->location_details,
@@ -79,6 +83,10 @@ class GrievanceTrackingController extends Controller
                 ] : null,
                 'resolved_by' => $grievance->resolvedBy ? [
                     'name' => $grievance->resolvedBy->name,
+                ] : null,
+                'project' => $grievance->project ? [
+                    'id' => $grievance->project->id,
+                    'name' => $grievance->project->name,
                 ] : null,
                 'attachments' => $grievance->attachments->map(function ($attachment) {
                     return [
@@ -105,5 +113,34 @@ class GrievanceTrackingController extends Controller
                 }),
             ],
         ]);
+    }
+
+    /**
+     * Get priority label in Portuguese
+     */
+    private function getPriorityLabel($priority)
+    {
+        $labels = [
+            'low' => 'Baixa',
+            'medium' => 'Média',
+            'high' => 'Alta',
+            'urgent' => 'Urgente',
+        ];
+
+        return $labels[$priority] ?? $priority;
+    }
+
+    /**
+     * Get type label in Portuguese
+     */
+    private function getTypeLabel($type)
+    {
+        $labels = [
+            'complaint' => 'Reclamação',
+            'suggestion' => 'Sugestão',
+            'inquiry' => 'Queixa',
+        ];
+
+        return $labels[$type] ?? $type;
     }
 }

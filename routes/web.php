@@ -28,7 +28,7 @@ Route::get('/grievances-home', function () {
 
 // Tracking de reclamação - acessível para todos (logados ou não)
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
-Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search')->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
@@ -70,11 +70,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/project/{project}', function ($projectId) {
         $project = \App\Models\Project::with(['objectives', 'finance', 'deadline'])->findOrFail($projectId);
         $user = auth()->user();
-        
+
         // Determinar permissões baseadas no role
         $canEdit = $user->hasAnyRole(['Gestor', 'PCA']);
         $userRole = $user->getRoleNames()->first();
-        
+
         return inertia('Common/ProjectDetail', [
             'project' => $project,
             'canEdit' => $canEdit,

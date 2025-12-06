@@ -53,7 +53,7 @@ const searchGrievance = async () => {
             return;
         }
 
-        const response = await fetch(route('grievance.track.search'), {
+        const response = await fetch(window.location.origin + window.route('grievance.track.search'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -68,8 +68,10 @@ const searchGrievance = async () => {
         if (!response.ok) {
             if (response.status === 419) {
                 error.value = 'Sessão expirada. Por favor, recarregue a página.';
-            } else {
+            } else if (response.status === 404) {
                 showNotFoundModal.value = true;
+            } else {
+                error.value = `Erro ao buscar reclamação (${response.status}). Tente novamente.`;
             }
             console.error('HTTP Error:', response.status, response.statusText);
             return;
@@ -83,7 +85,7 @@ const searchGrievance = async () => {
             showNotFoundModal.value = true;
         }
     } catch (err) {
-        showNotFoundModal.value = true;
+        error.value = 'Erro de conexão. Verifique sua internet e tente novamente.';
         console.error('Fetch error:', err);
     } finally {
         isLoading.value = false;
@@ -301,8 +303,38 @@ const categoryLabels = {
 
                     <!-- Stats Grid - Glassmorphism Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 relative z-10">
+                        <!-- Type Card -->
+                        <div v-if="grievance.type" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-purple-300/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-purple-500/5 hover:bg-white/80">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                                    <DocumentTextIcon class="w-6 h-6 text-purple-600" />
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Tipo</p>
+                                    <p class="text-sm font-semibold text-gray-900">
+                                        {{ grievance.type_label || grievance.type }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Priority Card -->
+                        <div v-if="grievance.priority" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-red-300/50 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-red-500/5 hover:bg-white/80">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-red-500/20 to-orange-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                                    <ExclamationTriangleIcon class="w-6 h-6 text-red-600" />
+                                </div>
+                                <div>
+                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Prioridade</p>
+                                    <p class="text-sm font-semibold text-gray-900">
+                                        {{ grievance.priority_label || grievance.priority }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Category Card -->
-                        <div class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-blue-300/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-blue-500/5 hover:bg-white/80">
+                        <!-- <div class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-blue-300/50 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-blue-500/5 hover:bg-white/80">
                             <div class="flex items-center gap-4">
                                 <div class="w-12 h-12 bg-gradient-to-br from-blue-500/20 to-purple-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                     <DocumentTextIcon class="w-6 h-6 text-blue-600" />
@@ -314,7 +346,7 @@ const categoryLabels = {
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
                         <!-- Location Card -->
                         <div v-if="grievance.province" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-cyan-300/50 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-cyan-500/5 hover:bg-white/80">
@@ -339,25 +371,35 @@ const categoryLabels = {
                                     <UserIcon class="w-6 h-6 text-emerald-600" />
                                 </div>
                                 <div>
-                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Técnico</p>
+                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Técnico Responsável</p>
                                     <p class="text-sm font-semibold text-gray-900">
                                         {{ grievance.assigned_user.name }}
                                     </p>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        <!-- Project Card -->
-                        <div v-if="grievance.project" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-amber-300/50 hover:shadow-xl hover:shadow-amber-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-amber-500/5 hover:bg-white/80">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 bg-gradient-to-br from-amber-500/20 to-orange-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-                                    <BuildingOfficeIcon class="w-6 h-6 text-amber-600" />
+                    <!-- Project Information Section (if exists) -->
+                    <div v-if="grievance.project" class="mb-8">
+                        <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                            <div class="flex items-start gap-4">
+                                <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                                    <BuildingOfficeIcon class="w-6 h-6 text-white" />
                                 </div>
-                                <div>
-                                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Projeto</p>
-                                    <p class="text-sm font-semibold text-gray-900">
-                                        {{ grievance.project.name }}
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Projeto Relacionado</h3>
+                                    <p class="text-xl font-bold text-blue-900 mb-3">{{ grievance.project.name }}</p>
+                                    <p v-if="grievance.project.description" class="text-gray-700 mb-4 leading-relaxed bg-white/60 rounded-lg p-4 border border-blue-100">
+                                        {{ grievance.project.description }}
                                     </p>
+                                    <div v-if="grievance.project.province || grievance.project.district" class="flex flex-wrap items-center gap-3">
+                                        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-700 border border-blue-200">
+                                            <MapPinIcon class="w-4 h-4 text-blue-600" />
+                                            {{ grievance.project.province }}
+                                            <span v-if="grievance.project.district" class="text-gray-500">• {{ grievance.project.district }}</span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
