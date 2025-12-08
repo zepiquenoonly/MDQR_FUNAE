@@ -67,7 +67,7 @@ import { router } from '@inertiajs/vue3'
 import Layout from '@/Layouts/UnifiedLayout.vue'
 import KpiCard from '@/Components/GestorReclamacoes/KpiCard.vue'
 import GrievancesList from '@/Components/Technician/GrievancesList.vue'
-import { useCommonSafeProps } from '@/composables/usePageProps'
+import { useCommonSafeProps } from '@/Composables/usePageProps'
 import { buildRoute } from '@/utils/routes'
 
 const props = defineProps({

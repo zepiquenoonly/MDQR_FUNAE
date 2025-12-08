@@ -42,7 +42,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import Sidebar from '@/Components/UtenteDashboard/Sidebar.vue'
 import Header from '@/Components/UtenteDashboard/Header.vue'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/Composables/useAuth'
 
 const props = defineProps({
   user: {

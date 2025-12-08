@@ -185,8 +185,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import { router } from '@inertiajs/vue3'
-import { useAuth } from '@/composables/useAuth'
-import { useNavigation } from '@/composables/useNavigation'
+import { useAuth } from '@/Composables/useAuth'
+import { useNavigation } from '@/Composables/useNavigation'
 import { getRoleLabel } from '@/utils/roles'
 
 const props = defineProps({

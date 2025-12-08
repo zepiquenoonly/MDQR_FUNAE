@@ -109,8 +109,8 @@
 <script setup>
 import { ref, watch, computed } from 'vue'
 import { usePage } from '@inertiajs/vue3'
-import { useDashboard } from '@/composables/useDashboard'
-import { usePageProps } from '@/composables/usePageProps'
+import { useDashboard } from '@/Composables/useDashboard'
+import { usePageProps } from '@/Composables/usePageProps'
 import Layout from '@/Layouts/UnifiedLayout.vue'
 import StatsGrid from '@/Components/UtenteDashboard/StatsGrid.vue'
 import Breadcrumb from '@/Components/UtenteDashboard/Breadcrumb.vue'

@@ -289,7 +289,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { useToast } from '@/Composables/useToast'
-import { useMozambiqueLocations } from '@/composables/useMozambiqueLocations'
+import { useMozambiqueLocations } from '@/Composables/useMozambiqueLocations'
 import {
     UserIcon,
     MapPinIcon,

@@ -67,7 +67,7 @@
 import { ref, provide, computed, onMounted, onUnmounted } from "vue";
 import { router } from "@inertiajs/vue3";
 import { useDropdownManager } from "@/Components/GestorReclamacoes/Composables/useDropdownManager";
-import { useDashboard } from "@/composables/useDashboard";
+import { useDashboard } from "@/Composables/useDashboard";
 import { useTheme } from "@/Components/GestorReclamacoes/Composables/useTheme";
 import Sidebar from "@/Components/GestorReclamacoes/Sidebar.vue";
 import Header from "@/Components/GestorReclamacoes/Header.vue";

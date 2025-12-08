@@ -122,7 +122,7 @@ import GrievanceDetails from "./GrievanceDetail.vue";
 import ProjectsManager from "@/Components/Dashboard/ProjectsManager.vue";
 import TecnicoList from "@/Components/GestorReclamacoes/TecnicoList.vue";
 import ProjectDetail from "@/Pages/Common/ProjectDetail.vue";
-import { usePageProps } from "@/composables/usePageProps";
+import { usePageProps } from "@/Composables/usePageProps";
 
 // Props do backend com valores padrão seguros
 const props = defineProps({

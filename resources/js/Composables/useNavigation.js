@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/vue3'
 import { getDashboardRouteByRole, getDashboardUrlByRole, buildRoute } from '@/utils/routes'
-import { useAuth } from '@/composables/useAuth'
+import { useAuth } from '@/Composables/useAuth'
 
 /**
  * Composable para gerenciamento de navegação

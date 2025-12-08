@@ -10,7 +10,7 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useDashboard } from '@/composables/useDashboard'
+import { useDashboard } from '@/Composables/useDashboard'
 
 const { activePanel, activeDropdown } = useDashboard()
 

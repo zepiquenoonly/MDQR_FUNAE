@@ -65,7 +65,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import MenuSection from './MenuSection.vue'
-import { useNavigation } from '@/composables/useNavigation'
+import { useNavigation } from '@/Composables/useNavigation'
 import { buildRoute } from '@/utils/routes'
 
 const props = defineProps({

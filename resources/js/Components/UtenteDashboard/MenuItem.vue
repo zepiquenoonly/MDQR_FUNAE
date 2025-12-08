@@ -23,7 +23,7 @@
 
 <script setup>
 import { inject } from 'vue'
-import { useDashboard } from '@/composables/useDashboard'
+import { useDashboard } from '@/Composables/useDashboard'
 
 const props = defineProps({
   active: {

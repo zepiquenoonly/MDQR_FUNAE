@@ -49,7 +49,7 @@ import {
   BellIcon
 } from '@heroicons/vue/24/outline'
 import UserDropdown from './UserDropdown.vue'
-import { useNavigation } from '@/composables/useNavigation'
+import { useNavigation } from '@/Composables/useNavigation'
 
 const props = defineProps({
   user: {

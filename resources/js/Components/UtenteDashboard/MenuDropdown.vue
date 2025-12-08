@@ -44,7 +44,7 @@
 <script setup>
 import { ref } from 'vue'
 import { ChevronRightIcon } from '@heroicons/vue/24/outline'
-import { useDashboard } from '@/composables/useDashboard'
+import { useDashboard } from '@/Composables/useDashboard'
 
 const props = defineProps({
   icon: Object,

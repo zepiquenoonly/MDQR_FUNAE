@@ -166,8 +166,8 @@ import {
   ChartBarIcon,
   UsersIcon
 } from '@heroicons/vue/24/outline'
-import { useDashboard } from '@/composables/useDashboard'
-import { useNavigation } from '@/composables/useNavigation'
+import { useDashboard } from '@/Composables/useDashboard'
+import { useNavigation } from '@/Composables/useNavigation'
 import MenuItem from './MenuItem.vue'
 import MenuDropdown from './MenuDropdown.vue'
 
