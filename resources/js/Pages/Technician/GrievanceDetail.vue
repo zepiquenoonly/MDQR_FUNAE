@@ -254,7 +254,7 @@
                                 class="w-full px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-brand/20 cursor-pointer" />
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 inline-flex items-center gap-2">
                                 <FolderIcon class="h-4 w-4" />
-                                Máx 10 arquivos, 10MB cada
+                                Máx 10 arquivos, 2MB cada
                             </p>
                             <p v-if="updateForm.errors.attachments" class="text-xs text-red-600 mt-1">
                                 {{ updateForm.errors.attachments }}
@@ -330,7 +330,7 @@
                                 class="w-full px-4 py-2 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-brand/20 cursor-pointer disabled:bg-gray-100 dark:disabled:bg-gray-700" />
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 inline-flex items-center gap-2">
                                 <FolderIcon class="h-4 w-4" />
-                                Máx 10 arquivos, 10MB cada
+                                Máx 10 arquivos, 2MB cada
                             </p>
                             <p v-if="completionForm.errors.attachments" class="text-xs text-red-600 mt-1">
                                 {{ completionForm.errors.attachments }}

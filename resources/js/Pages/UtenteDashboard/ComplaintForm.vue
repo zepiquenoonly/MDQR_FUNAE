@@ -281,7 +281,7 @@
                             class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-white cursor-pointer hover:border-orange-500 hover:bg-orange-50 transition-all">
                             <DocumentArrowUpIcon class="w-16 h-16 text-gray-400 mx-auto mb-4" />
                             <p class="text-base text-gray-700 font-semibold mb-2">Arraste arquivos para esta área ou clique para selecionar</p>
-                            <p class="text-sm text-gray-500">Formatos aceitos: PNG, JPG, PDF (máx. 10MB por arquivo)</p>
+                            <p class="text-sm text-gray-500">Formatos aceitos: PNG, JPG, PDF (máx. 2MB por arquivo)</p>
                             <p class="text-xs text-gray-400 mt-2">Máximo de 5 arquivos</p>
                         </div>
 
