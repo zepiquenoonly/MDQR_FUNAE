@@ -3,7 +3,7 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 07/12/2025
+**Última atualização:** 08/12/2025
 
 ## Legenda de Status
 
@@ -29,6 +29,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 12 | Downloads de Evidências | ✅ Implementado |
 | Fluxo 13 | Sistema de Autenticação Aprimorado | ✅ Implementado |
 | Fluxo 14 | Seeder de Performance Avançado | ✅ Implementado |
+| Fluxo 15 | Sistema de Anexos Aprimorado | ✅ Implementado |
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
@@ -189,6 +190,13 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Suporte completo a arquivos de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG)*
 - **Detecção automática de tipo MIME** *(ícones apropriados para cada tipo)*
 - **Interface responsiva com galeria organizada** *(modal informativo e botões de ação)*
+- **Visualização inline de anexos** *(preview direto no navegador — implementado em 08/12/2025)*
+- **URLs públicos para anexos** *(acesso direto via links públicos — implementado em 08/12/2025)*
+- **Gestão melhorada de ficheiros** *(caminhos corrigidos e logs aprimorados — implementado em 08/12/2025)*
+- **Limite de upload ajustado** *(tamanho máximo de ficheiro atualizado para 2MB — implementado em 08/12/2025)*
+- **Galeria de anexos melhorada** *(modal redesenhado com controles UI aprimorados — implementado em 08/12/2025)*
+- **Sistema de acesso restrito** *(visualização de anexos públicos com restrições — implementado em 08/12/2025)*
+- **Diretório uploads excluído do Git** *(/public/uploads adicionado ao .gitignore — implementado em 08/12/2025)*
 
 ### Concluído (Fluxo 11) - Implementado recentemente
 
@@ -196,6 +204,10 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Suporte a gravação de áudio** *(até 1 minuto via microfone — limite reduzido em 04/12/2025)*
 - ✅ **Suporte a múltiplos formatos de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG - implementado em 07/12/2025)*
 - ✅ **Ícones específicos por tipo de arquivo** *(nota musical para áudio, documento para PDFs - implementado em 07/12/2025)*
+- ✅ **Visualização inline aprimorada** *(preview direto de imagens, PDFs e áudios - implementado em 08/12/2025)*
+- ✅ **URLs públicos com restrições** *(acesso seguro via links públicos - implementado em 08/12/2025)*
+- ✅ **Limite de 2MB** *(ajuste de tamanho máximo de upload - implementado em 08/12/2025)*
+- ✅ **Galeria redesenhada** *(controles UI melhorados - implementado em 08/12/2025)*
 
 ### Implementado (Fluxo 12)
 
@@ -207,6 +219,9 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Suporte completo a reprodução de áudio** *(WebM, MP3, WAV, OGG, M4A, MPEG)*
 - **Controle de acesso baseado no status da reclamação** *(confidencial/restrito não permite visualização)*
 - **Cache otimizado** *(1 hora de cache para performance)*
+- **Preview inline de todos os formatos** *(imagens, PDFs, áudios - implementado em 08/12/2025)*
+- **URLs públicos diretos** *(acesso via links públicos seguros - implementado em 08/12/2025)*
+- **Logs aprimorados** *(rastreamento detalhado do processamento de anexos - implementado em 08/12/2025)*
 
 ### Concluído (Fluxo 12) - Implementado recentemente
 
@@ -216,6 +231,9 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Correção de rotas** *(URLs corrigidas para funcionamento adequado)*
 - ✅ **Sistema de permissões por status** *(implementado em 07/12/2025)*
 - ✅ **Suporte completo a áudio** *(implementado em 07/12/2025)*
+- ✅ **Preview inline aprimorado** *(visualização direta de todos os tipos - implementado em 08/12/2025)*
+- ✅ **URLs públicos seguros** *(implementado em 08/12/2025)*
+- ✅ **Logging detalhado** *(rastreamento de processamento - implementado em 08/12/2025)*
 
 ## Fluxo 13: Sistema de Autenticação Aprimorado
 
@@ -255,6 +273,32 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
  - ✅ **Seed executado com sucesso** *(seed completo: 15 projetos, 500 utentes, 20 técnicos, 5 gestores, 2000 reclamações; implementado em 04/12/2025)*
  - ✅ **Verificação pós-seed** *(migrations aplicadas e queries verificadas via tinker)*
 - ✅ **Inserção otimizada em batch** *(performance mantida com volumes altos)*
+
+## Fluxo 15: Sistema de Anexos Aprimorado e Eventos de Atribuição
+
+### Implementado (Fluxo 15)
+
+- **Visualização inline de anexos** *(preview direto de imagens, PDFs e áudios no navegador)*
+- **Suporte expandido para áudio** *(tipos adicionais: MP3, WAV, OGG, M4A, MPEG)*
+- **URLs públicos para anexos** *(acesso direto via links públicos com restrições de segurança)*
+- **Gestão melhorada de ficheiros** *(caminhos corrigidos e logs aprimorados para anexos)*
+- **Limite de upload ajustado para 2MB** *(tamanho máximo de ficheiro atualizado)*
+- **Galeria de anexos melhorada** *(modal redesenhado com controles UI aprimorados)*
+- **Segurança reforçada** *(sistema de acesso restrito para visualização de anexos públicos)*
+- **Exclusão do Git** *(diretório /public/uploads adicionado ao .gitignore)*
+- **Evento GrievanceAutoAssigned** *(nova classe de evento para rastreamento de atribuições automáticas)*
+- **Logging aprimorado** *(melhor rastreamento do processo de atribuição de técnicos)*
+- **Performance otimizada** *(processamento de eventos assíncronos para atribuições)*
+
+### Concluído (Fluxo 15) - Implementado recentemente
+
+- ✅ **Visualização inline aprimorada** *(implementado em 08/12/2025)*
+- ✅ **URLs públicos seguros** *(implementado em 08/12/2025)*
+- ✅ **Limite de 2MB** *(implementado em 08/12/2025)*
+- ✅ **Galeria redesenhada** *(implementado em 08/12/2025)*
+- ✅ **Evento de atribuição automática** *(implementado em 08/12/2025)*
+- ✅ **Logs detalhados** *(implementado em 08/12/2025)*
+- ✅ **Exclusão do diretório uploads** *(implementado em 08/12/2025)*
 
 ## Estados da Reclamação
 
@@ -354,3 +398,20 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Sistema de Autenticação Aprimorado**: Middleware de redirecionamento inteligente baseado em papéis (PCA, Gestor, Técnico, Utente), proteção contra acesso não autorizado, e cobertura completa de rotas de autenticação.
 - **Seeder de Performance Avançado**: Sistema completo de seeding com 15 projetos, associação inteligente de técnicos a projetos, 2000 reclamações realistas, e priorização de atribuição por especialização.
 - **Documentação Atualizada**: README.md atualizado com mudanças de dezembro 2025, guia de deploy, revisão de notificações por email, e documentação completa do status das funcionalidades.
+
+## Novas funcionalidades (08/12/2025)
+
+- **Visualização Inline Aprimorada de Anexos**: Sistema completo de preview direto no navegador para imagens, PDFs e áudios, eliminando necessidade de download para visualização inicial.
+- **URLs Públicos para Anexos**: Implementado sistema de acesso direto via links públicos com restrições de segurança baseadas no status da reclamação.
+- **Suporte Expandido para Áudio**: Adicionados tipos de ficheiros de áudio adicionais (MP3, WAV, OGG, M4A, MPEG) além do WebM já suportado.
+- **Gestão Melhorada de Ficheiros**: Caminhos de anexos corrigidos e sistema de logs aprimorado para melhor rastreamento do processamento de ficheiros.
+- **Limite de Upload Ajustado para 2MB**: Tamanho máximo de ficheiro atualizado de forma consistente em todo o sistema para 2MB.
+- **Galeria de Anexos Redesenhada**: Modal completamente redesenhado com controles UI aprimorados, melhor responsividade e experiência de usuário mais intuitiva.
+- **Sistema de Acesso Restrito**: Implementado controle granular de acesso para visualização de anexos públicos com validações de segurança.
+- **Diretório Uploads Excluído do Git**: Adicionado `/public/uploads` ao `.gitignore` para evitar versionamento de ficheiros carregados por usuários.
+- **Evento GrievanceAutoAssigned**: Nova classe de evento para rastreamento detalhado de atribuições automáticas de reclamações a técnicos.
+- **Logging Aprimorado**: Sistema de logs melhorado para melhor rastreamento do processo de atribuição de técnicos e processamento de anexos.
+- **Performance Otimizada**: Processamento de eventos assíncronos para atribuições, melhorando performance geral do sistema.
+- **Refatoração do Controller de Rastreamento**: Código do controller de rastreamento refatorado para melhor estrutura, clareza e manutenibilidade.
+- **Melhorias no Componente de Rastreamento**: Componente Vue.js refatorado com melhor organização de código e tratamento de erros aprimorado.
+- **Controle de Visibilidade da Pesquisa**: Seção de pesquisa com controle dinâmico de exibição para melhor experiência de usuário após rastreamento bem-sucedido.
