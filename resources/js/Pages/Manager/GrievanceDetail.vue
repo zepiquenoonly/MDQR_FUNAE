@@ -1,5 +1,5 @@
 <template>
-  <Layout>
+  <Layout :role="'manager'">
     <div class="space-y-4 sm:space-y-6">
       <!-- Breadcrumb & Header -->
       <div class="flex flex-col gap-3 sm:gap-4">

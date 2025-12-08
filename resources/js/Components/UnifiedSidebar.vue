@@ -20,7 +20,7 @@
           </div>
           <div class="overflow-hidden min-w-0 flex-1">
             <h1 class="font-bold text-lg whitespace-nowrap truncate text-gray-900 drop-shadow-sm">MDQR</h1>
-            <p class="text-primary-700 text-sm truncate font-medium">{{ getPanelTitle() }}</p>
+            <p class="text-primary-700 text-sm truncate font-medium">{{ getRoleTitle() }}</p>
           </div>
         </div>
       </div>
@@ -28,7 +28,7 @@
 
     <!-- Menu Items -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-primary-300 scrollbar-track-transparent hover:scrollbar-thumb-primary-400 transition-colors">
-      <MenuSection @item-clicked="handleMenuItemClick" :role="role" />
+      <UnifiedMenuSection :role="role" @item-clicked="handleMenuItemClick" />
     </div>
   </aside>
 </template>
@@ -36,7 +36,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { XMarkIcon } from '@heroicons/vue/24/outline'
-import MenuSection from './MenuSection.vue'
+import UnifiedMenuSection from './UnifiedMenuSection.vue'
 
 const props = defineProps({
   isMobile: {
@@ -45,7 +45,7 @@ const props = defineProps({
   },
   role: {
     type: String,
-    default: 'utente'
+    default: 'technician'
   }
 })
 
@@ -58,18 +58,17 @@ const checkMobile = () => {
   isMobile.value = window.innerWidth < 640
 }
 
-const handleMenuItemClick = (item) => {
-  emit('change-view', item)
+const getRoleTitle = () => {
+  const titles = {
+    technician: 'Painel do Técnico',
+    manager: 'Painel do Gestor',
+    pca: 'Painel PCA'
+  }
+  return titles[props.role] || 'Painel'
 }
 
-const getPanelTitle = () => {
-  const titles = {
-    'utente': 'Painel do Utente',
-    'technician': 'Painel do Técnico',
-    'manager': 'Painel do Gestor',
-    'pca': 'Painel do PCA'
-  }
-  return titles[props.role] || 'Painel do Utente'
+const handleMenuItemClick = (item) => {
+  emit('change-view', item)
 }
 
 onMounted(() => {

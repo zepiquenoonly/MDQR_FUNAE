@@ -49,14 +49,14 @@
                             </svg>
                             {{ isLoading ? 'A CARREGAR...' : getDashboardLabel() }}
                         </button>
-                        <a href="/track"
+                        <!-- <a href="/track"
                             class="text-xs md:text-sm text-gray-700 hover:text-brand font-medium flex items-center justify-center gap-2 transition-colors duration-200">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             Acompanhar Reclamação
-                        </a>
+                        </a> -->
                     </div>
                 </div>
 
@@ -184,7 +184,10 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
+import { useAuth } from '@/Composables/useAuth'
+import { useNavigation } from '@/Composables/useNavigation'
+import { getRoleLabel } from '@/utils/roles'
 
 const props = defineProps({
     hideTrackLink: {
@@ -193,7 +196,6 @@ const props = defineProps({
     }
 })
 
-const page = usePage()
 const isMobileMenuOpen = ref(false)
 const activeSection = ref('inicio')
 const isLoading = ref(false)
@@ -201,8 +203,10 @@ const isLoadingDashboard = ref(false)
 const isLoadingTrack = ref(false)
 const isLoadingLogin = ref(false)
 
-const user = computed(() => page.props.auth?.user || null)
-const isAuthenticated = computed(() => !!user.value)
+// Usar composables para auth e navegação
+const { user, isAuthenticated, role } = useAuth()
+const navigation = useNavigation({ user: user.value })
+const { navigateToDashboard: navToDashboard, navigateToTracking, navigateToLogin: navToLogin } = navigation
 
 const getUserInitials = (name) => {
     if (!name) return '?'
@@ -211,38 +215,10 @@ const getUserInitials = (name) => {
     return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase()
 }
 
-const getDashboardRoute = () => {
-    if (!user.value) return '/login'
-
-    const roles = user.value.roles || []
-    const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
-
-    // PCA (Ponto Central de Atendimento)
-    if (roleNames.has('pca')) {
-        return '/pca/dashboard'
-    }
-    // Gestor
-    if (roleNames.has('gestor')) {
-        return '/gestor/dashboard'
-    }
-    // Técnico
-    if (roleNames.has('técnico') || roleNames.has('tecnico')) {
-        return '/tecnico/dashboard'
-    }
-    // Utente (padrão)
-    return '/utente/dashboard'
-}
-
 const getDashboardLabel = () => {
-    if (!user.value) return 'ENTRAR'
-
-    const roles = user.value.roles || []
-    const roleNames = new Set(roles.map(r => r.name.toLowerCase()))
-
-    if (roleNames.has('pca')) return 'DASHBOARD PCA'
-    if (roleNames.has('gestor')) return 'DASHBOARD GESTOR'
-    if (roleNames.has('técnico') || roleNames.has('tecnico')) return 'DASHBOARD TÉCNICO'
-    return 'MEU DASHBOARD'
+    if (!isAuthenticated.value) return 'ENTRAR'
+    const roleLabel = getRoleLabel(role.value)
+    return roleLabel === 'Utente' ? 'MEU DASHBOARD' : `DASHBOARD ${roleLabel.toUpperCase()}`
 }
 
 const navigateToDashboard = () => {
@@ -250,7 +226,7 @@ const navigateToDashboard = () => {
     isLoadingDashboard.value = true
 
     setTimeout(() => {
-        router.visit(getDashboardRoute(), {
+        navToDashboard({
             onFinish: () => {
                 isLoading.value = false
                 isLoadingDashboard.value = false
@@ -267,7 +243,7 @@ const navigateToLogin = () => {
     isLoadingLogin.value = true
 
     setTimeout(() => {
-        router.visit('/login', {
+        navToLogin({
             onFinish: () => {
                 isLoadingLogin.value = false
             },
@@ -281,7 +257,7 @@ const navigateToLogin = () => {
 const navigateToTrack = () => {
     isLoadingTrack.value = true
     setTimeout(() => {
-        router.visit('/track', {
+        navigateToTracking({
             onFinish: () => {
                 isLoadingTrack.value = false
             },

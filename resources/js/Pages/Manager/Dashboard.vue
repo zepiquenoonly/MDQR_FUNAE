@@ -1,5 +1,5 @@
 <template>
-  <Layout :stats="safeStats">
+  <Layout :stats="safeStats" :role="'manager'">
     <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
     <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
 
@@ -103,19 +103,18 @@
 
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { router } from "@inertiajs/vue3";
 import { XMarkIcon } from "@heroicons/vue/24/outline";
-import Layout from "@/Layouts/ManagerLayout.vue";
+import Layout from "@/Layouts/UnifiedLayout.vue";
 import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
 import ComplaintsList from "@/Components/GestorReclamacoes/ComplaintsList.vue";
 import GrievanceDetails from "./GrievanceDetail.vue";
 import ProjectsManager from "@/Components/Dashboard/ProjectsManager.vue";
 import TecnicoList from "@/Components/GestorReclamacoes/TecnicoList.vue";
+import ProjectDetail from "@/Pages/Common/ProjectDetail.vue";
+import { usePageProps } from "@/Composables/usePageProps";
 
-// Usar usePage() para acessar as props de forma reativa
-const page = usePage();
-
-// Props do backend com valores padrão seguros - agora reativos via usePage()
+// Props do backend com valores padrão seguros
 const props = defineProps({
   complaints: {
     type: [Object, null],
@@ -143,16 +142,16 @@ const props = defineProps({
   },
 });
 
-// Computed properties seguras para evitar null errors - agora reativas
-const safeComplaints = computed(
-  () => page.props.complaints || props.complaints || { data: [] }
-);
-const safeAllComplaints = computed(
-  () => page.props.allComplaints || props.allComplaints || []
-);
-const safeStats = computed(() => page.props.stats || props.stats || {});
-const safeTechnicians = computed(() => page.props.technicians || props.technicians || []);
-const safeFilters = computed(() => page.props.filters || props.filters || {});
+// Usar composable para safe props - elimina repetição
+// Estado local - definir ANTES dos watchers
+const selectedComplaint = ref(null);
+
+const { getSafeProp } = usePageProps(props);
+const safeComplaints = getSafeProp('complaints', { data: [] });
+const safeAllComplaints = getSafeProp('allComplaints', []);
+const safeStats = getSafeProp('stats', {});
+const safeTechnicians = getSafeProp('technicians', []);
+const safeFilters = getSafeProp('filters', {});
 
 // CORREÇÃO: Debug para verificar os tipos de dados recebidos
 const debugDataTypes = () => {
@@ -169,9 +168,6 @@ const debugDataTypes = () => {
   console.log(typeCount);
   console.log("============================");
 };
-
-// Estado local
-const selectedComplaint = ref(null);
 const localFilters = ref({ ...safeFilters.value });
 const showModal = ref(false);
 const dataLoaded = ref(false);
@@ -227,7 +223,7 @@ watch(
 
 // Watcher para detectar quando as props são atualizadas via Inertia
 watch(
-  () => page.props.allComplaints,
+  () => safeAllComplaints.value,
   (newAllComplaints) => {
     console.log("Props allComplaints atualizadas via Inertia:", newAllComplaints?.length);
     if (newAllComplaints?.length && !selectedComplaint.value) {

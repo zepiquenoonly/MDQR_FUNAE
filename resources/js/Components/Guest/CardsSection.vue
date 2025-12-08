@@ -9,9 +9,9 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-6">QUEIXAS</h3>
                 <p class="text-gray-600 leading-relaxed text-justify">
-                    Através deste sistema, os munícipes podem fazer queixas de forma segura ou até anónima sobre
-                    obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações
-                    serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.
+                    Submeta queixas de forma segura — pode optar por permanecer anónimo. Use este canal para reportar
+                    problemas locais (obras, ruídos, perigos) no seu bairro, município ou província. Vamos avaliar a
+                    situação e agir para proteger os direitos e bem-estar da comunidade.
                 </p>
             </div>
 
@@ -23,9 +23,9 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-6">SUGESTÕES</h3>
                 <p class="text-gray-600 leading-relaxed text-justify">
-                    Através deste sistema, os munícipes podem fazer sugestões de forma segura ou até anónima sobre
-                    obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações
-                    serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.
+                    Partilhe ideias e propostas para melhorar serviços e projectos locais. As sugestões ajudam a
+                    identificar oportunidades de melhoria e a orientar decisões — anónimas ou identificadas, todas
+                    são bem-vindas e serão consideradas pela equipa responsável.
                 </p>
             </div>
 
@@ -37,9 +37,9 @@
                 </div>
                 <h3 class="text-2xl font-bold text-gray-900 mb-6">RECLAMAÇÕES</h3>
                 <p class="text-gray-600 leading-relaxed text-justify">
-                    Através deste sistema, os munícipes podem fazer reclamações de forma segura ou até anónima sobre
-                    obras, projectos no seu bairro, município ou província. A sua voz será ouvida e as suas preocupações
-                    serão tratadas com a devida atenção, contribuindo para a melhoria contínua da nossa comunidade.
+                    Registe reclamações formais quando um serviço ou projecto não cumpre o esperado. Forneça detalhes
+                    e evidências (fotos ou documentos) para que a equipa possa investigar, acompanhar o caso e
+                    fornecer uma resposta clara sobre as ações tomadas.
                 </p>
             </div>
         </div>

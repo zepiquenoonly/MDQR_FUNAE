@@ -4,9 +4,50 @@
 > Sistema desenvolvido para o Fundo de Energia de Moçambique (FUNAE)
 
 ---
-## 🆕 Novidades & Changelog (Nov/2025)
+## 🆕 Novidades & Changelog
 
-### Funcionalidades Implementadas
+### Dezembro 2025
+
+#### Sistema de Anexos Aprimorado (08/12/2025)
+- 📎 **Visualização inline de anexos**: Preview direto de imagens, PDFs e áudios no navegador
+- 🔊 **Suporte expandido para áudio**: Tipos de ficheiros de áudio adicionais suportados (MP3, WAV, OGG)
+- 🔗 **URLs públicos para anexos**: Acesso direto via links públicos com restrições de segurança
+- 📂 **Gestão melhorada de ficheiros**: Caminhos corrigidos e logs aprimorados para anexos
+- 📏 **Limite de upload ajustado**: Tamanho máximo de ficheiro atualizado para 2MB
+- 🎨 **Galeria de anexos melhorada**: Modal redesenhado com controles UI aprimorados
+- 🔒 **Segurança**: Sistema de acesso restrito para visualização de anexos públicos
+- 🗂️ **Exclusão do Git**: Diretório `/public/uploads` adicionado ao `.gitignore`
+
+#### Eventos e Atribuição Automática (08/12/2025)
+- 🤖 **Evento GrievanceAutoAssigned**: Nova classe de evento para rastreamento de atribuições automáticas
+- 📊 **Logging aprimorado**: Melhor rastreamento do processo de atribuição de técnicos
+- ⚡ **Performance otimizada**: Processamento de eventos assíncronos para atribuições
+
+#### Melhorias no Acompanhamento (07/12/2025)
+- 🔍 **Controle de visibilidade da pesquisa**: Seção de pesquisa com controle de exibição
+- 🎯 **Refatoração da busca**: Tratamento de erros aprimorado na busca de reclamações
+- 🧹 **Código limpo**: Refatoração do controller e componente para melhor manutenibilidade
+
+#### Melhorias no Formulário de Submissão (06/12/2025)
+- ⏱️ **Aumento do tempo de auto-fechamento do modal de sucesso**: Timer aumentado de 5 para 60 segundos
+- 📧 **Campos de contato opcionais**: Nome e email agora opcionais para submissões anônimas
+- ✉️ **Melhoria da mensagem do modal**: Aviso explícito sobre fechamento em 60s e necessidade de salvar código
+- 🚀 **Modal de submissão direto da landing page**: Acesso imediato ao formulário desde a página inicial
+- 🎨 **Melhorias na landing page**: Textos revisados e footer aprimorado para melhor usabilidade
+
+#### Seeder de Performance (04/12/2025)
+- 📊 **PerformanceTestSeeder**: Geração de 15 projetos, 500 utentes, 20 técnicos, 2000 reclamações
+- 🎯 **Atribuição inteligente**: Técnicos priorizados por projeto relacionado
+- ⚡ **Inserção otimizada**: Performance mantida com grandes volumes de dados
+
+#### Sistema de Autenticação (04/12/2025)
+- 🔐 **RedirectIfAuthenticated refatorado**: Redirecionamento baseado em papel do usuário
+- 🛡️ **Proteção completa**: Usuários logados não acessam rotas de login/register
+- ✅ **Cobertura de testes**: Testes automatizados para todos cenários de redirecionamento
+
+### Novembro 2025
+
+#### Funcionalidades Implementadas
 - Dashboard Utente, PCA, Técnico e Gestor completos com análise por tipos de submissão
 - Padronização completa Dashboard Utente
 - Theme Toggle (Dark/Light Mode) funcional
@@ -16,7 +57,7 @@
 - Links "Meu Perfil" e "Acompanhamento" em todos os menus
 - Novo usuário 'Utente' com mesmas credenciais padrão
 
-### Erros Corrigidos
+#### Erros Corrigidos
 - MenuItem.vue: popupTimer duplicado removido
 - Complaints.vue: Erro "Unexpected token '<'" (fetch HTML como JSON) resolvido
 - Complaints.vue: Código duplicado (console.error e finally) removido
@@ -361,7 +402,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 0.4  
-**Última Atualização:** 24 de Novembro de 2025  
+**Versão:** 1.1  
+**Última Atualização:** 8 de Dezembro de 2025  
 **Status:** ✅ Em Produção
 

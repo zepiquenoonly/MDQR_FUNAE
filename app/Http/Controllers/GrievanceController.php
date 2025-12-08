@@ -45,6 +45,15 @@ class GrievanceController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->get();
 
+        // Adicionar URLs públicas aos anexos e garantir path
+        $grievances->each(function($grievance) {
+            $grievance->attachments->each(function($attachment) {
+                $attachment->url = url($attachment->path);
+                // Garantir que o path também esteja disponível
+                $attachment->path = $attachment->path;
+            });
+        });
+
     // Query para TODOS os dados (sem filtros)
     $allGrievancesQuery = Grievance::query();
 
@@ -60,6 +69,21 @@ class GrievanceController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->get()
             ->map(function ($grievance) {
+                // Processar attachments para adicionar url e garantir path
+                $attachments = $grievance->attachments->map(function ($attachment) {
+                    return [
+                        'id' => $attachment->id,
+                        'original_filename' => $attachment->original_filename,
+                        'filename' => $attachment->filename,
+                        'path' => $attachment->path,
+                        'url' => url($attachment->path),
+                        'mime_type' => $attachment->mime_type,
+                        'size' => $attachment->size,
+                        'uploaded_at' => $attachment->uploaded_at,
+                        'type' => $attachment->type,
+                    ];
+                });
+
                 return [
                     'id' => $grievance->id,
                     'title' => $grievance->title ?? $grievance->description,
@@ -75,6 +99,7 @@ class GrievanceController extends Controller
                     'province' => $grievance->province,
                     'district' => $grievance->district,
                     'location_details' => $grievance->location_details,
+                    'attachments' => $attachments,
                     'assigned_user' => $grievance->assignedUser ? [
                         'name' => $grievance->assignedUser->name,
                     ] : null,
@@ -113,17 +138,19 @@ class GrievanceController extends Controller
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'type' => 'required|in:complaint,grievance,suggestion',
-                'description' => 'required|string|min:50|max:1500',
+                // Description can be nullable; ensure it's either null or a string
+                'description' => 'nullable|string|max:1500',
                 'province' => 'nullable|string',
                 'district' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
-                'contact_name' => 'required_if:is_anonymous,false,0|nullable|string|max:255',
-                'contact_email' => 'required_if:is_anonymous,false,0|nullable|email|max:255',
+                // Contact fields optional; validate when present
+                'contact_name' => 'sometimes|nullable|string|max:255',
+                'contact_email' => 'sometimes|nullable|email|max:255',
                 'contact_phone' => 'nullable|string|max:20',
                 'attachments' => 'nullable|array|max:5',
-                'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx|max:10240',
-                'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a|max:10240',
+                'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx,txt,csv,xls,xlsx,mp3,wav,ogg,webm,m4a,aac|max:10240',
+                'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,aac|max:10240',
             ]);
 
             DB::beginTransaction();
@@ -132,7 +159,7 @@ class GrievanceController extends Controller
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
-                'description' => $validated['description'],
+                'description' => $validated['description'] ?? null,
                 'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
@@ -158,16 +185,50 @@ class GrievanceController extends Controller
             $grievance = Grievance::create($grievanceData);
 
             // Processar anexos se existirem
+            Log::info('Iniciando processamento de anexos', [
+                'has_attachments' => $request->hasFile('attachments'),
+                'has_audio' => $request->hasFile('audio_attachment'),
+                'attachments_count' => $request->hasFile('attachments') ? count($request->file('attachments')) : 0
+            ]);
+
             // Processar anexos de ficheiros
             if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $this->storeAttachment($grievance, $file);
+                $attachments = $request->file('attachments');
+                Log::info('Processando anexos regulares', ['count' => count($attachments)]);
+
+                foreach ($attachments as $index => $file) {
+                    Log::info('Processando anexo', [
+                        'index' => $index,
+                        'filename' => $file->getClientOriginalName(),
+                        'size' => $file->getSize(),
+                        'mime' => $file->getMimeType()
+                    ]);
+
+                    $result = $this->storeAttachment($grievance, $file);
+                    if (!$result) {
+                        Log::error('Falha ao armazenar anexo', [
+                            'index' => $index,
+                            'filename' => $file->getClientOriginalName()
+                        ]);
+                    }
                 }
             }
 
             // Processar anexo de áudio
             if ($request->hasFile('audio_attachment')) {
-                $this->storeAttachment($grievance, $request->file('audio_attachment'), 'audio');
+                $audioFile = $request->file('audio_attachment');
+                Log::info('Processando anexo de áudio', [
+                    'filename' => $audioFile->getClientOriginalName(),
+                    'size' => $audioFile->getSize(),
+                    'mime' => $audioFile->getMimeType()
+                ]);
+
+                $result = $this->storeAttachment($grievance, $audioFile, 'audio');
+                if (!$result) {
+                    Log::error('Falha ao armazenar anexo de áudio', [
+                        'filename' => $audioFile->getClientOriginalName()
+                    ]);
+                }
             }
 
             DB::commit();
@@ -224,6 +285,13 @@ class GrievanceController extends Controller
 
         $grievance->load(['user', 'assignedUser', 'resolvedBy', 'attachments']);
 
+        // Adicionar URLs públicas aos anexos
+        $grievance->attachments->each(function($attachment) {
+            $attachment->url = url($attachment->path);
+            // Garantir que o path também esteja disponível
+            $attachment->path = $attachment->path;
+        });
+
         return Inertia::render('Grievances/Show', [
             'grievance' => $grievance
         ]);
@@ -239,7 +307,7 @@ class GrievanceController extends Controller
         ]);
 
         $grievance = Grievance::where('reference_number', $validated['reference_number'])
-            ->with(['attachments'])
+            ->with(['attachments:id,grievance_id,original_filename,filename,path,mime_type,size'])
             ->first();
 
         if (!$grievance) {
@@ -248,6 +316,13 @@ class GrievanceController extends Controller
                 'message' => 'Reclamação não encontrada.'
             ], 404);
         }
+
+        // Adicionar URLs públicas aos anexos
+        $grievance->attachments->each(function($attachment) {
+            $attachment->url = url($attachment->path);
+            // Garantir que o path também esteja disponível
+            $attachment->path = $attachment->path;
+        });
 
         return response()->json([
             'success' => true,
@@ -272,18 +347,59 @@ class GrievanceController extends Controller
             $mimeType = $file->getMimeType();
             $size = $file->getSize();
 
-            // Armazenar o arquivo
-            $path = $file->storeAs(
-                'grievances/' . $grievance->id . '/attachments',
-                $filename,
-                'private'
-            );
+            Log::info('Iniciando armazenamento de anexo', [
+                'grievance_id' => $grievance->id,
+                'original_filename' => $originalFilename,
+                'generated_filename' => $filename,
+                'mime_type' => $mimeType,
+                'size' => $size,
+                'type' => $type
+            ]);
 
-            // Calcular hash do arquivo para verificação de integridade
+            // Calcular hash do arquivo ANTES de mover
             $fileHash = hash_file('sha256', $file->getRealPath());
 
+            // Armazenar o arquivo diretamente na pasta public
+            $publicPath = 'uploads/grievances/' . $grievance->id . '/attachments';
+            $fullPath = public_path($publicPath);
+
+            Log::info('Verificando/criando diretório', [
+                'path' => $fullPath,
+                'exists' => file_exists($fullPath)
+            ]);
+
+            // Criar diretório se não existir
+            if (!file_exists($fullPath)) {
+                $created = mkdir($fullPath, 0755, true);
+                Log::info('Diretório criado', [
+                    'path' => $fullPath,
+                    'success' => $created
+                ]);
+
+                if (!$created) {
+                    throw new \Exception('Falha ao criar diretório: ' . $fullPath);
+                }
+            }
+
+            $path = '/' . $publicPath . '/' . $filename;
+            $destinationFile = $fullPath . '/' . $filename;
+
+            Log::info('Movendo arquivo', [
+                'from' => $file->getRealPath(),
+                'to' => $destinationFile
+            ]);
+
+            $file->move($fullPath, $filename);
+
+            // Verificar se o arquivo foi movido com sucesso
+            if (!file_exists($destinationFile)) {
+                throw new \Exception('Arquivo não foi movido para o destino: ' . $destinationFile);
+            }
+
+            Log::info('Arquivo movido com sucesso, criando registro no banco');
+
             // Criar registro do anexo
-            Attachment::create([
+            $attachment = Attachment::create([
                 'grievance_id' => $grievance->id,
                 'original_filename' => $originalFilename,
                 'filename' => $filename,
@@ -297,11 +413,20 @@ class GrievanceController extends Controller
                 'type' => $type,
             ]);
 
+            Log::info('Anexo criado com sucesso', [
+                'attachment_id' => $attachment->id,
+                'path' => $path
+            ]);
+
             return true;
         } catch (\Exception $e) {
             Log::error('Erro ao armazenar anexo: ' . $e->getMessage(), [
                 'grievance_id' => $grievance->id,
-                'filename' => $originalFilename ?? 'unknown'
+                'filename' => $originalFilename ?? 'unknown',
+                'error_type' => get_class($e),
+                'error_file' => $e->getFile(),
+                'error_line' => $e->getLine(),
+                'stack_trace' => $e->getTraceAsString()
             ]);
 
             return false;
@@ -321,14 +446,70 @@ class GrievanceController extends Controller
             abort(403, 'Não autorizado a baixar este anexo.');
         }
 
-        if (!Storage::disk('private')->exists($attachment->path)) {
+        $filePath = public_path($attachment->path);
+        if (!file_exists($filePath)) {
             abort(404, 'Arquivo não encontrado.');
         }
 
-        return Storage::disk('private')->download(
-            $attachment->path,
-            $attachment->original_filename
-        );
+        return response()->download($filePath, $attachment->original_filename);
+    }
+
+    /**
+     * View attachment inline (for images, PDFs, etc.).
+     */
+    public function viewAttachment(Attachment $attachment)
+    {
+        // Verificar permissões
+        $user = auth()->user();
+        $grievance = $attachment->grievance;
+
+        if ($user->hasRole('utente') && $grievance->user_id !== $user->id) {
+            abort(403, 'Não autorizado a visualizar este anexo.');
+        }
+
+        $filePath = public_path($attachment->path);
+        if (!file_exists($filePath)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        $file = file_get_contents($filePath);
+        $mimeType = $attachment->mime_type ?: 'application/octet-stream';
+
+        return response($file, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $attachment->original_filename . '"',
+        ]);
+    }
+
+    /**
+     * View attachment inline for public access (with restrictions).
+     */
+    public function viewAttachmentPublic(Attachment $attachment)
+    {
+        // Para acesso público, só permitir tipos de arquivo seguros
+        $allowedTypes = [
+            'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+            'application/pdf',
+            'audio/webm', 'audio/mp3', 'audio/wav', 'audio/ogg', 'audio/m4a', 'audio/mpeg'
+        ];
+
+        if (!in_array($attachment->mime_type, $allowedTypes)) {
+            abort(403, 'Este tipo de arquivo não está disponível para visualização pública.');
+        }
+
+        $filePath = public_path($attachment->path);
+        if (!file_exists($filePath)) {
+            abort(404, 'Arquivo não encontrado.');
+        }
+
+        $file = file_get_contents($filePath);
+        $mimeType = $attachment->mime_type ?: 'application/octet-stream';
+
+        return response($file, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . $attachment->original_filename . '"',
+            'Cache-Control' => 'public, max-age=3600', // Cache por 1 hora
+        ]);
     }
 
     /**
@@ -447,6 +628,70 @@ class GrievanceController extends Controller
             Log::error('Erro na atribuição em massa: ' . $e->getMessage());
             return back()->with('error', 'Erro ao realizar atribuição automática.');
         }
+    }
+
+    /**
+     * List files in a grievance folder (for browsing).
+     */
+    public function listGrievanceFiles(Grievance $grievance)
+    {
+        // Verificar permissões
+        $user = auth()->user();
+
+        if ($user->hasRole('utente') && $grievance->user_id !== $user->id) {
+            abort(403, 'Não autorizado a visualizar os arquivos desta reclamação.');
+        }
+
+        $folderPath = public_path('uploads/grievances/' . $grievance->id . '/attachments');
+
+        $files = [];
+        if (file_exists($folderPath)) {
+            $fileItems = scandir($folderPath);
+            foreach ($fileItems as $item) {
+                if ($item !== '.' && $item !== '..') {
+                    $filePath = $folderPath . '/' . $item;
+                    $fileSize = filesize($filePath);
+                    $fileModified = filemtime($filePath);
+
+                    // Encontrar o anexo correspondente no banco de dados
+                    $attachment = $grievance->attachments->where('filename', $item)->first();
+
+                    $files[] = [
+                        'filename' => $item,
+                        'original_filename' => $attachment ? $attachment->original_filename : $item,
+                        'url' => url('uploads/grievances/' . $grievance->id . '/attachments/' . $item),
+                        'size' => $fileSize,
+                        'size_human' => $this->formatBytes($fileSize),
+                        'modified' => date('Y-m-d H:i:s', $fileModified),
+                        'mime_type' => $attachment ? $attachment->mime_type : mime_content_type($filePath),
+                        'type' => $attachment ? $attachment->type : 'unknown',
+                    ];
+                }
+            }
+        }
+
+        return response()->json([
+            'grievance_id' => $grievance->id,
+            'reference_number' => $grievance->reference_number,
+            'folder_path' => 'uploads/grievances/' . $grievance->id . '/attachments',
+            'folder_url' => url('uploads/grievances/' . $grievance->id . '/attachments'),
+            'files' => $files,
+            'total_files' => count($files),
+        ]);
+    }
+
+    /**
+     * Format bytes to human readable format.
+     */
+    private function formatBytes($bytes)
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= (1 << (10 * $pow));
+
+        return round($bytes, 2) . ' ' . $units[$pow];
     }
 
     /**

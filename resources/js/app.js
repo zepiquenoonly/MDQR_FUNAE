@@ -1,4 +1,5 @@
 import './bootstrap';
+import './routes';
 import '../css/app.css';
 
 import { createApp, h } from 'vue';
@@ -13,7 +14,7 @@ createInertiaApp({
         const vueApp = createApp({ render: () => h(App, props) });
         vueApp.use(plugin);
         vueApp.mount(el);
-        
+
         return vueApp;
     },
 });

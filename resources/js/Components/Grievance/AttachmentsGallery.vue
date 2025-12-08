@@ -1,7 +1,7 @@
 <script setup>
-import { DocumentIcon, ArrowDownTrayIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon } from '@heroicons/vue/24/outline';
+import { DocumentIcon, PhotoIcon, FilmIcon, DocumentTextIcon, TableCellsIcon, PaperClipIcon, MusicalNoteIcon } from '@heroicons/vue/24/outline';
 
-defineProps({
+const props = defineProps({
     attachments: {
         type: Array,
         default: () => []
@@ -19,6 +19,7 @@ const formatFileSize = (bytes) => {
 const getFileIcon = (mimeType) => {
     if (mimeType.startsWith('image/')) return PhotoIcon;
     if (mimeType.startsWith('video/')) return FilmIcon;
+    if (mimeType.startsWith('audio/')) return MusicalNoteIcon;
     if (mimeType === 'application/pdf') return DocumentIcon;
     if (mimeType.includes('word')) return DocumentTextIcon;
     if (mimeType.includes('excel') || mimeType.includes('spreadsheet')) return TableCellsIcon;
@@ -36,21 +37,24 @@ const getFileIcon = (mimeType) => {
         </div>
 
         <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
+            <div
                 v-for="attachment in attachments"
                 :key="attachment.id"
-                :href="attachment.url"
-                target="_blank"
-                class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-brand hover:shadow-md transition-all group"
+                class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all"
             >
-                <div class="flex-shrink-0 text-3xl">
+                <div class="flex-shrink-0">
                     <component :is="getFileIcon(attachment.mime_type)" class="w-8 h-8 text-gray-400" />
                 </div>
 
                 <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate group-hover:text-brand">
+                    <a
+                        :href="attachment.path"
+                        target="_blank"
+                        class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline block truncate"
+                        :title="attachment.original_filename"
+                    >
                         {{ attachment.original_filename }}
-                    </p>
+                    </a>
                     <p class="text-xs text-gray-500">
                         {{ formatFileSize(attachment.size) }}
                     </p>
@@ -63,8 +67,19 @@ const getFileIcon = (mimeType) => {
                     </p>
                 </div>
 
-                <ArrowDownTrayIcon class="w-5 h-5 text-gray-400 group-hover:text-brand flex-shrink-0" />
-            </a>
+                <div class="flex-shrink-0">
+                    <a
+                        :href="attachment.path"
+                        target="_blank"
+                        class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50 transition-colors"
+                        title="Abrir arquivo"
+                    >
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </template>

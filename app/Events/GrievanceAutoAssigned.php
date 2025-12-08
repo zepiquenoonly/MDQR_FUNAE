@@ -12,11 +12,15 @@ class GrievanceAutoAssigned
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
+    public Grievance $grievance;
+    public User $technician;
+
     /**
      * Create a new event instance.
      */
-    public function __construct(
-        public Grievance $grievance,
-        public User $technician
-    ) {}
+    public function __construct(Grievance $grievance, User $technician)
+    {
+        $this->grievance = $grievance;
+        $this->technician = $technician;
+    }
 }

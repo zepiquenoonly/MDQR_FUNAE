@@ -24,28 +24,28 @@
                 <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-primary-700 transition-colors">Total de Sugestões</h3>
-                    <div class="mb-1 text-4xl font-bold gradient-text group-hover:scale-110 transition-transform origin-left">24</div>
+                    <div class="mb-1 text-4xl font-bold gradient-text group-hover:scale-110 transition-transform origin-left">{{ stats.total }}</div>
                 </div>
             </div>
             <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-green-700 transition-colors">Aprovadas</h3>
-                    <div class="mb-1 text-4xl font-bold text-green-600 group-hover:scale-110 transition-transform origin-left">12</div>
+                    <div class="mb-1 text-4xl font-bold text-green-600 group-hover:scale-110 transition-transform origin-left">{{ stats.approved }}</div>
                 </div>
             </div>
             <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-orange-700 transition-colors">Em análise</h3>
-                    <div class="mb-1 text-4xl font-bold text-orange-600 group-hover:scale-110 transition-transform origin-left">8</div>
+                    <div class="mb-1 text-4xl font-bold text-orange-600 group-hover:scale-110 transition-transform origin-left">{{ stats.in_analysis }}</div>
                 </div>
             </div>
             <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
                 <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-rose-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 <div class="relative z-10">
                     <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-red-700 transition-colors">Rejeitadas</h3>
-                    <div class="mb-1 text-4xl font-bold text-red-600 group-hover:scale-110 transition-transform origin-left">4</div>
+                    <div class="mb-1 text-4xl font-bold text-red-600 group-hover:scale-110 transition-transform origin-left">{{ stats.rejected }}</div>
                 </div>
             </div>
         </div>
@@ -57,35 +57,45 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import SuggestionForm from './SuggestionForm.vue'
 
-const suggestions = ref([
-    {
-        id: 'SUG-001',
-        title: 'Melhoria na Distribuição de Água',
-        description: 'Sugestão para melhor sistema de distribuição de água',
-        project: 'Sistema de Abastecimento de Água',
-        date: '2024-01-15',
-        status: 'Aprovada'
+const props = defineProps({
+    suggestions: {
+        type: Array,
+        default: () => []
     },
-    {
-        id: 'SUG-002',
-        title: 'Implementação de Energia Solar',
-        description: 'Proposta para energia solar em edifícios públicos',
-        project: 'Projecto de Energia Renovável',
-        date: '2024-01-10',
-        status: 'Em Análise'
-    },
-    {
-        id: 'SUG-003',
-        title: 'Renovação do Centro Comunitário',
-        description: 'Proposta de renovação para o centro comunitário',
-        project: 'Desenvolvimento Urbano',
-        date: '2024-01-05',
-        status: 'Rejeitada'
+    suggestionsStats: {
+        type: Object,
+        default: () => ({
+            total: 0,
+            approved: 0,
+            in_analysis: 0,
+            rejected: 0
+        })
     }
-])
+})
+
+const page = usePage()
+
+// Usar dados do backend ou props
+const suggestions = computed(() => {
+    return props.suggestions?.length > 0 
+        ? props.suggestions 
+        : (page.props.suggestions || [])
+})
+
+const stats = computed(() => {
+    return props.suggestionsStats?.total !== undefined
+        ? props.suggestionsStats
+        : (page.props.suggestionsStats || {
+            total: 0,
+            approved: 0,
+            in_analysis: 0,
+            rejected: 0
+        })
+})
 
 const showSuggestionForm = ref(false)
 
@@ -105,11 +115,8 @@ const handleEditItem = (item) => {
 
 const handleDeleteItem = (item) => {
     console.log('Eliminar sugestão:', item)
-    // Remover da lista
-    const index = suggestions.value.findIndex(s => s.id === item.id)
-    if (index !== -1) {
-        suggestions.value.splice(index, 1)
-    }
+    // Nota: A eliminação real deve ser feita via API
+    // Por enquanto apenas log, pois não há endpoint de delete para utentes
 }
 
 const handleExportData = (exportData) => {

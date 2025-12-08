@@ -7,48 +7,13 @@
 
     <!-- Dashboard -->
     <MenuItem
-      :active="activePanel === 'dashboard'"
+      :active="false"
       :icon="HomeIcon"
       :text="'Dashboard'"
       @click="() => emitItem('dashboard')"
     />
 
     <!-- Role-specific sections -->
-    <!-- Utente (default) -->
-    <template v-if="!role || role === 'utente'">
-      <!-- Projectos -->
-      <MenuItem
-        :active="activePanel === 'projectos'"
-        :icon="BriefcaseIcon"
-        :text="'Projectos'"
-        @click="() => emitItem('projectos')"
-      />
-
-      <!-- MDQR Section -->
-      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">MDQR</div>
-
-      <!-- Submeter Reclamação/Queixa/Sugestão -->
-      <MenuDropdown
-        :icon="DocumentPlusIcon"
-        :text="'Nova Submissão'"
-        :items="[
-          { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
-          { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
-          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon }
-        ]"
-        @item-clicked="emitItem"
-      />
-
-      <!-- Acompanhamento -->
-      <MenuItem
-        :active="false"
-        :icon="MagnifyingGlassIcon"
-        :text="'Acompanhamento'"
-        @click="() => navigateToTracking()"
-      />
-    </template>
-
-    <!-- Técnico -->
     <template v-if="role === 'technician'">
       <!-- MDQR Section -->
       <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">MDQR</div>
@@ -74,11 +39,10 @@
       />
     </template>
 
-    <!-- Gestor -->
     <template v-if="role === 'manager'">
       <!-- Projectos -->
       <MenuItem
-        :active="activePanel === 'projectos'"
+        :active="false"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
         @click="() => emitItem('projectos')"
@@ -86,7 +50,7 @@
 
       <!-- Técnicos -->
       <MenuItem
-        :active="activePanel === 'tecnicos'"
+        :active="false"
         :icon="UserGroupIcon"
         :text="'Técnicos'"
         @click="() => emitItem('tecnicos')"
@@ -95,18 +59,17 @@
       <!-- Estatísticas -->
       <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">Relatórios</div>
       <MenuItem
-        :active="activePanel === 'estatisticas'"
+        :active="false"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
         @click="() => emitItem('estatisticas')"
       />
     </template>
 
-    <!-- PCA -->
     <template v-if="role === 'pca'">
       <!-- Projectos -->
       <MenuItem
-        :active="activePanel === 'projectos'"
+        :active="false"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
         @click="() => emitItem('projectos')"
@@ -115,7 +78,7 @@
       <!-- Estatísticas -->
       <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">Relatórios</div>
       <MenuItem
-        :active="activePanel === 'estatisticas'"
+        :active="false"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
         @click="() => emitItem('estatisticas')"
@@ -123,7 +86,7 @@
 
       <!-- Gestão de Usuários -->
       <MenuItem
-        :active="activePanel === 'usuarios'"
+        :active="false"
         :icon="UsersIcon"
         :text="'Usuários'"
         @click="() => emitItem('usuarios')"
@@ -166,31 +129,32 @@ import {
   ChartBarIcon,
   UsersIcon
 } from '@heroicons/vue/24/outline'
-import { useDashboard } from '@/Composables/useDashboard'
-import { useNavigation } from '@/Composables/useNavigation'
-import MenuItem from './MenuItem.vue'
-import MenuDropdown from './MenuDropdown.vue'
+import { router } from '@inertiajs/vue3'
+import MenuItem from '@/Components/UtenteDashboard/MenuItem.vue'
+import MenuDropdown from '@/Components/UtenteDashboard/MenuDropdown.vue'
 
 const props = defineProps({
   role: {
     type: String,
-    default: 'utente'
+    default: 'technician'
   }
 })
 
 const emit = defineEmits(['item-clicked'])
 
-// Usar composables centralizados
-const { activePanel, setActivePanel } = useDashboard()
-const { navigateToProfile, navigateToTracking, logout } = useNavigation({ role: props.role })
+const emitItem = (item) => {
+  emit('item-clicked', item)
+}
 
-const emitItem = (panel) => {
-  console.log('MenuSection - emit item:', panel)
-  setActivePanel(panel)
-  emit('item-clicked', panel)
+const navigateToProfile = () => {
+  router.visit('/profile')
+}
+
+const navigateToTracking = () => {
+  router.visit('/track')
 }
 
 const handleLogout = () => {
-  logout()
+  router.post('/logout')
 }
 </script>

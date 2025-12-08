@@ -24,8 +24,9 @@ const createChart = () => {
     if (!chartCanvas.value) return
 
     const labels = props.data.labels || []
-    const totalData = props.data.data?.map(item => item.total) || []
-    const resolvedData = props.data.data?.map(item => item.resolved) || []
+    const complaintData = props.data.data?.map(item => item.complaint) || []
+    const grievanceData = props.data.data?.map(item => item.grievance) || []
+    const suggestionData = props.data.data?.map(item => item.suggestion) || []
 
     if (chartInstance) {
         chartInstance.destroy()
@@ -37,16 +38,24 @@ const createChart = () => {
             labels: labels,
             datasets: [
                 {
-                    label: 'Total de Reclamações',
-                    data: totalData,
-                    borderColor: '#3B82F6',
-                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    label: 'Reclamações',
+                    data: complaintData,
+                    borderColor: '#EF4444',
+                    backgroundColor: 'rgba(239, 68, 68, 0.1)',
                     tension: 0.4,
                     fill: true,
                 },
                 {
-                    label: 'Reclamações Resolvidas',
-                    data: resolvedData,
+                    label: 'Queixas',
+                    data: grievanceData,
+                    borderColor: '#F97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                    tension: 0.4,
+                    fill: true,
+                },
+                {
+                    label: 'Sugestões',
+                    data: suggestionData,
                     borderColor: '#10B981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     tension: 0.4,

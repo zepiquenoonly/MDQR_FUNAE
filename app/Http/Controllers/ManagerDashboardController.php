@@ -5,13 +5,14 @@ namespace App\Http\Controllers;
 use App\Models\Grievance;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ManagerDashboardController extends Controller
 {
     /**
-     * Handle the incoming request.
+     * Display the manager dashboard with team oversight.
      */
     public function __invoke(Request $request): Response
     {

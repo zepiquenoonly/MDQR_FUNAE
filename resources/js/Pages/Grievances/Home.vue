@@ -141,7 +141,7 @@
                         <span class="font-medium">Voltar</span>
                     </button>
                 </div>
-                <ComplaintForm :is-anonymous="isAnonymousSubmission" @submitted="handleSubmitted" />
+                <ComplaintForm :is-anonymous="isAnonymousSubmission" :embedded="true" @submitted="handleSubmitted" />
             </section>
 
             <!-- Tracking Section -->
@@ -229,7 +229,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
 import TrackingResultModal from '@/Components/Grievances/TrackingResultModal.vue'
 import Modal from '@/Components/Modal.vue'
@@ -324,4 +324,24 @@ const trackGrievance = async () => {
         isTracking.value = false
     }
 }
+
+// Open complaint form automatically if URL contains ?new=1 or ?new=true
+onMounted(() => {
+    try {
+        const params = new URLSearchParams(window.location.search)
+        const newParam = params.get('new')
+        if (newParam === '1' || newParam === 'true') {
+            openAnonymousComplaint()
+
+            // remove the query param to avoid reopening on refresh
+            params.delete('new')
+            const newSearch = params.toString()
+            const newUrl = window.location.pathname + (newSearch ? `?${newSearch}` : '') + window.location.hash
+            window.history.replaceState({}, '', newUrl)
+        }
+    } catch (e) {
+        // noop - if URL APIs are not available, ignore
+        console.error('Error handling new param', e)
+    }
+})
 </script>

@@ -44,7 +44,7 @@
 <script setup>
 import { ref } from 'vue'
 import { ChevronRightIcon } from '@heroicons/vue/24/outline'
-import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
+import { useDashboard } from '@/Composables/useDashboard'
 
 const props = defineProps({
   icon: Object,
@@ -62,7 +62,7 @@ const props = defineProps({
 
 const emit = defineEmits(['item-clicked'])
 
-const { activeDropdown } = useDashboardState()
+const { activeDropdown } = useDashboard()
 
 const isOpen = ref(false)
 

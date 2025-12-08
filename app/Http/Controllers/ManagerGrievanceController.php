@@ -930,13 +930,19 @@ class ManagerGrievanceController extends Controller
         $originalFilename = $file->getClientOriginalName();
         $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
 
-        $path = $file->storeAs(
-            'grievances/' . $grievance->id . '/attachments',
-            $filename,
-            'private'
-        );
+        // Armazenar o arquivo diretamente na pasta public
+        $publicPath = 'uploads/grievances/' . $grievance->id . '/attachments';
+        $fullPath = public_path($publicPath);
 
-        $fileHash = hash_file('sha256', $file->getRealPath());
+        // Criar diretório se não existir
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+
+        $path = '/' . $publicPath . '/' . $filename;
+        $file->move($fullPath, $filename);
+
+        $fileHash = hash_file('sha256', $fullPath . '/' . $filename);
 
         return Attachment::create([
             'grievance_id' => $grievance->id,

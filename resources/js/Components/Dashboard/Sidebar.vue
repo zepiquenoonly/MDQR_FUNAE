@@ -37,6 +37,7 @@
     <div class="flex-1 overflow-y-auto overflow-x-hidden">
       <MenuSection
         :is-collapsed="isCollapsed"
+        :role="role"
         @item-clicked="handleMenuItemClick"
       />
     </div>
@@ -61,11 +62,19 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { router } from '@inertiajs/vue3'
 import { Bars3Icon } from '@heroicons/vue/24/outline'
 import MenuSection from './MenuSection.vue'
+import { useNavigation } from '@/Composables/useNavigation'
+import { buildRoute } from '@/utils/routes'
 
 const props = defineProps({
-  isCollapsed: Boolean
+  isCollapsed: Boolean,
+  isMobile: Boolean,
+  role: {
+    type: String,
+    default: 'technician'
+  }
 })
 
 const emit = defineEmits(['toggle-sidebar'])
@@ -81,10 +90,45 @@ const sidebarStyle = computed(() => {
   return {}
 })
 
+// Usar composable de navegação
+const { getDashboardUrl, navigateTo } = useNavigation({ role: props.role })
+
 const handleMenuItemClick = (item) => {
   // Em mobile, fechar sidebar ao clicar em um item
   if (isMobile.value) {
     emit('toggle-sidebar')
+  }
+
+  // Navegar para a rota apropriada baseada no item clicado
+  navigateToRoute(item)
+}
+
+const navigateToRoute = (item) => {
+  const routeMap = {
+    // Dashboard principal baseado no role
+    'dashboard': getDashboardUrl(),
+
+    // MDQR items (filtro para técnico)
+    'sugestoes': buildRoute('technician.dashboard', { type: 'suggestion' }),
+    'queixas': buildRoute('technician.dashboard', { type: 'grievance' }),
+    'reclamacoes': buildRoute('technician.dashboard', { type: 'complaint' }),
+
+    // Gestão de projetos (manager/pca)
+    'projectos': buildRoute('manager.dashboard'),
+
+    // Gestão de técnicos (manager)
+    'tecnicos': buildRoute('manager.dashboard'),
+
+    // Estatísticas (manager/pca)
+    'estatisticas': buildRoute(props.role === 'manager' ? 'manager.dashboard' : 'pca.dashboard'),
+
+    // Gestão de usuários (pca)
+    'gestao-usuarios': buildRoute('pca.dashboard')
+  }
+
+  const targetRoute = routeMap[item]
+  if (targetRoute) {
+    router.visit(targetRoute)
   }
 }
 

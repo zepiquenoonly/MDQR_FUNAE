@@ -10,9 +10,9 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useDashboardState } from '@/Components/UtenteDashboard/Composables/useDashboardState.js'
+import { useDashboard } from '@/Composables/useDashboard'
 
-const { activePanel, activeDropdown } = useDashboardState()
+const { activePanel, activeDropdown } = useDashboard()
 
 const currentPage = computed(() => {
   const pages = {

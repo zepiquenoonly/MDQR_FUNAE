@@ -42,7 +42,11 @@ Route::get('/grievances-home', function () {
 
 // Tracking de reclamações (público)
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
-Route::post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+Route::middleware('api')->post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
+
+// Visualização pública de anexos (com restrições)
+Route::get('/attachments/{attachment}/view', [GrievanceController::class, 'viewAttachmentPublic'])
+    ->name('attachments.view');
 
 // Teste de tracking
 Route::get('/test-track', function () {
@@ -71,11 +75,7 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Redirecionamento inicial
     Route::get('/home', [AuthController::class, 'home'])->name('home');
-    Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard');
-    Route::get('/project/{projectId}', [AuthController::class, 'showProject'])->name('project.details');
-
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard'); // Rota genérica para compatibilidade
 
     // Dashboards por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
@@ -272,14 +272,8 @@ Route::middleware('auth')->group(function () {
         Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('destroy');
     });
 
-    // Rotas do GrievanceController (acessíveis a usuários autenticados)
-    Route::get('/grievances', [GrievanceController::class, 'index'])->name('grievances.index');
-    Route::post('/grievances', [GrievanceController::class, 'store'])->name('grievances.store');
-    Route::get('/grievances/{grievance}', [GrievanceController::class, 'show'])->name('grievances.show');
-    Route::get('/grievances/track', [GrievanceController::class, 'track'])->name('grievances.track.api');
-    
-    // API de localizações e categorias
-    Route::get('/api/categories', [GrievanceController::class, 'getCategories'])->name('api.categories');
-    Route::get('/api/locations', [GrievanceController::class, 'getLocations'])->name('api.locations');
-    Route::get('/api/projects-list', [GrievanceController::class, 'getProjects'])->name('api.projects.list');
-});
+// Rotas de reclamações (acessíveis sem autenticação)
+Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
+Route::get('/reclamacoes/acompanhar', function () {
+    return inertia('Grievances/Track');
+})->name('grievances.track');
