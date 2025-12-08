@@ -44,6 +44,7 @@ export default {
                 'brand-red': '#DC2626',
                 'brand-green': '#16A34A',
                 'brand-blue': '#4c8fddff',
+                'brand-footer': '#1E232C',
                 // Cores para modo escuro
                 dark: {
                     50: '#18181b',

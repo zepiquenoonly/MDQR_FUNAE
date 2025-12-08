@@ -601,6 +601,7 @@ const reloadData = () => {
 // CORREÇÃO: Função handleRowClick simplificada - apenas navega para a rota
 const handleRowClick = (complaint) => {
   if (!complaint || !complaint.id) {
+    console.error("Complaint object or id is undefined");
     return;
   }
 
@@ -718,7 +719,9 @@ const handleBulkAssign = async () => {
         preserveState: true,
       }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error in bulk assign:", error);
+  }
 };
 
 const handleExport = () => {

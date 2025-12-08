@@ -144,10 +144,12 @@ const preferences = ref({
 
 const savePreferences = () => {
   // Aqui você pode implementar a lógica para salvar as preferências
+  console.log("Preferências guardadas!");
   // Em produção, você faria uma chamada API para salvar estas configurações
 };
 
 const confirmAccountDeletion = () => {
+  console.log("Confirmando exclusão da conta");
   router.delete($route("profile.destroy"));
 };
 </script>

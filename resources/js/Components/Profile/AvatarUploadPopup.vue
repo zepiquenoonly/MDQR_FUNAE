@@ -349,11 +349,14 @@ const openFileInput = () => {
 
 const handleFileSelect = (event) => {
   const file = event.target.files[0];
+  console.log("File selected:", file);
 
   if (file) {
     if (file.type.startsWith("image/")) {
+      console.log("Valid image file, starting upload...");
       uploadAvatar(file);
     } else {
+      console.log("Invalid file type:", file.type);
       showToast(
         "Por favor, selecione um arquivo de imagem válido (JPEG, PNG, GIF, WebP).",
         "error"
@@ -380,10 +383,13 @@ const closeCamera = () => {
 
 const removePhoto = async () => {
   showDeleteConfirmation.value = false;
+  console.log("Removing avatar...");
 
   router.delete("/profile/avatar", {
     preserveScroll: true,
     onSuccess: (page) => {
+      console.log("Avatar removed successfully");
+
       // Verificar se há mensagem de sucesso na resposta
       const successMessage =
         page.props.flash?.success || "Foto de perfil removida com sucesso!";
@@ -393,6 +399,8 @@ const removePhoto = async () => {
       closePopup();
     },
     onError: (errors) => {
+      console.error("Error removing avatar:", errors);
+
       // Tentar obter mensagem de erro da resposta
       let errorMessage = "Erro desconhecido";
 
@@ -408,12 +416,16 @@ const removePhoto = async () => {
 };
 
 const uploadAvatar = (file) => {
+  console.log("Starting avatar upload:", file.name, file.size, file.type);
+
   avatarForm.avatar = file;
 
   avatarForm.post("/profile/avatar", {
     preserveScroll: true,
     forceFormData: true,
     onSuccess: (page) => {
+      console.log("Upload successful:", page.props.flash);
+
       // Verificar se há mensagem de sucesso na resposta
       const successMessage = page.props.flash?.success || "Foto carregada com sucesso!";
       const newAvatarUrl = page.props.flash?.avatar_url || page.props.user?.avatar_url;
@@ -426,6 +438,8 @@ const uploadAvatar = (file) => {
       avatarForm.avatar = null;
     },
     onError: (errors) => {
+      console.error("Upload error:", errors);
+
       // Tentar obter mensagem de erro da resposta
       let errorMessage = "Erro desconhecido ao fazer upload";
 
@@ -439,6 +453,9 @@ const uploadAvatar = (file) => {
 
       showToast("Erro ao fazer upload da foto: " + errorMessage, "error");
       avatarForm.avatar = null;
+    },
+    onFinish: () => {
+      console.log("Upload finished");
     },
   });
 };
@@ -457,6 +474,7 @@ const initializeCamera = async () => {
       videoElement.value.srcObject = stream;
     }
   } catch (error) {
+    console.error("Erro ao acessar a câmera:", error);
     showToast("Não foi possível acessar a câmera. Verifique as permissões.", "error");
     closeCamera();
   }

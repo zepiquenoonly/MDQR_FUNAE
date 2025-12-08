@@ -137,8 +137,6 @@ class ProjectController extends Controller
         return response()->json($project->load(['objectives', 'finance', 'deadline']));
     }
 
-
-    
     /**
      * Update the specified resource in storage.
      */

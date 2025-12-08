@@ -52,6 +52,13 @@ class AdminUserSeeder extends Seeder
                 'email' => 'tecnico2@funae.co.mz',
                 'role' => 'Técnico',
             ],
+            [
+                'name' => 'Director de Departamento',
+                'username' => 'director',
+                'email' => 'director@funae.co.mz',
+                'phone' => '+258846789012',
+                'role' => 'Director',
+            ],
         ];
 
         foreach ($adminUsers as $userData) {

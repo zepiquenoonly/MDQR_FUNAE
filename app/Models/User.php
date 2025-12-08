@@ -44,6 +44,8 @@ class User extends Authenticatable
         'district',
         'neighborhood',
         'street',
+        'block',
+        'house_number',
         'avatar_path',
         'avatar_url', 
         'workload_capacity',

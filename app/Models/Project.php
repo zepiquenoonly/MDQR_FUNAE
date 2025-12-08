@@ -20,6 +20,11 @@ class Project extends Model
         'data_criacao'
     ];
 
+    protected $casts = [
+        'is_active' => 'boolean',
+        'data_criacao' => 'date',
+    ];
+
     // Accessor para garantir URL completa se necessário
     public function getImageUrlAttribute($value)
     {

@@ -3,12 +3,6 @@
     <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
     <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
 
-    <ProjectDetail
-      v-if="showProjectDetails && project"
-      :project="project"
-      :can-edit="canEdit"
-    />
-
     <!-- Renderizar TecnicoList quando o panel for 'tecnicos' -->
     <TecnicoList v-else-if="activePanel === 'tecnicos'" />
 
@@ -24,7 +18,6 @@
           description="Reclamações não resolvidas"
           icon="ExclamationTriangleIcon"
           trend="up"
-          color="orange"
         />
 
         <KpiCard
@@ -33,7 +26,6 @@
           description="Com técnicos atribuídos"
           icon="ClockIcon"
           trend="stable"
-          color="blue"
         />
 
         <KpiCard
@@ -42,7 +34,6 @@
           description="Encaminhar se crítico"
           icon="ExclamationCircleIcon"
           trend="up"
-          color="red"
         />
 
         <KpiCard
@@ -51,7 +42,6 @@
           description="Aguardando aprovação"
           icon="CheckCircleIcon"
           trend="down"
-          color="green"
         />
       </div>
 
@@ -121,18 +111,12 @@ import ComplaintsList from "@/Components/GestorReclamacoes/ComplaintsList.vue";
 import GrievanceDetails from "./GrievanceDetail.vue";
 import ProjectsManager from "@/Components/Dashboard/ProjectsManager.vue";
 import TecnicoList from "@/Components/GestorReclamacoes/TecnicoList.vue";
-import ProjectDetail from "@/Pages/Common/ProjectDetail.vue";
 
 // Usar usePage() para acessar as props de forma reativa
 const page = usePage();
 
 // Props do backend com valores padrão seguros - agora reativos via usePage()
 const props = defineProps({
-  showProjectDetails: Boolean,
-  project: {
-    type: Object,
-    default: null,
-  },
   complaints: {
     type: [Object, null],
     default: () => ({ data: [] }),
@@ -170,11 +154,20 @@ const safeStats = computed(() => page.props.stats || props.stats || {});
 const safeTechnicians = computed(() => page.props.technicians || props.technicians || []);
 const safeFilters = computed(() => page.props.filters || props.filters || {});
 
+// CORREÇÃO: Debug para verificar os tipos de dados recebidos
 const debugDataTypes = () => {
+  console.log("=== DEBUG DASHBOARD DATA ===");
+  console.log("safeAllComplaints:", safeAllComplaints.value);
+  console.log("Tipos encontrados:", [
+    ...new Set(safeAllComplaints.value.map((item) => item.type)),
+  ]);
+  console.log("Contagem por tipo:");
   const typeCount = safeAllComplaints.value.reduce((acc, item) => {
     acc[item.type] = (acc[item.type] || 0) + 1;
     return acc;
   }, {});
+  console.log(typeCount);
+  console.log("============================");
 };
 
 // Estado local
@@ -187,6 +180,7 @@ const dataLoaded = ref(false);
 const activePanel = computed(() => {
   const urlParams = new URLSearchParams(window.location.search);
   const panelFromUrl = urlParams.get("panel");
+  console.log("Panel ativo:", panelFromUrl);
 
   if (panelFromUrl === "projectos") return "projectos";
   if (panelFromUrl === "tecnicos") return "tecnicos";
@@ -203,7 +197,11 @@ const initializeSelectedComplaint = () => {
 
 // Watcher para detectar mudanças no panel
 watch(activePanel, (newPanel, oldPanel) => {
+  console.log("Mudança de panel:", { de: oldPanel, para: newPanel });
+
+  // Se estamos voltando para o dashboard, garantir que os dados estão atualizados
   if (newPanel === "dashboard" && oldPanel !== "dashboard") {
+    console.log("Voltando para dashboard - recarregando dados...");
     reloadDashboardData();
   }
 });
@@ -212,6 +210,9 @@ watch(activePanel, (newPanel, oldPanel) => {
 watch(
   () => safeAllComplaints.value,
   (newData) => {
+    console.log("Dados de allComplaints atualizados:", newData?.length);
+
+    // DEBUG: Mostrar tipos de dados
     if (newData?.length) {
       debugDataTypes();
     }
@@ -228,6 +229,7 @@ watch(
 watch(
   () => page.props.allComplaints,
   (newAllComplaints) => {
+    console.log("Props allComplaints atualizadas via Inertia:", newAllComplaints?.length);
     if (newAllComplaints?.length && !selectedComplaint.value) {
       selectedComplaint.value = newAllComplaints[0];
       dataLoaded.value = true;
@@ -244,6 +246,7 @@ watch(
   localFilters,
   (newFilters) => {
     if (activePanel.value === "dashboard") {
+      console.log("Aplicando filtros:", newFilters);
       router.reload({
         data: newFilters,
         preserveState: true,
@@ -257,6 +260,7 @@ watch(
 
 // Função para recarregar dados do dashboard
 const reloadDashboardData = () => {
+  console.log("Recarregando dados do dashboard...");
   dataLoaded.value = false;
   selectedComplaint.value = null;
 
@@ -265,6 +269,8 @@ const reloadDashboardData = () => {
     preserveScroll: true,
     only: ["complaints", "stats", "allComplaints", "technicians", "filters"],
     onSuccess: () => {
+      console.log("Dados recarregados com sucesso");
+      // Pequeno delay para garantir que o DOM foi atualizado
       nextTick(() => {
         initializeSelectedComplaint();
         dataLoaded.value = true;
@@ -274,6 +280,7 @@ const reloadDashboardData = () => {
       });
     },
     onError: (errors) => {
+      console.error("Erro ao recarregar dados:", errors);
       dataLoaded.value = true;
     },
   });
@@ -312,7 +319,9 @@ const updatePriority = async ({ complaintId, priority }) => {
         },
       }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error updating priority:", error);
+  }
 };
 
 const reassignTechnician = async ({ complaintId, technicianId }) => {
@@ -330,7 +339,9 @@ const reassignTechnician = async ({ complaintId, technicianId }) => {
         },
       }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error reassigning technician:", error);
+  }
 };
 
 const sendToDirector = async (complaintId) => {
@@ -346,7 +357,9 @@ const sendToDirector = async (complaintId) => {
         },
       }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error sending to director:", error);
+  }
 };
 
 const markComplete = async (complaintId) => {
@@ -362,11 +375,22 @@ const markComplete = async (complaintId) => {
         },
       }
     );
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error marking complete:", error);
+  }
 };
 
 // Recarregar dados quando o componente for montado
 onMounted(() => {
+  console.log("Dashboard montado - Panel atual:", activePanel.value);
+  console.log("Dados iniciais:", {
+    complaints: safeComplaints.value?.data?.length,
+    stats: safeStats.value,
+    allComplaints: safeAllComplaints.value?.length,
+    technicians: safeTechnicians.value?.length,
+  });
+
+  // Inicializar selected complaint
   initializeSelectedComplaint();
 
   // DEBUG inicial
@@ -374,7 +398,9 @@ onMounted(() => {
 
   // Se estamos no dashboard, garantir que os dados estão carregados
   if (activePanel.value === "dashboard") {
+    // Verificar se os dados já estão carregados, se não, recarregar
     if (!safeAllComplaints.value?.length) {
+      console.log("Dados vazios - recarregando...");
       reloadDashboardData();
     }
   }
@@ -393,6 +419,7 @@ const handlePopState = () => {
   // Pequeno delay para garantir que a URL já foi atualizada
   setTimeout(() => {
     if (activePanel.value === "dashboard") {
+      console.log("Navegação do browser - recarregando dados");
       reloadDashboardData();
     }
   }, 100);
