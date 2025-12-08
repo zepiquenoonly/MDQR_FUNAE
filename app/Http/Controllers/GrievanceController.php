@@ -45,7 +45,7 @@ class GrievanceController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->get();
 
-        // Adicionar URLs públicas aos anexos
+        // Adicionar URLs públicas aos anexos e garantir path
         $grievances->each(function($grievance) {
             $grievance->attachments->each(function($attachment) {
                 $attachment->url = url($attachment->path);
@@ -69,6 +69,21 @@ class GrievanceController extends Controller
             ->orderBy('submitted_at', 'desc')
             ->get()
             ->map(function ($grievance) {
+                // Processar attachments para adicionar url e garantir path
+                $attachments = $grievance->attachments->map(function ($attachment) {
+                    return [
+                        'id' => $attachment->id,
+                        'original_filename' => $attachment->original_filename,
+                        'filename' => $attachment->filename,
+                        'path' => $attachment->path,
+                        'url' => url($attachment->path),
+                        'mime_type' => $attachment->mime_type,
+                        'size' => $attachment->size,
+                        'uploaded_at' => $attachment->uploaded_at,
+                        'type' => $attachment->type,
+                    ];
+                });
+
                 return [
                     'id' => $grievance->id,
                     'title' => $grievance->title ?? $grievance->description,
@@ -84,6 +99,7 @@ class GrievanceController extends Controller
                     'province' => $grievance->province,
                     'district' => $grievance->district,
                     'location_details' => $grievance->location_details,
+                    'attachments' => $attachments,
                     'assigned_user' => $grievance->assignedUser ? [
                         'name' => $grievance->assignedUser->name,
                     ] : null,
@@ -365,7 +381,7 @@ class GrievanceController extends Controller
                 }
             }
 
-            $path = $publicPath . '/' . $filename;
+            $path = '/' . $publicPath . '/' . $filename;
             $destinationFile = $fullPath . '/' . $filename;
 
             Log::info('Movendo arquivo', [
