@@ -95,7 +95,8 @@ class GrievanceTrackingController extends Controller
                         'mime_type' => $attachment->mime_type,
                         'size' => $attachment->size,
                         'uploaded_at' => $attachment->uploaded_at,
-                        'url' => route('attachments.download', $attachment->id),
+                        'url' => url($attachment->path),
+                        'path' => $attachment->path,
                     ];
                 }),
                 'updates' => $grievance->publicUpdates->map(function ($update) {
