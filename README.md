@@ -8,6 +8,26 @@
 
 ### Dezembro 2025
 
+#### Sistema de Anexos Aprimorado (08/12/2025)
+- 📎 **Visualização inline de anexos**: Preview direto de imagens, PDFs e áudios no navegador
+- 🔊 **Suporte expandido para áudio**: Tipos de ficheiros de áudio adicionais suportados (MP3, WAV, OGG)
+- 🔗 **URLs públicos para anexos**: Acesso direto via links públicos com restrições de segurança
+- 📂 **Gestão melhorada de ficheiros**: Caminhos corrigidos e logs aprimorados para anexos
+- 📏 **Limite de upload ajustado**: Tamanho máximo de ficheiro atualizado para 2MB
+- 🎨 **Galeria de anexos melhorada**: Modal redesenhado com controles UI aprimorados
+- 🔒 **Segurança**: Sistema de acesso restrito para visualização de anexos públicos
+- 🗂️ **Exclusão do Git**: Diretório `/public/uploads` adicionado ao `.gitignore`
+
+#### Eventos e Atribuição Automática (08/12/2025)
+- 🤖 **Evento GrievanceAutoAssigned**: Nova classe de evento para rastreamento de atribuições automáticas
+- 📊 **Logging aprimorado**: Melhor rastreamento do processo de atribuição de técnicos
+- ⚡ **Performance otimizada**: Processamento de eventos assíncronos para atribuições
+
+#### Melhorias no Acompanhamento (07/12/2025)
+- 🔍 **Controle de visibilidade da pesquisa**: Seção de pesquisa com controle de exibição
+- 🎯 **Refatoração da busca**: Tratamento de erros aprimorado na busca de reclamações
+- 🧹 **Código limpo**: Refatoração do controller e componente para melhor manutenibilidade
+
 #### Melhorias no Formulário de Submissão (06/12/2025)
 - ⏱️ **Aumento do tempo de auto-fechamento do modal de sucesso**: Timer aumentado de 5 para 60 segundos
 - 📧 **Campos de contato opcionais**: Nome e email agora opcionais para submissões anônimas
@@ -382,7 +402,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 1.0  
-**Última Atualização:** 6 de Dezembro de 2025  
+**Versão:** 1.1  
+**Última Atualização:** 8 de Dezembro de 2025  
 **Status:** ✅ Em Produção
 
