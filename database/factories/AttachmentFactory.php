@@ -91,7 +91,7 @@ class AttachmentFactory extends Factory
                 'filename' => $filename,
                 'path' => 'attachments/' . $filename,
                 'mime_type' => 'application/pdf',
-                'size' => $this->faker->numberBetween(102400, 10485760), // 100KB to 10MB
+                'size' => $this->faker->numberBetween(102400, 2097152), // 100KB to 2MB
             ];
         });
     }

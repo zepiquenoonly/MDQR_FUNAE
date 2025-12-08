@@ -466,7 +466,7 @@
                                 <DocumentArrowUpIcon :class="['w-12 h-12 mx-auto mb-3', files.length >= 5 ? 'text-gray-300' : 'text-gray-400']" />
                                 <p v-if="files.length < 5" class="text-sm font-medium text-gray-700">Arraste ficheiros ou clique para selecionar</p>
                                 <p v-else class="text-sm font-medium text-gray-500">Limite de ficheiros atingido</p>
-                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (máx. 10MB cada) • {{ files.length }}/5 ficheiros</p>
+                                <p class="text-xs text-gray-500 mt-1">PNG, JPG, PDF (máx. 2MB cada) • {{ files.length }}/5 ficheiros</p>
                             </div>
 
                             <input ref="fileInputRef" type="file" multiple class="hidden" @change="handleFileUpload"
@@ -846,7 +846,7 @@ const handleAudioUpload = (event) => {
     const file = event.target.files[0]
     if (file) {
         if (file.size > 10 * 1024 * 1024) {
-            showToast('error', 'Ficheiro muito grande', 'O ficheiro de áudio deve ter no máximo 10MB.')
+            showToast('error', 'Ficheiro muito grande', 'O ficheiro de áudio deve ter no máximo 2MB.')
             return
         }
         audioBlob.value = file

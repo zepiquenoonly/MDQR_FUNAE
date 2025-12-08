@@ -32,10 +32,10 @@ public function show(Grievance $grievance): Response
     if ($grievance->status === 'submitted') {
         try {
             DB::beginTransaction();
-            
+
             $previousStatus = $grievance->status;
             $grievance->update(['status' => 'under_review']);
-            
+
             // Log the status change
             GrievanceUpdate::log(
                 grievanceId: $grievance->id,
@@ -49,14 +49,14 @@ public function show(Grievance $grievance): Response
                 ],
                 isPublic: true
             );
-            
+
             DB::commit();
-            
+
             \Log::info('Status atualizado de submitted para under_review', [
                 'grievance_id' => $grievance->id,
                 'user_id' => auth()->id(),
             ]);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error('Erro ao atualizar status para under_review: ' . $e->getMessage(), [
@@ -68,7 +68,7 @@ public function show(Grievance $grievance): Response
     // Carregar relações necessárias - INCLUIR TODOS OS TIPOS
     $grievance->load([
         'user',
-        'assignedUser', 
+        'assignedUser',
         'updates.user',
         'attachments'
     ]);
@@ -330,13 +330,19 @@ public function reassign(Request $request, Grievance $grievance)
         $originalFilename = $file->getClientOriginalName();
         $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
 
-        $path = $file->storeAs(
-            'grievances/' . $grievance->id . '/attachments',
-            $filename,
-            'private'
-        );
+        // Armazenar o arquivo diretamente na pasta public
+        $publicPath = 'uploads/grievances/' . $grievance->id . '/attachments';
+        $fullPath = public_path($publicPath);
 
-        $fileHash = hash_file('sha256', $file->getRealPath());
+        // Criar diretório se não existir
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+
+        $path = '/' . $publicPath . '/' . $filename;
+        $file->move($fullPath, $filename);
+
+        $fileHash = hash_file('sha256', $fullPath . '/' . $filename);
 
         return Attachment::create([
             'grievance_id' => $grievance->id,
