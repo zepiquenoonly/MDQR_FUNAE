@@ -14,9 +14,13 @@ class GuestController extends Controller
      */
     public function home(): Response|RedirectResponse
     {
-        // Se o usuário estiver autenticado, redirecionar para o dashboard
+        // Se o usuário estiver autenticado, redirecionar para o DASHBOARD apropriado
         if (auth()->check()) {
-            return redirect()->route('home');
+            $user = auth()->user();
+            $role = $user->getRoleNames()->first();
+            
+            // Redirecionar para o dashboard baseado no papel
+            return $this->redirectToDashboard($role);
         }
 
         return Inertia::render('Guest/Home', [
@@ -25,5 +29,23 @@ class GuestController extends Controller
                 'register' => route('auth.register'),
             ]
         ]);
+    }
+    
+    /**
+     * Redirect user to appropriate dashboard
+     */
+    private function redirectToDashboard($role): RedirectResponse
+    {
+        switch ($role) {
+            case 'PCA':
+                return redirect()->route('pca.dashboard');
+            case 'Gestor':
+                return redirect()->route('manager.dashboard');
+            case 'Técnico':
+                return redirect()->route('technician.dashboard');
+            case 'Utente':
+            default:
+                return redirect()->route('user.dashboard');
+        }
     }
 }

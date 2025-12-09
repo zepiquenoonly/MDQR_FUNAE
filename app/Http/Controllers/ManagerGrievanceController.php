@@ -21,68 +21,148 @@ class ManagerGrievanceController extends Controller
     /**
      * Display the specified grievance.
      */
-    /**
- * Display the specified grievance.
- */
-public function show(Grievance $grievance): Response
-{
-    $this->ensureManager(auth()->user());
+    public function show(Grievance $grievance): Response
+    {
+        // CORREÇÃO: Obter o usuário autenticado corretamente
+        $user = auth()->user();
+        $this->ensureManager($user);
 
-    // TRANSITION: submitted → under_review when manager views the complaint
-    if ($grievance->status === 'submitted') {
-        try {
-            DB::beginTransaction();
+        // Carregar relações necessárias - INCLUIR TODOS OS TIPOS
+        $grievance->load([
+            'user',
+            'assignedUser', 
+            'updates.user' => function($query) {
+                $query->orderBy('created_at', 'desc');
+            },
+            'attachments'
+        ]);
 
-            $previousStatus = $grievance->status;
-            $grievance->update(['status' => 'under_review']);
+        // Carregar comentários do gestor
+        $managerComments = $grievance->updates()
+            ->where('user_id', $user->id)
+            ->whereIn('action_type', ['comment_added', 'manager_comment', 'manager_approved', 'manager_rejected'])
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            // Log the status change
-            GrievanceUpdate::log(
-                grievanceId: $grievance->id,
-                actionType: 'status_changed',
-                userId: auth()->id(),
-                description: 'Gestor iniciou análise da reclamação',
-                metadata: [
-                    'previous_status' => $previousStatus,
-                    'new_status' => 'under_review',
-                    'changed_by' => auth()->user()->name,
-                ],
-                isPublic: true
-            );
+        // CORREÇÃO: Carregar comentários do director visíveis para gestores
+        $directorComments = $grievance->updates()
+            ->whereIn('action_type', [
+                'director_comment', 
+                'director_validation_approved',
+                'director_validation_rejected', 
+                'director_validation_needs_revision'
+            ])
+            ->where(function ($query) {
+                $query->where('is_public', true)
+                    ->orWhere(function ($q) {
+                        // Comentários internos visíveis para gestores
+                        $q->where('is_public', false)
+                            ->whereJsonContains('metadata->visible_to', 'manager');
+                    });
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-            DB::commit();
+        $technicians = User::whereHas('roles', function($query) {
+            $query->where('name', 'Técnico');
+        })->get(['id', 'name', 'email']);
 
-            \Log::info('Status atualizado de submitted para under_review', [
-                'grievance_id' => $grievance->id,
-                'user_id' => auth()->id(),
-            ]);
+        // Preparar dados para o frontend
+        $complaintData = [
+            'id' => $grievance->id,
+            'reference_number' => $grievance->reference_number,
+            'title' => $grievance->description,
+            'description' => $grievance->description,
+            'type' => $grievance->type,
+            'priority' => $grievance->priority,
+            'status' => $grievance->status,
+            'category' => $grievance->category,
+            'created_at' => $grievance->created_at,
+            'submitted_at' => $grievance->submitted_at,
+            'province' => $grievance->province,
+            'district' => $grievance->district,
+            'assigned_to' => $grievance->assigned_to,
+            'resolution_notes' => $grievance->resolution_notes,
+            'user' => $grievance->user ? [
+                'name' => $grievance->user->name,
+            ] : null,
+            'technician' => $grievance->assignedUser ? [
+                'id' => $grievance->assignedUser->id,
+                'name' => $grievance->assignedUser->name,
+                'email' => $grievance->assignedUser->email,
+            ] : null,
+            'attachments' => $grievance->attachments->map(function ($attachment) {
+                return [
+                    'id' => $attachment->id,
+                    'name' => $attachment->original_filename,
+                    'original_filename' => $attachment->original_filename,
+                    'size' => $attachment->size,
+                    'uploaded_at' => $attachment->uploaded_at,
+                    'url' => route('attachments.download', $attachment->id),
+                ];
+            })->toArray(),
+            'activities' => $grievance->updates->map(function ($update) {
+                return [
+                    'id' => $update->id,
+                    'type' => $update->action_type,
+                    'description' => $update->description,
+                    'comment' => $update->comment,
+                    'metadata' => $update->metadata,
+                    'created_at' => $update->created_at,
+                    'user' => $update->user ? [
+                        'name' => $update->user->name,
+                        'role' => $update->user->getRoleNames()->first(),
+                    ] : null,
+                ];
+            })->toArray(),
+            'manager_comments' => $managerComments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'comment' => $comment->comment,
+                    'is_public' => $comment->is_public,
+                    'created_at' => $comment->created_at,
+                    'action_type' => $comment->action_type,
+                ];
+            })->toArray(),
+            'director_comments' => $directorComments->map(function ($comment) {
+                return [
+                    'id' => $comment->id,
+                    'content' => $comment->comment ?? $comment->description,
+                    'type' => $comment->action_type,
+                    'created_at' => $comment->created_at,
+                    'user' => $comment->user ? [
+                        'name' => $comment->user->name,
+                        'role' => $comment->user->getRoleNames()->first(),
+                    ] : null,
+                    'metadata' => $comment->metadata ?? [],
+                    'is_public' => $comment->is_public ?? false,
+                ];
+            })->toArray(),
+        ];
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Erro ao atualizar status para under_review: ' . $e->getMessage(), [
-                'grievance_id' => $grievance->id,
-            ]);
+        // Filtrar anexos de resolução se existirem
+        $resolutionAttachments = $grievance->attachments->filter(function ($attachment) {
+            return str_contains($attachment->metadata['uploaded_via'] ?? '', 'resolution') || 
+                   str_contains($attachment->metadata['uploaded_via'] ?? '', 'manager');
+        });
+
+        if ($resolutionAttachments->count() > 0) {
+            $complaintData['resolution_attachments'] = $resolutionAttachments->map(function ($attachment) {
+                return [
+                    'id' => $attachment->id,
+                    'original_filename' => $attachment->original_filename,
+                    'size' => $attachment->size,
+                    'uploaded_at' => $attachment->uploaded_at,
+                    'url' => route('attachments.download', $attachment->id),
+                ];
+            })->toArray();
         }
+
+        return Inertia::render('Manager/GrievanceDetail', [
+            'complaint' => $complaintData,
+            'technicians' => $technicians
+        ]);
     }
-
-    // Carregar relações necessárias - INCLUIR TODOS OS TIPOS
-    $grievance->load([
-        'user',
-        'assignedUser',
-        'updates.user',
-        'attachments'
-    ]);
-
-    // Buscar técnicos disponíveis
-    $technicians = User::whereHas('roles', function($query) {
-        $query->where('name', 'Técnico');
-    })->get(['id', 'name', 'email']);
-
-    return Inertia::render('Manager/GrievanceDetail', [
-        'complaint' => $grievance,
-        'technicians' => $technicians
-    ]);
-}
 
     /**
      * Update priority for a grievance.
@@ -95,7 +175,23 @@ public function show(Grievance $grievance): Response
             'priority' => ['required', Rule::in(['low', 'medium', 'high'])],
         ]);
 
+        $oldPriority = $grievance->priority;
+        
         $grievance->update(['priority' => $data['priority']]);
+
+        // Registrar a alteração
+        GrievanceUpdate::log(
+            grievanceId: $grievance->id,
+            actionType: 'priority_changed',
+            userId: $request->user()->id,
+            description: 'Prioridade alterada pelo gestor',
+            oldValue: $oldPriority,
+            newValue: $data['priority'],
+            metadata: [
+                'changed_by_manager' => true,
+            ],
+            isPublic: true
+        );
 
         return back()->with('success', 'Prioridade atualizada com sucesso.');
     }
@@ -103,77 +199,154 @@ public function show(Grievance $grievance): Response
     /**
      * Reassign grievance to another technician.
      */
+    public function reassign(Request $request, Grievance $grievance)
+    {
+        $this->ensureManager(auth()->user());
 
-
-public function reassign(Request $request, Grievance $grievance)
-{
-    $this->ensureManager($request->user());
-
-    $data = $request->validate([
-        'technician_id' => [
-            'required',
-            Rule::exists('users', 'id'),
-        ],
-    ]);
-
-    try {
-        DB::beginTransaction();
-
-        $technician = User::role('Técnico')->findOrFail($data['technician_id']);
-
-        // Atualizar a reclamação
-        $grievance->update([
-            'assigned_to' => $technician->id,
-            'assigned_at' => now(),
-            'status' => 'assigned',
-        ]);
-
-        // Adicionar atividade (se existir o relacionamento)
-        if (method_exists($grievance, 'activities')) {
-            $grievance->activities()->create([
-                'type' => 'technician_assigned',
-                'description' => "Técnico reatribuído: {$technician->name}",
-                'user_id' => $request->user()->id,
-                'metadata' => [
-                    'new_technician_id' => $technician->id,
-                    'new_technician_name' => $technician->name,
-                ],
-                'created_at' => now(),
-            ]);
-        }
-
-        DB::commit();
-
-        // IMPORTANTE: Recarregar a relação assignedUser
-        $grievance->load(['assignedUser']);
-
-        // Retornar sucesso com os dados atualizados
-        return back()->with([
-            'success' => 'Técnico reatribuído com sucesso.',
-            'updated_complaint' => [
-                'technician' => $grievance->assignedUser ? [
-                    'id' => $grievance->assignedUser->id,
-                    'name' => $grievance->assignedUser->name,
-                ] : null,
-                'status' => $grievance->status,
-                'assigned_at' => $grievance->assigned_at,
-            ]
-        ]);
-
-    } catch (\Exception $e) {
-        DB::rollBack();
-        Log::error('Erro ao reatribuir técnico: ' . $e->getMessage(), [
+        \Log::info('Iniciando reatribuição de técnico', [
             'grievance_id' => $grievance->id,
-            'technician_id' => $data['technician_id'],
-            'exception' => $e,
+            'user_id' => $request->user()->id,
         ]);
 
-        // Retornar erro
-        return back()->withErrors([
-            'message' => 'Erro ao reatribuir técnico: ' . $e->getMessage(),
+        // Validação SIMPLIFICADA - apenas verifica se o usuário existe
+        $validated = $request->validate([
+            'technician_id' => [
+                'required',
+                'integer',
+                Rule::exists('users', 'id'),
+            ],
         ]);
+
+        try {
+            DB::beginTransaction();
+
+            // Buscar usuário e VERIFICAR MANUALMENTE se é técnico
+            $user = User::find($validated['technician_id']);
+            
+            if (!$user) {
+                \Log::warning('Usuário não encontrado', [
+                    'technician_id' => $validated['technician_id'],
+                    'grievance_id' => $grievance->id
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuário não encontrado.'
+                ], 422);
+            }
+
+            // Verificar se o usuário tem role 'Técnico'
+            if (!$user->hasRole('Técnico')) {
+                \Log::warning('Usuário não é técnico', [
+                    'user_id' => $user->id,
+                    'user_name' => $user->name,
+                    'grievance_id' => $grievance->id
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'O usuário selecionado não é um técnico.'
+                ], 422);
+            }
+
+            // Agora sim, temos um técnico válido
+            $technician = $user;
+            $previousTechnician = $grievance->assigned_to;
+
+            \Log::info('Atualizando grievance', [
+                'grievance_id' => $grievance->id,
+                'tecnico_anterior' => $previousTechnician,
+                'novo_tecnico' => $technician->id,
+                'novo_tecnico_nome' => $technician->name
+            ]);
+
+            // Atualizar grievance
+            $grievance->assigned_to = $technician->id;
+            $grievance->assigned_at = now();
+            $grievance->status = 'assigned';
+            $grievance->save();
+
+            \Log::info('Grievance atualizada com sucesso');
+
+            // Criar atividade de reatribuição
+            try {
+                $update = GrievanceUpdate::create([
+                    'grievance_id' => $grievance->id,
+                    'user_id' => $request->user()->id,
+                    'action_type' => 'technician_assigned',
+                    'description' => "Técnico reatribuído: {$technician->name}",
+                    'metadata' => [
+                        'previous_technician_id' => $previousTechnician,
+                        'new_technician_id' => $technician->id,
+                        'new_technician_name' => $technician->name,
+                        'assigned_by_manager' => true,
+                    ],
+                    'is_public' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                
+                \Log::info('Atividade registrada', ['update_id' => $update->id]);
+            } catch (\Exception $e) {
+                \Log::warning('Não foi possível registrar atividade', [
+                    'error' => $e->getMessage(),
+                    'grievance_id' => $grievance->id
+                ]);
+            }
+
+            DB::commit();
+
+            \Log::info('Reatribuição concluída com sucesso', [
+                'grievance_id' => $grievance->id,
+                'technician_name' => $technician->name
+            ]);
+
+            // Determinar tipo de resposta
+            if ($request->header('X-Inertia')) {
+                return back()->with([
+                    'success' => 'Técnico reatribuído com sucesso.',
+                    'updatedTechnician' => [
+                        'id' => $technician->id,
+                        'name' => $technician->name,
+                        'email' => $technician->email,
+                    ]
+                ]);
+            }
+
+            // Para API/JSON
+            return response()->json([
+                'success' => true,
+                'message' => 'Técnico reatribuído com sucesso.',
+                'technician' => [
+                    'id' => $technician->id,
+                    'name' => $technician->name,
+                    'email' => $technician->email,
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Erro na reatribuição', [
+                'grievance_id' => $grievance->id,
+                'technician_id' => $validated['technician_id'] ?? null,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            $errorMessage = 'Erro ao reatribuir técnico: ' . $e->getMessage();
+            
+            if ($request->header('X-Inertia')) {
+                return back()->withErrors(['error' => $errorMessage]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => $errorMessage
+            ], 500);
+        }
     }
-}
+
     /**
      * Mark grievance as resolved after manager approval.
      */
@@ -246,42 +419,469 @@ public function reassign(Request $request, Grievance $grievance)
     }
 
     /**
-     * Reject the completion request and send the grievance back to the technician.
+     * Add comment to a grievance.
      */
-    public function rejectCompletion(Request $request, Grievance $grievance): RedirectResponse
+    public function addComment(Request $request, Grievance $grievance)
     {
         $this->ensureManager($request->user());
 
-        if ($grievance->status !== 'pending_approval') {
-            return back()->with('warning', 'Apenas reclamações pendentes de aprovação podem ser devolvidas.');
-        }
-
-        $data = $request->validate([
-            'reason' => ['required', 'string', 'min:10', 'max:2000'],
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'min:10', 'max:2000'],
+            'is_public' => ['required', 'boolean'],
         ]);
 
-        $metadata = $grievance->metadata ?? [];
-        $metadata['rejection_reason'] = $data['reason'];
-        $metadata['rejected_by'] = $request->user()->id;
-        $metadata['rejected_at'] = now()->toIso8601String();
+        DB::beginTransaction();
 
-        DB::transaction(function () use ($grievance, $metadata, $request, $data) {
-            $grievance->update([
-                'status' => 'in_progress',
-                'metadata' => $metadata,
-            ]);
-
+        try {
+            // Criar atividade de comentário
             GrievanceUpdate::log(
                 grievanceId: $grievance->id,
                 actionType: 'comment_added',
                 userId: $request->user()->id,
-                description: 'Gestor devolveu a reclamação para ajustes',
-                comment: $data['reason'],
+                description: 'Gestor adicionou um comentário',
+                comment: $validated['comment'],
+                metadata: [
+                    'is_public' => $validated['is_public'],
+                    'comment_type' => 'manager_comment',
+                ],
+                isPublic: $validated['is_public']
+            );
+
+            // Se o comentário não for público, adicionar metadados
+            if (!$validated['is_public']) {
+                $metadata = $grievance->metadata ?? [];
+                $metadata['private_comments'][] = [
+                    'user_id' => $request->user()->id,
+                    'comment' => $validated['comment'],
+                    'created_at' => now()->toIso8601String(),
+                ];
+                $grievance->metadata = $metadata;
+                $grievance->save();
+            }
+
+            DB::commit();
+
+            return back()->with('success', 'Comentário adicionado com sucesso.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao adicionar comentário', [
+                'grievance_id' => $grievance->id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors(['error' => 'Erro ao adicionar comentário: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Send grievance to director.
+     */
+     public function sendToDirector(Request $request, Grievance $grievance)
+    {
+        $this->ensureManager($request->user());
+
+        // Verificar se pode enviar ao director
+        $allowedStatuses = ['submitted', 'under_review', 'assigned', 'in_progress', 'open'];
+        if (!in_array($grievance->status, $allowedStatuses)) {
+            return back()->withErrors([
+                'error' => 'Só pode enviar ao director quando o status for: ' . 
+                         implode(', ', array_map([$this, 'getStatusText'], $allowedStatuses))
+            ]);
+        }
+
+        // Verificar se já foi escalado
+        if ($grievance->escalated) {
+            return back()->withErrors([
+                'error' => 'Esta submissão já foi escalada ao Director anteriormente.'
+            ]);
+        }
+
+        $validated = $request->validate([
+            'reason' => ['required', 'string', 'min:5', 'max:500'],
+            'comment' => ['required', 'string', 'min:20', 'max:2000'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Encontrar o director
+            $director = User::role('Director')->first();
+            
+            if (!$director) {
+                // Se não houver director, usar admin como fallback
+                $director = User::role('Admin')->first();
+                
+                if (!$director) {
+                    // Último fallback: qualquer usuário administrador
+                    $director = User::whereHas('roles', function($query) {
+                        $query->whereIn('name', ['Admin', 'Administrador']);
+                    })->first();
+                }
+            }
+
+            // Capitalizar a primeira letra do motivo em português
+            $capitalizedReason = ucfirst(mb_strtolower($validated['reason'], 'UTF-8'));
+            
+            // Garantir que a primeira letra após ponto final também seja capitalizada
+            $capitalizedReason = preg_replace_callback('/\.\s*(\w)/', function($matches) {
+                return '. ' . mb_strtoupper($matches[1], 'UTF-8');
+            }, $capitalizedReason);
+
+            // Usar o método do modelo para marcar como escalado
+            $grievance->markAsEscalated(
+                escalatedBy: $request->user()->id,
+                reason: $capitalizedReason
+            );
+
+            // Atualizar status e atribuição
+            $grievance->update([
+                'status' => 'escalated',
+                'assigned_to' => $director->id ?? null,
+                'priority' => 'high',
+            ]);
+
+            // Criar atividade de escalamento
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'escalated_to_director',
+                userId: $request->user()->id,
+                description: 'Submissão escalada para o Director',
+                comment: $validated['comment'],
+                metadata: [
+                    'reason' => $capitalizedReason,
+                    'escalated_by' => $request->user()->id,
+                    'escalated_by_name' => $request->user()->name,
+                    'escalated_at' => now()->toIso8601String(),
+                    'director_id' => $director->id ?? null,
+                    'director_name' => $director->name ?? 'Director',
+                    'previous_assigned_to' => $grievance->getOriginal('assigned_to'),
+                    'previous_status' => $grievance->getOriginal('status'),
+                    'priority_changed_to' => 'high',
+                    'is_public' => true,
+                ],
                 isPublic: true
             );
-        });
 
-        return back()->with('info', 'Solicitação devolvida ao técnico com os motivos informados.');
+            // Criar atividade de mudança de status
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'status_changed',
+                userId: $request->user()->id,
+                description: 'Status alterado para "Escalado ao Director"',
+                oldValue: $grievance->getOriginal('status'),
+                newValue: 'escalated',
+                metadata: [
+                    'changed_by_manager' => true,
+                    'escalation_reason' => $capitalizedReason,
+                ],
+                isPublic: true
+            );
+
+            // Criar atividade de mudança de prioridade
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'priority_changed',
+                userId: $request->user()->id,
+                description: 'Prioridade aumentada para ALTA devido a escalamento para Director',
+                oldValue: $grievance->getOriginal('priority'),
+                newValue: 'high',
+                metadata: [
+                    'reason' => 'Escalamento para Director',
+                    'escalation_reason' => $capitalizedReason,
+                ],
+                isPublic: true
+            );
+
+            // Se houve mudança de técnico para director
+            if ($grievance->getOriginal('assigned_to') !== $director->id) {
+                GrievanceUpdate::log(
+                    grievanceId: $grievance->id,
+                    actionType: 'technician_reassigned',
+                    userId: $request->user()->id,
+                    description: 'Submissão reatribuída ao Director',
+                    oldValue: $grievance->getOriginal('assigned_to'),
+                    newValue: $director->id ?? null,
+                    metadata: [
+                        'new_technician_name' => $director->name ?? 'Director',
+                        'reassigned_by_manager' => true,
+                        'reason' => 'Escalamento para Director',
+                    ],
+                    isPublic: true
+                );
+            }
+
+            DB::commit();
+
+            // Log de sucesso
+            \Log::info('Submissão escalada para o Director com sucesso', [
+                'grievance_id' => $grievance->id,
+                'reference_number' => $grievance->reference_number,
+                'manager_id' => $request->user()->id,
+                'manager_name' => $request->user()->name,
+                'director_id' => $director->id ?? null,
+                'director_name' => $director->name ?? 'N/A',
+                'reason' => $capitalizedReason,
+                'previous_status' => $grievance->getOriginal('status'),
+                'new_status' => 'escalated',
+            ]);
+
+            // Para requisições Inertia
+            if ($request->header('X-Inertia')) {
+                return back()->with([
+                    'success' => 'Submissão enviada ao Director com sucesso!',
+                    'updatedGrievance' => [
+                        'id' => $grievance->id,
+                        'reference_number' => $grievance->reference_number,
+                        'status' => 'escalated',
+                        'escalated' => true,
+                        'priority' => 'high',
+                        'assigned_to' => $director ? [
+                            'id' => $director->id,
+                            'name' => $director->name,
+                            'email' => $director->email,
+                        ] : null,
+                        'escalated_by' => [
+                            'id' => $request->user()->id,
+                            'name' => $request->user()->name,
+                        ],
+                        'escalation_reason' => $capitalizedReason,
+                        'escalated_at' => now()->toIso8601String(),
+                    ]
+                ]);
+            }
+
+            // Para requisições API/JSON
+            return response()->json([
+                'success' => true,
+                'message' => 'Submissão enviada ao Director com sucesso!',
+                'grievance' => [
+                    'id' => $grievance->id,
+                    'reference_number' => $grievance->reference_number,
+                    'status' => 'escalated',
+                    'escalated' => true,
+                    'priority' => 'high',
+                    'assigned_to' => $director ? [
+                        'id' => $director->id,
+                        'name' => $director->name,
+                        'email' => $director->email,
+                    ] : null,
+                    'escalated_by' => [
+                        'id' => $request->user()->id,
+                        'name' => $request->user()->name,
+                    ],
+                    'escalation_reason' => $capitalizedReason,
+                    'escalated_at' => now()->toIso8601String(),
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            
+            \Log::error('Erro ao enviar submissão para o Director', [
+                'grievance_id' => $grievance->id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->all(),
+            ]);
+
+            // Para requisições Inertia
+            if ($request->header('X-Inertia')) {
+                return back()->withErrors([
+                    'error' => 'Erro ao enviar para director: ' . $e->getMessage()
+                ]);
+            }
+
+            // Para requisições API/JSON
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao enviar para director: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Approve completion of a grievance.
+     */
+    public function approveCompletion(Request $request, Grievance $grievance)
+    {
+        $this->ensureManager($request->user());
+
+        if ($grievance->status !== 'pending_approval') {
+            return back()->withErrors(['error' => 'Só pode aprovar conclusão quando o status for "Pendente de Aprovação"']);
+        }
+
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'min:10', 'max:2000'],
+            'is_public' => ['required', 'boolean'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Atualizar grievance como resolvida
+            $grievance->update([
+                'status' => 'resolved',
+                'resolved_at' => now(),
+                'resolved_by' => $request->user()->id,
+            ]);
+
+            // Adicionar comentário do gestor
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'manager_approved',
+                userId: $request->user()->id,
+                description: 'Gestor aprovou a conclusão da submissão',
+                comment: $validated['comment'],
+                metadata: [
+                    'is_public' => $validated['is_public'],
+                    'approval_type' => 'manager_approval',
+                    'approved_at' => now()->toIso8601String(),
+                ],
+                isPublic: $validated['is_public']
+            );
+
+            // Atualizar status publicamente
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'status_changed',
+                userId: $request->user()->id,
+                description: 'Submissão marcada como resolvida',
+                oldValue: 'pending_approval',
+                newValue: 'resolved',
+                metadata: [
+                    'approved_by' => $request->user()->id,
+                    'approved_at' => now()->toIso8601String(),
+                ],
+                isPublic: true
+            );
+
+            DB::commit();
+
+            // TODO: Enviar notificação ao utente
+
+            return back()->with('success', 'Conclusão aprovada com sucesso! O utente será notificado.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao aprovar conclusão', [
+                'grievance_id' => $grievance->id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors(['error' => 'Erro ao aprovar conclusão: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Reject completion and send back to technician.
+     */
+    public function rejectCompletion(Request $request, Grievance $grievance)
+    {
+        $this->ensureManager($request->user());
+
+        if ($grievance->status !== 'pending_approval') {
+            return back()->withErrors(['error' => 'Só pode rejeitar conclusão quando o status for "Pendente de Aprovação"']);
+        }
+
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'min:10', 'max:2000'],
+            'is_public' => ['required', 'boolean'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            // Voltar para in_progress
+            $grievance->update([
+                'status' => 'in_progress',
+            ]);
+
+            // Adicionar comentário do gestor
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'manager_rejected',
+                userId: $request->user()->id,
+                description: 'Gestor rejeitou a conclusão da submissão',
+                comment: $validated['comment'],
+                metadata: [
+                    'is_public' => $validated['is_public'],
+                    'rejection_type' => 'manager_rejection',
+                    'returned_to_technician' => true,
+                    'rejected_at' => now()->toIso8601String(),
+                ],
+                isPublic: $validated['is_public']
+            );
+
+            // Atualizar status
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'status_changed',
+                userId: $request->user()->id,
+                description: 'Submissão devolvida ao técnico para ajustes',
+                oldValue: 'pending_approval',
+                newValue: 'in_progress',
+                metadata: [
+                    'rejection_reason' => 'Conclusão rejeitada pelo gestor',
+                ],
+                isPublic: true
+            );
+
+            DB::commit();
+
+            // TODO: Enviar notificação ao técnico
+
+            return back()->with('success', 'Conclusão rejeitada. A submissão voltou para o técnico.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Erro ao rejeitar conclusão', [
+                'grievance_id' => $grievance->id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors(['error' => 'Erro ao rejeitar conclusão: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Save manager comment without changing status.
+     */
+    public function saveComment(Request $request, Grievance $grievance)
+    {
+        $this->ensureManager($request->user());
+
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'min:10', 'max:2000'],
+            'is_public' => ['required', 'boolean'],
+        ]);
+
+        try {
+            GrievanceUpdate::log(
+                grievanceId: $grievance->id,
+                actionType: 'manager_comment',
+                userId: $request->user()->id,
+                description: 'Comentário do gestor',
+                comment: $validated['comment'],
+                metadata: [
+                    'is_public' => $validated['is_public'],
+                    'comment_type' => 'manager_standalone',
+                    'created_at' => now()->toIso8601String(),
+                ],
+                isPublic: $validated['is_public']
+            );
+
+            return back()->with('success', 'Comentário salvo com sucesso.');
+        } catch (\Exception $e) {
+            Log::error('Erro ao salvar comentário', [
+                'grievance_id' => $grievance->id,
+                'user_id' => $request->user()->id,
+                'error' => $e->getMessage(),
+            ]);
+
+            return back()->withErrors(['error' => 'Erro ao salvar comentário: ' . $e->getMessage()]);
+        }
     }
 
     /**
@@ -355,9 +955,30 @@ public function reassign(Request $request, Grievance $grievance)
             'is_encrypted' => false,
             'metadata' => [
                 'uploaded_via' => $source,
+                'uploaded_by' => auth()->id(),
+                'uploaded_at' => now()->toIso8601String(),
             ],
             'uploaded_by' => auth()->id(),
             'uploaded_at' => now(),
         ]);
     }
+
+    private function getStatusText(string $status): string
+{
+    $statusMap = [
+        'submitted' => 'Submetida',
+        'under_review' => 'Em Análise',
+        'assigned' => 'Atribuída',
+        'in_progress' => 'Em Andamento',
+        'pending_approval' => 'Pendente de Aprovação',
+        'resolved' => 'Resolvida',
+        'rejected' => 'Rejeitada',
+        'open' => 'Aberta',
+        'closed' => 'Concluída',
+        'escalated' => 'Enviada ao Director',
+        'draft' => 'Rascunho',
+    ];
+
+    return $statusMap[$status] ?? $status;
+}
 }

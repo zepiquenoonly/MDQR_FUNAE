@@ -1,119 +1,1249 @@
 <!DOCTYPE html>
-<html lang="pt">
+<html lang="pt-BR">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <title>Sidebar Completa</title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestão de Reclamações</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Tooltip */
-        .tooltip {
-            @apply absolute left-full ml-3 top-1/2 -translate-y-1/2 
-                    bg-gray-900 text-white text-sm 
-                    px-3 py-1 rounded-md shadow-xl 
-                    whitespace-nowrap 
-                    opacity-0 scale-95
-                    pointer-events-none
-                    transition-all duration-150;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        .item:hover .tooltip {
-            opacity: 1;
-            scale: 1;
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #27ae60;
+            --warning-color: #f39c12;
+            --light-bg: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333;
+            --text-light: #777;
+            --border-color: #e1e5eb;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --radius: 8px;
+        }
+
+        body {
+            background-color: var(--light-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .logo i {
+            color: var(--secondary-color);
+            font-size: 1.8rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .nav-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header h2 {
+            font-size: 1.8rem;
+            color: var(--primary-color);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--card-bg);
+            padding: 8px 15px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--secondary-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Cards */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .card-icon.pending {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--warning-color);
+        }
+
+        .card-icon.in-progress {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--secondary-color);
+        }
+
+        .card-icon.resolved {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: var(--success-color);
+        }
+
+        .card-icon.critical {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--accent-color);
+        }
+
+        .card-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .card-title {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Tables */
+        .section {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h3 {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: var(--light-bg);
+            color: var(--primary-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e8eef5;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background-color: rgba(243, 156, 18, 0.15);
+            color: var(--warning-color);
+        }
+
+        .status-in-progress {
+            background-color: rgba(52, 152, 219, 0.15);
+            color: var(--secondary-color);
+        }
+
+        .status-resolved {
+            background-color: rgba(39, 174, 96, 0.15);
+            color: var(--success-color);
+        }
+
+        .status-critical {
+            background-color: rgba(231, 76, 60, 0.15);
+            color: var(--accent-color);
+        }
+
+        .priority-high {
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--secondary-color);
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+
+        /* Charts */
+        .charts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart {
+            background-color: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 25px;
+            box-shadow: var(--shadow);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-placeholder {
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--light-bg);
+            border-radius: var(--radius);
+            color: var(--text-light);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 700px;
+            border-radius: var(--radius);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-light);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                width: 70px;
+            }
+            
+            .logo h1, .nav-item span {
+                display: none;
+            }
+            
+            .logo {
+                justify-content: center;
+                padding: 0 0 20px;
+            }
+            
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 10px 0;
+            }
+            
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+            }
+            
+            .nav-item {
+                padding: 10px 15px;
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 4px solid transparent;
+            }
+            
+            .nav-item:hover, .nav-item.active {
+                border-left: none;
+                border-bottom: 4px solid var(--secondary-color);
+            }
+            
+            .cards-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
         }
     </style>
 </head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-headset"></i>
+                <h1>Gestão de Reclamações</h1>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" data-view="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </li>
+                <li class="nav-item" data-view="complaints">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Reclamações/Queixas</span>
+                </li>
+                <li class="nav-item" data-view="suggestions">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Sugestões</span>
+                </li>
+                <li class="nav-item" data-view="analysis">
+                    <i class="fas fa-search"></i>
+                    <span>Análise de Casos</span>
+                </li>
+                <li class="nav-item" data-view="reports">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                </li>
+                <li class="nav-item" data-view="indicators">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Indicadores</span>
+                </li>
+            </ul>
+        </aside>
 
-<body class="bg-gray-100">
-
-<div x-data="{ open: false }" class="flex">
-
-    <!-- SIDEBAR -->
-    <aside
-        class="h-screen bg-gray-900 text-white transition-all duration-300
-               flex flex-col"
-        :class="open ? 'w-64' : 'w-16'"
-    >
-        <!-- HEADER -->
-        <div class="flex items-center justify-between px-4 py-4 border-b border-gray-800">
-            <span class="font-bold" x-show="open" x-transition>Minha App</span>
-            <button @click="open = !open" class="text-xl">☰</button>
-        </div>
-
-        <!-- MENU -->
-        <nav class="flex-1 overflow-y-auto mt-4">
-
-            <!-- GRUPO 1 -->
-            <div class="px-2">
-                <p class="text-gray-500 mb-2 text-sm" x-show="open" x-transition>Geral</p>
-
-                <!-- Item -->
-                <a href="#"
-                    class="relative item flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
-                           hover:bg-gray-800 transition-all"
-                >
-                    <span class="text-xl">🏠</span>
-                    <span x-show="open" x-transition.opacity>Dashboard</span>
-
-                    <!-- Tooltip -->
-                    <span class="tooltip" x-show="!open">Dashboard</span>
-                </a>
-
-                <a href="#"
-                    class="relative item flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
-                           hover:bg-gray-800 transition-all"
-                >
-                    <span class="text-xl">📊</span>
-                    <span x-show="open" x-transition.opacity>Analytics</span>
-                    <span class="tooltip" x-show="!open">Analytics</span>
-                </a>
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h2 id="page-title">Dashboard</h2>
+                <div class="user-info">
+                    <div class="user-avatar">GS</div>
+                    <div>
+                        <div class="user-name">Gestor do Setor</div>
+                        <div class="user-role">Supervisor de Departamento</div>
+                    </div>
+                </div>
             </div>
 
-            <!-- GRUPO 2 -->
-            <div class="px-2 mt-6">
-                <p class="text-gray-500 mb-2 text-sm" x-show="open" x-transition>Administração</p>
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-content">
+                <!-- Cards -->
+                <div class="cards-container">
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-value" id="pending-count">12</div>
+                                <div class="card-title">Pendentes</div>
+                            </div>
+                            <div class="card-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-value" id="critical-count">5</div>
+                                <div class="card-title">Críticas</div>
+                            </div>
+                            <div class="card-icon critical">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-value" id="in-progress-count">8</div>
+                                <div class="card-title">Em Análise</div>
+                            </div>
+                            <div class="card-icon in-progress">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div>
+                                <div class="card-value" id="resolved-count">42</div>
+                                <div class="card-title">Resolvidas</div>
+                            </div>
+                            <div class="card-icon resolved">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <a href="#"
-                    class="relative item flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
-                           hover:bg-gray-800 transition-all"
-                >
-                    <span class="text-xl">👥</span>
-                    <span x-show="open" x-transition.opacity>Utilizadores</span>
-                    <span class="tooltip" x-show="!open">Utilizadores</span>
-                </a>
+                <!-- Charts -->
+                <div class="charts-container">
+                    <div class="chart">
+                        <div class="chart-header">
+                            <h3>Status das Reclamações</h3>
+                            <select class="form-control" style="width: auto;">
+                                <option>Últimos 7 dias</option>
+                                <option>Últimos 30 dias</option>
+                                <option>Últimos 90 dias</option>
+                            </select>
+                        </div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-pie fa-3x"></i>
+                            <div style="margin-left: 15px;">
+                                <h4>Gráfico de Status</h4>
+                                <p>Visualização das reclamações por status</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart">
+                        <div class="chart-header">
+                            <h3>Tendência de Reclamações</h3>
+                            <select class="form-control" style="width: auto;">
+                                <option>Últimos 7 dias</option>
+                                <option>Últimos 30 dias</option>
+                                <option>Últimos 90 dias</option>
+                            </select>
+                        </div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line fa-3x"></i>
+                            <div style="margin-left: 15px;">
+                                <h4>Gráfico de Tendência</h4>
+                                <p>Evolução das reclamações ao longo do tempo</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                <a href="#"
-                    class="relative item flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer
-                           hover:bg-gray-800 transition-all"
-                >
-                    <span class="text-xl">⚙️</span>
-                    <span x-show="open" x-transition.opacity>Configurações</span>
-                    <span class="tooltip" x-show="!open">Configurações</span>
-                </a>
+                <!-- Recent Cases -->
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Casos Recentes</h3>
+                        <button class="btn btn-secondary" id="view-all-btn">
+                            <i class="fas fa-list"></i> Ver Todos
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Assunto</th>
+                                    <th>Tipo</th>
+                                    <th>Data</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-cases">
+                                <!-- Cases will be loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-        </nav>
+            <!-- Complaints View -->
+            <div id="complaints-view" class="view-content" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Reclamações e Queixas do Departamento</h3>
+                        <div>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Exportar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Assunto</th>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Prioridade</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaints-table">
+                                <!-- Complaints will be loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
 
-        <!-- FOOTER -->
-        <div class="border-t border-gray-800 px-3 py-4">
-            <a href="#" class="relative item flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800">
-                <span class="text-xl">🚪</span>
-                <span x-show="open" x-transition.opacity>Sair</span>
-                <span class="tooltip" x-show="!open">Sair</span>
-            </a>
+            <!-- Suggestions View -->
+            <div id="suggestions-view" class="view-content" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Sugestões Recebidas</h3>
+                        <div>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-plus"></i> Nova Sugestão
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Sugestão</th>
+                                    <th>Enviado por</th>
+                                    <th>Data</th>
+                                    <th>Categoria</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="suggestions-table">
+                                <!-- Suggestions will be loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis View -->
+            <div id="analysis-view" class="view-content" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Análise de Casos Solicitados</h3>
+                        <div>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-filter"></i> Filtrar
+                            </button>
+                            <button class="btn btn-primary" id="new-analysis-btn">
+                                <i class="fas fa-plus"></i> Nova Análise
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID Caso</th>
+                                    <th>Assunto</th>
+                                    <th>Solicitado por</th>
+                                    <th>Data Solicitação</th>
+                                    <th>Prazo</th>
+                                    <th>Status Análise</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="analysis-table">
+                                <!-- Analysis cases will be loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports View -->
+            <div id="reports-view" class="view-content" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Relatórios Estatísticos</h3>
+                        <div>
+                            <button class="btn btn-secondary">
+                                <i class="fas fa-calendar"></i> Período
+                            </button>
+                            <button class="btn btn-primary">
+                                <i class="fas fa-download"></i> Gerar Relatório
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cards-container" style="margin-bottom: 30px;">
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-value">94%</div>
+                                    <div class="card-title">Taxa de Resolução</div>
+                                </div>
+                                <div class="card-icon resolved">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-value">2.3</div>
+                                    <div class="card-title">Dias (Média Resolução)</div>
+                                </div>
+                                <div class="card-icon in-progress">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card">
+                            <div class="card-header">
+                                <div>
+                                    <div class="card-value">87%</div>
+                                    <div class="card-title">Satisfação do Cliente</div>
+                                </div>
+                                <div class="card-icon resolved">
+                                    <i class="fas fa-smile"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart">
+                        <div class="chart-header">
+                            <h3>Distribuição por Tipo de Reclamação</h3>
+                        </div>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-bar fa-3x"></i>
+                            <div style="margin-left: 15px;">
+                                <h4>Gráfico de Distribuição</h4>
+                                <p>Visualização das reclamações por tipo/categoria</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Indicators View -->
+            <div id="indicators-view" class="view-content" style="display: none;">
+                <div class="section">
+                    <div class="section-header">
+                        <h3>Indicadores de Desempenho do Departamento</h3>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-download"></i> Exportar KPIs
+                        </button>
+                    </div>
+                    
+                    <div class="charts-container" style="margin-bottom: 30px;">
+                        <div class="chart">
+                            <div class="chart-header">
+                                <h3>Volume de Reclamações</h3>
+                            </div>
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-area fa-3x"></i>
+                                <div style="margin-left: 15px;">
+                                    <h4>Volume Mensal</h4>
+                                    <p>Evolução do volume de reclamações ao longo do tempo</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="chart">
+                            <div class="chart-header">
+                                <h3>Tempo de Resolução</h3>
+                            </div>
+                            <div class="chart-placeholder">
+                                <i class="fas fa-chart-line fa-3x"></i>
+                                <div style="margin-left: 15px;">
+                                    <h4>Média de Tempo</h4>
+                                    <p>Tempo médio de resolução por mês</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Indicador</th>
+                                    <th>Meta</th>
+                                    <th>Realizado</th>
+                                    <th>Desempenho</th>
+                                    <th>Tendência</th>
+                                </tr>
+                            </thead>
+                            <tbody id="indicators-table">
+                                <!-- Indicators will be loaded by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal for Case Details -->
+    <div id="case-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Detalhes do Caso</h3>
+                <button class="close-modal" id="close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>ID do Caso</label>
+                    <input type="text" class="form-control" id="case-id" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Assunto</label>
+                    <input type="text" class="form-control" id="case-subject" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label>Descrição</label>
+                    <textarea class="form-control" id="case-description" readonly></textarea>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div class="form-group">
+                        <label>Status</label>
+                        <input type="text" class="form-control" id="case-status" readonly>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Prioridade</label>
+                        <input type="text" class="form-control" id="case-priority" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Parecer / Validação</label>
+                    <textarea class="form-control" id="case-opinion" placeholder="Digite seu parecer sobre o caso..."></textarea>
+                </div>
+                
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button class="btn btn-secondary" id="cancel-modal">Cancelar</button>
+                    <button class="btn btn-primary" id="save-opinion">Salvar Parecer</button>
+                    <button class="btn btn-primary" id="validate-case" style="background-color: var(--success-color);">Validar</button>
+                </div>
+            </div>
         </div>
+    </div>
 
-    </aside>
+    <script>
+        // Sample data for the application
+        const sampleData = {
+            recentCases: [
+                {id: "RC-2023-0456", subject: "Atraso na entrega", type: "Reclamação", date: "15/10/2023", status: "Pendente", priority: "Alta"},
+                {id: "RC-2023-0455", subject: "Produto com defeito", type: "Reclamação", date: "14/10/2023", status: "Em Análise", priority: "Alta"},
+                {id: "RC-2023-0454", subject: "Atendimento insatisfatório", type: "Queixa", date: "13/10/2023", status: "Resolvido", priority: "Média"},
+                {id: "RC-2023-0453", subject: "Sugestão de melhoria", type: "Sugestão", date: "12/10/2023", status: "Pendente", priority: "Baixa"},
+                {id: "RC-2023-0452", subject: "Cobrança indevida", type: "Reclamação", date: "11/10/2023", status: "Resolvido", priority: "Alta"}
+            ],
+            complaints: [
+                {id: "RC-2023-0456", subject: "Atraso na entrega", client: "João Silva", date: "15/10/2023", priority: "Alta", status: "Pendente"},
+                {id: "RC-2023-0455", subject: "Produto com defeito", client: "Maria Santos", date: "14/10/2023", priority: "Alta", status: "Em Análise"},
+                {id: "RC-2023-0452", subject: "Cobrança indevida", client: "Carlos Oliveira", date: "11/10/2023", priority: "Alta", status: "Resolvido"},
+                {id: "RC-2023-0449", subject: "Falta de informação", client: "Ana Costa", date: "08/10/2023", priority: "Média", status: "Resolvido"},
+                {id: "RC-2023-0447", subject: "Problema com garantia", client: "Pedro Almeida", date: "05/10/2023", priority: "Alta", status: "Em Análise"},
+                {id: "RC-2023-0445", subject: "Qualidade do produto", client: "Fernanda Lima", date: "02/10/2023", priority: "Média", status: "Resolvido"}
+            ],
+            suggestions: [
+                {id: "SG-2023-0123", suggestion: "Melhorar embalagem do produto", sender: "Cliente Anônimo", date: "12/10/2023", category: "Produto", status: "Em análise"},
+                {id: "SG-2023-0122", suggestion: "Criar app para acompanhamento", sender: "Roberto Nascimento", date: "10/10/2023", category: "Tecnologia", status: "Aprovada"},
+                {id: "SG-2023-0121", suggestion: "Ampliar horário de atendimento", sender: "Carla Mendes", date: "08/10/2023", category: "Atendimento", status: "Rejeitada"},
+                {id: "SG-2023-0120", suggestion: "Oferecer mais opções de pagamento", sender: "Cliente Anônimo", date: "05/10/2023", category: "Financeiro", status: "Em análise"}
+            ],
+            analysisCases: [
+                {id: "RC-2023-0455", subject: "Produto com defeito", requestedBy: "Gestor Reclamações", requestDate: "14/10/2023", deadline: "18/10/2023", status: "Pendente"},
+                {id: "RC-2023-0447", subject: "Problema com garantia", requestedBy: "Gestor Reclamações", requestDate: "10/10/2023", deadline: "15/10/2023", status: "Em andamento"},
+                {id: "RC-2023-0435", subject: "Reclamação recorrente", requestedBy: "Supervisor Geral", requestDate: "05/10/2023", deadline: "10/10/2023", status: "Concluída"}
+            ],
+            indicators: [
+                {indicator: "Taxa de resolução (primeiro contato)", target: "85%", actual: "82%", performance: "97%", trend: "↑"},
+                {indicator: "Tempo médio de resposta", target: "4h", actual: "3.5h", performance: "113%", trend: "↑"},
+                {indicator: "Tempo médio de resolução", target: "3 dias", actual: "2.3 dias", performance: "130%", trend: "↑"},
+                {indicator: "Satisfação do cliente", target: "90%", actual: "87%", performance: "97%", trend: "→"},
+                {indicator: "Reclamações críticas resolvidas", target: "95%", actual: "91%", performance: "96%", trend: "↓"}
+            ]
+        };
 
-    <!-- CONTEÚDO -->
-    <main class="flex-1 p-8">
-        <h1 class="text-3xl font-bold">Sidebar Complexa</h1>
-        <p class="text-gray-600 mt-2">Passe o mouse sobre os itens para ver os tooltips.</p>
-    </main>
-
-</div>
-
+        // DOM Elements
+        const navItems = document.querySelectorAll('.nav-item');
+        const viewContents = document.querySelectorAll('.view-content');
+        const pageTitle = document.getElementById('page-title');
+        const recentCasesTbody = document.getElementById('recent-cases');
+        const complaintsTable = document.getElementById('complaints-table');
+        const suggestionsTable = document.getElementById('suggestions-table');
+        const analysisTable = document.getElementById('analysis-table');
+        const indicatorsTable = document.getElementById('indicators-table');
+        const caseModal = document.getElementById('case-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const cancelModalBtn = document.getElementById('cancel-modal');
+        const viewAllBtn = document.getElementById('view-all-btn');
+        const newAnalysisBtn = document.getElementById('new-analysis-btn');
+        
+        // Navigation
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const viewId = item.getAttribute('data-view');
+                
+                // Update active nav item
+                navItems.forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                
+                // Show selected view
+                viewContents.forEach(view => view.style.display = 'none');
+                document.getElementById(`${viewId}-view`).style.display = 'block';
+                
+                // Update page title
+                pageTitle.textContent = item.querySelector('span').textContent;
+                
+                // Load data for the view
+                loadViewData(viewId);
+            });
+        });
+        
+        // Load data for a specific view
+        function loadViewData(viewId) {
+            switch(viewId) {
+                case 'dashboard':
+                    loadRecentCases();
+                    updateDashboardCounts();
+                    break;
+                case 'complaints':
+                    loadComplaints();
+                    break;
+                case 'suggestions':
+                    loadSuggestions();
+                    break;
+                case 'analysis':
+                    loadAnalysisCases();
+                    break;
+                case 'indicators':
+                    loadIndicators();
+                    break;
+            }
+        }
+        
+        // Load recent cases for dashboard
+        function loadRecentCases() {
+            recentCasesTbody.innerHTML = '';
+            
+            sampleData.recentCases.forEach(caseItem => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${caseItem.id}</td>
+                    <td>${caseItem.subject}</td>
+                    <td>${caseItem.type}</td>
+                    <td>${caseItem.date}</td>
+                    <td><span class="status-badge status-${getStatusClass(caseItem.status)}">${caseItem.status}</span></td>
+                    <td>
+                        <button class="action-btn view-case-btn" data-id="${caseItem.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn analyze-case-btn" data-id="${caseItem.id}">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </td>
+                `;
+                recentCasesTbody.appendChild(row);
+            });
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.view-case-btn').forEach(btn => {
+                btn.addEventListener('click', () => openCaseModal(btn.getAttribute('data-id')));
+            });
+        }
+        
+        // Load complaints
+        function loadComplaints() {
+            complaintsTable.innerHTML = '';
+            
+            sampleData.complaints.forEach(complaint => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${complaint.id}</td>
+                    <td>${complaint.subject}</td>
+                    <td>${complaint.client}</td>
+                    <td>${complaint.date}</td>
+                    <td class="${complaint.priority === 'Alta' ? 'priority-high' : ''}">${complaint.priority}</td>
+                    <td><span class="status-badge status-${getStatusClass(complaint.status)}">${complaint.status}</span></td>
+                    <td>
+                        <button class="action-btn view-case-btn" data-id="${complaint.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn validate-case-btn" data-id="${complaint.id}">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                    </td>
+                `;
+                complaintsTable.appendChild(row);
+            });
+            
+            // Add event listeners to buttons
+            document.querySelectorAll('.view-case-btn').forEach(btn => {
+                btn.addEventListener('click', () => openCaseModal(btn.getAttribute('data-id')));
+            });
+        }
+        
+        // Load suggestions
+        function loadSuggestions() {
+            suggestionsTable.innerHTML = '';
+            
+            sampleData.suggestions.forEach(suggestion => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${suggestion.id}</td>
+                    <td>${suggestion.suggestion}</td>
+                    <td>${suggestion.sender}</td>
+                    <td>${suggestion.date}</td>
+                    <td>${suggestion.category}</td>
+                    <td><span class="status-badge status-${getStatusClass(suggestion.status)}">${suggestion.status}</span></td>
+                    <td>
+                        <button class="action-btn view-case-btn" data-id="${suggestion.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn analyze-case-btn" data-id="${suggestion.id}">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </td>
+                `;
+                suggestionsTable.appendChild(row);
+            });
+        }
+        
+        // Load analysis cases
+        function loadAnalysisCases() {
+            analysisTable.innerHTML = '';
+            
+            sampleData.analysisCases.forEach(analysis => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${analysis.id}</td>
+                    <td>${analysis.subject}</td>
+                    <td>${analysis.requestedBy}</td>
+                    <td>${analysis.requestDate}</td>
+                    <td>${analysis.deadline}</td>
+                    <td><span class="status-badge status-${getStatusClass(analysis.status)}">${analysis.status}</span></td>
+                    <td>
+                        <button class="action-btn view-case-btn" data-id="${analysis.id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn analyze-case-btn" data-id="${analysis.id}">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </td>
+                `;
+                analysisTable.appendChild(row);
+            });
+        }
+        
+        // Load indicators
+        function loadIndicators() {
+            indicatorsTable.innerHTML = '';
+            
+            sampleData.indicators.forEach(indicator => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${indicator.indicator}</td>
+                    <td>${indicator.target}</td>
+                    <td>${indicator.actual}</td>
+                    <td>${indicator.performance}</td>
+                    <td>${indicator.trend}</td>
+                `;
+                indicatorsTable.appendChild(row);
+            });
+        }
+        
+        // Update dashboard counts
+        function updateDashboardCounts() {
+            // In a real app, these would come from an API
+            document.getElementById('pending-count').textContent = '12';
+            document.getElementById('critical-count').textContent = '5';
+            document.getElementById('in-progress-count').textContent = '8';
+            document.getElementById('resolved-count').textContent = '42';
+        }
+        
+        // Get CSS class for status
+        function getStatusClass(status) {
+            if (status.includes('Pendente')) return 'pending';
+            if (status.includes('Análise') || status.includes('andamento')) return 'in-progress';
+            if (status.includes('Resolvido') || status.includes('Concluída') || status.includes('Aprovada')) return 'resolved';
+            if (status.includes('Crítica')) return 'critical';
+            return 'pending';
+        }
+        
+        // Open case modal
+        function openCaseModal(caseId) {
+            // In a real app, this would fetch case details from an API
+            // For demo, we'll use sample data
+            const caseData = sampleData.complaints.find(c => c.id === caseId) || 
+                           sampleData.recentCases.find(c => c.id === caseId) ||
+                           {id: caseId, subject: "Caso de exemplo", description: "Descrição detalhada do caso...", status: "Pendente", priority: "Alta"};
+            
+            document.getElementById('case-id').value = caseData.id;
+            document.getElementById('case-subject').value = caseData.subject;
+            document.getElementById('case-description').value = caseData.description || "Descrição não disponível para este caso.";
+            document.getElementById('case-status').value = caseData.status;
+            document.getElementById('case-priority').value = caseData.priority || "Não definida";
+            
+            caseModal.style.display = 'flex';
+        }
+        
+        // Close modal
+        function closeModal() {
+            caseModal.style.display = 'none';
+        }
+        
+        // Event listeners for modal
+        closeModalBtn.addEventListener('click', closeModal);
+        cancelModalBtn.addEventListener('click', closeModal);
+        
+        // Close modal when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === caseModal) {
+                closeModal();
+            }
+        });
+        
+        // Save opinion
+        document.getElementById('save-opinion').addEventListener('click', () => {
+            const opinion = document.getElementById('case-opinion').value;
+            if (opinion.trim()) {
+                alert(`Parecer salvo com sucesso!\n\n"${opinion}"`);
+                closeModal();
+            } else {
+                alert('Por favor, digite um parecer antes de salvar.');
+            }
+        });
+        
+        // Validate case
+        document.getElementById('validate-case').addEventListener('click', () => {
+            if (confirm('Tem certeza que deseja validar este caso? Esta ação não pode ser desfeita.')) {
+                alert('Caso validado com sucesso!');
+                closeModal();
+            }
+        });
+        
+        // View all cases
+        viewAllBtn.addEventListener('click', () => {
+            document.querySelector('[data-view="complaints"]').click();
+        });
+        
+        // New analysis
+        newAnalysisBtn.addEventListener('click', () => {
+            alert('Funcionalidade: Solicitar nova análise de caso.\n\nEm uma aplicação real, isso abriria um formulário para solicitar análise de um caso específico ao Gestor de Reclamações.');
+        });
+        
+        // Initialize the dashboard
+        loadViewData('dashboard');
+    </script>
 </body>
 </html>

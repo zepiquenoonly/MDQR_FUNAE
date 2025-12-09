@@ -11,17 +11,20 @@
     "require": {
         "php": "^8.2",
         "arnaldotomo/laravel-lusophone": "^1.0",
+        "barryvdh/laravel-dompdf": "^3.1",
         "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "phpoffice/phpspreadsheet": "*",
+        "pusher/pusher-php-server": "*",
         "spatie/laravel-permission": "^6.23",
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/breeze": "^2.3",
-        "laravel/pint": "^1.24",
+        "laravel/pint": "*",
         "laravel/sail": "^1.41",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",

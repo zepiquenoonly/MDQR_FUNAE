@@ -21,12 +21,10 @@ class TechnicianDashboardController extends Controller
 
         $status = $request->input('status');
         $priority = $request->input('priority');
-        $type = $request->input('type');
 
         $filters = [
             'status' => $status !== null && $status !== '' ? $status : null,
             'priority' => $priority !== null && $priority !== '' ? $priority : null,
-            'type' => $type !== null && $type !== '' ? $type : null,
             'search' => $request->input('search'),
         ];
 
@@ -45,7 +43,6 @@ class TechnicianDashboardController extends Controller
         $grievancesQuery = (clone $baseQuery)
             ->when($filters['status'], fn ($query, $status) => $query->where('status', $status))
             ->when($filters['priority'], fn ($query, $priority) => $query->where('priority', $priority))
-            ->when($filters['type'], fn ($query, $type) => $query->where('type', $type))
             ->when($filters['search'], function ($query, $search) {
                 $like = '%' . trim($search) . '%';
                 $query->where(function ($subQuery) use ($like) {

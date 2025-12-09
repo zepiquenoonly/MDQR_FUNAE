@@ -23,6 +23,10 @@ use Illuminate\Support\Str;
  * @property string|null $district
  * @property string|null $location_details
  * @property string $status
+ * @property bool $escalated
+ * @property \Carbon\Carbon|null $escalated_at
+ * @property int|null $escalated_by
+ * @property string|null $escalation_reason
  * @property string $priority
  * @property int|null $assigned_to
  * @property \Carbon\Carbon|null $assigned_at
@@ -44,31 +48,35 @@ class Grievance extends Model
      *
      * @var array<int, string>
      */
-     protected $fillable = [
-         'user_id',
-         'project_id',
-         'reference_number',
-         'type',
-         'description',
-         'category',
-         'subcategory',
-         'contact_name',
-         'contact_email',
-         'contact_phone',
-         'province',
-         'district',
-         'location_details',
-         'status',
-         'priority',
-         'assigned_to',
-         'assigned_at',
-         'resolution_notes',
-         'resolved_at',
-         'resolved_by',
-         'is_anonymous',
-         'metadata',
-         'submitted_at',
-     ];
+    protected $fillable = [
+        'user_id',
+        'project_id',
+        'reference_number',
+        'type',
+        'description',
+        'category',
+        'subcategory',
+        'contact_name',
+        'contact_email',
+        'contact_phone',
+        'province',
+        'district',
+        'location_details',
+        'status',
+        'escalated',
+        'escalated_at',
+        'escalated_by',
+        'escalation_reason',
+        'priority',
+        'assigned_to',
+        'assigned_at',
+        'resolution_notes',
+        'resolved_at',
+        'resolved_by',
+        'is_anonymous',
+        'metadata',
+        'submitted_at',
+    ];
 
     /**
      * The attributes that should be cast.
@@ -81,7 +89,9 @@ class Grievance extends Model
             'assigned_at' => 'datetime',
             'resolved_at' => 'datetime',
             'submitted_at' => 'datetime',
+            'escalated_at' => 'datetime',
             'is_anonymous' => 'boolean',
+            'escalated' => 'boolean',
             'metadata' => 'array',
         ];
     }
@@ -118,29 +128,60 @@ class Grievance extends Model
     }
 
     /**
-     /**
-      * Get the user that owns the grievance (for identified complaints).
-      */
-     public function user(): BelongsTo
-     {
-         return $this->belongsTo(User::class);
-     }
+     * Scope for filtering grievances escalated to director.
+     */
+    public function scopeEscalatedToDirector($query)
+    {
+        return $query->where('escalated', true)
+            ->orWhere(function ($q) {
+                $q->whereJsonContains('metadata->is_escalated_to_director', true);
+            });
+    }
 
-     /**
-      * Get the project associated with this grievance.
-      */
-     public function project(): BelongsTo
-     {
-         return $this->belongsTo(Project::class);
-     }
+    /**
+     * Scope for filtering high specificity cases.
+     */
+    public function scopeHighSpecificity($query)
+    {
+        return $query->where('priority', 'high')
+            ->orWhere('priority', 'critical')
+            ->orWhere('escalated', true)
+            ->orWhere(function ($q) {
+                $q->whereJsonContains('metadata->is_special_case', true);
+            });
+    }
 
-     /**
-      * Get the user assigned to handle this grievance.
-      */
-     public function assignedUser(): BelongsTo
-     {
-         return $this->belongsTo(User::class, 'assigned_to');
-     }
+    /**
+     * Get the user that owns the grievance (for identified complaints).
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the project associated with this grievance.
+     */
+    public function project(): BelongsTo
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * Get the user assigned to handle this grievance.
+     */
+    public function assignedUser(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'assigned_to');
+    }
+
+    /**
+     * Get the user who escalated this grievance.
+     */
+    public function escalatedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'escalated_by');
+    }
 
     /**
      * Get the user who resolved this grievance.
@@ -247,11 +288,33 @@ class Grievance extends Model
     }
 
     /**
+     * Check if the grievance is escalated to director.
+     */
+    public function isEscalated(): bool
+    {
+        return $this->escalated === true || 
+               ($this->metadata && isset($this->metadata['is_escalated_to_director']) && 
+                $this->metadata['is_escalated_to_director'] === true);
+    }
+
+    /**
      * Tipos de grievance
      */
     public const TYPE_GRIEVANCE = 'grievance';    // Queixa
     public const TYPE_COMPLAINT = 'complaint';     // Reclamação
     public const TYPE_SUGGESTION = 'suggestion';   // Sugestão
+
+    /**
+     * Status válidos para grievances
+     */
+    public const STATUS_SUBMITTED = 'submitted';
+    public const STATUS_UNDER_REVIEW = 'under_review';
+    public const STATUS_ASSIGNED = 'assigned';
+    public const STATUS_IN_PROGRESS = 'in_progress';
+    public const STATUS_PENDING_APPROVAL = 'pending_approval';
+    public const STATUS_RESOLVED = 'resolved';
+    public const STATUS_REJECTED = 'rejected';
+    public const STATUS_CLOSED = 'closed';
 
     /**
      * Get type label in Portuguese.
@@ -285,16 +348,24 @@ class Grievance extends Model
     public function getStatusLabelAttribute(): string
     {
         return match($this->status) {
-            'submitted' => 'Submetida',
-            'under_review' => 'Em Análise',
-            'pending_review' => 'Pendente de Revisão',
-            'assigned' => 'Atribuída',
-            'in_progress' => 'Em Andamento',
-            'pending_approval' => 'Pendente de Aprovação',
-            'resolved' => 'Resolvida',
-            'rejected' => 'Rejeitada',
+            self::STATUS_SUBMITTED => 'Submetida',
+            self::STATUS_UNDER_REVIEW => 'Em Análise',
+            self::STATUS_ASSIGNED => 'Atribuída',
+            self::STATUS_IN_PROGRESS => 'Em Andamento',
+            self::STATUS_PENDING_APPROVAL => 'Pendente de Aprovação',
+            self::STATUS_RESOLVED => 'Resolvida',
+            self::STATUS_REJECTED => 'Rejeitada',
+            self::STATUS_CLOSED => 'Fechada',
             default => ucfirst($this->status),
         };
+    }
+
+    /**
+     * Get escalated label in Portuguese.
+     */
+    public function getEscalatedLabelAttribute(): string
+    {
+        return $this->escalated ? 'Escalada para Director' : 'Não Escalada';
     }
 
     /**
@@ -317,4 +388,62 @@ class Grievance extends Model
         // Use attributes array to avoid recursion
         return $this->is_anonymous ? $this->attributes['contact_email'] ?? null : $this->user?->email;
     }
+
+    /**
+     * Mark grievance as escalated to director.
+     */
+    public function markAsEscalated(int $escalatedBy, string $reason): self
+    {
+        $this->update([
+            'escalated' => true,
+            'escalated_at' => now(),
+            'escalated_by' => $escalatedBy,
+            'escalation_reason' => $reason,
+            'priority' => 'high', // Aumentar prioridade quando escalado
+            'metadata' => array_merge(
+                $this->metadata ?? [],
+                [
+                    'is_escalated_to_director' => true,
+                    'escalation_details' => [
+                        'escalated_at' => now()->toIso8601String(),
+                        'escalated_by' => $escalatedBy,
+                        'escalation_reason' => $reason,
+                    ]
+                ]
+            )
+        ]);
+
+        return $this;
+    }
+
+    /**
+     * Mark grievance as not escalated.
+     */
+    public function markAsNotEscalated(): self
+    {
+        $this->update([
+            'escalated' => false,
+            'escalated_at' => null,
+            'escalated_by' => null,
+            'escalation_reason' => null,
+            'metadata' => array_merge(
+                $this->metadata ?? [],
+                ['is_escalated_to_director' => false]
+            )
+        ]);
+
+        return $this;
+    }
+
+    public function directorComments()
+{
+    return $this->updates()
+        ->whereIn('action_type', [
+            'director_comment',
+            'director_validation_approved',
+            'director_validation_rejected',
+            'director_validation_needs_revision'
+        ])
+        ->orderBy('created_at', 'desc');
+}
 }

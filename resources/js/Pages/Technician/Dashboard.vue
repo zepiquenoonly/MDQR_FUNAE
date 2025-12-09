@@ -18,7 +18,6 @@
                     description="Total em acompanhamento"
                     icon="UserGroupIcon"
                     trend="stable"
-                    color="blue"
                 />
                 <KpiCard
                     title="Em Andamento"
@@ -26,7 +25,6 @@
                     description="Processos ativos"
                     icon="ClockIcon"
                     trend="up"
-                    color="orange"
                 />
                 <KpiCard
                     title="Pendente Aprovação"
@@ -34,7 +32,6 @@
                     description="Aguardando gestor"
                     icon="CheckCircleIcon"
                     trend="down"
-                    color="yellow"
                 />
                 <KpiCard
                     title="Resolvidas no Mês"
@@ -42,7 +39,6 @@
                     description="Reconhecidas neste mês"
                     icon="CheckIcon"
                     trend="stable"
-                    color="green"
                 />
             </div>
 

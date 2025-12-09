@@ -18,16 +18,16 @@
           <!-- Sidebar do Perfil -->
           <ProfileSidebar :user="user" :stats="stats" :active-tab="activeTab" />
 
-          <!-- Conteúdo Principal -->
-          <div class="lg:col-span-3">
-            <!-- Informações Pessoais -->
-            <ProfileInfoTab v-if="activeTab === 'info'" :user="user" />
+                <!-- Conteúdo Principal -->
+                <div class="lg:col-span-3">
+                    <!-- Informações Pessoais -->
+                    <ProfileInfoTab v-if="activeTab === 'info'" :user="user" />
 
-            <!-- Segurança -->
-            <ProfileSecurityTab v-else-if="activeTab === 'security'" />
+                    <!-- Segurança -->
+                    <ProfileSecurityTab v-else-if="activeTab === 'security'" />
 
-            <!-- Notificações -->
-            <ProfileNotificationsTab v-else-if="activeTab === 'notifications'" />
+                    <!-- Notificações -->
+                    <ProfileNotificationsTab v-else-if="activeTab === 'notifications'" />
 
                     <!-- Preferências -->
                     <ProfilePreferencesTab v-else-if="activeTab === 'preferences'" />

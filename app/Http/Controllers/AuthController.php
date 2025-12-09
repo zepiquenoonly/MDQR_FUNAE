@@ -204,14 +204,16 @@ class AuthController extends Controller {
 
         switch ( $role ) {
             case 'PCA':
-            return redirect()->route( 'pca.dashboard' );
+                return redirect()->route( 'pca.dashboard' );
             case 'Gestor':
-            return redirect()->route( 'manager.dashboard' );
+                return redirect()->route( 'gestor.manager.dashboard' );
             case 'Técnico':
-            return redirect()->route( 'technician.dashboard' );
+                return redirect()->route( 'technician.dashboard' );
+            case 'Director':
+                return redirect()->route( 'director.dashboard' );
             case 'Utente':
             default:
-            return redirect()->route( 'user.dashboard' );
+                return redirect()->route( 'user.dashboard' );
         }
     }
 
@@ -219,59 +221,17 @@ class AuthController extends Controller {
     * Display the home page for authenticated users.
     */
 
-    public function home(): Response|RedirectResponse {
+    public function home(): RedirectResponse {
         $user = Auth::user();
         $role = $user->getRoleNames()->first();
-        // Render the correct dashboard for the current role. Using
-        // `getDashboardByRole` avoids redirect loops (e.g. `/utente/dashboard`
-        // mapped to this same method) and ensures the appropriate Inertia
-        // page is returned for each role.
-        return $this->getDashboardByRole($role);
+
+        //return $this->redirectToDashboard( $role );
+        return $this->redirectBasedOnRole();
     }
 
     /**
     * Get the appropriate dashboard based on user role
     */
-
-    private function getDashboardByRole( $role ): Response|RedirectResponse {
-        $user = Auth::user();
-
-        switch ( $role ) {
-            case 'PCA':
-            return Inertia::render( 'PCA/Dashboard', [
-                'user' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $role,
-                    'created_at' => $user->created_at->format( 'd/m/Y' ),
-                ]
-            ] );
-
-            case 'Gestor':
-            return Inertia::render( 'Manager/Dashboard', [
-                'user' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $role,
-                    'created_at' => $user->created_at->format( 'd/m/Y' ),
-                ]
-            ] );
-
-            case 'Técnico':
-            return redirect()->route( 'technician.dashboard' );
-
-            case 'Utente':
-            default:
-            return Inertia::render( 'Utente/Dashboard', [
-                'user' => [
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $role,
-                    'created_at' => $user->created_at->format( 'd/m/Y' ),
-                ]
-            ] );
-        }
-    }
 
     public function showProject( $projectId ): Response {
         $user = Auth::user();

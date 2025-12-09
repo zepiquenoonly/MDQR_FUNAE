@@ -38,6 +38,7 @@ class RoleSeeder extends Seeder
             'Utente' => ['submit_complaint', 'view_own_complaints'],
             'Técnico' => ['manage_complaints'],
             'Gestor' => ['manage_complaints', 'conclude_complaints'],
+            'Director' => ['manage_complaints', 'conclude_complaints', 'view_reports'],
             'PCA' => ['view_reports'],
         ];
 

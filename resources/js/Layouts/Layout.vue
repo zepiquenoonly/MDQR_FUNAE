@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref } from 'vue'
 import Sidebar from '@/Components/Dashboard/Sidebar.vue'
 import Header from '@/Components/Dashboard/Header.vue'
 
@@ -34,22 +34,7 @@ defineProps({
 
 const sidebarCollapsed = ref(false)
 
-// Detectar se é mobile e definir estado inicial
-const checkMobile = () => {
-  const isMobile = window.innerWidth < 1024
-  sidebarCollapsed.value = isMobile // Fechado em mobile, aberto em desktop
-}
-
 const toggleSidebar = () => {
   sidebarCollapsed.value = !sidebarCollapsed.value
 }
-
-onMounted(() => {
-  checkMobile()
-  window.addEventListener('resize', checkMobile)
-})
-
-onUnmounted(() => {
-  window.removeEventListener('resize', checkMobile)
-})
 </script>
