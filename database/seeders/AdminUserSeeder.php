@@ -23,6 +23,12 @@ class AdminUserSeeder extends Seeder
     {
         $adminUsers = [
             [
+                'name' => 'Admin',
+                'username' => 'admin',
+                'email' => 'admin@funae.co.mz',
+                'role' => 'Admin',
+            ],
+            [
                 'name' => 'Gestor de Reclamações',
                 'username' => 'gestor',
                 'email' => 'gestor@funae.co.mz',

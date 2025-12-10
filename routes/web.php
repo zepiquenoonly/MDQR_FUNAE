@@ -277,3 +277,4 @@ Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('g
 Route::get('/reclamacoes/acompanhar', function () {
     return inertia('Grievances/Track');
 })->name('grievances.track');
+});
