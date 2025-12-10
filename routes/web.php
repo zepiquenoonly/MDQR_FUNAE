@@ -274,7 +274,13 @@ Route::middleware('auth')->group(function () {
 
 // Rotas de reclamações (acessíveis sem autenticação)
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
-Route::get('/reclamacoes/acompanhar', function () {
-    return inertia('Grievances/Track');
-})->name('grievances.track');
+    Route::get('/reclamacoes/acompanhar', function () {
+        return inertia('Grievances/Track');
+    })->name('grievances.track');
 });
+
+Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', \App\Http\Controllers\UserController::class);
+    Route::resource('departments', \App\Http\Controllers\DepartmentController::class);
+});
+
