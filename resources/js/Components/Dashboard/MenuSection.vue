@@ -28,9 +28,23 @@
     <MenuDropdown v-if="role === 'manager' || role === 'pca'" id="estatisticas" :icon="ChartBarSquareIcon" :text="'Estatísticas'" :is-collapsed="isCollapsed"
       :items="estatisticasItems" :dropdown-manager="dropdownManager" @item-clicked="handleItemClick" />
 
+
     <!-- Users Management - For PCA -->
     <MenuItem v-if="role === 'pca'" :icon="UserGroupIcon" :text="'Gestão dos Usuários'" :is-collapsed="isCollapsed"
       @click="handleItemClick('gestao-usuarios')" />
+
+    <!-- Admin Items -->
+    <MenuItem v-if="role === 'admin'" :icon="BuildingOfficeIcon" :text="'Departamentos'" :is-collapsed="isCollapsed"
+      @click="handleItemClick('admin-departamentos')" />
+
+    <MenuItem v-if="role === 'admin'" :icon="FolderIcon" :text="'Projectos'" :is-collapsed="isCollapsed"
+      @click="handleItemClick('admin-projectos')" />
+
+    <MenuItem v-if="role === 'admin'" :icon="UserGroupIcon" :text="'Usuários'" :is-collapsed="isCollapsed"
+      @click="handleItemClick('admin-users')" />
+
+    <MenuItem v-if="role === 'admin'" :icon="Cog6ToothIcon" :text="'Configurações'" :is-collapsed="isCollapsed"
+      @click="handleItemClick('admin-settings')" />
   </nav>
 </template>
 
@@ -44,7 +58,9 @@ import {
   LightBulbIcon,
   ExclamationTriangleIcon,
   ChartBarIcon,
-  EyeIcon
+  EyeIcon,
+  BuildingOfficeIcon,
+  Cog6ToothIcon
 } from '@heroicons/vue/24/outline'
 import { useDropdownManager } from './Composables/useDropdownManager.js'
 import MenuItem from './MenuItem.vue'

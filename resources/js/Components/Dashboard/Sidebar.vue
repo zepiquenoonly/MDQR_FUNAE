@@ -123,7 +123,13 @@ const navigateToRoute = (item) => {
     'estatisticas': buildRoute(props.role === 'manager' ? 'manager.dashboard' : 'pca.dashboard'),
 
     // Gestão de usuários (pca)
-    'gestao-usuarios': buildRoute('pca.dashboard')
+    'gestao-usuarios': buildRoute('pca.dashboard'),
+
+    // Admin
+    'admin-departamentos': buildRoute('admin.departments.index'),
+    'admin-projectos': buildRoute('admin.projects.index'),
+    'admin-users': buildRoute('admin.users.index'),
+    'admin-settings': buildRoute('profile.edit') // Placeholder for now
   }
 
   const targetRoute = routeMap[item]

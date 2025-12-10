@@ -25,7 +25,7 @@ class GuestController extends Controller
 
         return Inertia::render('Guest/Home', [
             'authRoutes' => [
-                'login' => route('auth.login'),
+                'login' => route('login'),
                 'register' => route('auth.register'),
             ]
         ]);
@@ -37,6 +37,9 @@ class GuestController extends Controller
     private function redirectToDashboard($role): RedirectResponse
     {
         switch ($role) {
+            case 'Admin':
+            case 'Super Admin':
+                return redirect()->route('admin.dashboard');
             case 'PCA':
                 return redirect()->route('pca.dashboard');
             case 'Gestor':

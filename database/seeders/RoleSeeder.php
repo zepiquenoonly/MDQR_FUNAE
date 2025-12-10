@@ -51,6 +51,7 @@ class RoleSeeder extends Seeder
             'Gestor' => ['manage_complaints', 'conclude_complaints'],
             'Director' => ['manage_complaints', 'conclude_complaints', 'view_reports'],
             'PCA' => ['view_reports'],
+            'Admin' => ['manage-users', 'manage-projects', 'manage-departments', 'manage-settings'],
         ];
 
         // Create roles and assign permissions
@@ -60,7 +61,7 @@ class RoleSeeder extends Seeder
         }
 
         // Create Admin role and assign all permissions
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        $adminRole = Role::firstOrCreate(['name' => 'Super Admin']);
         $adminRole->syncPermissions(Permission::all());
     }
 }

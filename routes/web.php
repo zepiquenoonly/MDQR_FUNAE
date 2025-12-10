@@ -62,7 +62,7 @@ Route::get('/reclamacoes/acompanhar', function () {
 // Rotas para convidados (não autenticados)
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
     Route::get('/register/complete', [AuthController::class, 'showCompleteRegistration'])->name('auth.register.complete');
 
@@ -280,7 +280,12 @@ Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('g
 });
 
 Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'dashboard'])->name('dashboard');
     Route::resource('users', \App\Http\Controllers\UserController::class);
     Route::resource('departments', \App\Http\Controllers\DepartmentController::class);
+    Route::resource('projects', \App\Http\Controllers\ProjectController::class)->except(['create', 'edit', 'index']);
+    Route::get('projects', [\App\Http\Controllers\AdminDashboardController::class, 'indexProjects'])->name('projects.index');
+    Route::get('projects/create', [\App\Http\Controllers\AdminDashboardController::class, 'createProject'])->name('projects.create');
+    Route::get('projects/{project}/edit', [\App\Http\Controllers\AdminDashboardController::class, 'editProject'])->name('projects.edit');
 });
 
