@@ -45,6 +45,16 @@
 - 🛡️ **Proteção completa**: Usuários logados não acessam rotas de login/register
 - ✅ **Cobertura de testes**: Testes automatizados para todos cenários de redirecionamento
 
+#### Admin Dashboard e Gestão de Departamentos (10-11/12/2025)
+- 🏢 **Admin Dashboard Completo**: Interface dinâmica com estatísticas em tempo real e acções rápidas
+- 📊 **Sistema de Departamentos**: 5 departamentos organizacionais (Infraestrutura, Energia, Água, Educação, Saúde)
+- 👥 **Gestão de Usuários por Departamento**: 37 usuários distribuídos estrategicamente
+- 🔗 **Relações Departamento-Projeto**: Projectos vinculados a departamentos específicos
+- ⚡ **Workload para Técnicos**: Sistema de carga de trabalho exclusivo para técnicos
+- 🎯 **Seeders Avançados**: Criação automática de estrutura organizacional completa
+- 🔑 **Permissões Granulares**: Acções baseadas em permissões do usuário
+- 📈 **Estatísticas Dinâmicas**: Contadores em tempo real de recursos do sistema
+
 ### Novembro 2025
 
 #### Funcionalidades Implementadas
@@ -143,12 +153,26 @@ php artisan serve
 
 Após o seeding, use estas credenciais para login:
 
-| Papel | Email | Senha |
-|-------|-------|-------|
-| Admin | admin@funae.co.mz | password |
-| Gestor | gestor@funae.co.mz | password |
-| Técnico | tecnico@funae.co.mz | password |
-| Utente | utente@gmail.com | password |
+| Papel | Username | Email | Senha |
+|-------|----------|-------|-------|
+| Admin | admin | admin@funae.co.mz | password |
+| Super Admin | superadmin | superadmin@funae.co.mz | password |
+| PCA | pca | pca@funae.co.mz | password |
+| Gestor | gestor | gestor@funae.co.mz | password |
+| Técnico | tecnico | tecnico@funae.co.mz | password |
+| Director | director | director@funae.co.mz | password |
+| Utente | - | utente@gmail.com | password |
+
+**Directores de Departamento:**
+- `director_infra`, `director_energia`, `director_agua`, `director_educacao`, `director_saude`
+
+**Gestores Especializados:**
+- `gestor_infra`, `gestor_energia`, `gestor_agua`, etc.
+
+**Técnicos Especializados:**
+- `tec_civil`, `tec_electricista`, `tec_hidraulica`, etc.
+
+> **Nota:** Todos os usuários têm a senha `password`
 
 ---
 
@@ -285,9 +309,32 @@ O sistema inclui seeders avançados para popular o banco de dados com dados real
 ### Seeders Padrão
 Ao rodar `php artisan migrate --seed`, os seguintes seeders são executados:
 - **RoleSeeder**: Cria todos os papéis e permissões do sistema
-- **AdminUserSeeder**: Cria usuários padrão (Gestor, Técnico, PCA, Utente)
-- **GrievanceSeeder**: Cria exemplos reais de queixas em diferentes estados
-- **UserSpecializationsSeeder**: Atribui especializações e capacidade de trabalho aos técnicos
+- **AdminUserSeeder**: Cria usuários padrão (Admin, Super Admin, PCA, Gestor, Técnico, Director, Utente)
+- **GrievanceSeeder**: Cria 8 exemplos reais de queixas em diferentes estados
+- **ProjectSeeder**: Cria 9 projectos com dados realistas
+- **UserSpecializationsSeeder**: Atribui especializações aos técnicos
+- **DepartmentSeeder**: Cria 5 departamentos com Directores e aloca usuários/projectos
+- **AdditionalUsersSeeder**: Cria 8 Gestores e 15 Técnicos especializados por departamento
+- **UpdateTechnicianWorkloadSeeder**: Configura campos de workload apenas para técnicos
+- **ProjectTechnicianSeeder**: Atribui técnicos aos projectos
+
+### Estrutura Criada pelo Seeding
+
+**Usuários:**
+- 1 Admin
+- 1 Super Admin
+- 1 PCA
+- 6 Directores (1 por departamento + 1 geral)
+- 9 Gestores (distribuídos entre departamentos)
+- 17 Técnicos (com workload configurado)
+- 2 Utentes
+
+**Departamentos:**
+- Infraestrutura e Construção (3 Gestores, 5 Técnicos, 3 Projectos)
+- Energia e Electrificação (2 Gestores, 5 Técnicos, 2 Projectos)
+- Água e Saneamento (2 Gestores, 3 Técnicos, 2 Projectos)
+- Educação e Desenvolvimento Social (1 Gestor, 2 Técnicos, 1 Projecto)
+- Saúde Pública (1 Gestor, 2 Técnicos, 1 Projecto)
 
 ### Seeder de Performance (opcional)
 Para gerar grandes volumes de dados para testes de stress e relatórios:
@@ -402,7 +449,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 1.1  
-**Última Atualização:** 8 de Dezembro de 2025  
+**Versão:** 1.2  
+**Última Atualização:** 11 de Dezembro de 2025  
 **Status:** ✅ Em Produção
 

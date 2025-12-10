@@ -3,7 +3,7 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 08/12/2025
+**Última atualização:** 11/12/2025
 
 ## Legenda de Status
 
@@ -30,6 +30,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 13 | Sistema de Autenticação Aprimorado | ✅ Implementado |
 | Fluxo 14 | Seeder de Performance Avançado | ✅ Implementado |
 | Fluxo 15 | Sistema de Anexos Aprimorado | ✅ Implementado |
+| Fluxo 16 | Admin Dashboard e Gestão de Departamentos | ✅ Implementado |
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
@@ -415,3 +416,76 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Refatoração do Controller de Rastreamento**: Código do controller de rastreamento refatorado para melhor estrutura, clareza e manutenibilidade.
 - **Melhorias no Componente de Rastreamento**: Componente Vue.js refatorado com melhor organização de código e tratamento de erros aprimorado.
 - **Controle de Visibilidade da Pesquisa**: Seção de pesquisa com controle dinâmico de exibição para melhor experiência de usuário após rastreamento bem-sucedido.
+
+## Novas funcionalidades (10-11/12/2025)
+
+- **Admin Dashboard Completo**: Implementado dashboard administrativo dinâmico com estatísticas em tempo real, acções rápidas baseadas em permissões, e menu lateral com navegação para Departamentos, Projectos, Usuários e Configurações.
+- **Sistema de Departamentos**: Estrutura organizacional completa com 5 departamentos (Infraestrutura, Energia, Água e Saneamento, Educação, Saúde), cada um com Director, Gestores e Técnicos alocados.
+- **Gestão de Usuários por Departamento**: Sistema de alocação de usuários (Gestores e Técnicos) a departamentos específicos, com 37 usuários distribuídos estrategicamente.
+- **Relações Departamento-Projeto**: Projectos agora vinculados a departamentos específicos, permitindo melhor organização e gestão de recursos.
+- **Campos de Workload para Técnicos**: Implementado sistema de carga de trabalho exclusivo para técnicos com campos `workload_capacity`, `current_workload` e `is_available` (nullable para não-técnicos).
+- **Seeder de Departamentos**: Criação automática de 5 departamentos com Directores, distribuição inteligente de 9 Gestores e 17 Técnicos, e alocação de 9 projectos.
+- **Seeder de Usuários Adicionais**: Sistema de criação de técnicos especializados por departamento (Técnico de Construção Civil, Electricista, Hidráulica, etc.).
+- **Atualização de Workload Automática**: Seeder específico para configurar campos de workload apenas para técnicos, mantendo null para outros usuários.
+- **Migrations de Relacionamento**: Adicionadas colunas `department_id` em `users` e `projects` para estabelecer relações organizacionais.
+- **Modelos Atualizados**: Models `Department`, `Project` e `User` atualizados com relacionamentos Eloquent completos.
+- **Dashboard Admin com Permissões**: Sistema de visualização de acções rápidas baseado nas permissões do usuário (manage-users, manage-departments, manage-projects, manage-settings).
+- **Roles Expandidos**: Adicionados roles 'Admin' e 'Super Admin' com permissões específicas e redirecionamento automático para `/admin/dashboard`.
+- **Estatísticas Dinâmicas**: Dashboard mostra contadores em tempo real de usuários, departamentos, projectos e usuários ativos.
+- **Distribuição Organizacional**: Sistema completo de hierarquia: Departamento → Director → Gestores → Técnicos → Projectos.
+
+## Fluxo 16: Admin Dashboard e Gestão de Departamentos
+
+### Implementado (Fluxo 16)
+
+- **Dashboard Administrativo Completo** *(interface dinâmica com estatísticas em tempo real)*
+- **Gestão de Departamentos** *(5 departamentos com estrutura organizacional completa)*
+- **Alocação de Usuários** *(37 usuários distribuídos entre departamentos)*
+- **Relações Departamento-Projeto** *(9 projectos vinculados a departamentos)*
+- **Sistema de Workload para Técnicos** *(campos específicos para gestão de carga de trabalho)*
+- **Permissões Granulares** *(acções baseadas em permissões do usuário)*
+- **Seeders Avançados** *(criação automática de estrutura organizacional)*
+- **Redirecionamento Inteligente** *(Admin/Super Admin → admin.dashboard)*
+- **Menu Lateral Dinâmico** *(navegação específica para role Admin)*
+- **Estatísticas em Tempo Real** *(contadores dinâmicos de recursos do sistema)*
+
+### Estrutura de Departamentos Criada
+
+| Departamento | Director | Gestores | Técnicos | Projectos |
+|--------------|----------|----------|----------|-----------|
+| Infraestrutura e Construção | Director de Infraestrutura | 3 | 5 | 3 |
+| Energia e Electrificação | Director de Energia | 2 | 5 | 2 |
+| Água e Saneamento | Director de Água e Saneamento | 2 | 3 | 2 |
+| Educação e Desenvolvimento Social | Director de Educação | 1 | 2 | 1 |
+| Saúde Pública | Director de Saúde | 1 | 2 | 1 |
+
+### Distribuição de Usuários
+
+- **Total de Usuários**: 37
+- **Admin**: 1
+- **Super Admin**: 1
+- **PCA**: 1
+- **Director**: 6
+- **Gestor**: 9
+- **Técnico**: 17 (todos com workload configurado)
+- **Utente**: 2
+
+### Campos de Workload (Técnicos)
+
+- `workload_capacity`: 10 (capacidade máxima de casos)
+- `current_workload`: 0-5 (carga atual aleatória)
+- `is_available`: true (disponível para alocação)
+- **Outros usuários**: Todos os campos NULL
+
+### Concluído (Fluxo 16) - Implementado recentemente
+
+- ✅ **Admin Dashboard completo** *(implementado em 10/12/2025)*
+- ✅ **Sistema de Departamentos** *(implementado em 10/12/2025)*
+- ✅ **Alocação de Usuários** *(implementado em 10/12/2025)*
+- ✅ **Relações Departamento-Projeto** *(implementado em 10/12/2025)*
+- ✅ **Workload para Técnicos** *(implementado em 11/12/2025)*
+- ✅ **Seeders Organizacionais** *(implementado em 10-11/12/2025)*
+- ✅ **Permissões Granulares** *(implementado em 10/12/2025)*
+- ✅ **Migrations de Relacionamento** *(implementado em 10/12/2025)*
+- ✅ **Modelos Atualizados** *(implementado em 10/12/2025)*
+- ✅ **Redirecionamento Admin** *(implementado em 10/12/2025)*
