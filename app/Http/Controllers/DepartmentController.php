@@ -50,7 +50,10 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        $managers = User::role('Gestor')->get(['id', 'name']);
+        $managers = User::whereHas('roles', function($q) {
+            $q->whereIn('name', ['Director', 'Gestor']);
+        })->get(['id', 'name']);
+        
         return Inertia::render('Admin/Departments/Create', [
             'managers' => $managers,
         ]);
@@ -87,7 +90,10 @@ class DepartmentController extends Controller
      */
     public function edit(Department $department)
     {
-        $managers = User::role('Gestor')->get(['id', 'name']);
+        $managers = User::whereHas('roles', function($q) {
+            $q->whereIn('name', ['Director', 'Gestor']);
+        })->get(['id', 'name']);
+        
         return Inertia::render('Admin/Departments/Edit', [
             'department' => $department->load('manager'),
             'managers' => $managers,

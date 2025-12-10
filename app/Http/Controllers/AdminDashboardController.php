@@ -59,20 +59,94 @@ class AdminDashboardController extends Controller
         }
     }
 
-    public function indexProjects()
+    public function indexProjects(Request $request)
     {
-        return Inertia::render('Admin/Projects/Index');
+        $query = Project::with('department');
+
+        if ($request->filled('search')) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->filled('department')) {
+            $query->where('department_id', $request->department);
+        }
+
+        $projects = $query->paginate(10)
+            ->withQueryString()
+            ->through(fn ($project) => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'description' => $project->description,
+                'department' => $project->department?->name ?? 'N/A',
+                'department_id' => $project->department_id,
+                'provincia' => $project->provincia,
+                'distrito' => $project->distrito,
+                'is_active' => $project->is_active,
+                'created_at' => $project->created_at->format('Y-m-d'),
+            ]);
+
+        return Inertia::render('Admin/Projects/Index', [
+            'projects' => $projects,
+            'departments' => \App\Models\Department::all(['id', 'name']),
+            'filters' => $request->only(['search', 'department']),
+        ]);
     }
 
     public function createProject()
     {
-        return Inertia::render('Admin/Projects/Create');
+        return Inertia::render('Admin/Projects/Create', [
+            'departments' => \App\Models\Department::all(['id', 'name']),
+        ]);
+    }
+
+    public function storeProject(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'department_id' => 'nullable|exists:departments,id',
+            'provincia' => 'nullable|string|max:255',
+            'distrito' => 'nullable|string|max:255',
+            'bairro' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+        ]);
+
+        Project::create($validated);
+
+        return redirect()->route('admin.projects.index')->with('success', 'Projecto criado com sucesso.');
     }
 
     public function editProject(Project $project)
     {
         return Inertia::render('Admin/Projects/Edit', [
-            'project' => $project->load(['objectives', 'finance', 'deadline']),
+            'project' => $project->load(['objectives', 'finance', 'deadline', 'department']),
+            'departments' => \App\Models\Department::all(['id', 'name']),
         ]);
+    }
+
+    public function updateProject(Request $request, Project $project)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'department_id' => 'nullable|exists:departments,id',
+            'provincia' => 'nullable|string|max:255',
+            'distrito' => 'nullable|string|max:255',
+            'bairro' => 'nullable|string|max:255',
+            'category' => 'nullable|string|max:255',
+        ]);
+
+        $project->update($validated);
+
+        return redirect()->route('admin.projects.index')->with('success', 'Projecto atualizado com sucesso.');
+    }
+
+    public function destroyProject(Project $project)
+    {
+        $project->delete();
+        return redirect()->route('admin.projects.index')->with('success', 'Projecto removido com sucesso.');
     }
 }

@@ -281,11 +281,19 @@ Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('g
 
 Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'dashboard'])->name('dashboard');
+    
+    // Users CRUD
     Route::resource('users', \App\Http\Controllers\UserController::class);
+    
+    // Departments CRUD
     Route::resource('departments', \App\Http\Controllers\DepartmentController::class);
-    Route::resource('projects', \App\Http\Controllers\ProjectController::class)->except(['create', 'edit', 'index']);
+    
+    // Projects CRUD
     Route::get('projects', [\App\Http\Controllers\AdminDashboardController::class, 'indexProjects'])->name('projects.index');
     Route::get('projects/create', [\App\Http\Controllers\AdminDashboardController::class, 'createProject'])->name('projects.create');
+    Route::post('projects', [\App\Http\Controllers\AdminDashboardController::class, 'storeProject'])->name('projects.store');
     Route::get('projects/{project}/edit', [\App\Http\Controllers\AdminDashboardController::class, 'editProject'])->name('projects.edit');
+    Route::put('projects/{project}', [\App\Http\Controllers\AdminDashboardController::class, 'updateProject'])->name('projects.update');
+    Route::delete('projects/{project}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyProject'])->name('projects.destroy');
 });
 
