@@ -22,4 +22,20 @@ class Department extends Model
     {
         return $this->belongsTo(User::class, 'manager_id');
     }
+
+    /**
+     * Get the users (technicians and managers) in this department
+     */
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    /**
+     * Get the projects in this department
+     */
+    public function projects()
+    {
+        return $this->hasMany(Project::class);
+    }
 }
