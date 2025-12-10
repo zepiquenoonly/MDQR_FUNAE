@@ -331,6 +331,7 @@ class ProjectController extends Controller
             'message' => 'Erro ao actualizar projecto: ' . $e->getMessage()
         ], 500);
     }
+    }
 
 
     /**
