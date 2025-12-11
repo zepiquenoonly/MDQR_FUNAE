@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
     // Redirecionamento inicial
     Route::get('/home', [AuthController::class, 'home'])->name('home');
     Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard'); // Rota genérica para compatibilidade
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Dashboards por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
