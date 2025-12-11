@@ -16,7 +16,13 @@ const routes = {
   'track': '/track',
   'grievance.track.search': '/track',
   'login': '/login',
-  'register': '/register'
+  'register': '/register',
+  
+  // Admin Routes
+  'admin.departments.index': '/admin/departments',
+  'admin.projects.index': '/admin/projects',
+  'admin.users.index': '/admin/users',
+  'admin.settings': '/profile',
 }
 
 // Mapeamento de roles para rotas de dashboard
