@@ -41,6 +41,27 @@
         @item-clicked="handleMenuItemClick"
       />
     </div>
+
+    <!-- Logout Section -->
+    <div class="border-t border-white/20 p-4">
+      <button
+        @click="handleLogout"
+        :class="[
+          'w-full flex items-center gap-3 px-4 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200',
+          isCollapsed ? 'justify-center' : ''
+        ]"
+      >
+        <ArrowRightOnRectangleIcon class="w-5 h-5 flex-shrink-0" />
+        <span
+          :class="[
+            'text-sm font-medium transition-opacity duration-300',
+            isCollapsed ? 'opacity-0 w-0 overflow-hidden' : 'opacity-100'
+          ]"
+        >
+          Terminar Sessão
+        </span>
+      </button>
+    </div>
   </aside>
 
   <!-- Overlay para mobile -->
@@ -63,7 +84,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { router } from '@inertiajs/vue3'
-import { Bars3Icon } from '@heroicons/vue/24/outline'
+import { Bars3Icon, ArrowRightOnRectangleIcon } from '@heroicons/vue/24/outline'
 import MenuSection from './MenuSection.vue'
 import { useNavigation } from '@/Composables/useNavigation'
 import { buildRoute } from '@/utils/routes'
@@ -136,6 +157,10 @@ const navigateToRoute = (item) => {
   if (targetRoute) {
     router.visit(targetRoute)
   }
+}
+
+const handleLogout = () => {
+  router.post('/logout')
 }
 
 onMounted(() => {
