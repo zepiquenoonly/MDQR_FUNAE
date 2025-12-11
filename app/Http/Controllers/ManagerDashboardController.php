@@ -37,6 +37,14 @@ class ManagerDashboardController extends Controller
             ->with(['user:id,name,email', 'assignedUser:id,name', 'attachments'])
             ->latest('submitted_at');
 
+        // Filtrar por departamento do gestor
+        $managedDepartment = \App\Models\Department::where('manager_id', $user->id)->first();
+        if ($managedDepartment) {
+            $complaintsQuery->whereHas('project', function ($query) use ($managedDepartment) {
+                $query->where('department_id', $managedDepartment->id);
+            });
+        }
+
         // Aplicar filtros
         if ($filters['status']) {
             $complaintsQuery->where('status', $filters['status']);
@@ -87,6 +95,12 @@ class ManagerDashboardController extends Controller
             ->with(['user:id,name,email', 'assignedUser:id,name'])
             ->latest('submitted_at');
 
+        if ($managedDepartment) {
+            $allComplaintsQuery->whereHas('project', function ($query) use ($managedDepartment) {
+                $query->where('department_id', $managedDepartment->id);
+            });
+        }
+
        $allComplaints = $allComplaintsQuery->get()->map(function ($grievance) {
     return [
         'id' => $grievance->id,
@@ -118,11 +132,18 @@ class ManagerDashboardController extends Controller
 });
 
         // Estatísticas - garantir valores padrão
+        $statsQuery = Grievance::query();
+        if ($managedDepartment) {
+            $statsQuery->whereHas('project', function ($query) use ($managedDepartment) {
+                $query->where('department_id', $managedDepartment->id);
+            });
+        }
+
         $stats = [
-            'pending_complaints' => Grievance::whereIn('status', ['submitted', 'under_review', 'assigned'])->count() ?: 0,
-            'in_progress' => Grievance::where('status', 'in_progress')->count() ?: 0,
-            'high_priority' => Grievance::where('priority', 'high')->count() ?: 0,
-            'pending_completion_requests' => Grievance::where('status', 'pending_approval')->count() ?: 0,
+            'pending_complaints' => (clone $statsQuery)->whereIn('status', ['submitted', 'under_review', 'assigned'])->count() ?: 0,
+            'in_progress' => (clone $statsQuery)->where('status', 'in_progress')->count() ?: 0,
+            'high_priority' => (clone $statsQuery)->where('priority', 'high')->count() ?: 0,
+            'pending_completion_requests' => (clone $statsQuery)->where('status', 'pending_approval')->count() ?: 0,
         ];
 
         // Técnicos disponíveis

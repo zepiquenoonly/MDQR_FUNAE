@@ -55,6 +55,13 @@
 - 🔑 **Permissões Granulares**: Acções baseadas em permissões do usuário
 - 📈 **Estatísticas Dinâmicas**: Contadores em tempo real de recursos do sistema
 
+#### Melhorias de Localização e Privacidade (11/12/2025)
+- 📍 **Localização Detalhada**: Hierarquia completa (Província, Distrito, Posto, Localidade) e distinção Maputo Cidade/Província
+- 🛡️ **Privacidade Anônima**: Ocultação inteligente de dados pessoais com opção voluntária de contato
+- 📊 **Dados Estatísticos**: Inclusão de campo de Gênero para fins estatísticos
+- 🎯 **Routing Inteligente**: Gestores visualizam exclusivamente reclamações associadas aos seus departamentos
+- ✅ **Validação Rigorosa**: Campos de localização tornados obrigatórios para garantir integridade dos dados
+
 ### Novembro 2025
 
 #### Funcionalidades Implementadas
