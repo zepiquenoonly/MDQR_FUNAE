@@ -175,7 +175,20 @@ class DirectorDashboardController extends Controller
     $recentReports = $this->getRecentReports();
      $chartData = $this->getChartData();
     
-    return Inertia::render('Director/Dashboard', [
+     return Inertia::render('Director/Dashboard', [
+        // USER OBJECT (simplificado)
+        'user' => $user ? [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+            'phone' => $user->phone,
+        ] : null,
+        
+        // ROLE SEPARADO (obrigatório para o UnifiedLayout)
+        'role' => $user->getRoleNames()->first() ?? 'utente',
+        
+        // DADOS DO DASHBOARD (existentes)
         'stats' => [
             'total_complaints' => $totalComplaints,
             'critical_cases' => $criticalCases,
@@ -201,6 +214,13 @@ class DirectorDashboardController extends Controller
         'reports' => $recentReports,
         'period' => $period,
         'chartData' => $chartData,
+        
+        // DEBUG: Adicionar informação extra para diagnóstico
+        'debug' => [
+            'user_role' => $user->getRoleNames()->first(),
+            'all_roles' => $user->getRoleNames()->toArray(),
+            'user_id' => $user->id,
+        ],
     ]);
 }
     

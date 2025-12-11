@@ -9,11 +9,72 @@ use App\Models\Deadline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display the projects page (Inertia)
+     */
+    public function indexPage()
+    {
+        // Obter estatísticas
+        $stats = $this->getProjectStats();
+        
+        // Obter todos os projetos com relações
+        $projects = Project::with(['objectives', 'finance', 'deadline'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+    $user = auth()->user();
+    $role = $user->role ?? 'utente'; // Certifique-se de que isso está correto
+    
+    // Debug: Log para verificar
+    \Log::info('ProjectController - User role:', ['role' => $role, 'user' => $user->id]);
+        
+        return Inertia::render('Common/ProjectsPage', [
+            'user' => auth()->user(),
+            'role' => auth()->user()->role ?? 'user',
+            'stats' => $stats, // Envie as estatísticas
+            'projects' => $projects, // Envie os projetos diretamente
+            'canEdit' => $this->userCanEdit() // Adicione esta verificação
+        ]);
+    }
+    
+    /**
+     * Check if user can edit projects
+     */
+    private function userCanEdit()
+    {
+        $user = auth()->user();
+        if (!$user) {
+            return false;
+        }
+        
+        $allowedRoles = ['admin', 'manager', 'editor'];
+        return in_array($user->role, $allowedRoles);
+    }
+
+    /**
+     * Get project statistics
+     */
+    private function getProjectStats()
+    {
+        $total = Project::count();
+        $finished = Project::where('category', 'finalizados')->count();
+        $progress = Project::where('category', 'andamento')->count();
+        $suspended = Project::where('category', 'parados')->count();
+
+        return [
+            'total' => $total,
+            'finished' => $finished,
+            'progress' => $progress,
+            'suspended' => $suspended,
+        ];
+    }
+
+    /**
+     * API: Display a listing of the resource (JSON)
      */
     public function index()
     {
@@ -31,7 +92,7 @@ class ProjectController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
                 'provincia' => 'required|string|max:100',
                 'distrito' => 'required|string|max:100',
                 'bairro' => 'required|string|max:100',
@@ -108,24 +169,17 @@ class ProjectController extends Controller
                     'data_inauguracao' => $validated['data_inauguracao'],
                 ]);
 
-                return response()->json([
-                    'message' => 'Projecto criado com sucesso!',
-                    'project' => $project->load(['objectives', 'finance', 'deadline'])
-                ], 201);
+                // Para Inertia, podemos redirecionar de volta à página
+                return redirect()->route('projects')
+                    ->with('success', 'Projecto criado com sucesso!');
+
             });
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $e->errors()
-            ], 422);
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             \Log::error('Erro ao criar projecto: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro interno do servidor: ' . $e->getMessage()
-            ], 500);
+            return back()->with('error', 'Erro ao criar projecto: ' . $e->getMessage());
         }
     }
 
@@ -133,195 +187,26 @@ class ProjectController extends Controller
      * Display the specified resource.
      */
     public function show(Project $project)
-    {
-        return response()->json($project->load(['objectives', 'finance', 'deadline']));
+{
+    // Para requisições Inertia (navegação normal ou modal)
+    if (request()->expectsJson() || request()->is('api/*')) {
+        // Retorna JSON para requisições AJAX do modal
+        return response()->json([
+            'success' => true,
+            'project' => $project->load(['objectives', 'finance', 'deadline'])
+        ]);
     }
+    
+    // Para navegação normal
+    return Inertia::render('Common/ProjectDetails', [
+        'project' => $project->load(['objectives', 'finance', 'deadline'])
+    ]);
+}
 
     /**
      * Update the specified resource in storage.
      */
-   public function update(Request $request, Project $project)
-{
-    try {
-        // Validação com campos opcionais para actualização
-        $validated = $request->validate([
-            // Campos básicos - opcionais na actualização
-            'name' => 'sometimes|required|string|max:255',
-            'description' => 'sometimes|required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
-            'provincia' => 'sometimes|required|string|max:100',
-            'distrito' => 'sometimes|required|string|max:100',
-            'bairro' => 'sometimes|required|string|max:100',
-            'category' => 'sometimes|required|in:andamento,parados,finalizados',
-            'data_criacao' => 'sometimes|required|date',
-            
-            // Objectivos - opcional, mas se fornecido deve ser válido
-            'objectives' => 'sometimes|array|min:1',
-            'objectives.*.title' => 'required_with:objectives|string|max:255',
-            'objectives.*.description' => 'required_with:objectives|string',
-            'objectives.*.id' => 'sometimes|integer|exists:objectives,id',
-            
-            // Financiamento - campos opcionais
-            'financiador' => 'sometimes|string|max:255', // CORREÇÃO: removido required
-            'beneficiario' => 'sometimes|string|max:255', // CORREÇÃO: removido required
-            'responsavel' => 'sometimes|string|max:255', // CORREÇÃO: removido required
-            'valor_financiado' => 'sometimes|string|max:100', // CORREÇÃO: removido required
-            'codigo' => 'sometimes|string|max:50', // CORREÇÃO: removido required
-            
-            // Prazos - campos opcionais
-            'data_aprovacao' => 'sometimes|date',
-            'data_inicio' => 'sometimes|date',
-            'data_inspecao' => 'sometimes|date',
-            'data_finalizacao' => 'sometimes|date',
-            'data_inauguracao' => 'sometimes|date',
-        ]);
-
-        \Log::info('Iniciando actualização do projecto ID: ' . $project->id, $validated);
-
-        return DB::transaction(function () use ($validated, $request, $project) {
-            
-            // ACTUALIZAR PROJECTO
-            $projectData = [];
-            
-            // Campos básicos - apenas actualizar se fornecidos
-            $basicFields = ['name', 'description', 'provincia', 'distrito', 'bairro', 'category', 'data_criacao'];
-            foreach ($basicFields as $field) {
-                if (isset($validated[$field])) {
-                    $projectData[$field] = $validated[$field];
-                }
-            }
-            
-            // Processar upload da imagem se fornecida
-            if ($request->hasFile('image')) {
-                // Remover imagem antiga se existir
-                if ($project->image_url) {
-                    Storage::disk('public')->delete($project->image_url);
-                }
-                $imagePath = $request->file('image')->store('projects', 'public');
-                $projectData['image_url'] = $imagePath;
-            }
-            
-            // Actualizar projecto apenas se houver dados para actualizar
-            if (!empty($projectData)) {
-                $project->update($projectData);
-                \Log::info('Projecto actualizado com sucesso', $projectData);
-            }
-
-            // ACTUALIZAR OBJECTIVOS se fornecidos
-            if (isset($validated['objectives'])) {
-                \Log::info('Actualizando objectivos', $validated['objectives']);
-                
-                // Coletar IDs de objectivos existentes para eliminar os que não estão na lista
-                $existingObjectiveIds = $project->objectives->pluck('id')->toArray();
-                $updatedObjectiveIds = [];
-                
-                foreach ($validated['objectives'] as $index => $objectiveData) {
-                    if (isset($objectiveData['id'])) {
-                        // Actualizar objectivo existente
-                        $objective = Objective::where('id', $objectiveData['id'])
-                                            ->where('project_id', $project->id)
-                                            ->first();
-                        
-                        if ($objective) {
-                            $objective->update([
-                                'title' => $objectiveData['title'],
-                                'description' => $objectiveData['description'],
-                                'order' => $index + 1,
-                            ]);
-                            $updatedObjectiveIds[] = $objectiveData['id'];
-                        }
-                    } else {
-                        // Criar novo objectivo
-                        $newObjective = Objective::create([
-                            'project_id' => $project->id,
-                            'title' => $objectiveData['title'],
-                            'description' => $objectiveData['description'],
-                            'order' => $index + 1,
-                        ]);
-                        $updatedObjectiveIds[] = $newObjective->id;
-                    }
-                }
-                
-                // Eliminar objectivos que não estão na lista actualizada
-                $objectivesToDelete = array_diff($existingObjectiveIds, $updatedObjectiveIds);
-                if (!empty($objectivesToDelete)) {
-                    Objective::whereIn('id', $objectivesToDelete)
-                            ->where('project_id', $project->id)
-                            ->delete();
-                }
-            }
-
-            // ACTUALIZAR FINANCIAMENTO se fornecido
-            // CORREÇÃO: Verificar campos individuais em vez do array finance
-            $financeData = [];
-            $financeFields = ['financiador', 'beneficiario', 'responsavel', 'valor_financiado', 'codigo'];
-            
-            foreach ($financeFields as $field) {
-                if (isset($validated[$field])) {
-                    $financeData[$field] = $validated[$field];
-                }
-            }
-            
-            if (!empty($financeData)) {
-                if ($project->finance) {
-                    $project->finance->update($financeData);
-                } else {
-                    Finance::create(array_merge(['project_id' => $project->id], $financeData));
-                }
-                \Log::info('Financiamento actualizado', $financeData);
-            }
-
-            // ACTUALIZAR PRAZOS se fornecidos
-            // CORREÇÃO: Verificar campos individuais em vez do array deadline
-            $deadlineData = [];
-            $deadlineFields = [
-                'data_aprovacao', 'data_inicio', 'data_inspecao', 
-                'data_finalizacao', 'data_inauguracao'
-            ];
-            
-            foreach ($deadlineFields as $field) {
-                if (isset($validated[$field])) {
-                    $deadlineData[$field] = $validated[$field];
-                }
-            }
-            
-            if (!empty($deadlineData)) {
-                if ($project->deadline) {
-                    $project->deadline->update($deadlineData);
-                } else {
-                    Deadline::create(array_merge(['project_id' => $project->id], $deadlineData));
-                }
-                \Log::info('Prazos actualizados', $deadlineData);
-            }
-
-            // Recarregar relações actualizadas
-            $project->load(['objectives', 'finance', 'deadline']);
-
-            \Log::info('Projecto actualizado com sucesso ID: ' . $project->id);
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Projecto actualizado com sucesso!',
-                'project' => $project
-            ]);
-
-        });
-
-    } catch (\Illuminate\Validation\ValidationException $e) {
-        \Log::error('Erro de validação na actualização: ' . json_encode($e->errors()));
-        return response()->json([
-            'success' => false,
-            'message' => 'Erro de validação',
-            'errors' => $e->errors()
-        ], 422);
-    } catch (\Exception $e) {
-        \Log::error('Erro ao actualizar projecto ID ' . $project->id . ': ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Erro ao actualizar projecto: ' . $e->getMessage()
-        ], 500);
-    }
-
+    public function update(Request $request, Project $project)
     {
         try {
             // Validação com campos opcionais para actualização
@@ -343,18 +228,18 @@ class ProjectController extends Controller
                 'objectives.*.id' => 'sometimes|integer|exists:objectives,id',
                 
                 // Financiamento - campos opcionais
-                'finance.financiador' => 'sometimes|required|string|max:255',
-                'finance.beneficiario' => 'sometimes|required|string|max:255',
-                'finance.responsavel' => 'sometimes|required|string|max:255',
-                'finance.valor_financiado' => 'sometimes|required|string|max:100',
-                'finance.codigo' => 'sometimes|required|string|max:50',
+                'financiador' => 'sometimes|string|max:255',
+                'beneficiario' => 'sometimes|string|max:255',
+                'responsavel' => 'sometimes|string|max:255',
+                'valor_financiado' => 'sometimes|string|max:100',
+                'codigo' => 'sometimes|string|max:50',
                 
                 // Prazos - campos opcionais
-                'deadline.data_aprovacao' => 'sometimes|required|date',
-                'deadline.data_inicio' => 'sometimes|required|date',
-                'deadline.data_inspecao' => 'sometimes|required|date',
-                'deadline.data_finalizacao' => 'sometimes|required|date',
-                'deadline.data_inauguracao' => 'sometimes|required|date',
+                'data_aprovacao' => 'sometimes|date',
+                'data_inicio' => 'sometimes|date',
+                'data_inspecao' => 'sometimes|date',
+                'data_finalizacao' => 'sometimes|date',
+                'data_inauguracao' => 'sometimes|date',
             ]);
 
             \Log::info('Iniciando actualização do projecto ID: ' . $project->id, $validated);
@@ -433,50 +318,44 @@ class ProjectController extends Controller
                 }
 
                 // ACTUALIZAR FINANCIAMENTO se fornecido
-                if (isset($validated['finance'])) {
-                    \Log::info('Actualizando financiamento', $validated['finance']);
-                    
-                    $financeData = [];
-                    $financeFields = ['financiador', 'beneficiario', 'responsavel', 'valor_financiado', 'codigo'];
-                    
-                    foreach ($financeFields as $field) {
-                        if (isset($validated['finance'][$field])) {
-                            $financeData[$field] = $validated['finance'][$field];
-                        }
+                $financeData = [];
+                $financeFields = ['financiador', 'beneficiario', 'responsavel', 'valor_financiado', 'codigo'];
+                
+                foreach ($financeFields as $field) {
+                    if (isset($validated[$field])) {
+                        $financeData[$field] = $validated[$field];
                     }
-                    
-                    if (!empty($financeData)) {
-                        if ($project->finance) {
-                            $project->finance->update($financeData);
-                        } else {
-                            Finance::create(array_merge(['project_id' => $project->id], $financeData));
-                        }
+                }
+                
+                if (!empty($financeData)) {
+                    if ($project->finance) {
+                        $project->finance->update($financeData);
+                    } else {
+                        Finance::create(array_merge(['project_id' => $project->id], $financeData));
                     }
+                    \Log::info('Financiamento actualizado', $financeData);
                 }
 
                 // ACTUALIZAR PRAZOS se fornecidos
-                if (isset($validated['deadline'])) {
-                    \Log::info('Actualizando prazos', $validated['deadline']);
-                    
-                    $deadlineData = [];
-                    $deadlineFields = [
-                        'data_aprovacao', 'data_inicio', 'data_inspecao', 
-                        'data_finalizacao', 'data_inauguracao'
-                    ];
-                    
-                    foreach ($deadlineFields as $field) {
-                        if (isset($validated['deadline'][$field])) {
-                            $deadlineData[$field] = $validated['deadline'][$field];
-                        }
+                $deadlineData = [];
+                $deadlineFields = [
+                    'data_aprovacao', 'data_inicio', 'data_inspecao', 
+                    'data_finalizacao', 'data_inauguracao'
+                ];
+                
+                foreach ($deadlineFields as $field) {
+                    if (isset($validated[$field])) {
+                        $deadlineData[$field] = $validated[$field];
                     }
-                    
-                    if (!empty($deadlineData)) {
-                        if ($project->deadline) {
-                            $project->deadline->update($deadlineData);
-                        } else {
-                            Deadline::create(array_merge(['project_id' => $project->id], $deadlineData));
-                        }
+                }
+                
+                if (!empty($deadlineData)) {
+                    if ($project->deadline) {
+                        $project->deadline->update($deadlineData);
+                    } else {
+                        Deadline::create(array_merge(['project_id' => $project->id], $deadlineData));
                     }
+                    \Log::info('Prazos actualizados', $deadlineData);
                 }
 
                 // Recarregar relações actualizadas
@@ -484,70 +363,52 @@ class ProjectController extends Controller
 
                 \Log::info('Projecto actualizado com sucesso ID: ' . $project->id);
 
-                return response()->json([
-                    'message' => 'Projecto actualizado com sucesso!',
-                    'project' => $project
-                ]);
+                return back()->with('success', 'Projecto actualizado com sucesso!');
 
             });
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Log::error('Erro de validação na actualização: ' . json_encode($e->errors()));
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $e->errors()
-            ], 422);
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             \Log::error('Erro ao actualizar projecto ID ' . $project->id . ': ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao actualizar projecto: ' . $e->getMessage()
-            ], 500);
+            return back()->with('error', 'Erro ao actualizar projecto: ' . $e->getMessage());
         }
     }
-}
-
 
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Project $project)
-{
-    try {
-        return DB::transaction(function () use ($project) {
-            // Remover imagem se existir
-            if ($project->image_url) {
-                Storage::disk('public')->delete($project->image_url);
-            }
-            
-            // Remover objectivos
-            $project->objectives()->delete();
-            
-            // Remover financiamento
-            if ($project->finance) {
-                $project->finance()->delete();
-            }
-            
-            // Remover prazos
-            if ($project->deadline) {
-                $project->deadline()->delete();
-            }
-            
-            // Remover projecto
-            $project->delete();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Projecto eliminado com sucesso!'
-            ]);
-        });
-    } catch (\Exception $e) {
-        \Log::error('Erro ao eliminar projecto ID ' . $project->id . ': ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Erro ao eliminar projecto: ' . $e->getMessage()
-        ], 500);
+    {
+        try {
+            return DB::transaction(function () use ($project) {
+                // Remover imagem se existir
+                if ($project->image_url) {
+                    Storage::disk('public')->delete($project->image_url);
+                }
+                
+                // Remover objectivos
+                $project->objectives()->delete();
+                
+                // Remover financiamento
+                if ($project->finance) {
+                    $project->finance()->delete();
+                }
+                
+                // Remover prazos
+                if ($project->deadline) {
+                    $project->deadline()->delete();
+                }
+                
+                // Remover projecto
+                $project->delete();
+                
+                return back()->with('success', 'Projecto eliminado com sucesso!');
+            });
+        } catch (\Exception $e) {
+            \Log::error('Erro ao eliminar projecto ID ' . $project->id . ': ' . $e->getMessage());
+            return back()->with('error', 'Erro ao eliminar projecto: ' . $e->getMessage());
+        }
     }
-}
 }

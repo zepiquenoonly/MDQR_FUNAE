@@ -15,50 +15,82 @@
           <GrievanceTimeline :complaint="complaint" />
           <GrievanceAttachments :complaint="complaint" />
 
-          <GrievanceResolutionEvidence v-if="shouldShowResolution" :complaint="complaint" />
+          <GrievanceResolutionEvidence
+            v-if="shouldShowResolution"
+            :complaint="complaint"
+          />
         </div>
 
         <!-- Right Column - 1/3 -->
         <div class="space-y-4 sm:space-y-6">
           <GrievanceQuickStatus :complaint="complaint" />
           <GrievanceUserInfo :complaint="complaint" />
-          <GrievanceActions :complaint="complaint" :technicians="technicians" :loading="loading"
-            :can-reassign-technician="canReassignTechnician" :can-update-priority="canUpdatePriority"
-            :can-send-to-director="canSendToDirector" :can-mark-complete="canMarkComplete" @open-modal="handleOpenModal"
-            @mark-complete="markComplete" @reject-completion="rejectCompletion" @reject-submission="rejectSubmission"
-            @refresh="refreshComplaintData" />
+          <GrievanceActions
+            :complaint="complaint"
+            :technicians="technicians"
+            :loading="loading"
+            :can-reassign-technician="canReassignTechnician"
+            :can-update-priority="canUpdatePriority"
+            :can-send-to-director="canSendToDirector"
+            :can-mark-complete="canMarkComplete"
+            @open-modal="handleOpenModal"
+            @mark-complete="markComplete"
+            @reject-completion="rejectCompletion"
+            @reject-submission="rejectSubmission"
+            @refresh="refreshComplaintData"
+          />
         </div>
       </div>
     </div>
     <div class="mt-8">
-      <GrievanceDirectorComments v-if="complaint.director_comments?.length > 0" :complaint="complaint" />
+      <GrievanceDirectorComments
+        v-if="complaint.director_comments?.length > 0"
+        :complaint="complaint"
+      />
     </div>
     <!--Toast Notification -->
     <ToastNotification v-if="toast.show" :toast="toast" @close="toast.show = false" />
 
     <!-- Modals -->
-    <PriorityModal v-if="showPriorityModal" :complaint="complaint" @close="closeModal('priority')"
-      @update="updatePriority" />
+    <PriorityModal
+      v-if="showPriorityModal"
+      :complaint="complaint"
+      @close="closeModal('priority')"
+      @update="updatePriority"
+    />
 
-    <ReassignModal v-if="showReassignModal" :complaint="complaint" :technicians="technicians"
-      @close="closeModal('reassign')" @update="reassignTechnician" />
+    <ReassignModal
+      v-if="showReassignModal"
+      :complaint="complaint"
+      :technicians="technicians"
+      @close="closeModal('reassign')"
+      @update="reassignTechnician"
+    />
 
-    <CommentModal v-if="showCommentModal" :complaint="complaint" @close="closeModal('comment')"
-      @submit="submitComment" />
+    <CommentModal
+      v-if="showCommentModal"
+      :complaint="complaint"
+      @close="closeModal('comment')"
+      @submit="submitComment"
+    />
 
-    <SendToDirectorModal v-if="showSendToDirectorModal" :complaint="complaint" @close="closeModal('sendToDirector')"
-      @submit="sendToDirector" />
+    <SendToDirectorModal
+      v-if="showSendToDirectorModal"
+      :complaint="complaint"
+      @close="closeModal('sendToDirector')"
+      @submit="sendToDirector"
+    />
   </Layout>
 </template>
 
 <script setup>
 import { router } from "@inertiajs/vue3";
 import { ref, reactive, computed, onMounted } from "vue";
-import Layout from "@/Layouts/ManagerLayout.vue";
-import PriorityModal from "@/Components/GestorReclamacoes/PriorityModal.vue";
-import ReassignModal from "@/Components/GestorReclamacoes/ReassignModal.vue";
+import Layout from "@/Layouts/UnifiedLayout.vue";
+import PriorityModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/PriorityModal.vue";
+import ReassignModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/ReassignModal.vue";
 import CommentModal from "@/Components/GestorReclamacoes/CommentModal.vue";
-import SendToDirectorModal from "@/Components/GestorReclamacoes/SendToDirectorModal.vue";
+import SendToDirectorModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/SendToDirectorModal.vue";
 import GrievanceDirectorComments from "@/Components/GestorReclamacoes/GrievanceDetailComponents/GrievanceDirectorComments.vue";
 import GrievanceBreadcrumb from "@/Components/GestorReclamacoes/GrievanceDetailComponents/GrievanceBreadcrumb.vue";
 import GrievanceHeader from "@/Components/GestorReclamacoes/GrievanceDetailComponents/GrievanceHeader.vue";

@@ -32,6 +32,87 @@ export const useGrievanceDetail = (props) => {
     type: "success",
   });
   
+const revokeEscalation = async () => {
+  loading.sendToDirector = true; // Reutilizar o mesmo loading
+  try {
+    await router.post(
+      route('complaints.revoke-escalation', { grievance: complaint.value.id }),
+      {},
+      {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: (page) => {
+          if (page.props.flash?.updatedGrievance) {
+            const updated = page.props.flash.updatedGrievance;
+            
+            // Atualizar dados locais
+            complaint.value.escalated = updated.escalated;
+            complaint.value.status = updated.status;
+            complaint.value.priority = updated.priority;
+            complaint.value.assigned_to = updated.assigned_to?.id;
+            
+            if (updated.assigned_to) {
+              complaint.value.technician = {
+                id: updated.assigned_to.id,
+                name: updated.assigned_to.name,
+                email: updated.assigned_to.email,
+              };
+            }
+          }
+          
+          // Adicionar atividade à timeline
+          const activity = {
+            type: 'escalation_revoked',
+            action_type: 'escalation_revoked',
+            description: 'Encaminhamento ao Director revogado',
+            created_at: new Date().toISOString(),
+            metadata: {
+              revoked_by: 'Gestor',
+              previous_status: 'escalated',
+              new_status: complaint.value.status,
+            },
+            user: {
+              name: "Gestor",
+              role: "Gestor",
+            },
+          };
+          
+          if (complaint.value.activities) {
+            complaint.value.activities.unshift(activity);
+          } else {
+            complaint.value.activities = [activity];
+          }
+          
+          showToast(
+            page.props.flash?.success || 'Encaminhamento revogado com sucesso!',
+            'success'
+          );
+          
+          setTimeout(() => {
+            refreshComplaintData();
+          }, 1000);
+        },
+        onError: (errors) => {
+          let errorMessage = 'Erro ao revogar encaminhamento';
+          if (errors?.error) {
+            errorMessage = errors.error;
+          } else if (errors?.message) {
+            errorMessage = errors.message;
+          }
+          
+          showToast(errorMessage, 'error');
+        },
+        onFinish: () => {
+          loading.sendToDirector = false;
+        }
+      }
+    );
+  } catch (error) {
+    showToast('Erro de conexão ao revogar encaminhamento', 'error');
+    loading.sendToDirector = false;
+  }
+};
+
   // Computed properties - ATUALIZADAS conforme seus requisitos
   const canReassignTechnician = computed(() => {
     const allowedStatuses = ["submitted", "under_review", "assigned"];
@@ -143,6 +224,7 @@ export const useGrievanceDetail = (props) => {
     if (!complaint.value) return;
     showCommentModal.value = true;
   };
+
   
   const openSendToDirectorModal = () => {
     if (!complaint.value) return;
@@ -401,13 +483,18 @@ export const useGrievanceDetail = (props) => {
     }
   };
   
-  const sendToDirector = async (commentData) => {
+   const sendToDirector = async (commentData) => {
     showSendToDirectorModal.value = false;
     loading.sendToDirector = true;
     
     try {
+      // Use a URL direta - isso evita problemas com o helper de rota
+      const url = `/complaints/${complaint.value.id}/send-to-director`;
+      
+      console.log('Enviando para URL:', url);
+      
       await router.post(
-        route('complaints.send-to-director', { grievance: complaint.value.id }),
+        url,
         {
           comment: commentData.comment,
           reason: commentData.reason,
@@ -421,8 +508,12 @@ export const useGrievanceDetail = (props) => {
               
               // Atualizar os dados locais
               complaint.value.escalated = updated.escalated;
+              complaint.value.status = 'escalated';
               complaint.value.priority = updated.priority;
               complaint.value.assigned_to = updated.assigned_to?.id;
+              complaint.value.escalation_reason = updated.escalation_reason;
+              complaint.value.escalated_at = updated.escalated_at;
+              complaint.value.escalated_by = updated.escalated_by;
               
               if (updated.assigned_to) {
                 complaint.value.technician = {
@@ -490,6 +581,7 @@ export const useGrievanceDetail = (props) => {
       loading.sendToDirector = false;
     }
   };
+  
   
   const markComplete = async () => {
     if (complaint.value.status !== "pending_approval") {

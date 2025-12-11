@@ -19,7 +19,7 @@
         "phpoffice/phpspreadsheet": "*",
         "pusher/pusher-php-server": "*",
         "spatie/laravel-permission": "^6.23",
-        "tightenco/ziggy": "^2.0"
+        "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

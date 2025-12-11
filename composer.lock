@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "76500e3270a9888fc8e61af8b6ecdf47",
+    "content-hash": "a4b12c21adadd40c7ebea2c35ee5f3f4",
     "packages": [
         {
             "name": "arnaldotomo/laravel-lusophone",

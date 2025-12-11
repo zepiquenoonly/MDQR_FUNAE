@@ -3,14 +3,18 @@
     <!-- Estado de carregamento -->
     <div v-if="isLoading" class="flex items-center justify-center h-64">
       <div class="text-center">
-        <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div
+          class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"
+        ></div>
         <p class="mt-2 text-gray-600 dark:text-gray-400">Carregando dados...</p>
       </div>
     </div>
 
     <!-- Erro -->
-    <div v-else-if="error"
-      class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6">
+    <div
+      v-else-if="error"
+      class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 mb-6"
+    >
       <p class="text-red-700 dark:text-red-400">{{ error }}</p>
     </div>
 
@@ -41,9 +45,14 @@
           </p>
           <div class="mt-4">
             <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <ArrowTrendingUpIcon v-if="metrics.pending_change >= 0" class="h-4 w-4 mr-1" />
+              <ArrowTrendingUpIcon
+                v-if="metrics.pending_change >= 0"
+                class="h-4 w-4 mr-1"
+              />
               <ArrowTrendingDownIcon v-else class="h-4 w-4 mr-1" />
-              <span :class="metrics.pending_change >= 0 ? 'text-green-600' : 'text-red-600'">
+              <span
+                :class="metrics.pending_change >= 0 ? 'text-green-600' : 'text-red-600'"
+              >
                 {{ metrics.pending_change >= 0 ? "+" : ""
                 }}{{ metrics.pending_change || 0 }}% desde ontem
               </span>
@@ -103,11 +112,16 @@
           </p>
           <div class="mt-4">
             <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <ArrowTrendingUpIcon v-if="metrics.satisfaction_change >= 0" class="h-4 w-4 mr-1" />
+              <ArrowTrendingUpIcon
+                v-if="metrics.satisfaction_change >= 0"
+                class="h-4 w-4 mr-1"
+              />
               <ArrowTrendingDownIcon v-else class="h-4 w-4 mr-1" />
-              <span :class="
+              <span
+                :class="
                   metrics.satisfaction_change >= 0 ? 'text-green-600' : 'text-red-600'
-                ">
+                "
+              >
                 {{ metrics.satisfaction_change >= 0 ? "+" : ""
                 }}{{ metrics.satisfaction_change || 0 }} pontos
               </span>
@@ -124,71 +138,119 @@
               Distribuição por Status e Tipo
             </h3>
             <div class="flex space-x-2">
-              <button @click="activeChart = 'status'" :class="[
+              <button
+                @click="activeChart = 'status'"
+                :class="[
                   'px-3 py-1 text-sm rounded-lg transition-colors',
                   activeChart === 'status'
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-                ]">
+                ]"
+              >
                 Por Status
               </button>
-              <button @click="activeChart = 'type'" :class="[
+              <button
+                @click="activeChart = 'type'"
+                :class="[
                   'px-3 py-1 text-sm rounded-lg transition-colors',
                   activeChart === 'type'
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-                ]">
+                ]"
+              >
                 Por Tipo
               </button>
-              <button @click="activeChart = 'priority'" :class="[
+              <button
+                @click="activeChart = 'priority'"
+                :class="[
                   'px-3 py-1 text-sm rounded-lg transition-colors',
                   activeChart === 'priority'
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-                ]">
+                ]"
+              >
                 Por Prioridade
               </button>
-              <button @click="activeChart = 'trends'" :class="[
+              <button
+                @click="activeChart = 'trends'"
+                :class="[
                   'px-3 py-1 text-sm rounded-lg transition-colors',
                   activeChart === 'trends'
                     ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                     : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700',
-                ]">
+                ]"
+              >
                 Tendências
               </button>
             </div>
           </div>
 
-          <div class="h-64">
+          <div class="h-[400px] lg:h-[450px]">
             <!-- Gráfico de Status -->
             <DistributionChart
-              v-if="activeChart === 'status' && chartData.status_distribution && Object.keys(chartData.status_distribution).length > 0"
-              :chart-type="'doughnut'" :chart-data="chartData.status_distribution" :title="'Distribuição por Status'"
-              :height="256" />
+              v-if="
+                activeChart === 'status' &&
+                chartData.status_distribution &&
+                Object.keys(chartData.status_distribution).length > 0
+              "
+              :chart-type="'doughnut'"
+              :chart-data="chartData.status_distribution"
+              :title="'Distribuição por Status'"
+              :height="400"
+              :legend-position="'right'"
+            />
 
             <!-- Gráfico de Tipo -->
             <DistributionChart
-              v-else-if="activeChart === 'type' && chartData.type_distribution && Object.keys(chartData.type_distribution).length > 0"
-              :chart-type="'pie'" :chart-data="chartData.type_distribution" :title="'Distribuição por Tipo'"
-              :height="256" />
+              v-else-if="
+                activeChart === 'type' &&
+                chartData.type_distribution &&
+                Object.keys(chartData.type_distribution).length > 0
+              "
+              :chart-type="'pie'"
+              :chart-data="chartData.type_distribution"
+              :title="'Distribuição por Tipo'"
+              :height="400"
+              :legend-position="'right'"
+            />
 
             <!-- Gráfico de Prioridade -->
             <DistributionChart
-              v-else-if="activeChart === 'priority' && chartData.priority_distribution && Object.keys(chartData.priority_distribution).length > 0"
-              :chart-type="'doughnut'" :chart-data="chartData.priority_distribution"
-              :title="'Distribuição por Prioridade'" :height="256" />
+              v-else-if="
+                activeChart === 'priority' &&
+                chartData.priority_distribution &&
+                Object.keys(chartData.priority_distribution).length > 0
+              "
+              :chart-type="'doughnut'"
+              :chart-data="chartData.priority_distribution"
+              :title="'Distribuição por Prioridade'"
+              :height="400"
+              :legend-position="'right'"
+            />
 
             <!-- Gráfico de Tendências -->
             <DistributionChart
-              v-else-if="activeChart === 'trends' && chartData.monthly_trends && Array.isArray(chartData.monthly_trends) && chartData.monthly_trends.length > 0"
-              :chart-type="'line'" :chart-data="chartData.monthly_trends"
-              :title="'Tendências Mensais (Últimos 6 Meses)'" :height="256" />
-
+              v-else-if="
+                activeChart === 'trends' &&
+                chartData.monthly_trends &&
+                Array.isArray(chartData.monthly_trends) &&
+                chartData.monthly_trends.length > 0
+              "
+              :chart-type="'line'"
+              :chart-data="chartData.monthly_trends"
+              :title="'Tendências Mensais (Últimos 6 Meses)'"
+              :height="400"
+            />
 
             <!-- Estado de carregamento -->
-            <div v-else class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+            <div
+              v-else
+              class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400"
+            >
               <div class="text-center">
-                <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
+                <div
+                  class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"
+                ></div>
                 <p>Carregando dados do gráfico...</p>
               </div>
             </div>
@@ -234,12 +296,19 @@
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
               Últimas Ações
             </h3>
-            <Link :href="complaintsOverviewUrl" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-            Ver todas
+            <Link
+              :href="complaintsOverviewUrl"
+              class="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              Ver todas
             </Link>
           </div>
           <div class="space-y-4">
-            <div v-for="activity in recentActivities" :key="activity.id" class="flex items-start gap-3">
+            <div
+              v-for="activity in recentActivities"
+              :key="activity.id"
+              class="flex items-start gap-3"
+            >
               <div class="flex-shrink-0 mt-1">
                 <div :class="getActivityIconClass(activity.type)" class="p-2 rounded-lg">
                   <component :is="getActivityIcon(activity.type)" class="h-4 w-4" />
@@ -270,8 +339,11 @@
           <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
             Indicadores de Desempenho
           </h3>
-          <select v-model="performancePeriod" @change="updatePeriod"
-            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-secondary focus:ring-2 focus:ring-brand focus:border-transparent">
+          <select
+            v-model="performancePeriod"
+            @change="updatePeriod"
+            class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-dark-secondary focus:ring-2 focus:ring-brand focus:border-transparent"
+          >
             <option value="week">Última Semana</option>
             <option value="month">Último Mês</option>
             <option value="quarter">Último Trimestre</option>
@@ -288,9 +360,12 @@
               {{ performance.average_response_time || 0 }}h
             </p>
             <div class="mt-2">
-              <span :class="
+              <span
+                :class="
                   performance.response_time_trend >= 0 ? 'text-red-600' : 'text-green-600'
-                " class="text-xs">
+                "
+                class="text-xs"
+              >
                 {{ performance.response_time_trend >= 0 ? "+" : ""
                 }}{{ performance.response_time_trend || 0 }}%
               </span>
@@ -305,9 +380,12 @@
               {{ performance.recurrence_rate || 0 }}%
             </p>
             <div class="mt-2">
-              <span :class="
+              <span
+                :class="
                   performance.recurrence_trend >= 0 ? 'text-red-600' : 'text-green-600'
-                " class="text-xs">
+                "
+                class="text-xs"
+              >
                 {{ performance.recurrence_trend >= 0 ? "+" : ""
                 }}{{ performance.recurrence_trend || 0 }}%
               </span>
@@ -322,7 +400,10 @@
               {{ performance.cases_per_employee || 0 }}
             </p>
             <div class="mt-2">
-              <span :class="performance.cases_trend >= 0 ? 'text-red-600' : 'text-green-600'" class="text-xs">
+              <span
+                :class="performance.cases_trend >= 0 ? 'text-red-600' : 'text-green-600'"
+                class="text-xs"
+              >
                 {{ performance.cases_trend >= 0 ? "+" : ""
                 }}{{ performance.cases_trend || 0 }}%
               </span>
@@ -337,9 +418,12 @@
               {{ performance.compliance_rate || 0 }}%
             </p>
             <div class="mt-2">
-              <span :class="
+              <span
+                :class="
                   performance.compliance_trend >= 0 ? 'text-green-600' : 'text-red-600'
-                " class="text-xs">
+                "
+                class="text-xs"
+              >
                 {{ performance.compliance_trend >= 0 ? "+" : ""
                 }}{{ performance.compliance_trend || 0 }}%
               </span>
@@ -356,8 +440,11 @@
             Relatórios Estatísticos
           </h3>
           <div class="space-y-4">
-            <div v-for="report in reports" :key="report.id"
-              class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div
+              v-for="report in reports"
+              :key="report.id"
+              class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+            >
               <div class="flex items-center gap-3">
                 <DocumentChartBarIcon class="h-6 w-6 text-gray-400" />
                 <div>
@@ -370,21 +457,27 @@
                 </div>
               </div>
               <div class="flex items-center gap-2">
-                <button @click="downloadReport(report)"
+                <button
+                  @click="downloadReport(report)"
                   class="px-3 py-1 text-sm text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg"
-                  title="Baixar relatório">
+                  title="Baixar relatório"
+                >
                   <ArrowDownTrayIcon class="h-4 w-4" />
                 </button>
-                <button @click="viewReport(report)"
+                <button
+                  @click="viewReport(report)"
                   class="px-3 py-1 text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg"
-                  title="Visualizar relatório">
+                  title="Visualizar relatório"
+                >
                   <EyeIcon class="h-4 w-4" />
                 </button>
               </div>
             </div>
 
-            <div v-if="reports.length === 0"
-              class="text-center py-4 border border-gray-200 dark:border-gray-700 rounded-lg">
+            <div
+              v-if="reports.length === 0"
+              class="text-center py-4 border border-gray-200 dark:border-gray-700 rounded-lg"
+            >
               <DocumentChartBarIcon class="h-8 w-8 mx-auto mb-2 text-gray-400" />
               <p class="text-gray-500 dark:text-gray-400 text-sm">
                 Nenhum relatório gerado recentemente
@@ -399,22 +492,28 @@
             Ações Rápidas
           </h3>
           <div class="space-y-3">
-            <Link :href="complaintsOverviewUrl"
-              class="flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors">
-            <DocumentTextIcon class="h-5 w-5" />
-            <span>Ver Todas Submissões</span>
+            <Link
+              :href="complaintsOverviewUrl"
+              class="flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors"
+            >
+              <DocumentTextIcon class="h-5 w-5" />
+              <span>Ver Todas Submissões</span>
             </Link>
 
-            <Link :href="`${complaintsOverviewUrl}?priority=high`"
-              class="flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors">
-            <ExclamationTriangleIcon class="h-5 w-5" />
-            <span>Submissões Críticas</span>
+            <Link
+              :href="`${complaintsOverviewUrl}?priority=high`"
+              class="flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors"
+            >
+              <ExclamationTriangleIcon class="h-5 w-5" />
+              <span>Submissões Críticas</span>
             </Link>
 
-            <Link :href="indicatorsUrl"
-              class="w-full flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors">
-            <DocumentArrowDownIcon class="h-5 w-5" />
-            <span>Gerar Relatório Mensal</span>
+            <Link
+              :href="indicatorsUrl"
+              class="w-full flex items-center gap-3 p-3 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-900/20 rounded-lg transition-colors"
+            >
+              <DocumentArrowDownIcon class="h-5 w-5" />
+              <span>Gerar Relatório Mensal</span>
             </Link>
           </div>
         </div>
@@ -426,7 +525,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { usePage, Link, router } from "@inertiajs/vue3";
-import AppLayout from "@/Layouts/ManagerLayout.vue";
+import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import DistributionChart from "@/Components/Indicators/Charts/DistributionChart.vue";
 import {
   ClockIcon,

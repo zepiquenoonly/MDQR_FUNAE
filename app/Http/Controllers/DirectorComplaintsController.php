@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Http\Controllers\AuthController;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\Grievance;
@@ -16,15 +16,16 @@ class DirectorComplaintsController extends Controller
     /**
      * Verificar se o usuário tem acesso de Director
      */
+
     private function checkAccess($user)
     {
         if (!$user) {
             abort(403, 'Usuário não autenticado.');
         }
         
-        if (!$user->hasRole('Director')) {
-            abort(403, 'Acesso não autorizado. Apenas Directors podem acessar esta página.');
-        }
+         if (!$user->hasAnyRole(['Director', 'director', 'PCA', 'pca'])) {
+        abort(403, 'Acesso não autorizado. Apenas usuários com privilégios administrativos podem acessar esta página.');
+    }
     }
 
     /**
@@ -33,7 +34,7 @@ class DirectorComplaintsController extends Controller
     // NO DirectorComplaintsController.php, no método index, adicione:
 public function index(Request $request)
 {
-    $user = $request->user();
+     $user = $request->user();
     $this->checkAccess($user);
 
     $query = Grievance::with(['user', 'assignedUser', 'project'])
@@ -99,6 +100,15 @@ public function index(Request $request)
     });
 
     return Inertia::render('Director/SubmissionsPage', [
+        // ADICIONE USER E ROLE:
+        'user' => $user ? [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'username' => $user->username,
+        ] : null,
+        'role' => app(AuthController::class)->getUserNormalizedRole($user),
+        
         'submissions' => $submissions,
         'stats' => $this->getDashboardStats(),
         'filters' => $request->only([
@@ -214,11 +224,23 @@ public function index(Request $request)
         $submissionData['director_validation'] = $validationData;
 
         return Inertia::render('Director/Show', [
+            // ADICIONE USER E ROLE:
+            'user' => $user ? [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'username' => $user->username,
+            ] : null,
+            'role' => app(AuthController::class)->getUserNormalizedRole($user),// ← Pode ser 'director' específico
+            
             'submission' => $submissionData,
-            'comments' => $comments, // Comentários filtrados dos updates
+            'comments' => $comments,
             'technicians' => $this->getAvailableTechnicians(),
             'managers' => $this->getAvailableManagers(),
             'projects' => $this->getActiveProjects(),
+            
+            // ADICIONE timeline_data se necessário
+            'timeline_data' => $grievance->updates->sortByDesc('created_at')->values()->toArray(),
         ]);
         
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
@@ -1143,6 +1165,12 @@ public function validateCase(Request $request, $id)
 {
     $user = $request->user();
     $this->checkAccess($user);
+
+    if (!$user->hasRole('Director')) {
+        return response()->json([
+            'error' => 'Apenas o Director pode validar submissões.'
+        ], 403);
+    }
 
     $validated = $request->validate([
         'status' => 'required|in:approved,rejected,needs_revision',

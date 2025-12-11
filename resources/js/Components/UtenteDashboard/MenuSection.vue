@@ -7,10 +7,10 @@
 
     <!-- Dashboard -->
     <MenuItem
-      :active="activePanel === 'dashboard'"
+      :active="isDashboardActive"
       :icon="HomeIcon"
       :text="'Dashboard'"
-      @click="() => emitItem('dashboard')"
+      @click="() => navigateToDashboardHandler()"
     />
 
     <!-- Role-specific sections -->
@@ -18,14 +18,18 @@
     <template v-if="!role || role === 'utente'">
       <!-- Projectos -->
       <MenuItem
-        :active="activePanel === 'projectos'"
+        :active="isProjectosActive"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
-        @click="() => emitItem('projectos')"
+        @click="() => navigateTo('utente.projects')"
       />
 
       <!-- MDQR Section -->
-      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">MDQR</div>
+      <div
+        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+      >
+        MDQR
+      </div>
 
       <!-- Submeter Reclamação/Queixa/Sugestão -->
       <MenuDropdown
@@ -34,14 +38,14 @@
         :items="[
           { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
           { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
-          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon }
+          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon },
         ]"
-        @item-clicked="emitItem"
+        @item-clicked="handleNewSubmission"
       />
 
       <!-- Acompanhamento -->
       <MenuItem
-        :active="false"
+        :active="isTrackingActive"
         :icon="MagnifyingGlassIcon"
         :text="'Acompanhamento'"
         @click="() => navigateToTracking()"
@@ -51,7 +55,11 @@
     <!-- Técnico -->
     <template v-if="role === 'technician'">
       <!-- MDQR Section -->
-      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">MDQR</div>
+      <div
+        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+      >
+        MDQR
+      </div>
 
       <!-- Submeter Reclamação/Queixa/Sugestão -->
       <MenuDropdown
@@ -60,14 +68,14 @@
         :items="[
           { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
           { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
-          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon }
+          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon },
         ]"
-        @item-clicked="emitItem"
+        @item-clicked="handleNewSubmission"
       />
 
       <!-- Acompanhamento -->
       <MenuItem
-        :active="false"
+        :active="isTrackingActive"
         :icon="MagnifyingGlassIcon"
         :text="'Acompanhamento'"
         @click="() => navigateToTracking()"
@@ -78,27 +86,67 @@
     <template v-if="role === 'manager'">
       <!-- Projectos -->
       <MenuItem
-        :active="activePanel === 'projectos'"
+        :active="isManagerProjectsActive"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
-        @click="() => emitItem('projectos')"
+        @click="() => navigateTo('manager.projects')"
       />
 
       <!-- Técnicos -->
       <MenuItem
-        :active="activePanel === 'tecnicos'"
+        :active="isManagerTechniciansActive"
         :icon="UserGroupIcon"
         :text="'Técnicos'"
-        @click="() => emitItem('tecnicos')"
+        @click="() => navigateTo('manager.technicians')"
       />
 
       <!-- Estatísticas -->
-      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">Relatórios</div>
+      <div
+        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+      >
+        Relatórios
+      </div>
       <MenuItem
-        :active="activePanel === 'estatisticas'"
+        :active="isManagerEstatisticasActive"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        @click="() => emitItem('estatisticas')"
+        @click="() => navigateTo('manager.estatisticas')"
+      />
+    </template>
+
+    <!-- Director -->
+    <template v-if="role === 'director'">
+      <!-- Submissões -->
+      <MenuItem
+        :active="isDirectorComplaintsActive"
+        :icon="ClipboardDocumentListIcon"
+        :text="'Submissões'"
+        @click="() => navigateTo('director.complaints-overview')"
+      />
+
+      <!-- Indicadores -->
+      <MenuItem
+        :active="isDirectorEstatisticasActive"
+        :icon="ChartBarIcon"
+        :text="'Indicadores'"
+        @click="() => navigateTo('director.estatisticas')"
+      />
+
+      <div
+        :class="[
+          'px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide transition-opacity duration-300 mt-4',
+          isCollapsed ? 'opacity-0' : 'opacity-100',
+        ]"
+      >
+        Gestão do Departamento
+      </div>
+
+      <!-- Funcionários -->
+      <MenuItem
+        :active="isDirectorTechniciansActive"
+        :icon="UserGroupIcon"
+        :text="'Funcionários'"
+        @click="() => navigateTo('director.technicians')"
       />
     </template>
 
@@ -106,36 +154,44 @@
     <template v-if="role === 'pca'">
       <!-- Projectos -->
       <MenuItem
-        :active="activePanel === 'projectos'"
+        :active="isProjectosActive"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
-        @click="() => emitItem('projectos')"
+        @click="() => navigateTo('pca.projects')"
       />
 
       <!-- Estatísticas -->
-      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">Relatórios</div>
+      <div
+        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+      >
+        Relatórios
+      </div>
       <MenuItem
-        :active="activePanel === 'estatisticas'"
+        :active="isPcaEstatisticasActive"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        @click="() => emitItem('estatisticas')"
+        @click="() => navigateTo('pca.estatisticas')"
       />
 
       <!-- Gestão de Usuários -->
       <MenuItem
-        :active="activePanel === 'usuarios'"
+        :active="isUsuariosActive"
         :icon="UsersIcon"
         :text="'Usuários'"
-        @click="() => emitItem('usuarios')"
+        @click="() => navigateTo('pca.usuarios')"
       />
     </template>
 
     <!-- Conta / Perfil -->
-    <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-4">Conta</div>
+    <div
+      class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-4"
+    >
+      Conta
+    </div>
 
     <!-- Meu Perfil -->
     <MenuItem
-      :active="false"
+      :active="isProfileActive"
       :icon="UserCircleIcon"
       :text="'Meu Perfil'"
       @click="() => navigateToProfile()"
@@ -164,33 +220,142 @@ import {
   ArrowRightOnRectangleIcon,
   UserGroupIcon,
   ChartBarIcon,
-  UsersIcon
-} from '@heroicons/vue/24/outline'
-import { useDashboard } from '@/Composables/useDashboard'
-import { useNavigation } from '@/Composables/useNavigation'
-import MenuItem from './MenuItem.vue'
-import MenuDropdown from './MenuDropdown.vue'
+  UsersIcon,
+  ClipboardDocumentListIcon,
+} from "@heroicons/vue/24/outline";
+import { computed, onMounted } from "vue";
+import { usePage } from "@inertiajs/vue3";
+import { useNavigation } from "@/Composables/useNavigation";
+import { useDashboard } from "@/Composables/useDashboard";
+import MenuItem from "./MenuItem.vue";
+import MenuDropdown from "./MenuDropdown.vue";
 
 const props = defineProps({
   role: {
     type: String,
-    default: 'utente'
+    default: "utente",
+  },
+});
+
+const emit = defineEmits(["item-clicked"]);
+
+const page = usePage();
+const {
+  navigateToDashboard,
+  navigateTo,
+  navigateToProfile,
+  navigateToTracking,
+  logout,
+} = useNavigation({
+  role: props.role,
+});
+const { activePanel } = useDashboard();
+
+// Computed properties para verificar URL ativa
+const isDashboardActive = computed(() => {
+  return (
+    page.url === "/" ||
+    page.url.startsWith("/dashboard") ||
+    page.url.startsWith("/director/dashboard") ||
+    activePanel.value === "dashboard"
+  );
+});
+
+const isTrackingActive = computed(() => {
+  return page.url.startsWith("/track") || activePanel.value === "tracking";
+});
+
+const isProfileActive = computed(() => {
+  return page.url.startsWith("/profile") || activePanel.value === "profile";
+});
+
+const isProjectosActive = computed(() => {
+  return page.url.startsWith("/projectos") || activePanel.value === "projectos";
+});
+
+const isUsuariosActive = computed(() => {
+  return page.url.startsWith("/usuarios") || activePanel.value === "usuarios";
+});
+
+// URL checks for Manager
+const isManagerProjectsActive = computed(() => {
+  return page.url.startsWith("/manager/projects");
+});
+
+const isManagerTechniciansActive = computed(() => {
+  return (
+    page.url.startsWith("/gestor/technicians") ||
+    page.url.startsWith("/manager/technicians")
+  );
+});
+
+const isManagerEstatisticasActive = computed(() => {
+  return (
+    page.url.startsWith("/gestor/estatisticas") ||
+    page.url.startsWith("/manager/estatisticas")
+  );
+});
+
+// URL checks for Director
+const isDirectorComplaintsActive = computed(() => {
+  return page.url.startsWith("/director/complaints-overview");
+});
+
+const isDirectorEstatisticasActive = computed(() => {
+  return (
+    page.url.startsWith("/gestor/estatisticas") ||
+    page.url.startsWith("/director/estatisticas")
+  );
+});
+
+const isDirectorTechniciansActive = computed(() => {
+  return (
+    page.url.startsWith("/gestor/technicians") ||
+    page.url.startsWith("/director/technicians")
+  );
+});
+
+// URL checks for PCA
+const isPcaEstatisticasActive = computed(() => {
+  return (
+    page.url.startsWith("/gestor/estatisticas") ||
+    page.url.startsWith("/pca/estatisticas")
+  );
+});
+
+// Handler para navegação do dashboard
+const navigateToDashboardHandler = () => {
+  navigateToDashboard();
+  emit("item-clicked", "dashboard");
+};
+
+// Handler para novas submissões
+const handleNewSubmission = (type) => {
+  let routeName = "";
+  switch (type) {
+    case "reclamacoes":
+      routeName = "complaints.create";
+      break;
+    case "queixas":
+      routeName = "grievances.create";
+      break;
+    case "sugestoes":
+      routeName = "suggestions.create";
+      break;
   }
-})
 
-const emit = defineEmits(['item-clicked'])
-
-// Usar composables centralizados
-const { activePanel, setActivePanel } = useDashboard()
-const { navigateToProfile, navigateToTracking, logout } = useNavigation({ role: props.role })
-
-const emitItem = (panel) => {
-  console.log('MenuSection - emit item:', panel)
-  setActivePanel(panel)
-  emit('item-clicked', panel)
-}
+  if (routeName) {
+    navigateTo(routeName);
+    emit("item-clicked", type);
+  }
+};
 
 const handleLogout = () => {
-  logout()
-}
+  logout();
+};
+
+onMounted(() => {
+  console.log("MenuSection - Role recebido:", props.role);
+  console.log("MenuSection - URL atual:", page.url);
+});
 </script>

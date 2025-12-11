@@ -669,7 +669,7 @@
 <script setup>
 import { ref, reactive } from "vue";
 import { router, useForm } from "@inertiajs/vue3";
-import AppLayout from "@/Layouts/ManagerLayout.vue";
+import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import ConfirmationModal from "@/Components/Director/ConfirmationModal.vue";
 import Toast from "@/Components/Toast.vue"; // Certifique-se que este caminho está correto
 import {
