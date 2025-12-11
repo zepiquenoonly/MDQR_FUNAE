@@ -56,11 +56,11 @@
         <transition name="zoom">
             <div v-if="showSuccessModal" :class="props.embedded ? 'relative z-10' : 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]'">
                 <div :class="props.embedded ? 'bg-white rounded-2xl shadow p-6 max-w-full mx-0 text-left' : 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative'">
-                    <!-- Botão X no canto superior direito
+                    <!-- Botão X no canto superior direito -->
                     <button @click="closeSuccessAndForm"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
                         <XMarkIcon class="w-6 h-6" />
-                    </button> -->
+                    </button>
 
                     <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircleIcon class="w-12 h-12 text-green-500" />
@@ -71,11 +71,11 @@
                         <p class="text-sm text-gray-600 mb-1">Código de Rastreio:</p>
                         <p class="text-2xl font-mono font-bold text-orange-600">{{ submissionResult.reference_number }}</p>
                     </div>
-                    <p class="text-sm text-gray-500 mb-6">Esta mensagem será fechada automaticamente em 60 segundos. Guarde este código para acompanhar o estado da sua submissão.</p>
-                    <!-- <button @click="closeSuccessAndForm"
+                    <p class="text-sm text-gray-500 mb-6">Guarde este código para acompanhar o estado da sua submissão.</p>
+                    <button @click="closeSuccessAndForm"
                         class="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
                         Entendido
-                    </button> -->
+                    </button>
                 </div>
             </div>
         </transition>
@@ -1050,12 +1050,6 @@ const handleSubmit = async () => {
             emit('close')
             showSuccessModal.value = true
 
-            // Fechar automaticamente após 60 segundos
-            setTimeout(() => {
-                if (showSuccessModal.value) {
-                    closeSuccessAndForm()
-                }
-            }, 60000)
         } else {
             // Mostrar modal de erro com detalhes
             if (data.errors) {

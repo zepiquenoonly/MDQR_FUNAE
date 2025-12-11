@@ -12,18 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 class DirectorTeamController extends Controller
 {
-    /**
-     * Verificar se o usuário tem acesso de Director
-     */
-    private function checkAccess($user)
+    public function __construct()
     {
-        if (!$user) {
-            abort(403, 'Usuário não autenticado.');
-        }
-        
-        if (!$user->hasRole('Director')) {
-            abort(403, 'Acesso não autorizado. Apenas Directors podem acessar esta página.');
-        }
+        $this->middleware('role:Director');
     }
 
     /**
@@ -31,9 +22,6 @@ class DirectorTeamController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
-        $this->checkAccess($user);
-        
         $query = User::with(['roles'])
             ->whereHas('roles', function($query) {
                 $query->whereIn('name', ['gestor', 'Técnico']);
@@ -126,9 +114,6 @@ class DirectorTeamController extends Controller
      */
      public function show($id)
     {
-        $user = request()->user();
-        $this->checkAccess($user);
-
         $employee = User::with(['roles', 'assignedGrievances' => function($query) {
             $query->with(['category', 'statusUpdates'])
                 ->latest()
@@ -209,210 +194,11 @@ class DirectorTeamController extends Controller
         ]);
     }
 
-
-    /**
-     * Mostrar formulário para editar funcionário
-     */
-    public function edit($id)
-    {
-        $user = request()->user();
-        $this->checkAccess($user);
-
-        $employee = User::with(['roles'])->findOrFail($id);
-        $roles = Role::whereIn('name', ['gestor', 'Técnico'])->get();
-
-        return Inertia::render('Director/Team/Edit', [
-            'employee' => [
-                'id' => $employee->id,
-                'name' => $employee->name,
-                'email' => $employee->email,
-                'username' => $employee->username,
-                'phone' => $employee->phone,
-                'province' => $employee->province,
-                'district' => $employee->district,
-                'neighborhood' => $employee->neighborhood,
-                'street' => $employee->street,
-                'block' => $employee->block,
-                'house_number' => $employee->house_number,
-                'is_available' => $employee->is_available ?? true,
-                'role' => $employee->getRoleNames()->first(),
-                'workload_capacity' => $employee->workload_capacity ?? 20,
-            ],
-            'roles' => $roles,
-        ]);
-    }
-
-
-    /**
-     * Criar novo funcionário
-     */
-    public function store(Request $request)
-    {
-        $user = $request->user();
-        $this->checkAccess($user);
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'username' => 'required|string|max:255|unique:users',
-            'phone' => 'required|string|max:20',
-            'province' => 'required|string|max:255',
-            'district' => 'required|string|max:255',
-            'neighborhood' => 'required|string|max:255',
-            'street' => 'nullable|string|max:255',
-            'block' => 'nullable|string|max:50',
-            'house_number' => 'nullable|string|max:20',
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|string|in:gestor,Técnico',
-            'workload_capacity' => 'integer|min:10|max:50',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            // Criar usuário
-            $employee = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'username' => $validated['username'],
-                'phone' => $validated['phone'],
-                'province' => $validated['province'],
-                'district' => $validated['district'],
-                'neighborhood' => $validated['neighborhood'],
-                'street' => $validated['street'] ?? null,
-                'block' => $validated['block'] ?? null,
-                'house_number' => $validated['house_number'] ?? null,
-                'password' => Hash::make($validated['password']),
-                'workload_capacity' => $validated['workload_capacity'] ?? 20,
-                'is_available' => true,
-            ]);
-
-            // Atribuir role
-            $employee->assignRole($validated['role']);
-
-            DB::commit();
-
-            return redirect()->route('director.team.index')
-                ->with('success', 'Funcionário criado com sucesso!');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Erro ao criar funcionário: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Atualizar funcionário
-     */
-    public function update(Request $request, $id)
-    {
-        $user = $request->user();
-        $this->checkAccess($user);
-
-        $employee = User::findOrFail($id);
-
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $id,
-            'username' => 'required|string|max:255|unique:users,username,' . $id,
-            'phone' => 'required|string|max:20',
-            'province' => 'required|string|max:255',
-            'district' => 'required|string|max:255',
-            'neighborhood' => 'required|string|max:255',
-            'street' => 'nullable|string|max:255',
-            'block' => 'nullable|string|max:50',
-            'house_number' => 'nullable|string|max:20',
-            'role' => 'required|string|in:gestor,Técnico',
-            'workload_capacity' => 'integer|min:10|max:50',
-        ]);
-
-        DB::beginTransaction();
-        try {
-            // Atualizar dados básicos
-            $employee->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'username' => $validated['username'],
-                'phone' => $validated['phone'],
-                'province' => $validated['province'],
-                'district' => $validated['district'],
-                'neighborhood' => $validated['neighborhood'],
-                'street' => $validated['street'] ?? null,
-                'block' => $validated['block'] ?? null,
-                'house_number' => $validated['house_number'] ?? null,
-                'workload_capacity' => $validated['workload_capacity'] ?? $employee->workload_capacity,
-            ]);
-
-            // Atualizar role se necessário
-            $currentRole = $employee->getRoleNames()->first();
-            if ($currentRole !== $validated['role']) {
-                $employee->syncRoles([]);
-                $employee->assignRole($validated['role']);
-            }
-
-            DB::commit();
-
-            return redirect()->route('director.team.index')
-                ->with('success', 'Funcionário atualizado com sucesso!');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return back()->withErrors(['error' => 'Erro ao atualizar funcionário: ' . $e->getMessage()]);
-        }
-    }
-
-    /**
-     * Alternar status do funcionário (ativo/inativo)
-     */
-    public function toggleStatus(Request $request, $id)
-    {
-        $user = $request->user();
-        $this->checkAccess($user);
-
-        $employee = User::findOrFail($id);
-        $newStatus = !$employee->is_available;
-
-        $employee->update(['is_available' => $newStatus]);
-
-        return back()->with('success', 
-            'Status do funcionário alterado para ' . ($newStatus ? 'ativo' : 'inativo') . '!'
-        );
-    }
-
-    /**
-     * Remover funcionário
-     */
-    public function destroy($id)
-    {
-        $user = request()->user();
-        $this->checkAccess($user);
-
-        $employee = User::findOrFail($id);
-
-        // Verificar se o funcionário tem casos atribuídos
-        $hasActiveCases = $employee->assignedGrievances()
-            ->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])
-            ->exists();
-
-        if ($hasActiveCases) {
-            return back()->withErrors([
-                'error' => 'Não é possível remover um funcionário com casos ativos.'
-            ]);
-        }
-
-        $employee->delete();
-
-        return redirect()->route('director.team.index')
-            ->with('success', 'Funcionário removido com sucesso!');
-    }
-
     /**
      * Gerar relatório da equipe
      */
     public function generateReport(Request $request)
     {
-        $user = $request->user();
-        $this->checkAccess($user);
-
         $period = $request->query('period', 'monthly');
         $startDate = now()->startOfMonth();
         $endDate = now()->endOfMonth();

@@ -62,7 +62,7 @@ Route::get('/reclamacoes/acompanhar', function () {
 // Rotas para convidados (não autenticados)
 Route::middleware('guest')->group(function () {
     Route::get('/auth', [AuthController::class, 'showMain'])->name('auth.main');
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
     Route::get('/register/complete', [AuthController::class, 'showCompleteRegistration'])->name('auth.register.complete');
 
@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
     // Redirecionamento inicial
     Route::get('/home', [AuthController::class, 'home'])->name('home');
     Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard'); // Rota genérica para compatibilidade
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     // Dashboards por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
@@ -274,6 +275,26 @@ Route::middleware('auth')->group(function () {
 
 // Rotas de reclamações (acessíveis sem autenticação)
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
-Route::get('/reclamacoes/acompanhar', function () {
-    return inertia('Grievances/Track');
-})->name('grievances.track');
+    Route::get('/reclamacoes/acompanhar', function () {
+        return inertia('Grievances/Track');
+    })->name('grievances.track');
+});
+
+Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'dashboard'])->name('dashboard');
+    
+    // Users CRUD
+    Route::resource('users', \App\Http\Controllers\UserController::class);
+    
+    // Departments CRUD
+    Route::resource('departments', \App\Http\Controllers\DepartmentController::class);
+    
+    // Projects CRUD
+    Route::get('projects', [\App\Http\Controllers\AdminDashboardController::class, 'indexProjects'])->name('projects.index');
+    Route::get('projects/create', [\App\Http\Controllers\AdminDashboardController::class, 'createProject'])->name('projects.create');
+    Route::post('projects', [\App\Http\Controllers\AdminDashboardController::class, 'storeProject'])->name('projects.store');
+    Route::get('projects/{project}/edit', [\App\Http\Controllers\AdminDashboardController::class, 'editProject'])->name('projects.edit');
+    Route::put('projects/{project}', [\App\Http\Controllers\AdminDashboardController::class, 'updateProject'])->name('projects.update');
+    Route::delete('projects/{project}', [\App\Http\Controllers\AdminDashboardController::class, 'destroyProject'])->name('projects.destroy');
+});
+

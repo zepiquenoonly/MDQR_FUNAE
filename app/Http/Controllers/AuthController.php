@@ -203,6 +203,9 @@ class AuthController extends Controller {
         $role = $user->getRoleNames()->first();
 
         switch ( $role ) {
+            case 'Admin':
+            case 'Super Admin':
+                return redirect()->route( 'admin.dashboard' );
             case 'PCA':
                 return redirect()->route( 'pca.dashboard' );
             case 'Gestor':

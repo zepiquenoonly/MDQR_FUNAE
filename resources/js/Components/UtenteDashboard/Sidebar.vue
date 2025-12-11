@@ -67,7 +67,8 @@ const getPanelTitle = () => {
     'utente': 'Painel do Utente',
     'technician': 'Painel do Técnico',
     'manager': 'Painel do Gestor',
-    'pca': 'Painel do PCA'
+    'pca': 'Painel do PCA',
+    'Admin': 'Painel do Administrador'
   }
   return titles[props.role] || 'Painel do Utente'
 }
