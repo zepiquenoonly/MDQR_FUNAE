@@ -27,7 +27,16 @@
                                 <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                                 Sistema Online
                             </span>
-                            <span class="text-sm text-slate-500">{{ currentDate }}</span>
+                            <span class="text-sm text-slate-500 hidden sm:inline">{{ currentDate }}</span>
+                            <button 
+                                @click="logout" 
+                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all duration-200 text-sm font-medium border border-slate-200 hover:border-red-200"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                <span class="hidden sm:inline">Terminar Sessão</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -273,7 +282,7 @@
 </template>
 
 <script setup>
-import { Link } from '@inertiajs/vue3'
+import { Link, router } from '@inertiajs/vue3'
 import Layout from '@/Layouts/Layout.vue'
 import { computed } from 'vue'
 
@@ -311,4 +320,8 @@ const currentDate = computed(() => {
         day: 'numeric'
     })
 })
+
+const logout = () => {
+    router.post('/logout')
+}
 </script>
