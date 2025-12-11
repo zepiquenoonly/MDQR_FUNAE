@@ -278,6 +278,66 @@ public function directorDashboard(Request $request): Response
     ]);
 }
 
+
+private function getDirectorGrievanceStatistics(Carbon $startDate, Carbon $endDate): array
+{
+    return $this->getGrievanceStatistics($startDate, $endDate);
+}
+
+private function getDirectorTechnicianPerformance(Carbon $startDate, Carbon $endDate): array
+{
+    return $this->getTechnicianPerformance($startDate, $endDate);
+}
+
+/**
+ * Get category distribution from ALL departments (Director view)
+ */
+private function getDirectorCategoryDistribution(Carbon $startDate, Carbon $endDate): array
+{
+    return $this->getCategoryDistribution($startDate, $endDate);
+}
+
+/**
+ * Get resolution timeline from ALL departments (Director view)
+ */
+private function getDirectorResolutionTimeline(Carbon $startDate, Carbon $endDate): array
+{
+    return $this->getResolutionTimeline($startDate, $endDate);
+}
+
+
+private function getDepartmentPerformance(Carbon $startDate, Carbon $endDate): array
+{
+    // Aqui você pode implementar a lógica para comparar departamentos
+    // Por enquanto, retorna um array vazio ou dados de exemplo
+    
+    return [
+        [
+            'department' => 'Departamento A',
+            'total_complaints' => 150,
+            'resolved' => 120,
+            'resolution_rate' => 80.0,
+            'avg_resolution_time' => 3.5,
+            'satisfaction_rate' => 85.5
+        ],
+        [
+            'department' => 'Departamento B',
+            'total_complaints' => 200,
+            'resolved' => 160,
+            'resolution_rate' => 80.0,
+            'avg_resolution_time' => 4.2,
+            'satisfaction_rate' => 82.0
+        ],
+        [
+            'department' => 'Departamento C',
+            'total_complaints' => 120,
+            'resolved' => 100,
+            'resolution_rate' => 83.3,
+            'avg_resolution_time' => 2.8,
+            'satisfaction_rate' => 88.5
+        ]
+    ];
+}
     /**
      * Generate report
      */

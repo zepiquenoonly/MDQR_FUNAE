@@ -53,6 +53,7 @@
             :complaints="safeAllComplaints"
             :filters="safeFilters"
             :all-complaints="safeAllComplaints"
+            :role="'manager'"
             @update:filters="updateFilters"
             @select-complaint="selectComplaint"
             @show-details="showDetailsModal"
@@ -109,9 +110,6 @@ import Layout from "@/Layouts/UnifiedLayout.vue";
 import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
 import ComplaintsList from "@/Components/GestorReclamacoes/ComplaintsList.vue";
 import GrievanceDetails from "./GrievanceDetail.vue";
-import ProjectsManager from "@/Components/Dashboard/ProjectsManager.vue";
-import TecnicoList from "@/Components/GestorReclamacoes/TecnicoList.vue";
-import ProjectDetail from "@/Pages/Common/ProjectDetail.vue";
 import { usePageProps } from "@/Composables/usePageProps";
 
 // Props do backend com valores padrão seguros
@@ -147,11 +145,11 @@ const props = defineProps({
 const selectedComplaint = ref(null);
 
 const { getSafeProp } = usePageProps(props);
-const safeComplaints = getSafeProp('complaints', { data: [] });
-const safeAllComplaints = getSafeProp('allComplaints', []);
-const safeStats = getSafeProp('stats', {});
-const safeTechnicians = getSafeProp('technicians', []);
-const safeFilters = getSafeProp('filters', {});
+const safeComplaints = getSafeProp("complaints", { data: [] });
+const safeAllComplaints = getSafeProp("allComplaints", []);
+const safeStats = getSafeProp("stats", {});
+const safeTechnicians = getSafeProp("technicians", []);
+const safeFilters = getSafeProp("filters", {});
 
 // CORREÇÃO: Debug para verificar os tipos de dados recebidos
 const debugDataTypes = () => {

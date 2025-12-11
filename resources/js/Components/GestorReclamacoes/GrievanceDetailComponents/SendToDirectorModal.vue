@@ -510,11 +510,9 @@ const submit = () => {
   if (!validateForm()) return;
 
   loading.value = true;
-
-  // Adicionar um feedback visual mais prolongado antes de emitir
   setTimeout(() => {
     emit("submit", { ...form });
     loading.value = false;
-  }, 1200);
+  }, 5000);
 };
 </script>

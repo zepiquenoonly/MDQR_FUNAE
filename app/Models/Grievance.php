@@ -142,6 +142,122 @@ class Grievance extends Model
             });
     }
 
+public function hasDirectorIntervention(): bool
+    {
+        // Check for director updates
+        $hasDirectorUpdate = $this->updates()
+            ->whereHas('user', function ($query) {
+                $query->role('Director');
+            })
+            ->orWhereIn('action_type', [
+                'director_comment',
+                'director_validation_approved',
+                'director_validation_rejected',
+                'director_validation_needs_revision'
+            ])
+            ->exists();
+        
+        // Check for director validation in metadata
+        $hasDirectorValidation = isset($this->metadata['director_validation']);
+        
+        // Check if escalated to director
+        $isEscalatedToDirector = $this->isEscalated();
+        
+        // Check for director comments in updates
+        $hasDirectorComment = $this->updates()
+            ->where('action_type', 'comment_added')
+            ->whereHas('user', function ($query) {
+                $query->role('Director');
+            })
+            ->exists();
+        
+        return $hasDirectorUpdate || $hasDirectorValidation || $isEscalatedToDirector || $hasDirectorComment;
+    }
+
+    /**
+     * Get all director interventions for this grievance
+     */
+    public function getDirectorInterventions(): array
+    {
+        $interventions = [];
+        
+        // Get director updates
+        $directorUpdates = $this->updates()
+            ->where(function ($query) {
+                $query->whereHas('user', function ($q) {
+                        $q->role('Director');
+                    })
+                    ->orWhereIn('action_type', [
+                        'director_comment',
+                        'director_validation_approved',
+                        'director_validation_rejected',
+                        'director_validation_needs_revision'
+                    ]);
+            })
+            ->with('user')
+            ->orderBy('created_at', 'desc')
+            ->get();
+        
+        foreach ($directorUpdates as $update) {
+            $interventions[] = [
+                'type' => 'update',
+                'id' => $update->id,
+                'action_type' => $update->action_type,
+                'description' => $update->description,
+                'comment' => $update->comment,
+                'created_at' => $update->created_at,
+                'user' => $update->user ? [
+                    'name' => $update->user->name,
+                    'role' => 'Director',
+                ] : null,
+            ];
+        }
+        
+        // Add director validation if exists
+        if (isset($this->metadata['director_validation'])) {
+            $validation = $this->metadata['director_validation'];
+            $interventions[] = [
+                'type' => 'validation',
+                'status' => $validation['status'] ?? null,
+                'comment' => $validation['comment'] ?? null,
+                'validated_by' => $validation['validated_by_name'] ?? null,
+                'validated_at' => $validation['validated_at'] ?? null,
+            ];
+        }
+        
+        // Add escalation info if escalated
+        if ($this->escalated) {
+            $interventions[] = [
+                'type' => 'escalation',
+                'escalated_at' => $this->escalated_at,
+                'escalated_by' => $this->escalatedBy ? [
+                    'name' => $this->escalatedBy->name,
+                    'role' => 'Gestor',
+                ] : null,
+                'reason' => $this->escalation_reason,
+            ];
+        }
+        
+        return $interventions;
+    }
+
+    /**
+     * Count director comments
+     */
+    public function countDirectorComments(): int
+    {
+        return $this->updates()
+            ->where(function ($query) {
+                $query->where('action_type', 'comment_added')
+                    ->orWhere('action_type', 'director_comment');
+            })
+            ->whereHas('user', function ($query) {
+                $query->role('Director');
+            })
+            ->count();
+    }
+
+
     /**
      * Scope for filtering high specificity cases.
      */

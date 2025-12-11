@@ -34,7 +34,7 @@ class GuestController extends Controller
     /**
      * Redirect user to appropriate dashboard
      */
-    private function redirectToDashboard($role): RedirectResponse
+   private function redirectToDashboard($role): RedirectResponse
     {
         switch ($role) {
             case 'Admin':
@@ -46,6 +46,8 @@ class GuestController extends Controller
                 return redirect()->route('manager.dashboard');
             case 'Técnico':
                 return redirect()->route('technician.dashboard');
+            case 'Director':
+                return redirect()->route('director.dashboard');
             case 'Utente':
             default:
                 return redirect()->route('user.dashboard');

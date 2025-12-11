@@ -259,7 +259,7 @@
 <script setup>
 import { ref, computed } from "vue";
 import { router } from "@inertiajs/vue3";
-import AppLayout from "@/Layouts/ManagerLayout.vue";
+import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import EmployeeModal from "@/Components/Director/EmployeeModal.vue";
 import ConfirmationModal from "@/Components/Director/ConfirmationModal.vue";
 import {

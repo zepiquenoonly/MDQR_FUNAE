@@ -9,6 +9,7 @@ use App\Models\Deadline;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
 class ProjectController extends Controller
 {
@@ -41,7 +42,7 @@ class ProjectController extends Controller
             $validated = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string',
-                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
                 'provincia' => 'required|string|max:100',
                 'distrito' => 'required|string|max:100',
                 'bairro' => 'required|string|max:100',
@@ -118,24 +119,17 @@ class ProjectController extends Controller
                     'data_inauguracao' => $validated['data_inauguracao'],
                 ]);
 
-                return response()->json([
-                    'message' => 'Projecto criado com sucesso!',
-                    'project' => $project->load(['objectives', 'finance', 'deadline'])
-                ], 201);
+                // Para Inertia, podemos redirecionar de volta à página
+                return redirect()->route('projects')
+                    ->with('success', 'Projecto criado com sucesso!');
+
             });
 
         } catch (\Illuminate\Validation\ValidationException $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro de validação',
-                'errors' => $e->errors()
-            ], 422);
+            return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             \Log::error('Erro ao criar projecto: ' . $e->getMessage());
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro interno do servidor: ' . $e->getMessage()
-            ], 500);
+            return back()->with('error', 'Erro ao criar projecto: ' . $e->getMessage());
         }
     }
 
@@ -143,9 +137,21 @@ class ProjectController extends Controller
      * Display the specified resource.
      */
     public function show(Project $project)
-    {
-        return response()->json($project->load(['objectives', 'finance', 'deadline']));
+{
+    // Para requisições Inertia (navegação normal ou modal)
+    if (request()->expectsJson() || request()->is('api/*')) {
+        // Retorna JSON para requisições AJAX do modal
+        return response()->json([
+            'success' => true,
+            'project' => $project->load(['objectives', 'finance', 'deadline'])
+        ]);
     }
+    
+    // Para navegação normal
+    return Inertia::render('Common/ProjectDetails', [
+        'project' => $project->load(['objectives', 'finance', 'deadline'])
+    ]);
+}
 
     /**
      * Update the specified resource in storage.
@@ -338,41 +344,35 @@ class ProjectController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Project $project)
-{
-    try {
-        return DB::transaction(function () use ($project) {
-            // Remover imagem se existir
-            if ($project->image_url) {
-                Storage::disk('public')->delete($project->image_url);
-            }
-            
-            // Remover objectivos
-            $project->objectives()->delete();
-            
-            // Remover financiamento
-            if ($project->finance) {
-                $project->finance()->delete();
-            }
-            
-            // Remover prazos
-            if ($project->deadline) {
-                $project->deadline()->delete();
-            }
-            
-            // Remover projecto
-            $project->delete();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Projecto eliminado com sucesso!'
-            ]);
-        });
-    } catch (\Exception $e) {
-        \Log::error('Erro ao eliminar projecto ID ' . $project->id . ': ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Erro ao eliminar projecto: ' . $e->getMessage()
-        ], 500);
+    {
+        try {
+            return DB::transaction(function () use ($project) {
+                // Remover imagem se existir
+                if ($project->image_url) {
+                    Storage::disk('public')->delete($project->image_url);
+                }
+                
+                // Remover objectivos
+                $project->objectives()->delete();
+                
+                // Remover financiamento
+                if ($project->finance) {
+                    $project->finance()->delete();
+                }
+                
+                // Remover prazos
+                if ($project->deadline) {
+                    $project->deadline()->delete();
+                }
+                
+                // Remover projecto
+                $project->delete();
+                
+                return back()->with('success', 'Projecto eliminado com sucesso!');
+            });
+        } catch (\Exception $e) {
+            \Log::error('Erro ao eliminar projecto ID ' . $project->id . ': ' . $e->getMessage());
+            return back()->with('error', 'Erro ao eliminar projecto: ' . $e->getMessage());
+        }
     }
-}
 }

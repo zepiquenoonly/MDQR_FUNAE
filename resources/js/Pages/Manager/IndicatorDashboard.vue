@@ -64,7 +64,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
 import { router } from "@inertiajs/vue3";
-import Layout from "@/Layouts/ManagerLayout.vue";
+import Layout from "@/Layouts/UnifiedLayout.vue";
 import ReportGeneratorModal from "@/Components/GestorReclamacoes/ReportGeneratorModal.vue";
 import Toast from "@/Components/Toast.vue";
 

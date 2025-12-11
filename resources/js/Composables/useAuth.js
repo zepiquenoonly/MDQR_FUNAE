@@ -15,21 +15,28 @@ export function useAuth(options = {}) {
   
   // Obter usuário de forma segura
   const user = computed(() => {
-    return options.user || page.props.auth?.user || null
+    // Priorizar o user do Inertia props
+    return page.props.auth?.user || options.user || null
   })
 
-  // Detectar role do usuário
+  // Detectar role do usuário - IMPORTANTE: Usar o user atualizado
   const role = computed(() => {
+    // Se um role foi fornecido nas opções, usá-lo
     if (options.role) {
       return mapRoleName(options.role)
     }
     
+    // Detectar role do usuário atual
     if (user.value) {
-      return detectRole(user.value)
+      const detected = detectRole(user.value)
+      // console.log('Detected role in useAuth:', detected);
+      return detected
     }
     
+    // Fallback
     return 'utente'
   })
+
 
   // Label do role para exibição
   const roleLabel = computed(() => {

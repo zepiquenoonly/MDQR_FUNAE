@@ -1,4 +1,5 @@
 import { ref, computed } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 
 // Estado global compartilhado do dashboard
 const activePanel = ref('dashboard')
@@ -12,6 +13,43 @@ const complaintsData = ref([])
  * @returns {Object} Objeto com estado e funções do dashboard
  */
 export function useDashboard() {
+  const page = usePage()
+  
+  /**
+   * Computed property para sincronizar o painel ativo com a URL
+   */
+  const syncedActivePanel = computed(() => {
+    // Se já temos um painel ativo definido por clique, usá-lo
+    if (activePanel.value && activePanel.value !== 'dashboard') {
+      return activePanel.value
+    }
+    
+    // Caso contrário, determinar baseado na URL
+    const path = page.url
+    
+    // Mapeamento de URLs para painéis
+    const urlMappings = {
+      '/track': 'tracking',
+      '/profile': 'profile',
+      '/projectos': 'projectos',
+      '/director/complaints-overview': 'submissions',
+      '/gestor/technicians': 'technicians',
+      '/director/technicians': 'technicians',
+      '/gestor/estatisticas': 'estatisticas',
+      '/director/estatisticas': 'estatisticas',
+      '/pca/usuarios': 'usuarios',
+    }
+    
+    // Encontrar correspondência
+    for (const [url, panel] of Object.entries(urlMappings)) {
+      if (path.startsWith(url)) {
+        return panel
+      }
+    }
+    
+    return 'dashboard'
+  })
+
   /**
    * Define o painel ativo
    * @param {string} panel - Nome do painel (ex: 'dashboard', 'mdqr', 'projectos')
@@ -37,6 +75,17 @@ export function useDashboard() {
    */
   const closeDropdown = () => {
     activeDropdown.value = null
+  }
+
+  /**
+   * Sincroniza o painel ativo com a URL atual
+   * Deve ser chamado quando a página é carregada
+   */
+  const syncWithUrl = () => {
+    const synced = syncedActivePanel.value
+    if (synced !== activePanel.value) {
+      activePanel.value = synced
+    }
   }
 
   /**
@@ -71,7 +120,7 @@ export function useDashboard() {
 
   return {
     // Estado reativo
-    activePanel,
+    activePanel: syncedActivePanel,
     activeDropdown,
     complaintsData,
     
@@ -79,6 +128,7 @@ export function useDashboard() {
     setActivePanel,
     setActiveDropdown,
     closeDropdown,
+    syncWithUrl,
     setComplaintsData,
     
     // Computed properties (opcionais, para compatibilidade)
@@ -92,4 +142,3 @@ export function useDashboard() {
  * Alias para compatibilidade com código existente
  */
 export const useDashboardState = useDashboard
-

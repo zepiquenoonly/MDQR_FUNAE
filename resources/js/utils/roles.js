@@ -6,6 +6,7 @@
 export const ROLES = {
   TECHNICIAN: 'technician',
   MANAGER: 'manager',
+  DIRECTOR: 'director',
   PCA: 'pca',
   UTENTE: 'utente',
   ADMIN: 'admin'
@@ -14,8 +15,8 @@ export const ROLES = {
 // Mapeamento de nomes de roles do banco para valores normalizados
 const ROLE_NAME_MAP = {
   'técnico': ROLES.TECHNICIAN,
-  'tecnico': ROLES.TECHNICIAN,
   'gestor': ROLES.MANAGER,
+  'director': ROLES.DIRECTOR,
   'pca': ROLES.PCA,
   'utente': ROLES.UTENTE,
   'admin': ROLES.ADMIN
@@ -25,6 +26,7 @@ const ROLE_NAME_MAP = {
 const ROLE_LABELS = {
   [ROLES.TECHNICIAN]: 'Técnico',
   [ROLES.MANAGER]: 'Gestor',
+  [ROLES.DIRECTOR]: 'Director',
   [ROLES.PCA]: 'PCA',
   [ROLES.UTENTE]: 'Utente',
   [ROLES.ADMIN]: 'Administrador'

@@ -78,7 +78,7 @@ class AppServiceProvider extends ServiceProvider
             ] : null,
             'indicators' => fn () => [
         'routes' => [
-            'dashboard' => route('gestor.dashboard.indicadores'),
+            'dashboard' => route('dashboard.indicadores'),
             //'generate_report' => route('gestor.dashboard.indicadores.gerar-relatorio'),
             //'export' => route('gestor.dashboard.indicadores.export'), 
         ],

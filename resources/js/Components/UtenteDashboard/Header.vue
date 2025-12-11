@@ -1,13 +1,20 @@
 <template>
-  <header class="relative px-3 py-3 m-3 overflow-hidden transition-all duration-300 border glass-nav shadow-glass sm:px-6 sm:py-4 rounded-2xl backdrop-blur-xl border-white/20 hover:shadow-xl">
+  <header
+    class="relative px-3 py-3 m-3 overflow-hidden transition-all duration-300 border glass-nav shadow-glass sm:px-6 sm:py-4 rounded-2xl backdrop-blur-xl border-white/20 hover:shadow-xl"
+  >
     <!-- Decorative gradient overlay -->
-    <div class="absolute top-0 right-0 w-64 h-full pointer-events-none bg-gradient-to-l from-primary-500/5 to-transparent"></div>
+    <div
+      class="absolute top-0 right-0 w-64 h-full pointer-events-none bg-gradient-to-l from-primary-500/5 to-transparent"
+    ></div>
 
     <div class="relative z-10 flex items-center justify-between gap-3">
       <!-- Left Section -->
       <div class="flex items-center flex-1 min-w-0 gap-2 sm:gap-4">
         <!-- Botão Menu Mobile -->
-        <button @click="$emit('toggle-sidebar')" class="flex-shrink-0 p-2 text-gray-700 transition-all duration-200 sm:hidden hover:text-primary-600 rounded-xl hover:bg-primary-50 hover:scale-110">
+        <button
+          @click="$emit('toggle-sidebar')"
+          class="flex-shrink-0 p-2 text-gray-700 transition-all duration-200 sm:hidden hover:text-primary-600 rounded-xl hover:bg-primary-50 hover:scale-110"
+        >
           <Bars3Icon class="w-6 h-6" />
         </button>
 
@@ -21,17 +28,19 @@
             alt="FUNAE Logo"
             class="h-8 sm:h-10 lg:h-12 w-auto object-contain flex-shrink-0 transition-transform group-hover:scale-105"
           />
-
         </button>
       </div>
 
       <!-- Right Section -->
       <div class="flex items-center flex-shrink-0 gap-2 sm:gap-3">
         <!-- Notifications -->
-        <button class="relative flex-shrink-0 p-2 text-gray-700 transition-all hover:text-primary-600 rounded-xl hover:bg-primary-50 group">
+        <button
+          class="relative flex-shrink-0 p-2 text-gray-700 transition-all hover:text-primary-600 rounded-xl hover:bg-primary-50 group"
+        >
           <BellIcon class="w-5 h-5 group-hover:animate-pulse" />
           <span
-            class="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-lg -top-1 -right-1 bg-gradient-to-r from-primary-500 to-orange-600 animate-bounce">
+            class="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-lg -top-1 -right-1 bg-gradient-to-r from-primary-500 to-orange-600 animate-bounce"
+          >
             1
           </span>
         </button>
@@ -44,22 +53,19 @@
 </template>
 
 <script setup>
-import {
-  Bars3Icon,
-  BellIcon
-} from '@heroicons/vue/24/outline'
-import UserDropdown from './UserDropdown.vue'
-import { useNavigation } from '@/Composables/useNavigation'
+import { Bars3Icon, BellIcon } from "@heroicons/vue/24/outline";
+import UserDropdown from "./UserDropdown.vue";
+import { useNavigation } from "@/Composables/useNavigation";
 
 const props = defineProps({
   user: {
     type: Object,
-    required: true
-  }
-})
+    required: true,
+  },
+});
 
-defineEmits(['toggle-sidebar'])
+defineEmits(["toggle-sidebar"]);
 
 // Usar composable de navegação para navegação baseada em role
-const { navigateToDashboard } = useNavigation({ user: props.user })
+const { navigateToDashboard } = useNavigation({ user: props.user });
 </script>

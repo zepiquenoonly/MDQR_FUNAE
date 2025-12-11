@@ -17,6 +17,7 @@ use App\Http\Controllers\UtenteDashboardController;
 use App\Http\Controllers\DirectorDashboardController;
 use App\Http\Controllers\DirectorComplaintsController;
 use App\Http\Controllers\DirectorTeamController;
+use App\Http\Controllers\StatisticsController;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas
@@ -81,70 +82,83 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard'); // Rota genérica para compatibilidade
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+    // Logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
     // Dashboards por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
 
     // Dashboard do Director
-   Route::prefix('director')->name('director.')->group(function () {
-    // Dashboard principal
-    Route::get('/dashboard', [DirectorDashboardController::class, 'dashboard'])->name('dashboard');
-    
-    Route::get('/dashboard/api', [DirectorDashboardController::class, 'dashboardApi'])->name('dashboard.api');
+    Route::prefix('director')->name('director.')->group(function () {
+        // Dashboard principal
+        Route::get('/dashboard', [DirectorDashboardController::class, 'dashboard'])->name('dashboard');
+        
+        Route::get('/dashboard/api', [DirectorDashboardController::class, 'dashboardApi'])->name('dashboard.api');
 
-    // Submissões (reclamações)
-    Route::get('/complaints-overview', [DirectorComplaintsController::class, 'index'])->name('complaints-overview.index');
-    Route::post('/complaints-overview/export', [DirectorComplaintsController::class, 'export'])->name('complaints-overview.export');
-    Route::get('/complaints-overview/{grievance}', [DirectorComplaintsController::class, 'show'])->name('complaints-overview.show');
+        // Submissões (reclamações)
+        Route::get('/complaints-overview', [DirectorComplaintsController::class, 'index'])->name('complaints-overview.index');
+        Route::post('/complaints-overview/export', [DirectorComplaintsController::class, 'export'])->name('complaints-overview.export');
+        //Route::get('/complaints-overview/{identifier}', [DirectorComplaintsController::class, 'show'])->name('complaints-overview.show');
+        //Route::get('/complaints/{id}', [DirectorComplaintsController::class, 'showById'])->name('complaints.show'); // NOVA ROTA
+        Route::get('/grievances/{grievance}', [GrievanceController::class, 'show'])->name('grievances.show');
 
-    // Funcionalidades de validação
-    Route::post('/complaints/{id}/validate', [DirectorComplaintsController::class, 'validateCase'])->name('complaints.validate');
-    Route::post('/complaints/{id}/comment', [DirectorComplaintsController::class, 'addComment'])->name('complaints.comment');
-    Route::post('/complaints/{id}/reject', [DirectorComplaintsController::class, 'rejectCase'])->name('complaints.reject');
-    Route::post('/complaints/{id}/analyze', [DirectorComplaintsController::class, 'analyzeCase'])->name('complaints.analyze');
-    
-    // Gestão de funcionários (equipe)
-    Route::get('/managers', [DirectorTeamController::class, 'index'])->name('managers.index');
-    Route::get('/team/{id}', [DirectorTeamController::class, 'show'])->name('team.show');
-    Route::get('/team/{id}/edit', [DirectorTeamController::class, 'edit'])->name('team.edit');
-    Route::post('/team', [DirectorTeamController::class, 'store'])->name('team.store');
-    Route::patch('/team/{id}', [DirectorTeamController::class, 'update'])->name('team.update');
-    
-    // Indicadores
-    Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
-    
-    // Rota para adicionar comentário a uma reclamação
-    Route::post('/complaints/{id}/comment', [DirectorComplaintsController::class, 'addComment'])->name('complaints.comment');
-    
-    // Rota para atualizar status de reclamação
-    Route::patch('/complaints/{id}/update', [DirectorComplaintsController::class, 'update'])->name('complaints.update');
-    
-    // Rota para atribuir reclamação
-    Route::post('/complaints/{id}/assign', [DirectorComplaintsController::class, 'assign'])->name('complaints.assign');
-    
-    // Rota para toggle status de funcionário
-    Route::patch('/team/{id}/toggle-status', [DirectorTeamController::class, 'toggleStatus'])->name('team.toggle-status');
-    
-    // Rota para remover funcionário
-    Route::delete('/team/{id}', [DirectorTeamController::class, 'destroy'])->name('team.destroy');
-
-});
+        // Funcionalidades de validação
+        Route::post('/complaints/{id}/validate', [DirectorComplaintsController::class, 'validateCase'])->name('complaints.validate');
+        Route::post('/complaints/{id}/comment', [DirectorComplaintsController::class, 'addComment'])->name('complaints.comment');
+        Route::post('/complaints/{id}/reject', [DirectorComplaintsController::class, 'rejectCase'])->name('complaints.reject');
+        Route::post('/complaints/{id}/analyze', [DirectorComplaintsController::class, 'analyzeCase'])->name('complaints.analyze');
+        
+        // Gestão de funcionários (equipe)
+        Route::get('/managers', [ManagerDashboardController::class])->name('managers.index');
+        Route::get('/team/{id}', [DirectorTeamController::class, 'show'])->name('team.show');
+        Route::get('/team/{id}/edit', [DirectorTeamController::class, 'edit'])->name('team.edit');
+        Route::post('/team', [DirectorTeamController::class, 'store'])->name('team.store');
+        Route::patch('/team/{id}', [DirectorTeamController::class, 'update'])->name('team.update');
+        
+        // Indicadores
+        Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
+        
+        // Rota para atualizar status de reclamação
+        Route::patch('/complaints/{id}/update', [DirectorComplaintsController::class, 'update'])->name('complaints.update');
+        
+        // Rota para atribuir reclamação
+        Route::post('/complaints/{id}/assign', [DirectorComplaintsController::class, 'assign'])->name('complaints.assign');
+        
+        // Rota para toggle status de funcionário
+        Route::patch('/team/{id}/toggle-status', [DirectorTeamController::class, 'toggleStatus'])->name('team.toggle-status');
+        
+        // Rota para remover funcionário
+        Route::delete('/team/{id}', [DirectorTeamController::class, 'destroy'])->name('team.destroy');
+    });
 
     // Dashboard do Gestor
-    Route::prefix('gestor')->name('gestor.')->group(function () {
+    Route::prefix('gestor')->group(function () {
         Route::get('/dashboard', ManagerDashboardController::class)->name('manager.dashboard');
         Route::get('/dashboard/indicadores', [DepartmentIndicatorController::class, 'dashboard'])->name('dashboard.indicadores');
+        Route::get('/technicians', [ManagerDashboardController::class, 'indexTechnicians'])->name('manager.technicians.index');
+       // Route::get('/technicians/{technician}', [ManagerDashboardController::class, 'showTechnician'])->name('manager.technicians.show');
+        Route::put('/technicians/{technician}/status', [ManagerDashboardController::class, 'updateTechnicianStatus'])->name('manager.technicians.status');
+        Route::post('/technicians/assign-task', [ManagerDashboardController::class, 'assignTaskToTechnician'])->name('manager.technicians.assign-task');
     });
+
+
+    Route::get('/check-director-interventions', [App\Http\Controllers\ManagerGrievanceController::class, 'checkDirectorInterventions'])
+    ->middleware(['auth', 'verified']);
+
+    Route::get('/technicians/{technician}', [ManagerDashboardController::class, 'showTechnician'])->name('manager.technicians.show');
+    Route::get('/gestor/estatisticas', [StatisticsController::class, 'index'])->name('statistics.index');
 
     // Gestão de reclamações pelo gestor
     Route::prefix('complaints')->name('complaints.')->group(function () {
-        Route::get('/{grievance}', [ManagerGrievanceController::class, 'show'])->name('grievance.show');
+       Route::get('/grievance/{identifier}', [ManagerGrievanceController::class, 'show'])->name('grievance.show');
         Route::patch('/{grievance}/update-priority', [ManagerGrievanceController::class, 'updatePriority'])->name('update-priority');
         Route::patch('/{grievance}/reassign', [ManagerGrievanceController::class, 'reassign'])->name('reassign');
-        Route::post('/{grievance}/escalate', [ManagerGrievanceController::class, 'escalate'])->name('escalate');
+      //  Route::post('/{grievance}/escalate', [ManagerGrievanceController::class, 'escalate'])->name('escalate');
         Route::patch('/{grievance}/complete', [ManagerGrievanceController::class, 'markComplete'])->name('complete');
         Route::post('/{grievance}/comment', [ManagerGrievanceController::class, 'addComment'])->name('comment');
-        Route::post('/{grievance}/send-to-director', [ManagerGrievanceController::class, 'sendToDirector'])->name('send-to-director');
+        Route::post('/{grievance}/send-to-director',[ManagerGrievanceController::class, 'sendToDirector'])->name('send-to-director');
+        Route::post('/complaints/{grievance}/revoke-escalation', [ManagerGrievanceController::class, 'revokeEscalation'])->name('complaints.revoke-escalation');
         Route::patch('/{grievance}/approve-completion', [ManagerGrievanceController::class, 'approveCompletion'])->name('approve-completion');
         Route::patch('/{grievance}/reject-completion', [ManagerGrievanceController::class, 'rejectCompletion'])->name('reject-completion');
         Route::post('/{grievance}/save-manager-comment', [ManagerGrievanceController::class, 'saveComment'])->name('save-manager-comment');
@@ -191,7 +205,7 @@ Route::middleware('auth')->group(function () {
         ->name('attachments.download');
 
     // API para técnicos
-    Route::get('/api/tecnicos', function () {
+    /*Route::get('/api/tecnicos', function () {
         try {
             $tecnicos = \App\Models\User::whereHas('roles', function($query) {
                 $query->where('name', 'Técnico');
@@ -265,18 +279,41 @@ Route::middleware('auth')->group(function () {
             \Log::error('Erro ao carregar desempenho do técnico: ' . $e->getMessage());
             return response()->json(['error' => 'Erro ao carregar dados'], 500);
         }
-    })->name('api.tecnicos.desempenho');
+    })->name('api.tecnicos.desempenho');*/
+
+
+Route::prefix('api/projects')->group(function () {
+    Route::get('/', [ProjectController::class, 'index'])->name('api.projects.index');
+    Route::get('/{project}', [ProjectController::class, 'showJson'])->name('api.projects.show'); // Use showJson
+    Route::post('/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
+    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('api.projects.destroy');
+});
+
 
     // API de projetos
-    Route::prefix('api/projects')->name('api.projects.')->group(function () {
-        Route::get('/', [ProjectController::class, 'index'])->name('index');
-        Route::get('/{project}', [ProjectController::class, 'show'])->name('show');
-        Route::post('/', [ProjectController::class, 'store'])->name('store');
-        Route::post('/{project}', [ProjectController::class, 'update'])->name('update');
-        Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('destroy');
-    });
+    Route::get('/manager/projects', [ProjectController::class, 'indexPage'])->name('projects');
 
-// Rotas de reclamações (acessíveis sem autenticação)
+Route::prefix('manager/projects')->group(function () {
+    Route::get('/', [ProjectController::class, 'indexPage'])->name('projects');
+    Route::post('/', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show'); // Para Inertia
+    Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+});
+
+    // Rotas do GrievanceController (acessíveis a usuários autenticados)
+    Route::get('/grievances', [GrievanceController::class, 'index'])->name('grievances.index');
+    Route::post('/grievances', [GrievanceController::class, 'store'])->name('grievances.store');
+    Route::get('/grievances/{grievance}', [GrievanceController::class, 'show'])->name('grievances.show');
+    Route::get('/grievances/track', [GrievanceController::class, 'track'])->name('grievances.track.api');
+    
+    // API de localizações e categorias
+    Route::get('/api/categories', [GrievanceController::class, 'getCategories'])->name('api.categories');
+    Route::get('/api/locations', [GrievanceController::class, 'getLocations'])->name('api.locations');
+    Route::get('/api/projects-list', [GrievanceController::class, 'getProjects'])->name('api.projects.list');
+});
+
+// Rotas de reclamações (acessíveis sem autenticação) - MOVIDO PARA FORA DO GRUPO AUTH
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
     Route::get('/reclamacoes/acompanhar', function () {
         return inertia('Grievances/Track');

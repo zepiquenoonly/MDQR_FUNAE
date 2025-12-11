@@ -88,7 +88,7 @@ class GrievanceController extends Controller
                     'id' => $grievance->id,
                     'title' => $grievance->title ?? $grievance->description,
                     'description' => $grievance->description,
-                    'type' => $grievance->type, // Incluir todos os tipos: complaint, grievance, suggestion
+                    'type' => $grievance->type,
                     'priority' => $grievance->priority,
                     'status' => $grievance->status,
                     'category' => $grievance->category,
