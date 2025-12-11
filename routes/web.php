@@ -45,6 +45,9 @@ Route::get('/grievances-home', function () {
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
 Route::middleware('api')->post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
 
+// Locations API
+Route::get('/api/locations', [GrievanceController::class, 'getLocations'])->name('api.locations');
+
 // Visualização pública de anexos (com restrições)
 Route::get('/attachments/{attachment}/view', [GrievanceController::class, 'viewAttachmentPublic'])
     ->name('attachments.view');

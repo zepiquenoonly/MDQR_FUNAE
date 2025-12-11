@@ -98,6 +98,9 @@ class GrievanceController extends Controller
                     'reference_number' => $grievance->reference_number,
                     'province' => $grievance->province,
                     'district' => $grievance->district,
+                    'municipal_district' => $grievance->municipal_district,
+                    'administrative_post' => $grievance->administrative_post,
+                    'locality' => $grievance->locality,
                     'location_details' => $grievance->location_details,
                     'attachments' => $attachments,
                     'assigned_user' => $grievance->assignedUser ? [
@@ -140,14 +143,18 @@ class GrievanceController extends Controller
                 'type' => 'required|in:complaint,grievance,suggestion',
                 // Description can be nullable; ensure it's either null or a string
                 'description' => 'nullable|string|max:1500',
-                'province' => 'nullable|string',
+                'province' => 'required|string',
                 'district' => 'nullable|string',
+                'municipal_district' => 'nullable|string',
+                'administrative_post' => 'nullable|string',
+                'locality' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
                 // Contact fields optional; validate when present
                 'contact_name' => 'sometimes|nullable|string|max:255',
                 'contact_email' => 'sometimes|nullable|email|max:255',
                 'contact_phone' => 'nullable|string|max:20',
+                'gender' => 'nullable|string|in:Masculino,Feminino,Outro',
                 'attachments' => 'nullable|array|max:5',
                 'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx,txt,csv,xls,xlsx,mp3,wav,ogg,webm,m4a,aac|max:10240',
                 'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,aac|max:10240',
@@ -164,11 +171,15 @@ class GrievanceController extends Controller
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
                 'district' => $validated['district'] ?? null,
+                'municipal_district' => $validated['municipal_district'] ?? null,
+                'administrative_post' => $validated['administrative_post'] ?? null,
+                'locality' => $validated['locality'] ?? null,
                 'location_details' => $validated['location_details'] ?? null,
                 'is_anonymous' => $validated['is_anonymous'] ?? false,
                 'status' => 'submitted',
                 'priority' => 'medium',
                 'submitted_at' => now(),
+                'gender' => $validated['gender'] ?? null,
             ];
 
             // Se for reclamação identificada e o usuário estender autenticado
@@ -555,16 +566,54 @@ class GrievanceController extends Controller
     public function getLocations()
     {
         $locations = [
-            'Maputo' => ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
-            'Gaza' => ['Chókwè', 'Chibuto', 'Xai-Xai', 'Manjacaze', 'Bilene', 'Chicualacuala', 'Chigubo', 'Guijá', 'Mabalane', 'Massangena', 'Massingir'],
-            'Inhambane' => ['Inhambane', 'Maxixe', 'Vilankulo', 'Massinga', 'Zavala', 'Inharrime', 'Jangamo', 'Homoine', 'Morrumbene', 'Govuro', 'Funhalouro', 'Panda', 'Mabote'],
-            'Sofala' => ['Beira', 'Dondo', 'Nhamatanda', 'Búzi', 'Gorongosa', 'Muanza', 'Chemba', 'Chibabava', 'Machanga', 'Marromeu', 'Cheringoma'],
-            'Manica' => ['Chimoio', 'Gondola', 'Manica', 'Báruè', 'Sussundenga', 'Macossa', 'Guro', 'Tambara', 'Vanduzi', 'Machaze', 'Mossurize'],
-            'Tete' => ['Tete', 'Moatize', 'Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde', 'Chiuta', 'Dôa', 'Macanga', 'Marávia', 'Moatize', 'Mutarara', 'Tsangano', 'Zumbu', 'Magoe'],
-            'Zambézia' => ['Quelimane', 'Mocuba', 'Alto Molócuè', 'Gurúè', 'Milange', 'Ile', 'Namarrói', 'Pebane', 'Maganja da Costa', 'Nicoadala', 'Inhassunge', 'Chinde', 'Morrumbala', 'Lugela', 'Mopeia', 'Namacurra'],
-            'Nampula' => ['Nampula', 'Nacala', 'Ilha de Moçambique', 'Angoche', 'Monapo', 'Memba', 'Mossuril', 'Mogincual', 'Mogovolas', 'Meconta', 'Muecate', 'Murrupula', 'Nampula', 'Ribaué', 'Malema', 'Mecubúri', 'Eráti', 'Lalaua', 'Larde', 'Liúpo', 'Moma', 'Nacarôa'],
-            'Cabo Delgado' => ['Pemba', 'Mocímboa da Praia', 'Palma', 'Mueda', 'Montepuez', 'Chiúre', 'Ancuabe', 'Balama', 'Macomia', 'Meluco', 'Metuge', 'Namuno', 'Nangade', 'Quissanga'],
-            'Niassa' => ['Lichinga', 'Cuamba', 'Mandimba', 'Marrupa', 'Majune', 'Mavago', 'Mecanhelas', 'Meculane', 'Metarica', 'Muembe', 'N\'gauma', 'Nipepe', 'Sanga'],
+            'Maputo Cidade' => [
+                'districts' => ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
+                'municipal_districts' => ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
+                 'administrative_posts' => [
+                     'KaMpfumu' => ['Alto Maé', 'Malhangalene', 'Polana Cimento'],
+                     'Nlhamankulu' => ['Chamanculo', 'Xipamanine'],
+                     'KaMaxaquene' => ['Maxaquene', 'Polana Caniço'],
+                     'KaMavota' => ['Mavota', 'Costa do Sol', 'Albasine'],
+                     'KaMubukwana' => ['Zimpeto', 'Magoanine', 'Jardim'],
+                     'KaTembe' => ['Katembe', 'Incassane', 'Guachene'],
+                     'Kanyaka' => ['Inguane', 'Ribene', 'Quewene'],
+                ],
+                'localities' => [
+                    'Alto Maé' => ['Alto Maé A', 'Alto Maé B'],
+                    'Chamanculo' => ['Chamanculo A', 'Chamanculo B', 'Chamanculo C', 'Chamanculo D'],
+                ]
+            ],
+            'Maputo Província' => [
+                'districts' => ['Boane', 'Magude', 'Manhiça', 'Marracuene', 'Matola', 'Matutuíne', 'Moamba', 'Namaacha']
+            ],
+            'Gaza' => [
+                'districts' => ['Chókwè', 'Chibuto', 'Xai-Xai', 'Manjacaze', 'Bilene', 'Chicualacuala', 'Chigubo', 'Guijá', 'Mabalane', 'Massangena', 'Massingir'],
+                'administrative_posts' => ['Chókwè' => ['Macarretane', 'Lionde', 'Xilembene'], 'Bilene' => ['Praia de Bilene', 'Macia']],
+            ],
+            'Inhambane' => [
+                'districts' => ['Inhambane', 'Maxixe', 'Vilankulo', 'Massinga', 'Zavala', 'Inharrime', 'Jangamo', 'Homoine', 'Morrumbene', 'Govuro', 'Funhalouro', 'Panda', 'Mabote']
+            ],
+            'Sofala' => [
+                'districts' => ['Beira', 'Dondo', 'Nhamatanda', 'Búzi', 'Gorongosa', 'Muanza', 'Chemba', 'Chibabava', 'Machanga', 'Marromeu', 'Cheringoma']
+            ],
+            'Manica' => [
+                'districts' => ['Chimoio', 'Gondola', 'Manica', 'Báruè', 'Sussundenga', 'Macossa', 'Guro', 'Tambara', 'Vanduzi', 'Machaze', 'Mossurize']
+            ],
+            'Tete' => [
+                'districts' => ['Tete', 'Moatize', 'Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde', 'Chiuta', 'Dôa', 'Macanga', 'Marávia', 'Moatize', 'Mutarara', 'Tsangano', 'Zumbu', 'Magoe']
+            ],
+            'Zambézia' => [
+                'districts' => ['Quelimane', 'Mocuba', 'Alto Molócuè', 'Gurúè', 'Milange', 'Ile', 'Namarrói', 'Pebane', 'Maganja da Costa', 'Nicoadala', 'Inhassunge', 'Chinde', 'Morrumbala', 'Lugela', 'Mopeia', 'Namacurra']
+            ],
+            'Nampula' => [
+                'districts' => ['Nampula', 'Nacala', 'Ilha de Moçambique', 'Angoche', 'Monapo', 'Memba', 'Mossuril', 'Mogincual', 'Mogovolas', 'Meconta', 'Muecate', 'Murrupula', 'Nampula', 'Ribaué', 'Malema', 'Mecubúri', 'Eráti', 'Lalaua', 'Larde', 'Liúpo', 'Moma', 'Nacarôa']
+            ],
+            'Cabo Delgado' => [
+                'districts' => ['Pemba', 'Mocímboa da Praia', 'Palma', 'Mueda', 'Montepuez', 'Chiúre', 'Ancuabe', 'Balama', 'Macomia', 'Meluco', 'Metuge', 'Namuno', 'Nangade', 'Quissanga']
+            ],
+            'Niassa' => [
+                'districts' => ['Lichinga', 'Cuamba', 'Mandimba', 'Marrupa', 'Majune', 'Mavago', 'Mecanhelas', 'Meculane', 'Metarica', 'Muembe', 'N\'gauma', 'Nipepe', 'Sanga']
+            ],
         ];
 
         return response()->json($locations);
