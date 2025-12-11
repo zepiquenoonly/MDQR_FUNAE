@@ -120,7 +120,8 @@
             >Teste Email</a
           >
         </div>
-
+      </div>
+    </div>
   </footer>
 </template>
 
