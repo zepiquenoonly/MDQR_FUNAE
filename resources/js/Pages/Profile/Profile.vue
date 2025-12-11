@@ -2,19 +2,19 @@
   <Layout
     :user="user"
     :stats="stats">
-    <div class="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8">
+ <div class="px-6 mx-auto mt-5 ">
       <!-- Breadcrumb com botão Voltar -->
-      <div class="flex items-center justify-between -mt-4 mb-4 sm:mb-6 lg:mb-8">
-        <nav
-          class="flex items-center space-x-1 sm:space-x-2 text-xs sm:text-sm text-gray-600 dark:text-gray-400"
+      <div class="flex items-center justify-between mb-4 -mt-4 sm:mb-6 lg:mb-8">
+        <!-- <nav
+          class="flex items-center space-x-1 text-xs text-gray-600 sm:space-x-2 sm:text-sm dark:text-gray-400"
         >
-          <Link href="/home" class="hover:text-orange-600 transition-colors truncate"
+          <Link href="/home" class="truncate transition-colors hover:text-orange-600"
             >Painel</Link
           >
-          <ChevronRightIcon class="w-3 h-3 text-gray-400 flex-shrink-0" />
-          <span class="text-orange-600 font-medium truncate">Gestão de Perfil</span>
-        </nav>
-        <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
+          <ChevronRightIcon class="flex-shrink-0 w-3 h-3 text-gray-400" />
+          <span class="font-medium text-orange-600 truncate">Gestão de Perfil</span>
+        </nav> -->
+     <div class="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <!-- Sidebar do Perfil -->
           <ProfileSidebar :user="user" :stats="stats" :active-tab="activeTab" />
 
@@ -35,7 +35,7 @@
             </div>
 
             <!-- Global Toast Notification -->
-            <div v-if="globalToast.show" class="fixed bottom-4 right-4 z-50">
+            <div v-if="globalToast.show" class="fixed z-50 bottom-4 right-4">
                 <div class="flex items-center p-4 mb-4 text-sm border rounded-lg" :class="[
                     globalToast.type === 'success'
                         ? 'text-green-800 border-green-300 bg-green-50 dark:text-green-300 dark:border-green-800 dark:bg-gray-800'
