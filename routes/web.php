@@ -82,9 +82,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [AuthController::class, 'home'])->name('dashboard'); // Rota genérica para compatibilidade
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Logout
-    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
     // Dashboards por role
     Route::get('/pca/dashboard', PCADashboardController::class)->name('pca.dashboard');
     Route::get('/tecnico/dashboard', TechnicianDashboardController::class)->name('technician.dashboard');
@@ -291,7 +288,7 @@ Route::prefix('api/projects')->group(function () {
 
 
     // API de projetos
-    Route::get('/manager/projects', [ProjectController::class, 'indexPage'])->name('projects');
+
 
 Route::prefix('manager/projects')->group(function () {
     Route::get('/', [ProjectController::class, 'indexPage'])->name('projects');
@@ -309,7 +306,7 @@ Route::prefix('manager/projects')->group(function () {
     
     // API de localizações e categorias
     Route::get('/api/categories', [GrievanceController::class, 'getCategories'])->name('api.categories');
-    Route::get('/api/locations', [GrievanceController::class, 'getLocations'])->name('api.locations');
+
     Route::get('/api/projects-list', [GrievanceController::class, 'getProjects'])->name('api.projects.list');
 });
 
