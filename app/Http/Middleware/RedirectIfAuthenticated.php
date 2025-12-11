@@ -56,6 +56,10 @@ class RedirectIfAuthenticated
         $role = $user->getRoleNames()->first();
 
         switch ($role) {
+            case 'Admin':
+                return redirect()->route('admin.dashboard');
+            case 'Super Admin':
+                return redirect()->route('admin.dashboard');
             case 'PCA':
                 return redirect()->route('pca.dashboard');
             case 'Gestor':
@@ -63,6 +67,7 @@ class RedirectIfAuthenticated
             case 'Técnico':
                 return redirect()->route('technician.dashboard');
             case 'Utente':
+                return redirect()->route('user.dashboard');
             default:
                 return redirect()->route('user.dashboard');
         }

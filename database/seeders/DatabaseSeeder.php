@@ -48,6 +48,15 @@ class DatabaseSeeder extends Seeder
         $this->call(ProjectSeeder::class);
         $this->call(UserSpecializationsSeeder::class);
         
+        // Create departments with directors and assign users/projects
+        $this->call(DepartmentSeeder::class);
+        
+        // Create additional managers and technicians
+        $this->call(AdditionalUsersSeeder::class);
+        
+        // Update workload fields for technicians only
+        $this->call(UpdateTechnicianWorkloadSeeder::class);
+        
         // Assign technicians to projects
         $this->call(ProjectTechnicianSeeder::class);
         

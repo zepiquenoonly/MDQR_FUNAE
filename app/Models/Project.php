@@ -12,12 +12,13 @@ class Project extends Model
     protected $fillable = [
         'name',
         'description',
-        'image_url', // Alterado para image_url
+        'image_url',
         'provincia',
         'distrito',
         'bairro',
         'category',
-        'data_criacao'
+        'data_criacao',
+        'department_id'
     ];
 
     protected $casts = [
@@ -64,5 +65,13 @@ class Project extends Model
     public function grievances()
     {
         return $this->hasMany(Grievance::class);
+    }
+
+    /**
+     * Get the department that owns this project.
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
     }
 }

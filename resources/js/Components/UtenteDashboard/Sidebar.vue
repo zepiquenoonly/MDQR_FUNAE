@@ -93,14 +93,15 @@ const handleMenuItemClick = (item) => {
 
 const getPanelTitle = () => {
   const titles = {
-    utente: "Painel do Utente",
-    technician: "Painel do Técnico",
-    director: "Painel do Director",
-    manager: "Painel do Gestor",
-    pca: "Painel do PCA",
-  };
-  return titles[props.role] || "Painel do Utente";
-};
+    'utente': 'Painel do Utente',
+    'technician': 'Painel do Técnico',
+    'director: "Painel do Director",
+    'manager': 'Painel do Gestor',
+    'pca': 'Painel do PCA',
+    'Admin': 'Painel do Administrador'
+  }
+  return titles[props.role] || 'Painel do Utente'
+}
 
 onMounted(() => {
   checkMobile();

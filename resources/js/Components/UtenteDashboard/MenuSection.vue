@@ -182,6 +182,36 @@
       />
     </template>
 
+    <!-- Admin -->
+    <template v-if="role === 'Admin'">
+      <div class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3">Administração</div>
+
+      <MenuItem
+        :active="activePanel === 'admin-users'"
+        :icon="UsersIcon"
+        :text="'Gestão de Utilizadores'"
+        @click="() => navigateToAdminUsers()"
+      />
+      <MenuItem
+        :active="activePanel === 'admin-projects'"
+        :icon="BriefcaseIcon"
+        :text="'Gestão de Projectos'"
+        @click="() => navigateToAdminProjects()"
+      />
+      <MenuItem
+        :active="activePanel === 'admin-departments'"
+        :icon="BuildingOfficeIcon"
+        :text="'Gestão de Departamentos'"
+        @click="() => navigateToAdminDepartments()"
+      />
+      <MenuItem
+        :active="activePanel === 'admin-roles'"
+        :icon="KeyIcon"
+        :text="'Gestão de Funções e Permissões'"
+        @click="() => navigateToAdminRoles()"
+      />
+    </template>
+
     <!-- Conta / Perfil -->
     <div
       class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-4"
@@ -221,14 +251,13 @@ import {
   UserGroupIcon,
   ChartBarIcon,
   UsersIcon,
-  ClipboardDocumentListIcon,
-} from "@heroicons/vue/24/outline";
-import { computed, onMounted } from "vue";
-import { usePage } from "@inertiajs/vue3";
-import { useNavigation } from "@/Composables/useNavigation";
-import { useDashboard } from "@/Composables/useDashboard";
-import MenuItem from "./MenuItem.vue";
-import MenuDropdown from "./MenuDropdown.vue";
+  BuildingOfficeIcon,
+  KeyIcon
+} from '@heroicons/vue/24/outline'
+import { useDashboard } from '@/Composables/useDashboard'
+import { useNavigation } from '@/Composables/useNavigation'
+import MenuItem from './MenuItem.vue'
+import MenuDropdown from './MenuDropdown.vue'
 
 const props = defineProps({
   role: {
@@ -239,17 +268,17 @@ const props = defineProps({
 
 const emit = defineEmits(["item-clicked"]);
 
-const page = usePage();
-const {
-  navigateToDashboard,
-  navigateTo,
-  navigateToProfile,
-  navigateToTracking,
+// Usar composables centralizados
+const { activePanel, setActivePanel } = useDashboard()
+const { 
+  navigateToProfile, 
+  navigateToTracking, 
   logout,
-} = useNavigation({
-  role: props.role,
-});
-const { activePanel } = useDashboard();
+  navigateToAdminUsers,
+  navigateToAdminProjects,
+  navigateToAdminDepartments,
+  navigateToAdminRoles
+} = useNavigation({ role: props.role })
 
 // Computed properties para verificar URL ativa
 const isDashboardActive = computed(() => {

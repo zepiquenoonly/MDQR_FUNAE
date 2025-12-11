@@ -125,7 +125,7 @@ class UtenteDashboardController extends Controller
 
         // Notificações não lidas
         $notifications = GrievanceNotification::where('user_id', $user->id)
-            ->whereNull('read_at')
+            // ->whereNull('read_at')
             ->orderByDesc('created_at')
             ->limit(10)
             ->get()
@@ -299,9 +299,9 @@ class UtenteDashboardController extends Controller
 
         if (empty($notificationIds)) {
             // Marcar todas como lidas
-            GrievanceNotification::where('user_id', $user->id)
-                ->whereNull('read_at')
-                ->update(['read_at' => now()]);
+            // GrievanceNotification::where('user_id', $user->id)
+            //     ->whereNull('read_at')
+            //     ->update(['read_at' => now()]);
         } else {
             // Marcar específicas como lidas
             GrievanceNotification::where('user_id', $user->id)

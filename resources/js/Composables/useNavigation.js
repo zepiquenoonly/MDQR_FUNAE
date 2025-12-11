@@ -92,6 +92,28 @@ export function useNavigation(options = {}) {
     router.post('/logout')
   }
 
+  // Funções de navegação para o Admin
+  const navigateToAdminUsers = () => {
+    navigateTo('admin.users.index')
+  }
+
+  const navigateToAdminProjects = () => {
+    // Por enquanto, pode ser uma rota Inertia para uma página de listagem de projetos
+    // ou um link direto para a API se a UI for separada.
+    // Para este caso, vamos assumir uma rota Inertia 'admin.projects.index'
+    navigateTo('admin.projects.index')
+  }
+
+  const navigateToAdminDepartments = () => {
+    navigateTo('admin.departments.index')
+  }
+
+  const navigateToAdminRoles = () => {
+    // Esta rota ainda não existe, é um placeholder para futura implementação
+    // ou pode ser uma rota para uma página de configurações gerais
+    navigateTo('admin.roles.index') // Placeholder
+  }
+
   return {
     role,
     getDashboardRoute,
@@ -102,7 +124,11 @@ export function useNavigation(options = {}) {
     navigateToTracking,
     navigateToLogin,
     navigateToRegister,
-    logout
+    logout,
+    navigateToAdminUsers,
+    navigateToAdminProjects,
+    navigateToAdminDepartments,
+    navigateToAdminRoles,
   }
 }
 
