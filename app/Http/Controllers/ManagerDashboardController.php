@@ -138,33 +138,13 @@ class ManagerDashboardController extends Controller
         ] : null,
         'attachments' => $grievance->attachments->map(function ($attachment) {
             return [
-                'id' => $grievance->id,
-                'title' => $grievance->description,
-                'description' => $grievance->description,
-                'type' => $grievance->type,
-                'priority' => $grievance->priority,
-                'status' => $grievance->status,
-                'category' => $grievance->category,
-                'created_at' => $grievance->created_at,
-                'submitted_at' => $grievance->submitted_at,
-                'reference_number' => $grievance->reference_number,
-                'province' => $grievance->province,
-                'district' => $grievance->district,
-                'user' => $grievance->user ? [
-                    'name' => $grievance->user->name,
-                ] : null,
-                'technician' => $grievance->assignedUser ? [
-                    'name' => $grievance->assignedUser->name,
-                ] : null,
-                'attachments' => $grievance->attachments->map(function ($attachment) {
-                    return [
-                        'id' => $attachment->id,
-                        'name' => $attachment->original_filename,
-                        'size' => $attachment->size,
-                    ];
-                })->toArray(),
+                'id' => $attachment->id,
+                'name' => $attachment->original_filename,
+                'size' => $attachment->size,
             ];
-        });
+        })->toArray(),
+    ];
+});
 
         // Estatísticas - garantir valores padrão
         $statsQuery = Grievance::query();

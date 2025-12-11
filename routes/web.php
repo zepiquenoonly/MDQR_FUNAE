@@ -58,10 +58,10 @@ Route::get('/test-track', function () {
 })->name('test.track');
 
 // Rotas de criação e acompanhamento de reclamações
-Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
-Route::get('/reclamacoes/acompanhar', function () {
-    return inertia('Grievances/Track');
-})->name('grievances.track');
+// Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
+// Route::get('/reclamacoes/acompanhar', function () {
+//     return inertia('Grievances/Track');
+// })->name('grievances.track');
 
 // Rotas para convidados (não autenticados)
 Route::middleware('guest')->group(function () {
@@ -315,10 +315,9 @@ Route::prefix('manager/projects')->group(function () {
 
 // Rotas de reclamações (acessíveis sem autenticação) - MOVIDO PARA FORA DO GRUPO AUTH
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
-    Route::get('/reclamacoes/acompanhar', function () {
-        return inertia('Grievances/Track');
-    })->name('grievances.track');
-});
+Route::get('/reclamacoes/acompanhar', function () {
+    return inertia('Grievances/Track');
+})->name('grievances.track');
 
 Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'dashboard'])->name('dashboard');
