@@ -35,7 +35,7 @@
             class="bg-white flex justify-center items-center flex-col text-center py-4 sm:py-6 px-3 sm:px-6 md:px-8 lg:px-12">
             <!-- Título -->
             <h1 class="text-base sm:text-lg md:text-xl font-bold mb-3 sm:mb-4 px-2">
-                Bem-vindo ao mecanismo de diálogo, queixas e reclamações (MDQR)
+                Bem-vindo ao mecanismo de Queixas, Reclamações e Sugestões
             </h1>
 
             <!-- Progress Steps Responsivo -->
