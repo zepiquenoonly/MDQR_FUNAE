@@ -434,6 +434,16 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Estatísticas Dinâmicas**: Dashboard mostra contadores em tempo real de usuários, departamentos, projectos e usuários ativos.
 - **Distribuição Organizacional**: Sistema completo de hierarquia: Departamento → Director → Gestores → Técnicos → Projectos.
 
+## Novas funcionalidades (11/12/2025 - Tarde)
+
+- **Localização Detalhada no Formulário**: Implementação de hierarquia completa de localização no formulário de reclamações (Província → Distrito/Distrito Municipal → Posto Administrativo → Localidade) com dados dinâmicos via API.
+- **Distinção Maputo Cidade vs Província**: Lógica específica para lidar com a divisão administrativa de Maputo, apresentando "Distritos Municipais" para a Cidade e "Distritos" para a Província.
+- **Validação de Localização Mandatória**: Tornados obrigatórios todos os campos de localização aplicáveis (cascata) para garantir qualidade dos dados para roteamento.
+- **Privacidade em Submissões Anônimas**: Ocultação automática dos campos de dados pessoais quando o modo anônimo é ativado, com opção ("checkbox") para o usuário fornecer contato voluntariamente.
+- **Estatísticas de Gênero**: Adicionado campo "Gênero" (Masculino, Feminino, Outro) no formulário para fins estatísticos, visível apenas quando dados pessoais são fornecidos.
+- **Routing e Filtragem por Departamento**: Gestores agora visualizam no dashboard apenas as reclamações associadas a projectos do seu departamento específico, garantindo segregação de acesso e foco.
+- **Auto-Reset de Campos**: Implementada lógica de limpeza automática de campos dependentes (ex: mudar província limpa distrito) e dados pessoais ao alternar modos.
+
 ## Fluxo 16: Admin Dashboard e Gestão de Departamentos
 
 ### Implementado (Fluxo 16)
