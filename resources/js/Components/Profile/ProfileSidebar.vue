@@ -1,12 +1,12 @@
 <template>
   <aside
-    class="bg-brand dark:bg-dark-secondary text-white h-full flex flex-col overflow-hidden relative"
+    class="relative flex flex-col h-full overflow-hidden text-white bg-brand dark:bg-dark-secondary"
   >
     <!-- Header com botão hamburger -->
     <div class="flex justify-start p-4 sm:hidden">
       <button
         @click="$emit('close-sidebar')"
-        class="text-white hover:bg-white/10 rounded-md p-2 transition-colors"
+        class="p-2 text-white transition-colors rounded-md hover:bg-white/10"
       >
         <!-- Ícone Hamburger (três linhas) -->
       </button>
@@ -14,12 +14,12 @@
 
     <!-- Avatar e Info -->
     <div
-      class="text-center mt-2 sm:mt-6 lg:mt-8 mb-4 sm:mb-6 px-2"
+      class="px-2 mt-2 mb-4 text-center sm:mt-6 lg:mt-8 sm:mb-6"
       :class="{ 'px-0': isCollapsed }"
     >
       <div class="relative inline-block mb-3 sm:mb-4">
         <div
-          class="bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold mx-auto relative overflow-hidden"
+          class="relative flex items-center justify-center mx-auto overflow-hidden font-bold text-white rounded-full bg-gradient-to-r from-orange-500 to-red-500"
           :class="[
             isCollapsed
               ? 'w-16 h-16 text-lg'
@@ -31,13 +31,13 @@
             v-if="user.avatar_url"
             :src="user.avatar_url"
             :alt="user.name"
-            class="absolute inset-0 w-full h-full object-cover"
+            class="absolute inset-0 object-cover w-full h-full"
           />
           <span v-else>{{ user.initials }}</span>
         </div>
-        <div class="avatar-upload cursor-pointer" @click="showAvatarPopup = true">
+        <div class="cursor-pointer avatar-upload" @click="showAvatarPopup = true">
           <div
-            class="avatar-overlay absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 transition-opacity"
+            class="absolute inset-0 flex items-center justify-center transition-opacity bg-black bg-opacity-50 rounded-full opacity-0 avatar-overlay"
           >
             <CameraIcon
               class="text-white"
@@ -50,18 +50,18 @@
       <!-- Informações do usuário (ocultas quando colapsado) -->
       <div v-if="!isCollapsed">
         <h2
-          class="text-lg sm:text-lg lg:text-xl font-semibold text-white-100 dark:text-dark-text-primary px-2"
+          class="px-2 text-lg font-semibold sm:text-lg lg:text-xl text-white-100 dark:text-dark-text-primary"
         >
           {{ user.name }}
         </h2>
-        <div class="flex justify-center space-x-2 mt-1 sm:mt-2 px-2">
+        <div class="flex justify-center px-2 mt-1 space-x-2 sm:mt-2">
           <span
-            class="bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs px-2 py-1 rounded-full truncate"
+            class="px-2 py-1 text-xs text-green-800 truncate bg-green-100 rounded-full dark:bg-green-900/30 dark:text-green-300"
             >{{ user.role }}</span
           >
           <span
             v-if="user.email_verified_at"
-            class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs px-2 py-1 rounded-full truncate"
+            class="px-2 py-1 text-xs text-blue-800 truncate bg-blue-100 rounded-full dark:bg-blue-900/30 dark:text-blue-300"
             >Verificado</span
           >
         </div>
@@ -75,12 +75,12 @@
       >
         <div class="flex items-center space-x-3 sm:space-x-4">
           <ExclamationTriangleIcon
-            class="w-5 h-5 sm:w-6 sm:h-6 text-orange-300 flex-shrink-0"
+            class="flex-shrink-0 w-5 h-5 text-orange-300 sm:w-6 sm:h-6"
           />
           <div>
             <p class="text-xs sm:text-sm text-white/80 dark:text-white/80">Queixas</p>
             <p
-              class="font-semibold text-white dark:text-dark-text-primary text-sm sm:text-base"
+              class="text-sm font-semibold text-white dark:text-dark-text-primary sm:text-base"
             >
               {{ stats.complaints }}
             </p>
@@ -93,12 +93,12 @@
       >
         <div class="flex items-center space-x-3 sm:space-x-4">
           <ChatBubbleLeftRightIcon
-            class="w-5 h-5 sm:w-6 sm:h-6 text-blue-300 flex-shrink-0"
+            class="flex-shrink-0 w-5 h-5 text-blue-300 sm:w-6 sm:h-6"
           />
           <div>
             <p class="text-xs sm:text-sm text-white/80 dark:text-white/80">Reclamações</p>
             <p
-              class="font-semibold text-white dark:text-dark-text-primary text-sm sm:text-base"
+              class="text-sm font-semibold text-white dark:text-dark-text-primary sm:text-base"
             >
               {{ stats.complaints }}
             </p>
@@ -110,11 +110,11 @@
         class="flex items-center justify-between p-3 sm:p-4 bg-brand dark:bg-dark-secondary"
       >
         <div class="flex items-center space-x-3 sm:space-x-4">
-          <LightBulbIcon class="w-5 h-5 sm:w-6 sm:h-6 text-yellow-300 flex-shrink-0" />
+          <LightBulbIcon class="flex-shrink-0 w-5 h-5 text-yellow-300 sm:w-6 sm:h-6" />
           <div>
             <p class="text-xs sm:text-sm text-white/80 dark:text-white/80">Sugestões</p>
             <p
-              class="font-semibold text-white dark:text-dark-text-primary text-sm sm:text-base"
+              class="text-sm font-semibold text-white dark:text-dark-text-primary sm:text-base"
             >
               {{ stats.suggestions }}
             </p>
@@ -124,7 +124,7 @@
     </div>
 
     <!-- Menu de Navegação -->
-    <nav class="space-y-1 sm:space-y-2 px-2 sm:px-0" :class="{ 'px-1': isCollapsed }">
+    <nav class="px-2 space-y-1 sm:space-y-2 sm:px-0" :class="{ 'px-1': isCollapsed }">
       <div class="relative group">
         <Link
           href="/profile/info"
@@ -138,18 +138,18 @@
               : 'text-white hover:bg-brand hover:text-white dark:text-white dark:hover:bg-gray-600',
           ]"
         >
-          <UserCircleIcon class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+          <UserCircleIcon class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
           <span v-if="!isCollapsed" class="truncate">Informações Pessoais</span>
         </Link>
 
         <!-- Tooltip para modo colapsado -->
         <div
           v-if="isCollapsed"
-          class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50"
+          class="absolute z-50 px-2 py-1 ml-2 text-xs text-white transition-opacity duration-200 transform -translate-y-1/2 bg-gray-900 rounded opacity-0 pointer-events-none left-full top-1/2 dark:bg-gray-700 group-hover:opacity-100 whitespace-nowrap"
         >
           Informações Pessoais
           <div
-            class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700"
+            class="absolute transform -translate-y-1/2 border-4 border-transparent right-full top-1/2 border-r-gray-900 dark:border-r-gray-700"
           ></div>
         </div>
       </div>
@@ -167,18 +167,18 @@
               : 'text-white hover:bg-brand hover:text-white dark:text-white dark:hover:bg-gray-600',
           ]"
         >
-          <ShieldCheckIcon class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+          <ShieldCheckIcon class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
           <span v-if="!isCollapsed" class="truncate">Segurança</span>
         </Link>
 
         <!-- Tooltip para modo colapsado -->
         <div
           v-if="isCollapsed"
-          class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50"
+          class="absolute z-50 px-2 py-1 ml-2 text-xs text-white transition-opacity duration-200 transform -translate-y-1/2 bg-gray-900 rounded opacity-0 pointer-events-none left-full top-1/2 dark:bg-gray-700 group-hover:opacity-100 whitespace-nowrap"
         >
           Segurança
           <div
-            class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700"
+            class="absolute transform -translate-y-1/2 border-4 border-transparent right-full top-1/2 border-r-gray-900 dark:border-r-gray-700"
           ></div>
         </div>
       </div>
@@ -196,18 +196,18 @@
               : 'text-white hover:bg-brand hover:text-white dark:text-white dark:hover:bg-gray-600',
           ]"
         >
-          <BellIcon class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+          <BellIcon class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
           <span v-if="!isCollapsed" class="truncate">Notificações</span>
         </Link>
 
         <!-- Tooltip para modo colapsado -->
         <div
           v-if="isCollapsed"
-          class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50"
+          class="absolute z-50 px-2 py-1 ml-2 text-xs text-white transition-opacity duration-200 transform -translate-y-1/2 bg-gray-900 rounded opacity-0 pointer-events-none left-full top-1/2 dark:bg-gray-700 group-hover:opacity-100 whitespace-nowrap"
         >
           Notificações
           <div
-            class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700"
+            class="absolute transform -translate-y-1/2 border-4 border-transparent right-full top-1/2 border-r-gray-900 dark:border-r-gray-700"
           ></div>
         </div>
       </div>
@@ -225,16 +225,16 @@
               : 'text-white hover:bg-brand hover:text-white dark:text-white dark:hover:bg-gray-600',
           ]"
         >
-          <Cog6ToothIcon class="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+          <Cog6ToothIcon class="flex-shrink-0 w-4 h-4 sm:w-5 sm:h-5" />
           <span v-if="!isCollapsed" class="truncate">Preferências</span>
         </Link>
 
-        Tooltip para modo colapsado 
+        Tooltip para modo colapsado
       <div v-if="isCollapsed"
-        class="absolute left-full top-1/2 transform -translate-y-1/2 ml-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-50">
+        class="absolute z-50 px-2 py-1 ml-2 text-xs text-white transition-opacity duration-200 transform -translate-y-1/2 bg-gray-900 rounded opacity-0 pointer-events-none left-full top-1/2 dark:bg-gray-700 group-hover:opacity-100 whitespace-nowrap">
         Preferências
         <div
-          class="absolute right-full top-1/2 transform -translate-y-1/2 border-4 border-transparent border-r-gray-900 dark:border-r-gray-700">
+          class="absolute transform -translate-y-1/2 border-4 border-transparent right-full top-1/2 border-r-gray-900 dark:border-r-gray-700">
         </div>
       </div>
       </div>-->
