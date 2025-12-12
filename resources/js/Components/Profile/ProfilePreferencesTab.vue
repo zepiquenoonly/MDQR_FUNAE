@@ -1,28 +1,28 @@
 <template>
-  <div class="bg-white dark:bg-dark-secondary rounded shadow-sm p-4 sm:p-6">
+  <div class="w-screen p-4 rounded shadow-sm sm:p-6">
     <h3
-      class="text-xl sm:text-2xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4 sm:mb-6"
+      class="mb-4 text-xl font-semibold text-gray-800 sm:text-2xl dark:text-dark-text-primary sm:mb-6"
     >
       Preferências do Sistema
     </h3>
 
     <div class="space-y-4 sm:space-y-6">
       <!-- Idioma e Região -->
-      <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6">
+      <div class="p-4 border border-gray-200 rounded-lg dark:border-gray-700 sm:p-6">
         <h4
-          class="text-base sm:text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-3 sm:mb-4"
+          class="mb-3 text-base font-semibold text-gray-800 sm:text-lg dark:text-dark-text-primary sm:mb-4"
         >
           Idioma e Região
         </h4>
         <div class="grid grid-cols-1 gap-3 sm:gap-4">
           <div>
             <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2"
+              class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 sm:mb-2"
               >Idioma</label
             >
             <select
               v-model="preferences.language"
-              class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-0 focus:ring-orange-500 focus:border-brand transition-colors dark:bg-dark-accent dark:text-dark-text-primary"
+              class="w-full px-3 py-2 text-sm transition-colors border border-gray-300 rounded-lg sm:px-4 sm:py-3 sm:text-base dark:border-gray-600 focus:outline-none focus:ring-0 focus:ring-orange-500 focus:border-brand dark:bg-dark-accent dark:text-dark-text-primary"
             >
               <option value="pt">Português (PT)</option>
               <option value="en">English (EN)</option>
@@ -31,12 +31,12 @@
 
           <div>
             <label
-              class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 sm:mb-2"
+              class="block mb-1 text-sm font-medium text-gray-700 dark:text-gray-300 sm:mb-2"
               >Fuso Horário</label
             >
             <select
               v-model="preferences.timezone"
-              class="w-full px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-0 focus:ring-orange-500 focus:border-brand transition-colors dark:bg-dark-accent dark:text-dark-text-primary"
+              class="w-full px-3 py-2 text-sm transition-colors border border-gray-300 rounded-lg sm:px-4 sm:py-3 sm:text-base dark:border-gray-600 focus:outline-none focus:ring-0 focus:ring-orange-500 focus:border-brand dark:bg-dark-accent dark:text-dark-text-primary"
             >
               <option value="Africa/Maputo">Africa/Maputo (UTC+2)</option>
               <option value="UTC">UTC</option>
@@ -47,13 +47,13 @@
       </div>
 
       <!-- Aparência -->
-      <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 sm:p-6">
+      <div class="p-4 border border-gray-200 rounded-lg dark:border-gray-700 sm:p-6">
         <h4
-          class="text-base sm:text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-3 sm:mb-4"
+          class="mb-3 text-base font-semibold text-gray-800 sm:text-lg dark:text-dark-text-primary sm:mb-4"
         >
           Aparência
         </h4>
-        <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+        <div class="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:space-x-3">
           <button
             @click="preferences.theme = 'light'"
             :class="[
@@ -63,7 +63,7 @@
                 : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500',
             ]"
           >
-            <SunIcon class="w-4 h-4 flex-shrink-0" />
+            <SunIcon class="flex-shrink-0 w-4 h-4" />
             <span>Claro</span>
           </button>
 
@@ -76,7 +76,7 @@
                 : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500',
             ]"
           >
-            <MoonIcon class="w-4 h-4 flex-shrink-0" />
+            <MoonIcon class="flex-shrink-0 w-4 h-4" />
             <span>Escuro</span>
           </button>
 
@@ -89,7 +89,7 @@
                 : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500',
             ]"
           >
-            <ComputerDesktopIcon class="w-4 h-4 flex-shrink-0" />
+            <ComputerDesktopIcon class="flex-shrink-0 w-4 h-4" />
             <span>Automático</span>
           </button>
         </div>
@@ -97,20 +97,20 @@
 
       <!-- Zona Perigosa -->
       <div
-        class="border border-red-200 dark:border-red-800 rounded-lg p-4 sm:p-6 bg-red-50 dark:bg-red-900/20"
+        class="p-4 border border-red-200 rounded-lg dark:border-red-800 sm:p-6 bg-red-50 dark:bg-red-900/20"
       >
         <h4
-          class="text-base sm:text-lg font-semibold text-red-800 dark:text-red-300 mb-3 sm:mb-4"
+          class="mb-3 text-base font-semibold text-red-800 sm:text-lg dark:text-red-300 sm:mb-4"
         >
           Zona Perigosa
         </h4>
         <div class="space-y-3 sm:space-y-4">
-          <p class="text-red-700 dark:text-red-300 text-sm sm:text-base">
+          <p class="text-sm text-red-700 dark:text-red-300 sm:text-base">
             Uma vez que apague a sua conta, não há retorno. Por favor, tenha certeza.
           </p>
           <button
             @click="confirmAccountDeletion"
-            class="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
+            class="w-full px-4 py-2 text-sm font-medium text-white transition-colors bg-red-600 rounded-lg sm:w-auto hover:bg-red-700 sm:px-6 sm:py-3 sm:text-base"
           >
             Apagar Conta
           </button>
@@ -121,7 +121,7 @@
       <div class="flex justify-end">
         <button
           @click="savePreferences"
-          class="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-colors text-sm sm:text-base"
+          class="w-full px-4 py-2 text-sm font-medium text-white transition-colors bg-orange-500 rounded-lg sm:w-auto hover:bg-orange-600 sm:px-6 sm:py-3 sm:text-base"
         >
           Guardar Preferências
         </button>
