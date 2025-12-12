@@ -180,17 +180,11 @@ class GrievanceController extends Controller
                 'priority' => 'medium',
                 'submitted_at' => now(),
                 'gender' => $validated['gender'] ?? null,
+                'user_id' => auth()->user()?->id ?? null,
+                'contact_name' => $validated['contact_name'] ?? auth()->user()?->name ?? null,
+                'contact_email' => $validated['contact_email'] ?? auth()->user()?->email ?? null,
+                'contact_phone' => $validated['contact_phone'] ?? auth()->user()?->phone ?? null,
             ];
-
-            // Se for reclamação identificada e o usuário estender autenticado
-            if (!$validated['is_anonymous'] && auth()->check()) {
-                $grievanceData['user_id'] = auth()->id();
-            } else {
-                // Se for anônima, armazenar informações de contato
-                $grievanceData['contact_name'] = $validated['contact_name'] ?? null;
-                $grievanceData['contact_email'] = $validated['contact_email'] ?? null;
-                $grievanceData['contact_phone'] = $validated['contact_phone'] ?? null;
-            }
 
             // Criar a reclamação
             $grievance = Grievance::create($grievanceData);

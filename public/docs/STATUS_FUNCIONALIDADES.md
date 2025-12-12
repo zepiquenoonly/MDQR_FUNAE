@@ -499,3 +499,12 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Migrations de Relacionamento** *(implementado em 10/12/2025)*
 - ✅ **Modelos Atualizados** *(implementado em 10/12/2025)*
 - ✅ **Redirecionamento Admin** *(implementado em 10/12/2025)*
+
+## Correções e Melhorias (12/12/2025)
+
+- **Modal de Submissão**: Correção de comportamento onde o modal fechava prematuramente antes da confirmação. Implementada exibição correta de mensagens de sucesso/erro e bloqueio de fechamento acidental.
+- **Integração Dashboard Utente**:
+    - **Acesso Rápido**: Adicionado modal de submissão direto via "Nova Reclamação" em QuickActions.
+    - **UX Simplificada**: Removido botão redundante "Minhas Reclamações" e coluna de ações da tabela de resumo para interface mais limpa.
+    - **Atualização em Tempo Real**: Recarregamento automático de estatísticas e lista de submissões após nova submissão com sucesso.
+- **Backend (GrievanceController)**: Refinamento na lógica de associação de usuários. O sistema agora preenche automaticamente dados de contato e associa o `user_id` para usuários autenticados, mantendo a consistência dos dados.

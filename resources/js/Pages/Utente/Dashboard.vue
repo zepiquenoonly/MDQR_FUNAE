@@ -39,7 +39,7 @@
                 <NotificationWidget />
 
                 <!-- Quick Actions -->
-                <QuickActions />
+                <QuickActions @create-complaint="showComplaintForm = true" />
 
                 <!-- Stats Grid -->
                 <StatsGrid />
@@ -103,12 +103,13 @@
                 </div>
             </div>
         </div>
+        <ComplaintForm :visible="showComplaintForm" @close="showComplaintForm = false" @success="handleComplaintSuccess" />
     </Layout>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import { useDashboard } from '@/Composables/useDashboard'
 import { usePageProps } from '@/Composables/usePageProps'
 import Layout from '@/Layouts/UnifiedLayout.vue'
@@ -123,6 +124,7 @@ import Claims from '@/Components/UtenteDashboard/Claims.vue'
 import Complaints from '@/Components/UtenteDashboard/Complaints.vue'
 import ChartBarComponent from '@/Components/UtenteDashboard/ChartBarComponent.vue'
 import TableComponent from '@/Components/UtenteDashboard/TableComponent.vue'
+import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
 
 const props = defineProps({
     user: {
@@ -293,9 +295,15 @@ const handleViewProjectDetails = (projectId) => {
     selectedProjectId.value = projectId
 }
 
-// Função para lidar com o botão "voltar" do ProjectDetails
 const handleBackFromProjectDetails = () => {
     console.log('Voltando dos detalhes do projeto')
     selectedProjectId.value = null
+}
+
+const showComplaintForm = ref(false)
+
+const handleComplaintSuccess = () => {
+    showComplaintForm.value = false
+    router.reload({ only: ['recentSubmissions', 'stats', 'chartDataByType', 'chartDataByStatus'] })
 }
 </script>

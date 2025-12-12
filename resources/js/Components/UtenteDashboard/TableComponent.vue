@@ -2,9 +2,9 @@
   <div class="glass-card p-6 hover:shadow-2xl transition-all duration-300 border border-white/40">
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-lg font-bold text-gray-900">{{ title }}</h3>
-      <button class="px-4 py-2 text-xs font-semibold text-primary-600 hover:text-white hover:bg-gradient-to-r from-primary-500 to-orange-600 rounded-lg transition-all duration-300 border border-primary-200 hover:border-transparent hover:scale-105">
+      <!-- <button class="px-4 py-2 text-xs font-semibold text-primary-600 hover:text-white hover:bg-gradient-to-r from-primary-500 to-orange-600 rounded-lg transition-all duration-300 border border-primary-200 hover:border-transparent hover:scale-105">
         Ver Todos
-      </button>
+      </button> -->
     </div>
 
     <div class="overflow-x-auto">
@@ -38,11 +38,11 @@
               </span>
             </td>
             <td class="px-4 py-4 text-sm text-gray-500">{{ row.date }}</td>
-            <td class="px-4 py-4">
+            <!-- <td class="px-4 py-4">
               <button class="text-primary-600 hover:text-orange-600 transition-colors font-medium text-sm group-hover:scale-110 duration-200">
                 Ver →
               </button>
-            </td>
+            </td> -->
           </tr>
         </tbody>
       </table>
@@ -68,7 +68,7 @@ defineProps({
   },
   headers: {
     type: Array,
-    default: () => ['ID', 'Tipo', 'Status', 'Data', 'Ações']
+    default: () => ['ID', 'Tipo', 'Status', 'Data']
   },
   rows: {
     type: Array,

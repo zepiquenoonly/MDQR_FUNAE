@@ -1,6 +1,6 @@
 <template>
     <div v-if="visible">
-        <div v-if="!props.embedded" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"></div>
+        <div v-if="!props.embedded && !showSuccessModal && !showErrorModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity" @click="$emit('close')"></div>
         <!-- Toast Notification -->
         <transition name="slide-fade">
             <div v-if="toast.show" :class="[
@@ -72,17 +72,17 @@
                         <p class="text-2xl font-mono font-bold text-orange-600">{{ submissionResult.reference_number }}</p>
                     </div>
                     <p class="text-sm text-gray-500 mb-6">Guarde este código para acompanhar o estado da sua submissão.</p>
-                    <!-- <button @click="closeSuccessAndForm"
+                    <button @click="closeSuccessAndForm"
                         class="w-full bg-orange-500 text-white py-3 px-6 rounded-lg font-semibold hover:bg-orange-600 transition-colors">
                         Entendido
-                    </button> -->
+                    </button>
                 </div>
             </div>
         </transition>
 
         <!-- Main Form Modal -->
         <transition name="zoom">
-            <div v-if="!showSuccessModal && !showErrorModal" :class="props.embedded ? 'bg-white rounded-2xl shadow w-full max-h-[80vh] flex flex-col overflow-hidden' : 'bg-white rounded-2xl shadow-2xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden'">
+            <div v-if="!showSuccessModal && !showErrorModal" :class="props.embedded ? 'bg-white rounded-2xl shadow w-full max-h-[80vh] flex flex-col overflow-hidden' : 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[51] w-[calc(100%-2rem)] max-w-[900px] max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden'">
 
             <!-- Header -->
             <div class="p-6 flex justify-between items-center bg-gradient-to-r from-orange-500 to-orange-600 relative">
@@ -1179,6 +1179,7 @@ const closeSuccessAndForm = () => {
     showSuccessModal.value = false
     emit('success', submissionResult.value)
     emit('close')
+    resetForm()
 }
 
 const closeErrorModal = () => {
@@ -1276,11 +1277,7 @@ const handleSubmit = async () => {
         if (response.ok && data.success) {
             submissionResult.value = data
 
-            // Resetar o formulário
-            resetForm()
-
-            // Fechar o modal do formulário e abrir o modal de sucesso
-            emit('close')
+            // Mostrar modal de sucesso
             showSuccessModal.value = true
 
         } else {

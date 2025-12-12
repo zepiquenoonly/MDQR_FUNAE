@@ -23,29 +23,7 @@
       </svg>
     </button>
 
-    <!-- Minhas Reclamações -->
-    <button
-      @click="viewAllComplaints"
-      class="flex items-center justify-between p-4 glass-card hover:scale-105 group transition-all duration-300 hover:shadow-xl border border-white/40 relative overflow-hidden"
-    >
-      <!-- Gradient overlay on hover -->
-      <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
-      <div class="flex items-center gap-3 min-w-0 flex-1 relative z-10">
-        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-primary-50 to-orange-50 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary-200 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-sm">
-          <svg class="w-5 h-5 sm:w-6 sm:h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
-        </div>
-        <div class="text-left min-w-0">
-          <div class="font-semibold text-sm sm:text-base text-gray-800 group-hover:text-primary-600 transition-colors truncate">Minhas Reclamações</div>
-          <div class="text-xs text-gray-600 truncate">Ver todas as submissões</div>
-        </div>
-      </div>
-      <svg class="w-5 h-5 text-gray-400 group-hover:text-primary-600 transition-all flex-shrink-0 ml-2 group-hover:translate-x-1 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
-      </svg>
-    </button>
 
     <!-- Acompanhar Status -->
     <button
@@ -76,12 +54,11 @@
 <script setup>
 import { useDashboardState } from './Composables/useDashboardState.js'
 
+const emit = defineEmits(['create-complaint'])
 const { setActivePanel, setActiveDropdown } = useDashboardState()
 
 const createNewComplaint = () => {
-  setActivePanel('mdqr')
-  setActiveDropdown('reclamacoes')
-  // O componente Complaints já tem o botão de nova reclamação
+  emit('create-complaint')
 }
 
 const viewAllComplaints = () => {
