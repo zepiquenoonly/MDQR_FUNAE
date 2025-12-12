@@ -1,211 +1,383 @@
 <template>
-  <div class="p-6 bg-white rounded shadow-sm dark:bg-dark-secondary">
-    <div class="flex items-center justify-between mb-6">
-      <h3 class="text-2xl font-semibold text-gray-800 dark:text-dark-text-primary">
-        Informações Pessoais
-      </h3>
-    </div>
+  <div class="flex flex-col h-full overflow-hidden rounded-md bg-gray-50 dark:bg-dark-primary">
+    <!-- Header fixo -->
+    <div class="flex-shrink-0 px-6 py-5 bg-white border-b dark:bg-dark-secondary dark:border-gray-700">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-dark-text-primary">
+            Informações Pessoais
+          </h3>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            Gerencie suas informações de perfil e localização
+          </p>
+        </div>
 
-    <!-- Modal de Sucesso -->
-    <SuccessModal :show="showSuccessModal" title="Sucesso!" :message="successMessage"
-      @close="showSuccessModal = false" />
+        <!-- Botões de ação no header -->
+        <div class="flex gap-3">
+          <button
+            v-if="isEditing"
+            type="button"
+            @click="cancelEdit"
+            :disabled="form.processing"
+            class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-gray-700 transition-all duration-200 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <XMarkIcon class="w-4 h-4 mr-2" />
+            Cancelar
+          </button>
 
-    <!-- Modal de Erro -->
-    <ErrorModal :show="showErrorModal" title="Erro!" :message="errorMessage" @close="showErrorModal = false" />
+          <button
+            v-if="!isEditing"
+            type="button"
+            @click="enableEditing"
+            class="inline-flex items-center px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 rounded-lg bg-brand hover:bg-orange-600 hover:shadow-lg"
+          >
+            <PencilIcon class="w-4 h-4 mr-2" />
+            Editar Perfil
+          </button>
 
-    <!-- Mensagem de sucesso do Inertia -->
-    <div v-if="$page.props.flash.success && !showSuccessModal"
-      class="p-4 mb-6 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800">
-      <div class="flex items-center space-x-2 text-green-800 dark:text-green-300">
-        <CheckCircleIcon class="w-5 h-5" />
-        <span class="font-medium">{{ $page.props.flash.success }}</span>
+          <button
+            v-else
+            type="submit"
+            @click="submitForm"
+            :disabled="form.processing || !hasChanges"
+            :class="[
+              'inline-flex items-center px-5 py-2.5 text-sm font-medium text-white transition-all duration-200 rounded-lg',
+              form.processing || !hasChanges
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-brand hover:bg-orange-600 hover:shadow-lg',
+            ]"
+          >
+            <CheckIcon class="w-4 h-4 mr-2" />
+            <span>{{ form.processing ? "A Guardar..." : "Guardar Alterações" }}</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- Mensagens de erro do formulário -->
-    <div v-if="hasErrors"
-      class="p-4 mb-6 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-800">
-      <div class="flex items-center mb-2 space-x-2 text-red-800 dark:text-red-300">
-        <ExclamationTriangleIcon class="w-5 h-5" />
-        <span class="font-medium">Por favor, corrija os seguintes erros:</span>
-      </div>
-      <ul class="space-y-1 text-sm text-red-700 list-disc list-inside dark:text-red-300">
-        <li v-for="(error, field) in form.errors" :key="field">
-          <span class="font-medium">{{ getFieldLabel(field) }}:</span> {{ error }}
-        </li>
-      </ul>
-    </div>
+    <!-- Conteúdo com scroll -->
+    <div class="flex-1 overflow-y-auto">
+      <div class="px-6 py-6">
+        <!-- Modal de Sucesso -->
+        <SuccessModal
+          :show="showSuccessModal"
+          title="Sucesso!"
+          :message="successMessage"
+          @close="showSuccessModal = false"
+        />
 
-    <form @submit.prevent="submitForm">
-      <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome Completo *</label>
-          <input type="text" v-model="form.name" @input="checkForChanges" :disabled="!isEditing" :class="[
-              'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-              form.errors.name
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-              !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-            ]" />
-          <p v-if="form.errors.name" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.name }}
-          </p>
-        </div>
+        <!-- Modal de Erro -->
+        <ErrorModal
+          :show="showErrorModal"
+          title="Erro!"
+          :message="errorMessage"
+          @close="showErrorModal = false"
+        />
 
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome de Utilizador *</label>
-          <input type="text" v-model="form.username" @input="checkForChanges" :disabled="!isEditing" :class="[
-              'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-              form.errors.username
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-              !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-            ]" />
-          <p v-if="form.errors.username" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.username }}
-          </p>
-        </div>
+        <!-- Alerta de sucesso -->
+        <transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="translate-y-2 opacity-0"
+          enter-to-class="translate-y-0 opacity-100"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="translate-y-0 opacity-100"
+          leave-to-class="translate-y-2 opacity-0"
+        >
+          <div
+            v-if="$page.props.flash.success && !showSuccessModal"
+            class="p-4 mb-6 border border-green-300 rounded-xl bg-green-50 dark:bg-green-900/20 dark:border-green-800"
+          >
+            <div class="flex items-center space-x-3">
+              <div class="flex-shrink-0">
+                <CheckCircleIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div class="flex-1">
+                <p class="text-sm font-medium text-green-800 dark:text-green-300">
+                  {{ $page.props.flash.success }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </transition>
 
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-            Email *
-          </label>
+        <!-- Alerta de erros -->
+        <transition
+          enter-active-class="transition duration-300 ease-out"
+          enter-from-class="translate-y-2 opacity-0"
+          enter-to-class="translate-y-0 opacity-100"
+          leave-active-class="transition duration-200 ease-in"
+          leave-from-class="translate-y-0 opacity-100"
+          leave-to-class="translate-y-2 opacity-0"
+        >
+          <div
+            v-if="hasErrors"
+            class="p-4 mb-6 border border-red-300 rounded-xl bg-red-50 dark:bg-red-900/20 dark:border-red-800"
+          >
+            <div class="flex items-start space-x-3">
+              <div class="flex-shrink-0">
+                <ExclamationTriangleIcon class="w-6 h-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div class="flex-1">
+                <h4 class="text-sm font-semibold text-red-800 dark:text-red-300">
+                  Por favor, corrija os seguintes erros:
+                </h4>
+                <ul class="mt-2 space-y-1 text-sm text-red-700 list-disc list-inside dark:text-red-300">
+                  <li v-for="(error, field) in form.errors" :key="field">
+                    <span class="font-medium">{{ getFieldLabel(field) }}:</span> {{ error }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </transition>
 
-          <input type="email" v-model="form.email" disabled
-            class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed dark:bg-dark-accent dark:text-dark-text-primary dark:border-gray-600" />
-
-          <p v-if="form.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.email }}
-          </p>
-        </div>
-
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-            Telefone
-          </label>
-
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <span class="text-gray-500 dark:text-gray-400">+258</span>
+        <form @submit.prevent="submitForm" class="space-y-6">
+          <!-- Card: Informações Básicas -->
+          <div class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-dark-secondary dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h4 class="text-lg font-semibold text-gray-900 dark:text-dark-text-primary">
+                Informações Básicas
+              </h4>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Dados principais do seu perfil
+              </p>
             </div>
 
-            <input type="text" v-model="phoneDisplay" @input="formatPhone" @paste="handlePhonePaste"
-              @keydown="handlePhoneKeydown" :disabled="!isEditing" placeholder="84 123 4567" maxlength="11" :class="[
-                'w-full pl-14 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-                form.errors.phone
-                  ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                  : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-                !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-              ]" />
+            <div class="p-6">
+              <div class="grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <!-- Nome Completo -->
+                <div class="lg:col-span-2">
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Nome Completo *
+                  </label>
+                  <input
+                    type="text"
+                    v-model="form.name"
+                    @input="checkForChanges"
+                    :disabled="!isEditing"
+                    :class="[
+                      'w-full px-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                      form.errors.name
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                      !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                    ]"
+                    placeholder="Digite seu nome completo"
+                  />
+                  <p v-if="form.errors.name" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.name }}
+                  </p>
+                </div>
+
+                <!-- Nome de Utilizador -->
+                <div>
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Nome de Utilizador *
+                  </label>
+                  <input
+                    type="text"
+                    v-model="form.username"
+                    @input="checkForChanges"
+                    :disabled="!isEditing"
+                    :class="[
+                      'w-full px-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                      form.errors.username
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                      !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                    ]"
+                    placeholder="Digite seu nome de utilizador"
+                  />
+                  <p v-if="form.errors.username" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.username }}
+                  </p>
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Email *
+                  </label>
+                  <div class="relative">
+                    <input
+                      type="email"
+                      v-model="form.email"
+                      disabled
+                      class="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg cursor-not-allowed bg-gray-50 opacity-60 dark:bg-gray-800 dark:text-dark-text-primary dark:border-gray-600"
+                      placeholder="seu@email.com"
+                    />
+                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                      <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    O email não pode ser alterado
+                  </p>
+                </div>
+
+                <!-- Telefone -->
+                <div class="lg:col-span-2">
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Telefone (Opcional)
+                  </label>
+                  <div class="relative">
+                    <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                      <span class="text-sm font-medium text-gray-500 dark:text-gray-400">+258</span>
+                    </div>
+                    <input
+                      type="text"
+                      v-model="phoneDisplay"
+                      @input="formatPhone"
+                      @paste="handlePhonePaste"
+                      @keydown="handlePhoneKeydown"
+                      :disabled="!isEditing"
+                      placeholder="84 123 4567"
+                      maxlength="11"
+                      :class="[
+                        'w-full pl-16 pr-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                        form.errors.phone
+                          ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                          : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                        !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                      ]"
+                    />
+                  </div>
+                  <p v-if="form.errors.phone" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.phone }}
+                  </p>
+                  <p v-else class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                    Formato: 84 123 4567
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <p v-if="form.errors.phone" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.phone }}
-          </p>
-        </div>
+          <!-- Card: Informações de Localização -->
+          <div class="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl dark:bg-dark-secondary dark:border-gray-700">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h4 class="text-lg font-semibold text-gray-900 dark:text-dark-text-primary">
+                Informações de Localização
+              </h4>
+              <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                Onde você está localizado
+              </p>
+            </div>
+
+            <div class="p-6">
+              <div class="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
+                <!-- Província -->
+                <div>
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Província *
+                  </label>
+                  <select
+                    v-model="form.province"
+                    @change="checkForChanges"
+                    :disabled="!isEditing"
+                    :class="[
+                      'w-full px-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                      form.errors.province
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                      !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                    ]"
+                  >
+                    <option value="">Selecionar Província</option>
+                    <option value="Maputo">Maputo</option>
+                    <option value="Gaza">Gaza</option>
+                    <option value="Inhambane">Inhambane</option>
+                    <option value="Sofala">Sofala</option>
+                    <option value="Manica">Manica</option>
+                    <option value="Zambézia">Zambézia</option>
+                    <option value="Nampula">Nampula</option>
+                    <option value="Cabo Delgado">Cabo Delgado</option>
+                    <option value="Niassa">Niassa</option>
+                    <option value="Tete">Tete</option>
+                  </select>
+                  <p v-if="form.errors.province" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.province }}
+                  </p>
+                </div>
+
+                <!-- Distrito -->
+                <div>
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Distrito *
+                  </label>
+                  <input
+                    type="text"
+                    v-model="form.district"
+                    @input="checkForChanges"
+                    :disabled="!isEditing"
+                    placeholder="Digite o Distrito"
+                    :class="[
+                      'w-full px-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                      form.errors.district
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                      !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                    ]"
+                  />
+                  <p v-if="form.errors.district" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.district }}
+                  </p>
+                </div>
+
+                <!-- Bairro -->
+                <div>
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Bairro *
+                  </label>
+                  <input
+                    type="text"
+                    v-model="form.neighborhood"
+                    @input="checkForChanges"
+                    :disabled="!isEditing"
+                    placeholder="Digite o Bairro"
+                    :class="[
+                      'w-full px-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                      form.errors.neighborhood
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                      !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                    ]"
+                  />
+                  <p v-if="form.errors.neighborhood" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.neighborhood }}
+                  </p>
+                </div>
+
+                <!-- Rua -->
+                <div>
+                  <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    Rua <span class="text-gray-400">(Opcional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    v-model="form.street"
+                    @input="checkForChanges"
+                    :disabled="!isEditing"
+                    placeholder="Digite a Rua"
+                    :class="[
+                      'w-full px-4 py-3 text-sm border rounded-lg transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary',
+                      form.errors.street
+                        ? 'border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-200'
+                        : 'border-gray-300 dark:border-gray-600 focus:border-brand focus:ring-2 focus:ring-orange-200 dark:focus:ring-orange-900',
+                      !isEditing ? 'bg-gray-50 dark:bg-gray-800 cursor-not-allowed opacity-60' : 'bg-white',
+                    ]"
+                  />
+                  <p v-if="form.errors.street" class="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    {{ form.errors.street }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
-
-      <h4 class="mb-4 text-lg font-semibold text-gray-800 dark:text-dark-text-primary">
-        Informações de Localização
-      </h4>
-      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Província *</label>
-          <select v-model="form.province" @change="checkForChanges" :disabled="!isEditing" :class="[
-              'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-              form.errors.province
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-              !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-            ]">
-            <option value="">Selecionar Província</option>
-            <option value="Maputo">Maputo</option>
-            <option value="Gaza">Gaza</option>
-            <option value="Inhambane">Inhambane</option>
-            <option value="Sofala">Sofala</option>
-            <option value="Manica">Manica</option>
-            <option value="Zambézia">Zambézia</option>
-            <option value="Nampula">Nampula</option>
-            <option value="Cabo Delgado">Cabo Delgado</option>
-            <option value="Niassa">Niassa</option>
-            <option value="Tete">Tete</option>
-          </select>
-          <p v-if="form.errors.province" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.province }}
-          </p>
-        </div>
-
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Distrito *</label>
-          <input type="text" v-model="form.district" @input="checkForChanges" :disabled="!isEditing"
-            :placeholder="'Digite o Distrito'" :class="[
-              'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-              form.errors.district
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-              !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-            ]" />
-
-          <p v-if="form.errors.district" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.district }}
-          </p>
-        </div>
-
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Bairro *</label>
-          <input type="text" v-model="form.neighborhood" @input="checkForChanges" :disabled="!isEditing" :class="[
-              'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-              form.errors.neighborhood
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-              !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-            ]" />
-          <p v-if="form.errors.neighborhood" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.neighborhood }}
-          </p>
-        </div>
-
-        <div>
-          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Rua (Opcional)</label>
-          <input type="text" v-model="form.street" @input="checkForChanges" :disabled="!isEditing" :class="[
-              'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
-              form.errors.street
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-300'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand',
-              !isEditing ? 'bg-gray-100 dark:bg-gray-700 cursor-not-allowed' : '',
-            ]" placeholder="Opcional" />
-          <p v-if="form.errors.street" class="mt-1 text-sm text-red-600 dark:text-red-400">
-            {{ form.errors.street }}
-          </p>
-        </div>
-      </div>
-
-      <div class="flex justify-end mt-8 space-x-3">
-        <!-- Botão Cancelar - aparece apenas no modo edição -->
-        <button v-if="isEditing" type="button" @click="cancelEdit" :disabled="form.processing"
-          class="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-gray-500 border border-gray-300 rounded dark:border-gray-600 dark:text-gray-300 hover:bg-gray-600 dark:hover:bg-gray-700">
-          <XMarkIcon class="w-4 h-4" />
-          <span>Cancelar</span>
-        </button>
-
-        <!-- Botão principal - alterna entre Editar e Guardar -->
-        <button type="button" v-if="!isEditing" @click="enableEditing"
-          class="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors rounded bg-brand hover:bg-orange-600">
-          <PencilIcon class="w-4 h-4" />
-          <span>Editar</span>
-        </button>
-
-        <button type="submit" v-else :disabled="form.processing || !hasChanges" :class="[
-            'px-6 py-2 rounded font-medium transition-colors flex items-center space-x-2 text-white',
-            form.processing || !hasChanges
-              ? 'bg-brand cursor-not-allowed'
-              : 'bg-brand hover:bg-orange-600',
-          ]">
-          <CheckIcon class="w-4 h-4" />
-          <span>{{ form.processing ? "A Guardar..." : "Guardar" }}</span>
-        </button>
-      </div>
-    </form>
+    </div>
   </div>
 </template>
 
@@ -624,7 +796,7 @@ const submitForm = () => {
   }
 
   // Usar o método patch do Inertia form
-  form.patch(route('profile.info'), {
+  form.post(route('profile.info'), {
     preserveScroll: true,
     preserveState: true,
     onSuccess: () => {
