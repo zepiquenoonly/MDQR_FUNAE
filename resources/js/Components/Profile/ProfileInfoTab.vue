@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white dark:bg-dark-secondary rounded shadow-sm p-6">
+  <div class="p-6 bg-white rounded shadow-sm dark:bg-dark-secondary">
     <div class="flex items-center justify-between mb-6">
       <h3 class="text-2xl font-semibold text-gray-800 dark:text-dark-text-primary">
         Informações Pessoais
@@ -15,7 +15,7 @@
 
     <!-- Mensagem de sucesso do Inertia -->
     <div v-if="$page.props.flash.success && !showSuccessModal"
-      class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+      class="p-4 mb-6 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800">
       <div class="flex items-center space-x-2 text-green-800 dark:text-green-300">
         <CheckCircleIcon class="w-5 h-5" />
         <span class="font-medium">{{ $page.props.flash.success }}</span>
@@ -24,12 +24,12 @@
 
     <!-- Mensagens de erro do formulário -->
     <div v-if="hasErrors"
-      class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-      <div class="flex items-center space-x-2 text-red-800 dark:text-red-300 mb-2">
+      class="p-4 mb-6 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+      <div class="flex items-center mb-2 space-x-2 text-red-800 dark:text-red-300">
         <ExclamationTriangleIcon class="w-5 h-5" />
         <span class="font-medium">Por favor, corrija os seguintes erros:</span>
       </div>
-      <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+      <ul class="space-y-1 text-sm text-red-700 list-disc list-inside dark:text-red-300">
         <li v-for="(error, field) in form.errors" :key="field">
           <span class="font-medium">{{ getFieldLabel(field) }}:</span> {{ error }}
         </li>
@@ -37,9 +37,9 @@
     </div>
 
     <form @submit.prevent="submitForm">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+      <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome Completo *</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome Completo *</label>
           <input type="text" v-model="form.name" @input="checkForChanges" :disabled="!isEditing" :class="[
               'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
               form.errors.name
@@ -53,7 +53,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome de Utilizador *</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome de Utilizador *</label>
           <input type="text" v-model="form.username" @input="checkForChanges" :disabled="!isEditing" :class="[
               'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
               form.errors.username
@@ -67,12 +67,12 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
             Email *
           </label>
 
           <input type="email" v-model="form.email" disabled
-            class="w-full px-4 py-3 border rounded-lg bg-gray-100 dark:bg-dark-accent cursor-not-allowed dark:text-dark-text-primary border-gray-300 dark:border-gray-600" />
+            class="w-full px-4 py-3 bg-gray-100 border border-gray-300 rounded-lg cursor-not-allowed dark:bg-dark-accent dark:text-dark-text-primary dark:border-gray-600" />
 
           <p v-if="form.errors.email" class="mt-1 text-sm text-red-600 dark:text-red-400">
             {{ form.errors.email }}
@@ -80,7 +80,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
             Telefone
           </label>
 
@@ -105,12 +105,12 @@
         </div>
       </div>
 
-      <h4 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-4">
+      <h4 class="mb-4 text-lg font-semibold text-gray-800 dark:text-dark-text-primary">
         Informações de Localização
       </h4>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Província *</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Província *</label>
           <select v-model="form.province" @change="checkForChanges" :disabled="!isEditing" :class="[
               'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
               form.errors.province
@@ -136,7 +136,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distrito *</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Distrito *</label>
           <input type="text" v-model="form.district" @input="checkForChanges" :disabled="!isEditing"
             :placeholder="'Digite o Distrito'" :class="[
               'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
@@ -152,7 +152,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bairro *</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Bairro *</label>
           <input type="text" v-model="form.neighborhood" @input="checkForChanges" :disabled="!isEditing" :class="[
               'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
               form.errors.neighborhood
@@ -166,7 +166,7 @@
         </div>
 
         <div>
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rua (Opcional)</label>
+          <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Rua (Opcional)</label>
           <input type="text" v-model="form.street" @input="checkForChanges" :disabled="!isEditing" :class="[
               'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
               form.errors.street
@@ -183,14 +183,14 @@
       <div class="flex justify-end mt-8 space-x-3">
         <!-- Botão Cancelar - aparece apenas no modo edição -->
         <button v-if="isEditing" type="button" @click="cancelEdit" :disabled="form.processing"
-          class="bg-gray-500 px-6 py-2 rounded font-medium transition-colors flex items-center space-x-2 border border-gray-300 dark:border-gray-600 text-white dark:text-gray-300 hover:bg-gray-600 dark:hover:bg-gray-700">
+          class="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors bg-gray-500 border border-gray-300 rounded dark:border-gray-600 dark:text-gray-300 hover:bg-gray-600 dark:hover:bg-gray-700">
           <XMarkIcon class="w-4 h-4" />
           <span>Cancelar</span>
         </button>
 
         <!-- Botão principal - alterna entre Editar e Guardar -->
         <button type="button" v-if="!isEditing" @click="enableEditing"
-          class="px-6 py-2 rounded font-medium transition-colors flex items-center space-x-2 bg-brand hover:bg-orange-600 text-white">
+          class="flex items-center px-6 py-2 space-x-2 font-medium text-white transition-colors rounded bg-brand hover:bg-orange-600">
           <PencilIcon class="w-4 h-4" />
           <span>Editar</span>
         </button>
@@ -226,18 +226,18 @@ const SuccessModal = {
   props: ["show", "title", "message"],
   emits: ["close"],
   template: `
-    <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-dark-secondary rounded-lg shadow-xl max-w-md w-full p-6">
+    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-xl dark:bg-dark-secondary">
         <div class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 dark:bg-green-900/30">
-            <CheckCircleIcon class="h-6 w-6 text-green-600 dark:text-green-400" />
+          <div class="flex items-center justify-center w-12 h-12 mx-auto bg-green-100 rounded-full dark:bg-green-900/30">
+            <CheckCircleIcon class="w-6 h-6 text-green-600 dark:text-green-400" />
           </div>
           <h3 class="mt-3 text-lg font-semibold text-gray-900 dark:text-dark-text-primary">{{ title }}</h3>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ message }}</p>
           <div class="mt-4">
             <button
               @click="$emit('close')"
-              class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-orange-500 hover:bg-orange-600 rounded-md transition-colors"
+              class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white transition-colors bg-orange-500 rounded-md hover:bg-orange-600"
             >
               Fechar
             </button>
@@ -254,18 +254,18 @@ const ErrorModal = {
   props: ["show", "title", "message"],
   emits: ["close"],
   template: `
-    <div v-if="show" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white dark:bg-dark-secondary rounded-lg shadow-xl max-w-md w-full p-6">
+    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div class="w-full max-w-md p-6 bg-white rounded-lg shadow-xl dark:bg-dark-secondary">
         <div class="text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30">
-            <XCircleIcon class="h-6 w-6 text-red-600 dark:text-red-400" />
+          <div class="flex items-center justify-center w-12 h-12 mx-auto bg-red-100 rounded-full dark:bg-red-900/30">
+            <XCircleIcon class="w-6 h-6 text-red-600 dark:text-red-400" />
           </div>
           <h3 class="mt-3 text-lg font-semibold text-gray-900 dark:text-dark-text-primary">{{ title }}</h3>
           <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">{{ message }}</p>
           <div class="mt-4">
             <button
               @click="$emit('close')"
-              class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-red-500 hover:bg-red-600 rounded-md transition-colors"
+              class="inline-flex justify-center px-4 py-2 text-sm font-medium text-white transition-colors bg-red-500 rounded-md hover:bg-red-600"
             >
               Fechar
             </button>
