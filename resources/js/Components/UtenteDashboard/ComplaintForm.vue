@@ -300,7 +300,7 @@
                                     <!-- Gênero -->
                                     <div class="space-y-2">
                                         <label class="block text-sm font-semibold text-gray-700">
-                                            Gênero <span class="text-gray-400 font-normal">(Estatística)</span>
+                                            Gênero<span class="text-red-500">*</span>
                                         </label>
                                         <div class="relative">
                                             <div class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 flex items-center justify-center">
@@ -308,8 +308,11 @@
                                                     <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
                                                 </svg>
                                             </div>
-                                            <select v-model="formData.gender"
-                                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white appearance-none">
+                                            <select v-model="formData.gender" @change="errors.gender = ''"
+                                                :class="[
+                                                    'w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 bg-white appearance-none transition-all',
+                                                    errors.gender ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                                ]">
                                                 <option value="">-- Selecione --</option>
                                                 <option value="Masculino">Masculino</option>
                                                 <option value="Feminino">Feminino</option>
@@ -321,6 +324,11 @@
                                                 </svg>
                                             </div>
                                         </div>
+                                            <p v-if="errors.gender" class="flex items-center text-xs text-red-500 mt-1">
+                                                <ExclamationCircleIcon class="w-4 h-4 mr-1" />
+                                                {{ errors.gender }}
+                                            </p>
+
                                     </div>
                                 </div>
                             </div>
@@ -1096,8 +1104,8 @@ const validateStep = () => {
     errors.value = {}
 
     if (currentStep.value === 1) {
-        // Validar dados pessoais apenas se NÃO for anónimo
-        if (!formData.value.is_anonymous) {
+        // Validar dados pessoais se identificado OU se optou por fornecer dados em anónimo
+        if (!formData.value.is_anonymous || showOptionalContact.value) {
             if (!formData.value.contact_name || formData.value.contact_name.trim().length < 3) {
                 errors.value.contact_name = 'Nome é obrigatório (mínimo 3 caracteres)'
             }
@@ -1105,6 +1113,9 @@ const validateStep = () => {
                 errors.value.contact_email = 'Email é obrigatório'
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.value.contact_email)) {
                 errors.value.contact_email = 'Email inválido'
+            }
+            if (!formData.value.gender) {
+                errors.value.gender = 'O Gênero é obrigatório'
             }
         }
     }
