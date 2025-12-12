@@ -1,15 +1,15 @@
 <template>
     <div class="space-y-6">
         <!-- Cabeçalho -->
-        <div class="glass-card p-6 flex items-center justify-between hover:shadow-2xl transition-all duration-300 border border-white/40">
+        <div class="flex items-center justify-between p-6 transition-all duration-300 border glass-card hover:shadow-2xl border-white/40">
             <div>
-                <h1 class="text-2xl sm:text-3xl font-bold gradient-text">Minhas Reclamações</h1>
-                <p class="text-sm text-gray-600 mt-1">Gerencie todas as suas submissões</p>
+                <h1 class="text-2xl font-bold sm:text-3xl gradient-text">Minhas Reclamações</h1>
+                <p class="mt-1 text-sm text-gray-600">Gerencie todas as suas submissões</p>
             </div>
             <button @click="showComplaintForm = true"
-                class="flex items-center gap-2 px-5 py-3 font-bold text-white bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 transition-all duration-300 rounded-xl shadow-lg hover:shadow-2xl hover:scale-105 border border-orange-400/30 relative overflow-hidden group">
-                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                <svg class="w-5 h-5 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="relative flex items-center gap-2 px-5 py-3 overflow-hidden font-bold text-white transition-all duration-300 border shadow-lg bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 rounded-xl hover:shadow-2xl hover:scale-105 border-orange-400/30 group">
+                <div class="absolute inset-0 transition-transform duration-700 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full"></div>
+                <svg class="relative z-10 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 <span class="relative z-10">Nova Reclamação</span>
@@ -21,9 +21,9 @@
         <GrievanceDetails v-if="selectedGrievance" :grievance="selectedGrievance" @close="selectedGrievance = null" />
 
         <!-- Notificações -->
-        <div v-if="notifications && notifications.length > 0" class="glass-card p-6 border-l-4 border-primary-500 hover:shadow-2xl transition-all duration-300 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-r from-primary-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            <div class="flex items-start relative z-10">
+        <div v-if="notifications && notifications.length > 0" class="relative p-6 overflow-hidden transition-all duration-300 border-l-4 glass-card border-primary-500 hover:shadow-2xl group">
+            <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-r from-primary-500/5 to-blue-500/5 group-hover:opacity-100"></div>
+            <div class="relative z-10 flex items-start">
                 <div class="flex-shrink-0 p-2 bg-primary-50 rounded-xl">
                     <svg class="w-5 h-5 text-primary-600" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
@@ -35,12 +35,12 @@
                     </p>
                     <div class="mt-3 space-y-2">
                         <div v-for="notification in notifications.slice(0, 3)" :key="notification.id"
-                            class="text-sm text-gray-700 flex items-center gap-2">
+                            class="flex items-center gap-2 text-sm text-gray-700">
                             <div class="w-1.5 h-1.5 bg-primary-500 rounded-full"></div>
                             {{ notification.subject }}
                         </div>
                     </div>
-                    <button @click="markAllNotificationsRead" class="mt-4 px-4 py-2 text-sm font-semibold text-white bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 rounded-lg transition-all duration-300 hover:scale-105 shadow-md hover:shadow-lg">
+                    <button @click="markAllNotificationsRead" class="px-4 py-2 mt-4 text-sm font-semibold text-white transition-all duration-300 rounded-lg shadow-md bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 hover:scale-105 hover:shadow-lg">
                         Marcar todas como lidas
                     </button>
                 </div>
@@ -48,24 +48,24 @@
         </div>
 
         <!-- Loading State -->
-        <div v-if="loading" class="glass-card p-12 text-center hover:shadow-2xl transition-all duration-300 border border-white/40">
-            <div class="w-16 h-16 mx-auto mb-6 border-4 border-primary-500 rounded-full animate-spin border-t-transparent"></div>
+        <div v-if="loading" class="p-12 text-center transition-all duration-300 border glass-card hover:shadow-2xl border-white/40">
+            <div class="w-16 h-16 mx-auto mb-6 border-4 rounded-full border-primary-500 animate-spin border-t-transparent"></div>
             <p class="text-lg font-semibold text-gray-800">Carregando suas reclamações...</p>
-            <p class="text-sm text-gray-600 mt-2">Aguarde um momento</p>
+            <p class="mt-2 text-sm text-gray-600">Aguarde um momento</p>
         </div>
 
         <!-- Error State -->
-        <div v-else-if="error" class="glass-card p-8 text-center hover:shadow-2xl transition-all duration-300 border border-red-200 relative overflow-hidden group">
-            <div class="absolute inset-0 bg-gradient-to-br from-red-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div v-else-if="error" class="relative p-8 overflow-hidden text-center transition-all duration-300 border border-red-200 glass-card hover:shadow-2xl group">
+            <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-br from-red-500/5 to-orange-500/5 group-hover:opacity-100"></div>
             <div class="relative z-10">
-                <div class="p-4 bg-red-50 rounded-2xl inline-block mb-4">
+                <div class="inline-block p-4 mb-4 bg-red-50 rounded-2xl">
                     <svg class="w-12 h-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                     </svg>
                 </div>
                 <p class="mb-2 text-xl font-bold text-gray-900">Erro ao carregar reclamações</p>
                 <p class="mb-6 text-gray-600">{{ error }}</p>
-                <button @click="loadGrievances" class="px-6 py-3 font-semibold text-white bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 rounded-xl transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-2xl border border-orange-400/30">
+                <button @click="loadGrievances" class="px-6 py-3 font-semibold text-white transition-all duration-300 border shadow-lg bg-gradient-to-r from-primary-500 to-orange-600 hover:from-primary-600 hover:to-orange-700 rounded-xl hover:scale-105 hover:shadow-2xl border-orange-400/30">
                     Tentar novamente
                 </button>
             </div>
@@ -74,39 +74,39 @@
         <!-- Content -->
         <template v-else>
             <!-- Cartões de Estatísticas -->
-            <div class="grid grid-cols-1 gap-4 sm:gap-6 mb-8 md:grid-cols-2 xl:grid-cols-4">
-                <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-primary-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div class="grid grid-cols-1 gap-4 mb-8 sm:gap-6 md:grid-cols-2 xl:grid-cols-4">
+                <div class="relative p-6 overflow-hidden transition-all duration-300 border glass-card hover:shadow-2xl hover:scale-105 group border-white/40">
+                    <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-br from-primary-500/5 to-orange-500/5 group-hover:opacity-100"></div>
                     <div class="relative z-10">
-                        <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-primary-700 transition-colors">Total de Reclamações</h3>
-                        <div class="mb-1 text-4xl font-bold gradient-text group-hover:scale-110 transition-transform origin-left">{{ stats.total || 0 }}</div>
+                        <h3 class="mb-2 text-sm font-semibold text-gray-700 transition-colors group-hover:text-primary-700">Total de Reclamações</h3>
+                        <div class="mb-1 text-4xl font-bold transition-transform origin-left gradient-text group-hover:scale-110">{{ stats.total || 0 }}</div>
                     </div>
                 </div>
-                <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative p-6 overflow-hidden transition-all duration-300 border glass-card hover:shadow-2xl hover:scale-105 group border-white/40">
+                    <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 group-hover:opacity-100"></div>
                     <div class="relative z-10">
-                        <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-green-700 transition-colors">Resolvidas</h3>
-                        <div class="mb-1 text-4xl font-bold text-green-600 group-hover:scale-110 transition-transform origin-left">{{ stats.resolved || 0 }}</div>
+                        <h3 class="mb-2 text-sm font-semibold text-gray-700 transition-colors group-hover:text-green-700">Resolvidas</h3>
+                        <div class="mb-1 text-4xl font-bold text-green-600 transition-transform origin-left group-hover:scale-110">{{ stats.resolved || 0 }}</div>
                     </div>
                 </div>
-                <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative p-6 overflow-hidden transition-all duration-300 border glass-card hover:shadow-2xl hover:scale-105 group border-white/40">
+                    <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-br from-orange-500/5 to-amber-500/5 group-hover:opacity-100"></div>
                     <div class="relative z-10">
-                        <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-orange-700 transition-colors">Em Progresso</h3>
-                        <div class="mb-1 text-4xl font-bold text-orange-600 group-hover:scale-110 transition-transform origin-left">{{ stats.in_progress || 0 }}</div>
+                        <h3 class="mb-2 text-sm font-semibold text-gray-700 transition-colors group-hover:text-orange-700">Em Progresso</h3>
+                        <div class="mb-1 text-4xl font-bold text-orange-600 transition-transform origin-left group-hover:scale-110">{{ stats.in_progress || 0 }}</div>
                     </div>
                 </div>
-                <div class="glass-card p-6 transition-all duration-300 hover:shadow-2xl hover:scale-105 group border border-white/40 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div class="relative p-6 overflow-hidden transition-all duration-300 border glass-card hover:shadow-2xl hover:scale-105 group border-white/40">
+                    <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 group-hover:opacity-100"></div>
                     <div class="relative z-10">
-                        <h3 class="mb-2 text-sm font-semibold text-gray-700 group-hover:text-blue-700 transition-colors">Pendentes</h3>
-                        <div class="mb-1 text-4xl font-bold text-blue-600 group-hover:scale-110 transition-transform origin-left">{{ stats.submitted || 0 }}</div>
+                        <h3 class="mb-2 text-sm font-semibold text-gray-700 transition-colors group-hover:text-blue-700">Pendentes</h3>
+                        <div class="mb-1 text-4xl font-bold text-blue-600 transition-transform origin-left group-hover:scale-110">{{ stats.submitted || 0 }}</div>
                     </div>
                 </div>
             </div>
 
             <!-- Filtros -->
-            <div class="glass-card p-6 mb-6 hover:shadow-2xl transition-all duration-300 border border-white/40">
+            <div class="p-6 mb-6 transition-all duration-300 border glass-card hover:shadow-2xl border-white/40">
                 <div class="flex items-center gap-2 mb-4">
                     <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
@@ -158,14 +158,14 @@
             </div>
 
             <!-- Tabela de Reclamações -->
-            <div class="glass-card overflow-hidden hover:shadow-2xl transition-all duration-300 border border-white/40">
+            <div class="overflow-hidden transition-all duration-300 border glass-card hover:shadow-2xl border-white/40">
                 <div v-if="grievances.data && grievances.data.length === 0" class="py-16 text-center">
-                    <div class="p-6 bg-gray-50 rounded-2xl inline-block mb-4">
+                    <div class="inline-block p-6 mb-4 bg-gray-50 rounded-2xl">
                         <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
                     </div>
-                    <p class="text-xl font-bold text-gray-900 mb-2">Nenhuma reclamação encontrada</p>
+                    <p class="mb-2 text-xl font-bold text-gray-900">Nenhuma reclamação encontrada</p>
                     <p class="text-gray-600">Clique em "Nova Reclamação" para criar uma.</p>
                 </div>
 
@@ -181,13 +181,13 @@
                                 <th class="px-6 py-4 text-xs font-bold tracking-wider text-left text-gray-700 uppercase">Ações</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white/50 backdrop-blur-sm divide-y divide-gray-100">
+                        <tbody class="divide-y divide-gray-100 bg-white/50 backdrop-blur-sm">
                             <tr v-for="grievance in grievances.data" :key="grievance.id" class="transition-all duration-200 hover:bg-primary-50/50 group">
                                 <td class="px-6 py-4 text-sm font-bold text-gray-900 whitespace-nowrap">
                                     {{ grievance.reference_number }}
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-semibold text-gray-900 group-hover:text-primary-700 transition-colors">{{ grievance.category }}</div>
+                                    <div class="text-sm font-semibold text-gray-900 transition-colors group-hover:text-primary-700">{{ grievance.category }}</div>
                                     <div v-if="grievance.subcategory" class="text-xs text-gray-500">{{ grievance.subcategory }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -205,7 +205,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm font-medium whitespace-nowrap">
                                     <button @click="viewDetails(grievance)"
-                                        class="px-4 py-2 font-semibold text-primary-600 hover:text-white hover:bg-gradient-to-r from-primary-500 to-orange-600 rounded-lg transition-all duration-300 hover:scale-105 border border-primary-200 hover:border-transparent shadow-sm hover:shadow-md">
+                                        class="px-4 py-2 font-semibold transition-all duration-300 border rounded-lg shadow-sm text-primary-600 hover:text-white hover:bg-gradient-to-r from-primary-500 to-orange-600 hover:scale-105 border-primary-200 hover:border-transparent hover:shadow-md">
                                         Ver detalhes
                                     </button>
                                 </td>
@@ -216,11 +216,11 @@
 
                 <!-- Paginação -->
                 <div v-if="grievances.data && grievances.data.length > 0" class="px-6 py-5 border-t border-gray-200 bg-gradient-to-r from-gray-50/80 to-primary-50/30 backdrop-blur-sm">
-                    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="flex flex-col items-center justify-between gap-4 sm:flex-row">
                         <div class="text-sm font-semibold text-gray-700">
                             Mostrando <span class="text-primary-600">{{ grievances.from }}</span> a <span class="text-primary-600">{{ grievances.to }}</span> de <span class="text-primary-600">{{ grievances.total }}</span> resultados
                         </div>
-                        <div class="flex flex-wrap gap-2 justify-center">
+                        <div class="flex flex-wrap justify-center gap-2">
                             <button v-for="link in grievances.links" :key="link.label"
                                 @click="goToPage(link.url)"
                                 :disabled="!link.url"
@@ -265,8 +265,8 @@ const page = usePage()
 
 // Usar dados do backend ou props
 const complaintsData = computed(() => {
-    return props.complaints?.length > 0 
-        ? props.complaints 
+    return props.complaints?.length > 0
+        ? props.complaints
         : (page.props.complaints || [])
 })
 
@@ -322,15 +322,15 @@ const loadGrievances = async () => {
         if (page.props.stats) {
             stats.value = page.props.stats
         }
-        
+
         if (page.props.grievances) {
             grievances.value = page.props.grievances
         }
-        
+
         if (page.props.notifications) {
             notifications.value = page.props.notifications
         }
-        
+
         loading.value = false
     } catch (err) {
         error.value = err.message
