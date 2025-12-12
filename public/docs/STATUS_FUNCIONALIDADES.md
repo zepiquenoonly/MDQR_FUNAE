@@ -23,7 +23,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 06 | Dashboard de Utente |  ✅ Implementado |
 | Fluxo 07 | Dashboard de Gestor |  ✅ Implementado |
 | Fluxo 08 | Dashboard de Técnico | ✅ Implementado |
-| Fluxo 09 | Dashboard de Director | ❌ Por Implementar |
+| Fluxo 09 | Dashboard de Director | ✅ Implementado |
 | Fluxo 10 | Dashboard de PCA | ✅ Implementado  |
 | Fluxo 11 | Sistema de Anexos | ✅ Implementado |
 | Fluxo 12 | Downloads de Evidências | ✅ Implementado |
@@ -152,6 +152,26 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 - Exportação avançada customizada
 - Relatórios customizados por perfil
+
+
+## Fluxo 9: Dashboard de Director
+
+### Implementado (Fluxo 9)
+
+- **Dashboard Executivo**: 
+  - Visão geral com métricas críticas (Reclamações Pendentes, Críticas, Taxa de Resolução).
+  - Gráficos interativos (Distribuição por Status, Tipo, Prioridade e Tendências Mensais).
+  - Ações rápidas para validação e visualização de casos críticos.
+- **Gestão de Equipe e Departamentos**: 
+  - **Gestão de Gestores**: Acompanhamento de desempenho individual (casos atribuídos, resolvidos, tempo médio).
+  - **Gestão de Províncias**: Estatísticas detalhadas por província com comparativos de desempenho.
+- **Relatórios e Inteligência**: 
+  - **Sistema de Relatórios**: Geração e exportação de relatórios estatísticos (PDF/Excel).
+  - **KPIs Avançados**: Indicadores operacionais (tempo de resposta, conformidade) e financeiros.
+  - **Análise de Tendências**: Visualização de evolução de casos ao longo do tempo (filtros por período: semana, mês, trimestre, ano).
+- **Integração Completa**: 
+  - Rotas protegidas e exclusivas para perfil Director.
+  - API dedicada para fornecimento de dados em tempo real.
 
 ## Fluxo 10: Dashboard de PCA (Reimaginado)
 
@@ -301,6 +321,64 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ **Logs detalhados** *(implementado em 08/12/2025)*
 - ✅ **Exclusão do diretório uploads** *(implementado em 08/12/2025)*
 
+
+## Fluxo 16: Admin Dashboard e Gestão de Departamentos
+
+### Implementado (Fluxo 16)
+
+- **Dashboard Administrativo Completo** *(interface dinâmica com estatísticas em tempo real)*
+- **Gestão de Departamentos** *(5 departamentos com estrutura organizacional completa)*
+- **Alocação de Usuários** *(37 usuários distribuídos entre departamentos)*
+- **Relações Departamento-Projeto** *(9 projectos vinculados a departamentos)*
+- **Sistema de Workload para Técnicos** *(campos específicos para gestão de carga de trabalho)*
+- **Permissões Granulares** *(acções baseadas em permissões do usuário)*
+- **Seeders Avançados** *(criação automática de estrutura organizacional)*
+- **Redirecionamento Inteligente** *(Admin/Super Admin → admin.dashboard)*
+- **Menu Lateral Dinâmico** *(navegação específica para role Admin)*
+- **Estatísticas em Tempo Real** *(contadores dinâmicos de recursos do sistema)*
+
+### Estrutura de Departamentos Criada
+
+| Departamento | Director | Gestores | Técnicos | Projectos |
+|--------------|----------|----------|----------|-----------|
+| Infraestrutura e Construção | Director de Infraestrutura | 3 | 5 | 3 |
+| Energia e Electrificação | Director de Energia | 2 | 5 | 2 |
+| Água e Saneamento | Director de Água e Saneamento | 2 | 3 | 2 |
+| Educação e Desenvolvimento Social | Director de Educação | 1 | 2 | 1 |
+| Saúde Pública | Director de Saúde | 1 | 2 | 1 |
+
+### Distribuição de Usuários
+
+- **Total de Usuários**: 37
+- **Admin**: 1
+- **Super Admin**: 1
+- **PCA**: 1
+- **Director**: 6
+- **Gestor**: 9
+- **Técnico**: 17 (todos com workload configurado)
+- **Utente**: 2
+
+### Campos de Workload (Técnicos)
+
+- `workload_capacity`: 10 (capacidade máxima de casos)
+- `current_workload`: 0-5 (carga atual aleatória)
+- `is_available`: true (disponível para alocação)
+- **Outros usuários**: Todos os campos NULL
+
+### Concluído (Fluxo 16) - Implementado recentemente
+
+- ✅ **Admin Dashboard completo** *(implementado em 10/12/2025)*
+- ✅ **Sistema de Departamentos** *(implementado em 10/12/2025)*
+- ✅ **Alocação de Usuários** *(implementado em 10/12/2025)*
+- ✅ **Relações Departamento-Projeto** *(implementado em 10/12/2025)*
+- ✅ **Workload para Técnicos** *(implementado em 11/12/2025)*
+- ✅ **Seeders Organizacionais** *(implementado em 10-11/12/2025)*
+- ✅ **Permissões Granulares** *(implementado em 10/12/2025)*
+- ✅ **Migrations de Relacionamento** *(implementado em 10/12/2025)*
+- ✅ **Modelos Atualizados** *(implementado em 10/12/2025)*
+- ✅ **Redirecionamento Admin** *(implementado em 10/12/2025)*
+
+
 ## Estados da Reclamação
 
 | Estado                  | Descrição | Estado |
@@ -444,61 +522,18 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - **Routing e Filtragem por Departamento**: Gestores agora visualizam no dashboard apenas as reclamações associadas a projectos do seu departamento específico, garantindo segregação de acesso e foco.
 - **Auto-Reset de Campos**: Implementada lógica de limpeza automática de campos dependentes (ex: mudar província limpa distrito) e dados pessoais ao alternar modos.
 
-## Fluxo 16: Admin Dashboard e Gestão de Departamentos
+## Novas funcionalidades (12/12/2025)
 
-### Implementado (Fluxo 16)
-
-- **Dashboard Administrativo Completo** *(interface dinâmica com estatísticas em tempo real)*
-- **Gestão de Departamentos** *(5 departamentos com estrutura organizacional completa)*
-- **Alocação de Usuários** *(37 usuários distribuídos entre departamentos)*
-- **Relações Departamento-Projeto** *(9 projectos vinculados a departamentos)*
-- **Sistema de Workload para Técnicos** *(campos específicos para gestão de carga de trabalho)*
-- **Permissões Granulares** *(acções baseadas em permissões do usuário)*
-- **Seeders Avançados** *(criação automática de estrutura organizacional)*
-- **Redirecionamento Inteligente** *(Admin/Super Admin → admin.dashboard)*
-- **Menu Lateral Dinâmico** *(navegação específica para role Admin)*
-- **Estatísticas em Tempo Real** *(contadores dinâmicos de recursos do sistema)*
-
-### Estrutura de Departamentos Criada
-
-| Departamento | Director | Gestores | Técnicos | Projectos |
-|--------------|----------|----------|----------|-----------|
-| Infraestrutura e Construção | Director de Infraestrutura | 3 | 5 | 3 |
-| Energia e Electrificação | Director de Energia | 2 | 5 | 2 |
-| Água e Saneamento | Director de Água e Saneamento | 2 | 3 | 2 |
-| Educação e Desenvolvimento Social | Director de Educação | 1 | 2 | 1 |
-| Saúde Pública | Director de Saúde | 1 | 2 | 1 |
-
-### Distribuição de Usuários
-
-- **Total de Usuários**: 37
-- **Admin**: 1
-- **Super Admin**: 1
-- **PCA**: 1
-- **Director**: 6
-- **Gestor**: 9
-- **Técnico**: 17 (todos com workload configurado)
-- **Utente**: 2
-
-### Campos de Workload (Técnicos)
-
-- `workload_capacity`: 10 (capacidade máxima de casos)
-- `current_workload`: 0-5 (carga atual aleatória)
-- `is_available`: true (disponível para alocação)
-- **Outros usuários**: Todos os campos NULL
-
-### Concluído (Fluxo 16) - Implementado recentemente
-
-- ✅ **Admin Dashboard completo** *(implementado em 10/12/2025)*
-- ✅ **Sistema de Departamentos** *(implementado em 10/12/2025)*
-- ✅ **Alocação de Usuários** *(implementado em 10/12/2025)*
-- ✅ **Relações Departamento-Projeto** *(implementado em 10/12/2025)*
-- ✅ **Workload para Técnicos** *(implementado em 11/12/2025)*
-- ✅ **Seeders Organizacionais** *(implementado em 10-11/12/2025)*
-- ✅ **Permissões Granulares** *(implementado em 10/12/2025)*
-- ✅ **Migrations de Relacionamento** *(implementado em 10/12/2025)*
-- ✅ **Modelos Atualizados** *(implementado em 10/12/2025)*
-- ✅ **Redirecionamento Admin** *(implementado em 10/12/2025)*
+- **Fluxo 9 (Dashboard de Director) Concluído**: Implementação total do dashboard para Directors, incluindo:
+    - **Dashboard Executivo**: Métricas de resolução, pendências e satisfação.
+    - **Gestão de Províncias e Gestores**: Acompanhamento detalhado de desempenho por região e membro da equipe.
+    - **Relatórios**: Geração de relatórios estatísticos e indicadores de desempenho.
+- **Modal de Submissão**: Correção de comportamento onde o modal fechava prematuramente antes da confirmação. Implementada exibição correta de mensagens de sucesso/erro e bloqueio de fechamento acidental.
+- **Integração Dashboard Utente**:
+    - **Acesso Rápido**: Adicionado modal de submissão direto via "Nova Reclamação" em QuickActions.
+    - **UX Simplificada**: Removido botão redundante "Minhas Reclamações" e coluna de ações da tabela de resumo para interface mais limpa.
+    - **Atualização em Tempo Real**: Recarregamento automático de estatísticas e lista de submissões após nova submissão com sucesso.
+- **Backend (GrievanceController)**: Refinamento na lógica de associação de usuários. O sistema agora preenche automaticamente dados de contato e associa o `user_id` para usuários autenticados, mantendo a consistência dos dados.
 
 ## Correções e Melhorias (12/12/2025)
 
