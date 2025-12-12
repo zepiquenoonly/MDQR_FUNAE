@@ -90,7 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('director')->name('director.')->group(function () {
         // Dashboard principal
         Route::get('/dashboard', [DirectorDashboardController::class, 'dashboard'])->name('dashboard');
-        
+
         Route::get('/dashboard/api', [DirectorDashboardController::class, 'dashboardApi'])->name('dashboard.api');
 
         // Submissões (reclamações)
@@ -105,26 +105,26 @@ Route::middleware('auth')->group(function () {
         Route::post('/complaints/{id}/comment', [DirectorComplaintsController::class, 'addComment'])->name('complaints.comment');
         Route::post('/complaints/{id}/reject', [DirectorComplaintsController::class, 'rejectCase'])->name('complaints.reject');
         Route::post('/complaints/{id}/analyze', [DirectorComplaintsController::class, 'analyzeCase'])->name('complaints.analyze');
-        
+
         // Gestão de funcionários (equipe)
         Route::get('/managers', [ManagerDashboardController::class])->name('managers.index');
         Route::get('/team/{id}', [DirectorTeamController::class, 'show'])->name('team.show');
         Route::get('/team/{id}/edit', [DirectorTeamController::class, 'edit'])->name('team.edit');
         Route::post('/team', [DirectorTeamController::class, 'store'])->name('team.store');
         Route::patch('/team/{id}', [DirectorTeamController::class, 'update'])->name('team.update');
-        
+
         // Indicadores
         Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
-        
+
         // Rota para atualizar status de reclamação
         Route::patch('/complaints/{id}/update', [DirectorComplaintsController::class, 'update'])->name('complaints.update');
-        
+
         // Rota para atribuir reclamação
         Route::post('/complaints/{id}/assign', [DirectorComplaintsController::class, 'assign'])->name('complaints.assign');
-        
+
         // Rota para toggle status de funcionário
         Route::patch('/team/{id}/toggle-status', [DirectorTeamController::class, 'toggleStatus'])->name('team.toggle-status');
-        
+
         // Rota para remover funcionário
         Route::delete('/team/{id}', [DirectorTeamController::class, 'destroy'])->name('team.destroy');
     });
@@ -188,7 +188,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/notifications', [ProfileController::class, 'edit'])->name('notifications');
         Route::get('/preferences', [ProfileController::class, 'edit'])->name('preferences');
 
-        Route::patch('/info', [ProfileController::class, 'update'])->name('update');
+        Route::post('/infoUpdate', [ProfileController::class, 'update'])->name('update');
         Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('update.password');
         Route::delete('/account', [ProfileController::class, 'destroy'])->name('destroy');
 
@@ -303,7 +303,7 @@ Route::prefix('manager/projects')->group(function () {
     Route::post('/grievances', [GrievanceController::class, 'store'])->name('grievances.store');
     Route::get('/grievances/{grievance}', [GrievanceController::class, 'show'])->name('grievances.show');
     Route::get('/grievances/track', [GrievanceController::class, 'track'])->name('grievances.track.api');
-    
+
     // API de localizações e categorias
     Route::get('/api/categories', [GrievanceController::class, 'getCategories'])->name('api.categories');
 
@@ -318,13 +318,13 @@ Route::get('/reclamacoes/acompanhar', function () {
 
 Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'dashboard'])->name('dashboard');
-    
+
     // Users CRUD
     Route::resource('users', \App\Http\Controllers\UserController::class);
-    
+
     // Departments CRUD
     Route::resource('departments', \App\Http\Controllers\DepartmentController::class);
-    
+
     // Projects CRUD
     Route::get('projects', [\App\Http\Controllers\AdminDashboardController::class, 'indexProjects'])->name('projects.index');
     Route::get('projects/create', [\App\Http\Controllers\AdminDashboardController::class, 'createProject'])->name('projects.create');
