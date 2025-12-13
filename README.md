@@ -12,6 +12,12 @@
 - 🧭 **Menu Unificado**: Links diretos para dashboards por função (Admin, Director, Gestor, PCA, Técnico, Utente)
 - 🚀 **Navegação Otimizada**: Rotas explícitas no menu lateral para acesso rápido aos painéis
 
+#### Finalização de Dashboards e UX (12/12/2025)
+- 📈 **Dashboard Director Completo**: Implementação total com métricas executivas e gestão de províncias
+- ⚡ **Acesso Rápido Utente**: Novo modal de submissão direta e UX simplificada no dashboard
+- 🛠️ **Estabilidade do Modal**: Correções críticas no fechamento e feedback do modal de submissão
+- 🔄 **Lógica de Associação**: Melhoria no preenchimento automático de dados para usuários autenticados
+
 #### Sistema de Anexos Aprimorado (08/12/2025)
 - 📎 **Visualização inline de anexos**: Preview direto de imagens, PDFs e áudios no navegador
 - 🔊 **Suporte expandido para áudio**: Tipos de ficheiros de áudio adicionais suportados (MP3, WAV, OGG)
