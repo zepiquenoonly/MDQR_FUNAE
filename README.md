@@ -8,6 +8,10 @@
 
 ### Dezembro 2025
 
+#### Melhorias de Navegação (13/12/2025)
+- 🧭 **Menu Unificado**: Links diretos para dashboards por função (Admin, Director, Gestor, PCA, Técnico, Utente)
+- 🚀 **Navegação Otimizada**: Rotas explícitas no menu lateral para acesso rápido aos painéis
+
 #### Sistema de Anexos Aprimorado (08/12/2025)
 - 📎 **Visualização inline de anexos**: Preview direto de imagens, PDFs e áudios no navegador
 - 🔊 **Suporte expandido para áudio**: Tipos de ficheiros de áudio adicionais suportados (MP3, WAV, OGG)
@@ -457,6 +461,6 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 ---
 
 **Versão:** 1.2  
-**Última Atualização:** 11 de Dezembro de 2025  
+**Última Atualização:** 13 de Dezembro de 2025  
 **Status:** ✅ Em Produção
 

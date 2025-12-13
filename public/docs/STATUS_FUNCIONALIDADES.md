@@ -3,7 +3,7 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 11/12/2025
+**Última atualização:** 13/12/2025
 
 ## Legenda de Status
 
@@ -543,3 +543,8 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
     - **UX Simplificada**: Removido botão redundante "Minhas Reclamações" e coluna de ações da tabela de resumo para interface mais limpa.
     - **Atualização em Tempo Real**: Recarregamento automático de estatísticas e lista de submissões após nova submissão com sucesso.
 - **Backend (GrievanceController)**: Refinamento na lógica de associação de usuários. O sistema agora preenche automaticamente dados de contato e associa o `user_id` para usuários autenticados, mantendo a consistência dos dados.
+
+## Novas funcionalidades (13/12/2025)
+
+- **Menu Unificado com Links Diretos**: Substituição do link genérico "Dashboard" por links específicos para cada papel (Admin, Director, Gestor, PCA, Técnico, Utente) no menu lateral, facilitando a navegação direta para os painéis apropriados.
+- **Melhoria na UX de Navegação**: Usuários com múltiplos papéis ou permissões podem ter acesso facilitado aos seus respectivos dashboards através de rotas explícitas no menu.
