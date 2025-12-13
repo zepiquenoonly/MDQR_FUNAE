@@ -113,13 +113,8 @@
           © 2025 FUNAE. Todos os direitos reservados.
         </p>
         <div class="flex space-x-6 items-center">
-          <a class="text-white/70 hover:text-white text-sm">Termos de Serviço</a>
-          <a class="text-white/70 hover:text-white text-sm">Política de Privacidade</a>
-          <a
-            href="/email-test"
-            class="text-white/50 hover:text-white/70 text-xs opacity-50"
-            >Teste Email</a
-          >
+          <a href="#" class="text-white/70 hover:text-white transition-colors text-sm">Termos de Serviço</a>
+          <a href="#" class="text-white/70 hover:text-white transition-colors text-sm">Política de Privacidade</a>
         </div>
       </div>
     </div>
