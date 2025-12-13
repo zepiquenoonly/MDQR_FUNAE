@@ -18,7 +18,7 @@
           </div>
           <div class="hidden md:block border-l border-gray-200 pl-4">
             <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
-            <p class="text-sm text-gray-500">Painel de Administração</p>
+            <p class="text-sm text-gray-500">Painel de Usuário</p>
           </div>
         </div>
       </div>
