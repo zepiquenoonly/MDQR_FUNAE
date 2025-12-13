@@ -44,7 +44,6 @@
     />
 
     <template v-if="role === 'manager'">
-
       <!-- Técnicos -->
       <MenuItem
         :active="$page.url.startsWith('/gestor/technicians')"
@@ -80,22 +79,22 @@
       />
 
       <!-- Funcionários -->
-      <MenuItem
+      <!-- <MenuItem
         :active="$page.url.startsWith('/gestor/technicians')"
         :icon="UserGroupIcon"
         :text="'Funcionários'"
         href="/gestor/technicians"
-      />
+      /> -->
     </template>
 
     <template v-if="role === 'pca'">
       <!-- Indicadores -->
-      <MenuItem
+      <!-- <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
         :text="'Indicadores'"
         href="/gestor/estatisticas"
-      />
+      /> -->
     </template>
 
     <template v-if="role === 'admin'">
