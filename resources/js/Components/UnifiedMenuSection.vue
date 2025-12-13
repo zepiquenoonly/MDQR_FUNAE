@@ -44,34 +44,12 @@
     />
 
     <template v-if="role === 'manager'">
-      <!-- Gestão de Projectos -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-      >
-        Gestão de Projectos
-      </div>
-
-      <!-- Projectos -->
-      <MenuItem
-        :active="false"
-        :icon="BriefcaseIcon"
-        :text="'Projectos'"
-        @click="() => emitItem('projectos')"
-      />
 
       <!-- Técnicos -->
       <MenuItem
-        :active="false"
-        :icon="UserGroupIcon"
-        :text="'Técnicos'"
-        @click="() => emitItem('tecnicos')"
-      />
-
-      <!-- Funcionários -->
-      <MenuItem
         :active="$page.url.startsWith('/gestor/technicians')"
         :icon="UserGroupIcon"
-        :text="'Funcionários'"
+        :text="'Técnicos'"
         href="/gestor/technicians"
       />
 
@@ -84,17 +62,9 @@
 
       <!-- Estatísticas -->
       <MenuItem
-        :active="false"
-        :icon="ChartBarIcon"
-        :text="'Estatísticas'"
-        @click="() => emitItem('estatisticas')"
-      />
-
-      <!-- Indicadores -->
-      <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
-        :text="'Indicadores'"
+        :text="'Estatísticas'"
         href="/gestor/estatisticas"
       />
     </template>
