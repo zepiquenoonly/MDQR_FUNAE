@@ -53,13 +53,6 @@
         href="/gestor/technicians"
       />
 
-      <!-- Relatórios Section -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-      >
-        Relatórios
-      </div>
-
       <!-- Estatísticas -->
       <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
@@ -96,36 +89,13 @@
     </template>
 
     <template v-if="role === 'pca'">
-      <!-- Projectos -->
-      <!-- <MenuItem
-        :active="false"
-        :icon="BriefcaseIcon"
-        :text="'Projectos'"
-        @click="() => emitItem('projectos')"
-      /> -->
-
-      <!-- Relatórios Section -->
-      <!-- <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-      >
-        Relatórios
-      </div> -->
-
-      <!-- Estatísticas -->
-      <!-- <MenuItem
-        :active="false"
+      <!-- Indicadores -->
+      <MenuItem
+        :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
-        :text="'Estatísticas'"
-        @click="() => emitItem('estatisticas')"
-      /> -->
-
-      <!-- Gestão de Usuários -->
-      <!-- <MenuItem
-        :active="false"
-        :icon="UsersIcon"
-        :text="'Usuários'"
-        @click="() => emitItem('usuarios')"
-      /> -->
+        :text="'Indicadores'"
+        href="/gestor/estatisticas"
+      />
     </template>
 
     <template v-if="role === 'admin'">
@@ -159,6 +129,15 @@
         :text="'Projectos'"
         @click="() => navigateToAdminProjects()"
       />
+
+      <!-- Indicadores -->
+      <MenuItem
+        :active="$page.url.startsWith('/gestor/estatisticas')"
+        :icon="ChartBarIcon"
+        :text="'Indicadores'"
+        href="/gestor/estatisticas"
+      />
+
     </template>
 
     <!-- Conta / Perfil -->
