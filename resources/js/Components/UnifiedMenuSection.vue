@@ -13,36 +13,6 @@
       @click="() => emitItem('dashboard')"
     />
 
-    <!-- Role-specific sections -->
-    <template v-if="role === 'technician' || role === 'utente'">
-      <!-- MDQR Section -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-      >
-        MDQR
-      </div>
-
-      <!-- Submeter Reclamação/Queixa/Sugestão -->
-      <MenuDropdown
-        :icon="DocumentPlusIcon"
-        :text="'Nova Submissão'"
-        :items="[
-          { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
-          { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
-          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon },
-        ]"
-        @item-clicked="emitItem"
-      />
-
-      <!-- Acompanhamento -->
-      <MenuItem
-        :active="false"
-        :icon="MagnifyingGlassIcon"
-        :text="'Acompanhamento'"
-        @click="() => navigateToTracking()"
-      />
-    </template>
-
     <template v-if="role === 'manager'">
       <!-- Gestão de Projectos -->
       <div
