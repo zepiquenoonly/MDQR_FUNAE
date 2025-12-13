@@ -52,7 +52,7 @@
 
 <script setup>
 import { Link, useForm } from '@inertiajs/vue3';
-import Layout from '@/Layouts/Layout.vue';
+import Layout from '@/Layouts/UnifiedLayout.vue';
 
 const props = defineProps({
     department: Object,

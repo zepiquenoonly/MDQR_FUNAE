@@ -2,7 +2,7 @@
     <Layout role="admin" :user="user">
         <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
             <div class="p-6 lg:p-8 max-w-7xl mx-auto">
-                
+
                 <!-- Header Section -->
                 <div class="mb-8">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
@@ -28,8 +28,8 @@
                                 Sistema Online
                             </span>
                             <span class="text-sm text-slate-500 hidden sm:inline">{{ currentDate }}</span>
-                            <button 
-                                @click="logout" 
+                            <button
+                                @click="logout"
                                 class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all duration-200 text-sm font-medium border border-slate-200 hover:border-red-200"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -114,7 +114,7 @@
 
                 <!-- Main Content Grid -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                    
+
                     <!-- Quick Actions -->
                     <div class="lg:col-span-2">
                         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -283,7 +283,7 @@
 
 <script setup>
 import { Link, router } from '@inertiajs/vue3'
-import Layout from '@/Layouts/Layout.vue'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import { computed } from 'vue'
 
 const props = defineProps({

@@ -10,17 +10,17 @@
 
             <!-- Filtros -->
             <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
-                <input 
-                    v-model="search" 
-                    type="text" 
-                    placeholder="Pesquisar departamentos..." 
+                <input
+                    v-model="search"
+                    type="text"
+                    placeholder="Pesquisar departamentos..."
                     class="w-full md:w-96 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                 >
             </div>
 
             <!-- Cards de Departamentos -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div v-for="department in departments.data" :key="department.id" 
+                <div v-for="department in departments.data" :key="department.id"
                     class="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
                     <div class="flex justify-between items-start mb-4">
                         <div class="h-12 w-12 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
@@ -75,7 +75,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import Layout from '@/Layouts/Layout.vue';
+import Layout from '@/Layouts/UnifiedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
