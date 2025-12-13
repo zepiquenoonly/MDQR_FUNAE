@@ -17,6 +17,23 @@
 - ⚡ **Acesso Rápido Utente**: Novo modal de submissão direta e UX simplificada no dashboard
 - 🛠️ **Estabilidade do Modal**: Correções críticas no fechamento e feedback do modal de submissão
 - 🔄 **Lógica de Associação**: Melhoria no preenchimento automático de dados para usuários autenticados
+#### Melhorias de Localização e Privacidade (11/12/2025)
+- 📍 **Localização Detalhada**: Hierarquia completa (Província, Distrito, Posto, Localidade) e distinção Maputo Cidade/Província
+- 🛡️ **Privacidade Anônima**: Ocultação inteligente de dados pessoais com opção voluntária de contato
+- 📊 **Dados Estatísticos**: Inclusão de campo de Gênero para fins estatísticos
+- 🎯 **Routing Inteligente**: Gestores visualizam exclusivamente reclamações associadas aos seus departamentos
+- ✅ **Validação Rigorosa**: Campos de localização tornados obrigatórios para garantir integridade dos dados
+
+#### Admin Dashboard e Gestão de Departamentos (10-11/12/2025)
+- 🏢 **Admin Dashboard Completo**: Interface dinâmica com estatísticas em tempo real e acções rápidas
+- 📊 **Sistema de Departamentos**: 5 departamentos organizacionais (Infraestrutura, Energia, Água, Educação, Saúde)
+- 👥 **Gestão de Usuários por Departamento**: 37 usuários distribuídos estrategicamente
+- 🔗 **Relações Departamento-Projeto**: Projectos vinculados a departamentos específicos
+- ⚡ **Workload para Técnicos**: Sistema de carga de trabalho exclusivo para técnicos
+- 🎯 **Seeders Avançados**: Criação automática de estrutura organizacional completa
+- 🔑 **Permissões Granulares**: Acções baseadas em permissões do usuário
+- 📈 **Estatísticas Dinâmicas**: Contadores em tempo real de recursos do sistema
+
 
 #### Sistema de Anexos Aprimorado (08/12/2025)
 - 📎 **Visualização inline de anexos**: Preview direto de imagens, PDFs e áudios no navegador
@@ -45,6 +62,11 @@
 - 🚀 **Modal de submissão direto da landing page**: Acesso imediato ao formulário desde a página inicial
 - 🎨 **Melhorias na landing page**: Textos revisados e footer aprimorado para melhor usabilidade
 
+#### Melhorias de UX e Formulário (04/12/2025)
+- 🎤 **Gravação Otimizada**: Limite de áudio ajustado para 60 segundos com melhor experiência de usuário
+- 📝 **Campos Opcionais**: Descrição e Projeto agora opcionais para simplificar submissão
+- 📊 **PCA Dashboard Reimaginado**: Foco nos 3 tipos de fluxo (Reclamação/Queixa/Sugestão) e insights de projetos
+
 #### Seeder de Performance (04/12/2025)
 - 📊 **PerformanceTestSeeder**: Geração de 15 projetos, 500 utentes, 20 técnicos, 2000 reclamações
 - 🎯 **Atribuição inteligente**: Técnicos priorizados por projeto relacionado
@@ -55,22 +77,6 @@
 - 🛡️ **Proteção completa**: Usuários logados não acessam rotas de login/register
 - ✅ **Cobertura de testes**: Testes automatizados para todos cenários de redirecionamento
 
-#### Admin Dashboard e Gestão de Departamentos (10-11/12/2025)
-- 🏢 **Admin Dashboard Completo**: Interface dinâmica com estatísticas em tempo real e acções rápidas
-- 📊 **Sistema de Departamentos**: 5 departamentos organizacionais (Infraestrutura, Energia, Água, Educação, Saúde)
-- 👥 **Gestão de Usuários por Departamento**: 37 usuários distribuídos estrategicamente
-- 🔗 **Relações Departamento-Projeto**: Projectos vinculados a departamentos específicos
-- ⚡ **Workload para Técnicos**: Sistema de carga de trabalho exclusivo para técnicos
-- 🎯 **Seeders Avançados**: Criação automática de estrutura organizacional completa
-- 🔑 **Permissões Granulares**: Acções baseadas em permissões do usuário
-- 📈 **Estatísticas Dinâmicas**: Contadores em tempo real de recursos do sistema
-
-#### Melhorias de Localização e Privacidade (11/12/2025)
-- 📍 **Localização Detalhada**: Hierarquia completa (Província, Distrito, Posto, Localidade) e distinção Maputo Cidade/Província
-- 🛡️ **Privacidade Anônima**: Ocultação inteligente de dados pessoais com opção voluntária de contato
-- 📊 **Dados Estatísticos**: Inclusão de campo de Gênero para fins estatísticos
-- 🎯 **Routing Inteligente**: Gestores visualizam exclusivamente reclamações associadas aos seus departamentos
-- ✅ **Validação Rigorosa**: Campos de localização tornados obrigatórios para garantir integridade dos dados
 
 ### Novembro 2025
 
