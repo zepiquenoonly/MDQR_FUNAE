@@ -31,6 +31,15 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 15 | Sistema de Anexos Aprimorado | ✅ Implementado |
 | Fluxo 16 | Admin Dashboard e Gestão de Departamentos | ✅ Implementado |
 
+### Distribuição de Usuários
+
+- **Total de Usuários**: 37
+- **PCA**: 1
+- **Director**: 6
+- **Gestor**: 9
+- **Técnico**: 17 (todos com workload configurado)
+- **Utente**: 2
+
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
 
@@ -346,16 +355,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Educação e Desenvolvimento Social | Director de Educação | 1 | 2 | 1 |
 | Saúde Pública | Director de Saúde | 1 | 2 | 1 |
 
-### Distribuição de Usuários
 
-- **Total de Usuários**: 37
-- **Admin**: 1
-- **Super Admin**: 1
-- **PCA**: 1
-- **Director**: 6
-- **Gestor**: 9
-- **Técnico**: 17 (todos com workload configurado)
-- **Utente**: 2
 
 ### Campos de Workload (Técnicos)
 
