@@ -1,253 +1,200 @@
 <template>
     <Layout role="admin" :user="user">
-        <div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100">
-            <div class="p-6 lg:p-8 max-w-7xl mx-auto">
-
-                <!-- Header Section -->
-                <div class="mb-8">
-                    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                        <div>
-                            <div class="flex items-center gap-3 mb-2">
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-600 to-indigo-700 flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-blue-500/30">
-                                    {{ user.name.charAt(0).toUpperCase() }}
-                                </div>
-                                <div>
-                                    <h1 class="text-2xl lg:text-3xl font-bold text-slate-900 flex items-center gap-2">
-                                        Olá, {{ user.name.split(' ')[0] }}!
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" />
-                                        </svg>
-                                    </h1>
-                                    <p class="text-slate-500">{{ getGreeting() }} • {{ user.role }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="mt-4 lg:mt-0 flex items-center gap-3">
-                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                                <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
-                                Sistema Online
-                            </span>
-                            <span class="text-sm text-slate-500 hidden sm:inline">{{ currentDate }}</span>
-                            <button
-                                @click="logout"
-                                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 transition-all duration-200 text-sm font-medium border border-slate-200 hover:border-red-200"
-                            >
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                                </svg>
-                                <span class="hidden sm:inline">Terminar Sessão</span>
-                            </button>
-                        </div>
-                    </div>
+        <div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+            <!-- Welcome Message with Glass Effect -->
+            <div class="relative overflow-hidden rounded-2xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-orange-400/30 group transition-all duration-500 hover:shadow-3xl">
+                <!-- Animated Gradient Background -->
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800"></div>
+                <!-- Glass Layer -->
+                <div class="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
+                <!-- Content -->
+                <div class="relative z-10">
+                    <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-white drop-shadow-lg">
+                        Bem-vindo(a), {{ user.name }}!
+                    </h1>
+                    <p class="text-blue-50 text-sm sm:text-base lg:text-lg font-medium drop-shadow">
+                        Painel Administrativo - Visão Geral do Sistema
+                    </p>
                 </div>
+                <!-- Decorative Elements -->
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
+                <div class="absolute -left-10 -top-10 w-32 h-32 bg-blue-300/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
+                <!-- Floating particles -->
+                <div class="absolute top-1/4 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
+                <div class="absolute top-3/4 right-1/3 w-2 h-2 bg-white/20 rounded-full animate-pulse"></div>
+                <div class="absolute top-1/2 right-1/2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+            </div>
 
-                <!-- Stats Cards -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
-                    <!-- Users Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-blue-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-medium text-emerald-600 bg-emerald-50 px-2 py-1 rounded-full">+12%</span>
-                            </div>
-                            <h3 class="text-3xl font-bold text-slate-900 mb-1">{{ stats.totalUsers }}</h3>
-                            <p class="text-sm text-slate-500">Usuários Totais</p>
-                        </div>
-                    </div>
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                <StatCard
+                    title="Usuários Totais"
+                    :value="stats.totalUsers"
+                    description="Registados no sistema"
+                    :icon="UsersIcon"
+                    color="blue"
+                />
+                <StatCard
+                    title="Departamentos"
+                    :value="stats.totalDepartments"
+                    description="Departamentos activos"
+                    :icon="BuildingOfficeIcon"
+                    color="green"
+                />
+                <StatCard
+                    title="Projectos"
+                    :value="stats.totalProjects"
+                    description="Projectos em curso"
+                    :icon="FolderIcon"
+                    color="purple"
+                />
+                <StatCard
+                    title="Usuários Activos"
+                    :value="stats.activeUsers"
+                    description="Online ou activos recentemente"
+                    :icon="UserGroupIcon"
+                    color="orange"
+                />
+            </div>
 
-                    <!-- Departments Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-emerald-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">Activos</span>
-                            </div>
-                            <h3 class="text-3xl font-bold text-slate-900 mb-1">{{ stats.totalDepartments }}</h3>
-                            <p class="text-sm text-slate-500">Departamentos</p>
-                        </div>
-                    </div>
-
-                    <!-- Projects Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-violet-500/5 to-violet-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-medium text-violet-600 bg-violet-50 px-2 py-1 rounded-full">Em curso</span>
-                            </div>
-                            <h3 class="text-3xl font-bold text-slate-900 mb-1">{{ stats.totalProjects }}</h3>
-                            <p class="text-sm text-slate-500">Projectos</p>
-                        </div>
-                    </div>
-
-                    <!-- Active Users Card -->
-                    <div class="group relative bg-white rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 overflow-hidden">
-                        <div class="absolute inset-0 bg-gradient-to-br from-amber-500/5 to-amber-600/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <div class="relative">
-                            <div class="flex items-center justify-between mb-4">
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/30">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </div>
-                                <span class="text-xs font-medium text-amber-600 bg-amber-50 px-2 py-1 rounded-full">Equipa</span>
-                            </div>
-                            <h3 class="text-3xl font-bold text-slate-900 mb-1">{{ stats.activeUsers }}</h3>
-                            <p class="text-sm text-slate-500">Usuários Activos</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Main Content Grid -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-
-                    <!-- Quick Actions -->
-                    <div class="lg:col-span-2">
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                            <div class="p-6 border-b border-slate-100">
-                                <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                
+                <!-- Quick Actions Section -->
+                <div class="lg:col-span-2">
+                    <div class="glass-card p-6 border border-white/40 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center justify-between mb-6">
+                            <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
+                                <span class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
-                                    Acções Rápidas
-                                </h2>
-                            </div>
-                            <div class="p-6">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <Link
-                                        v-if="hasPermission('manage-users')"
-                                        href="/admin/users"
-                                        class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300"
-                                    >
-                                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h3 class="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">Gerir Usuários</h3>
-                                            <p class="text-sm text-slate-500">{{ stats.totalUsers }} usuários registados</p>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </Link>
-
-                                    <Link
-                                        v-if="hasPermission('manage-departments')"
-                                        href="/admin/departments"
-                                        class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300"
-                                    >
-                                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h3 class="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">Departamentos</h3>
-                                            <p class="text-sm text-slate-500">{{ stats.totalDepartments }} departamentos activos</p>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </Link>
-
-                                    <Link
-                                        v-if="hasPermission('manage-projects')"
-                                        href="/admin/projects"
-                                        class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-violet-300 hover:shadow-md transition-all duration-300"
-                                    >
-                                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-violet-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h3 class="font-semibold text-slate-900 group-hover:text-violet-600 transition-colors">Projectos</h3>
-                                            <p class="text-sm text-slate-500">{{ stats.totalProjects }} projectos em curso</p>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-violet-500 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </Link>
-
-                                    <Link
-                                        v-if="hasPermission('manage-settings')"
-                                        href="/profile"
-                                        class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-slate-400 hover:shadow-md transition-all duration-300"
-                                    >
-                                        <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                            </svg>
-                                        </div>
-                                        <div class="flex-1">
-                                            <h3 class="font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">Configurações</h3>
-                                            <p class="text-sm text-slate-500">Definições do sistema</p>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                        </svg>
-                                    </Link>
+                                </span>
+                                Acções Rápidas
+                            </h2>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <Link
+                                v-if="hasPermission('manage-users')"
+                                href="/admin/users"
+                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                            >
+                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
+                                    <UsersIcon class="h-6 w-6 text-white" />
                                 </div>
+                                <div class="flex-1 relative z-10">
+                                    <h3 class="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">Gerir Usuários</h3>
+                                    <p class="text-xs text-slate-500">Adicionar ou editar contas</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+
+                            <Link
+                                v-if="hasPermission('manage-departments')"
+                                href="/admin/departments"
+                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                            >
+                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
+                                    <BuildingOfficeIcon class="h-6 w-6 text-white" />
+                                </div>
+                                <div class="flex-1 relative z-10">
+                                    <h3 class="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">Departamentos</h3>
+                                    <p class="text-xs text-slate-500">Gerir estrutura orgânica</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+
+                            <Link
+                                v-if="hasPermission('manage-projects')"
+                                href="/admin/projects"
+                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                            >
+                                <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
+                                    <FolderIcon class="h-6 w-6 text-white" />
+                                </div>
+                                <div class="flex-1 relative z-10">
+                                    <h3 class="font-semibold text-slate-900 group-hover:text-purple-600 transition-colors">Projectos</h3>
+                                    <p class="text-xs text-slate-500">Supervisão de projectos</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+
+                            <Link
+                                v-if="hasPermission('manage-settings')"
+                                href="/profile"
+                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-slate-400 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                            >
+                                <div class="absolute inset-0 bg-gradient-to-r from-slate-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-slate-600 to-slate-700 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <div class="flex-1 relative z-10">
+                                    <h3 class="font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">Configurações</h3>
+                                    <p class="text-xs text-slate-500">Definições do sistema</p>
+                                </div>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- System Status Sidebar -->
+                <div class="space-y-6">
+                    <!-- System Health -->
+                    <div class="glass-card p-6 border border-white/40 rounded-2xl shadow-sm">
+                        <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2 mb-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            Estado do Sistema
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-600">Servidor</span>
+                                <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                    Operacional
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-600">Base de Dados</span>
+                                <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                    Conectada
+                                </span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm text-slate-600">Email (SMTP)</span>
+                                <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
+                                    <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
+                                    Activo
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- System Status Sidebar -->
-                    <div class="space-y-6">
-                        <!-- System Health -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                            <div class="p-6 border-b border-slate-100">
-                                <h2 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                    Estado do Sistema
-                                </h2>
-                            </div>
-                            <div class="p-6 space-y-4">
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-slate-600">Servidor</span>
-                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
-                                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                                        Operacional
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-slate-600">Base de Dados</span>
-                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
-                                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                                        Conectada
-                                    </span>
-                                </div>
-                                <div class="flex items-center justify-between">
-                                    <span class="text-sm text-slate-600">Email (SMTP)</span>
-                                    <span class="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-600">
-                                        <span class="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                                        Activo
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+                    <!-- Quick Stats Widget -->
+                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/25 overflow-hidden text-white p-6 relative">
+                        <!-- Decorative bg -->
+                        <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
+                        <div class="absolute bottom-0 left-0 -ml-4 -mb-4 w-20 h-20 rounded-full bg-indigo-500/30 blur-xl"></div>
 
-                        <!-- Quick Stats -->
-                        <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/25 overflow-hidden text-white p-6">
+                        <div class="relative z-10">
                             <div class="flex items-center gap-3 mb-4">
                                 <div class="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -284,7 +231,8 @@
 <script setup>
 import { Link, router } from '@inertiajs/vue3'
 import Layout from '@/Layouts/UnifiedLayout.vue'
-import { computed } from 'vue'
+import StatCard from '@/Components/UtenteDashboard/StatCard.vue'
+import { UsersIcon, BuildingOfficeIcon, FolderIcon, UserGroupIcon } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
     user: {
@@ -304,24 +252,11 @@ const props = defineProps({
 const hasPermission = (permission) => {
     return props.permissions.includes(permission)
 }
-
-const getGreeting = () => {
-    const hour = new Date().getHours()
-    if (hour < 12) return 'Bom dia'
-    if (hour < 18) return 'Boa tarde'
-    return 'Boa noite'
-}
-
-const currentDate = computed(() => {
-    return new Date().toLocaleDateString('pt-PT', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-    })
-})
-
-const logout = () => {
-    router.post('/logout')
-}
 </script>
+
+<style scoped>
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+}
+</style>
