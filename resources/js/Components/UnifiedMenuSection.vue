@@ -70,13 +70,13 @@
         href="/director/complaints-overview"
       />
 
-      <!-- Indicadores -->
-      <MenuItem
+      <!-- Estatísticas -->
+      <!-- <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
-        :text="'Indicadores'"
+        :text="'Estatísticas'"
         href="/gestor/estatisticas"
-      />
+      /> -->
 
       <!-- Funcionários -->
       <!-- <MenuItem
@@ -88,11 +88,11 @@
     </template>
 
     <template v-if="role === 'pca'">
-      <!-- Indicadores -->
+      <!-- Estatísticas -->
       <!-- <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
-        :text="'Indicadores'"
+        :text="'Estatísticas'"
         href="/gestor/estatisticas"
       /> -->
     </template>
@@ -129,13 +129,13 @@
         @click="() => navigateToAdminProjects()"
       />
 
-      <!-- Indicadores -->
-      <MenuItem
+      <!-- Estatísticas -->
+      <!-- <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
-        :text="'Indicadores'"
+        :text="'Estatísticas'"
         href="/gestor/estatisticas"
-      />
+      /> -->
 
     </template>
 
