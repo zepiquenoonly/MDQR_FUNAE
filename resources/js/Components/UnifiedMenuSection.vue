@@ -200,7 +200,7 @@
 
     <!-- Meu Perfil -->
     <MenuItem
-      :active="false"
+      :active="$page.url.startsWith('/profile')"
       :icon="UserCircleIcon"
       :text="'Meu Perfil'"
       @click="() => navigateToProfile()"
