@@ -127,35 +127,35 @@
 
     <template v-if="role === 'pca'">
       <!-- Projectos -->
-      <MenuItem
+      <!-- <MenuItem
         :active="false"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
         @click="() => emitItem('projectos')"
-      />
+      /> -->
 
       <!-- Relatórios Section -->
-      <div
+      <!-- <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
       >
         Relatórios
-      </div>
+      </div> -->
 
       <!-- Estatísticas -->
-      <MenuItem
+      <!-- <MenuItem
         :active="false"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
         @click="() => emitItem('estatisticas')"
-      />
+      /> -->
 
       <!-- Gestão de Usuários -->
-      <MenuItem
+      <!-- <MenuItem
         :active="false"
         :icon="UsersIcon"
         :text="'Usuários'"
         @click="() => emitItem('usuarios')"
-      />
+      /> -->
     </template>
 
     <template v-if="role === 'admin'">
