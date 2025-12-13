@@ -96,7 +96,7 @@
           </div>
           <div class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors">
             <EnvelopeIcon class="h-5 w-5 flex-shrink-0" />
-            <span class="text-sm">info@enabel.co.mz</span>
+            <span class="text-sm">info@funae.co.mz</span>
           </div>
           <div class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors">
             <PhoneIcon class="h-5 w-5 flex-shrink-0" />

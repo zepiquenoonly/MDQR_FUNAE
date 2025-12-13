@@ -2,7 +2,7 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 13/12/2025
+**Última atualização:** 13/12/2025, 22:30
 
 ## Legenda de Status
 
@@ -637,6 +637,53 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Classes consistentes: `dark:bg-gray-800`, `dark:text-white`, `dark:border-gray-700`
 
 ### Performance
-- **Build Otimizado**: Assets compilados com sucesso (8.36s)
+- **Build Otimizado**: Assets compilados com sucesso (média 7.5s)
 - **Sem Breaking Changes**: Funcionalidades existentes mantidas
 - **Responsividade**: Design adaptável mantido para mobile, tablet e desktop
+
+## Melhorias Finais (13/12/2025 - Noite)
+
+### Campo Departamento - Validação Refinada
+- **Obrigatório apenas para**: Gestor e Técnico
+- **Removido de**: Director, PCA (anteriormente era obrigatório)
+- **Validação sincronizada**: Frontend (Vue.js) e Backend (Laravel)
+- **Lógica clara**: Campo só aparece se role estiver em `['Técnico', 'Gestor']`
+
+### user_id em Reclamações Autenticadas
+- **Implementação**: user_id SEMPRE enviado quando utente está autenticado
+- **Funciona para**:
+  - ✅ Submissões identificadas (user_id + dados de contato)
+  - ✅ Submissões anônimas (user_id registrado, mas dados de contato ocultos)
+- **Benefícios**:
+  - Utente vê todas suas reclamações no dashboard pessoal
+  - Sistema mantém rastreamento completo
+  - Privacidade garantida (dados públicos ocultos quando anônimo)
+- **Validação**: Backend aceita `user_id` como `nullable|exists:users,id`
+- **Prioridade**: `user_id` do request → `auth()->user()->id` → `null`
+
+### Footer Reorganizado
+- **Problema corrigido**: Removidas duplicações de seções SERVIÇOS e CONTACTOS
+- **Estrutura atual**: 4 colunas únicas
+  1. **FUNAE**: Logo + Descrição + Redes Sociais
+  2. **SERVIÇOS**: Sugestão, Reclamação, Queixa
+  3. **LINKS ÚTEIS**: Início, Login, Registar, Acompanhar (nova seção)
+  4. **CONTACTOS**: Endereço, Email, Telefone
+- **Melhorias**: Grid responsivo, transitions suaves, textos consistentes
+- **Limpeza**: Removido link de debug "Teste Email"
+
+### Documentação Técnica Criada
+- ✅ `USER_ID_ANONYMOUS_LOGIC.md` - Explicação completa da lógica de anonimato
+- ✅ `FIELD_DEPARTMENT_UPDATE.md` - Documentação do campo departamento
+- ✅ `DASHBOARD_IMPROVEMENTS_SUMMARY.md` - Resumo do redesign
+- ✅ `VISUAL_IMPROVEMENTS_SUMMARY.md` - Melhorias visuais
+- ✅ `WELCOME_SECTION_UPDATE.md` - Seção Boas-Vindas
+
+### Commits do PR #119
+1. `4980df0` - 🎨 Redesign Premium Dashboard Admin
+2. `5f17570` - 🔧 Campo Departamento (Gestor + Técnico)
+3. `ba55afe` - ✨ Envio de user_id no formulário
+4. `aa098bd` - 📝 Documentação user_id anônimo
+5. `fcdfccd` - 🔧 Footer reorganizado
+6. `2e4a334` - 🔧 Remover link Teste Email
+
+**Status**: ✅ **Todas as funcionalidades implementadas, testadas e documentadas**

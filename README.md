@@ -8,16 +8,19 @@
 
 ### Dezembro 2025
 
-#### Redesign Premium do Dashboard Admin (13/12/2025 - Tarde)
+#### Redesign Premium e Melhorias UX (13/12/2025)
 - 🎨 **Cards Estatísticos Premium**: Redesign completo com fundo branco/dark, ícones com gradientes coloridos, números grandes (text-4xl), badges de status e animações suaves
 - 🚀 **Ações Rápidas Melhoradas**: Cards de navegação com ícones 3D maiores, background gradient sutil, animações de rotação e sombras XL coloridas
 - 👥 **Widget Distribuição de Usuários**: Cards individuais por role com ícones SVG únicos (Utentes 👤, Técnicos ⚙️, Gestores 👥, Directores 🏆, PCA 🛡️) e gradientes coloridos
 - 👋 **Boas-Vindas Padronizadas**: Seção "Bem-vindo(a)" com fundo transparente implementada em todos os 6 dashboards (Admin, Gestor, Director, PCA, Técnico, Utente)
 - 📋 **CRUD Modernizado**: Departamentos, Projectos e Usuários com design moderno, headers com gradientes, hover effects 3D e formulários elegantes
-- 🎯 **Campo Departamento**: Adicionado e validado para roles Técnico, Director, Gestor e PCA na criação/edição de usuários
+- 🎯 **Campo Departamento**: Validado para roles **Gestor e Técnico** na criação/edição de usuários (validação frontend e backend sincronizada)
 - 🔧 **Correção Role Gestor**: Corrigido nome do role de "Gestor de Reclamações" para "Gestor" - agora mostra corretamente 9 gestores
+- 👤 **user_id em Reclamações**: Implementado envio automático de user_id quando utente está autenticado, mesmo em submissões anônimas (para rastreamento no dashboard pessoal)
+- 🗂️ **Footer Reorganizado**: Removidas duplicações (SERVIÇOS e CONTACTOS), adicionada seção "Links Úteis" com 4 colunas organizadas
+- 🔒 **Privacidade Garantida**: Dados de contato ocultos publicamente em reclamações anônimas, mas user_id mantido para dashboard pessoal
 - 🌙 **Dark Mode 100%**: Todos os novos componentes totalmente compatíveis com modo escuro
-- ⚡ **Performance**: Build otimizado em 8.36s, responsividade mantida
+- ⚡ **Performance**: Builds otimizados (média 7.5s), responsividade mantida
 
 #### Melhorias de Navegação (13/12/2025 - Manhã)
 - 🧭 **Menu Unificado**: Links diretos para dashboards por função (Admin, Director, Gestor, PCA, Técnico, Utente)
@@ -483,6 +486,16 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 1.2  
-**Última Atualização:** 13 de Dezembro de 2025  
+**Versão:** 1.3  
+**Última Atualização:** 13 de Dezembro de 2025, 22:30  
 **Status:** ✅ Em Produção
+
+---
+
+### 📝 Documentação Técnica Adicional
+
+- [USER_ID_ANONYMOUS_LOGIC.md](./USER_ID_ANONYMOUS_LOGIC.md) - Lógica de user_id em submissões anônimas
+- [FIELD_DEPARTMENT_UPDATE.md](./FIELD_DEPARTMENT_UPDATE.md) - Campo Departamento para Gestor e Técnico
+- [DASHBOARD_IMPROVEMENTS_SUMMARY.md](./DASHBOARD_IMPROVEMENTS_SUMMARY.md) - Resumo do redesign do Dashboard Admin
+- [VISUAL_IMPROVEMENTS_SUMMARY.md](./VISUAL_IMPROVEMENTS_SUMMARY.md) - Melhorias visuais implementadas
+- [WELCOME_SECTION_UPDATE.md](./WELCOME_SECTION_UPDATE.md) - Seção Boas-Vindas padronizada
