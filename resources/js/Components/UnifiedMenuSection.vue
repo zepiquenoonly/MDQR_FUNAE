@@ -5,12 +5,42 @@
       Navegação
     </div>
 
-    <!-- Dashboard -->
-    <MenuItem
-      :active="false"
+    <!-- Dashboards -->
+    <MenuItem v-if="role === 'admin'"
+      :active="$page.url === '/admin/dashboard'"
       :icon="HomeIcon"
       :text="'Dashboard'"
-      @click="() => emitItem('dashboard')"
+      href="/admin/dashboard"
+    />
+    <MenuItem v-if="role === 'director'"
+      :active="$page.url === '/director/dashboard'"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/director/dashboard"
+    />
+    <MenuItem v-if="role === 'manager'"
+      :active="$page.url === '/gestor/dashboard'"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/gestor/dashboard"
+    />
+    <MenuItem v-if="role === 'pca'"
+      :active="$page.url === '/pca/dashboard'"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/pca/dashboard"
+    />
+    <MenuItem v-if="role === 'technician'"
+      :active="$page.url === '/tecnico/dashboard'"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/tecnico/dashboard"
+    />
+    <MenuItem v-if="role === 'utente'"
+      :active="$page.url === '/utente/dashboard'"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/utente/dashboard"
     />
 
     <template v-if="role === 'manager'">
@@ -138,7 +168,7 @@
 
       <!-- Utilizadores -->
       <MenuItem
-        :active="false"
+        :active="$page.url === '/admin/users'"
         :icon="UsersIcon"
         :text="'Utilizadores'"
         @click="() => navigateToAdminUsers()"
@@ -146,7 +176,7 @@
 
       <!-- Departamentos -->
       <MenuItem
-        :active="false"
+        :active="$page.url === '/admin/departments'"
         :icon="BuildingOfficeIcon"
         :text="'Departamentos'"
         @click="() => navigateToAdminDepartments()"
@@ -154,7 +184,7 @@
 
       <!-- Projectos -->
       <MenuItem
-        :active="false"
+        :active="$page.url === '/admin/projects'"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
         @click="() => navigateToAdminProjects()"
