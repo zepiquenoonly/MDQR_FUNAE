@@ -737,6 +737,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import {
     XMarkIcon,
     DocumentTextIcon,
@@ -767,6 +768,10 @@ import {
     PaperAirplaneIcon,
     XCircleIcon
 } from '@heroicons/vue/24/outline'
+
+// Acessar usuário autenticado
+const page = usePage()
+const authUser = computed(() => page.props.auth?.user || null)
 
 const props = defineProps({
     isAnonymous: {
@@ -803,7 +808,8 @@ const formData = ref({
     contact_name: '',
     contact_email: '',
     contact_phone: '',
-    gender: ''
+    gender: '',
+    user_id: authUser.value?.id || null
 })
 
 const showOptionalContact = ref(false)
