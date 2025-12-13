@@ -1,60 +1,125 @@
 <template>
     <Layout role="admin" :user="user">
         <div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-            <!-- Welcome Message with Glass Effect -->
-            <div class="relative overflow-hidden rounded-2xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-orange-400/30 group transition-all duration-500 hover:shadow-3xl">
-                <!-- Animated Gradient Background -->
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-indigo-600 to-indigo-800"></div>
-                <!-- Glass Layer -->
-                <div class="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
-                <!-- Content -->
-                <div class="relative z-10">
-                    <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-white drop-shadow-lg">
+            <!-- Welcome Message - Transparent -->
+            <div class="mb-6">
+                <div class="py-6">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
                         Bem-vindo(a), {{ user.name }}!
                     </h1>
-                    <p class="text-blue-50 text-sm sm:text-base lg:text-lg font-medium drop-shadow">
+                    <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
                         Painel Administrativo - Visão Geral do Sistema
                     </p>
                 </div>
-                <!-- Decorative Elements -->
-                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
-                <div class="absolute -left-10 -top-10 w-32 h-32 bg-blue-300/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
-                <!-- Floating particles -->
-                <div class="absolute top-1/4 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
-                <div class="absolute top-3/4 right-1/3 w-2 h-2 bg-white/20 rounded-full animate-pulse"></div>
-                <div class="absolute top-1/2 right-1/2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
             </div>
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-                <StatCard
-                    title="Usuários Totais"
-                    :value="stats.totalUsers"
-                    description="Registados no sistema"
-                    :icon="UsersIcon"
-                    color="blue"
-                />
-                <StatCard
-                    title="Departamentos"
-                    :value="stats.totalDepartments"
-                    description="Departamentos activos"
-                    :icon="BuildingOfficeIcon"
-                    color="green"
-                />
-                <StatCard
-                    title="Projectos"
-                    :value="stats.totalProjects"
-                    description="Projectos em curso"
-                    :icon="FolderIcon"
-                    color="purple"
-                />
-                <StatCard
-                    title="Usuários Activos"
-                    :value="stats.activeUsers"
-                    description="Online ou activos recentemente"
-                    :icon="UserGroupIcon"
-                    color="orange"
-                />
+                <!-- Card 1: Usuários Totais -->
+                <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                    <!-- Background decorativo -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
+                    
+                    <div class="relative">
+                        <!-- Ícone -->
+                        <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <UsersIcon class="h-6 w-6 text-white" />
+                        </div>
+                        
+                        <!-- Conteúdo -->
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Usuários Totais</p>
+                            <h3 class="text-4xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">{{ stats.totalUsers }}</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <div class="flex items-center gap-1 px-2 py-1 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-400 rounded-full text-xs font-medium">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Registados</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Departamentos -->
+                <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                    <!-- Background decorativo -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
+                    
+                    <div class="relative">
+                        <!-- Ícone -->
+                        <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <BuildingOfficeIcon class="h-6 w-6 text-white" />
+                        </div>
+                        
+                        <!-- Conteúdo -->
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Departamentos</p>
+                            <h3 class="text-4xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">{{ stats.totalDepartments }}</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <div class="flex items-center gap-1 px-2 py-1 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 rounded-full text-xs font-medium">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Activos</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Projectos -->
+                <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                    <!-- Background decorativo -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
+                    
+                    <div class="relative">
+                        <!-- Ícone -->
+                        <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <FolderIcon class="h-6 w-6 text-white" />
+                        </div>
+                        
+                        <!-- Conteúdo -->
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Projectos</p>
+                            <h3 class="text-4xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">{{ stats.totalProjects }}</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <div class="flex items-center gap-1 px-2 py-1 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-400 rounded-full text-xs font-medium">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Em curso</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Usuários Activos -->
+                <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
+                    <!-- Background decorativo -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
+                    
+                    <div class="relative">
+                        <!-- Ícone -->
+                        <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
+                            <UserGroupIcon class="h-6 w-6 text-white" />
+                        </div>
+                        
+                        <!-- Conteúdo -->
+                        <div>
+                            <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Usuários Activos</p>
+                            <h3 class="text-4xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">{{ stats.activeUsers }}</h3>
+                            <div class="flex items-center gap-2 mt-2">
+                                <div class="flex items-center gap-1 px-2 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 rounded-full text-xs font-medium">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span>Online</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Main Content Grid -->
@@ -65,7 +130,7 @@
                     <div class="glass-card p-6 border border-white/40 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
                         <div class="flex items-center justify-between mb-6">
                             <h2 class="text-lg font-bold text-gray-900 flex items-center gap-2">
-                                <span class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                                <span class="p-2 bg-primary-50 rounded-lg text-primary-600">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                                     </svg>
@@ -78,55 +143,61 @@
                             <Link
                                 v-if="hasPermission('manage-users')"
                                 href="/admin/users"
-                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-blue-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                                class="group flex items-center gap-4 p-5 rounded-xl bg-gradient-to-br from-primary-50 via-white to-primary-50/30 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 border border-primary-100 dark:border-gray-600 hover:border-primary-300 dark:hover:border-primary-500 hover:shadow-xl hover:shadow-primary-500/20 transition-all duration-300 relative overflow-hidden"
                             >
-                                <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
-                                    <UsersIcon class="h-6 w-6 text-white" />
+                                <div class="absolute inset-0 bg-gradient-to-r from-primary-500/10 via-transparent to-primary-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="h-14 w-14 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10">
+                                    <UsersIcon class="h-7 w-7 text-white" />
                                 </div>
                                 <div class="flex-1 relative z-10">
-                                    <h3 class="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">Gerir Usuários</h3>
-                                    <p class="text-xs text-slate-500">Adicionar ou editar contas</p>
+                                    <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors text-base">Gerir Usuários</h3>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Adicionar ou editar contas de usuários</p>
                                 </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
+                                <div class="relative z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-primary-500 group-hover:translate-x-2 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
                             </Link>
 
                             <Link
                                 v-if="hasPermission('manage-departments')"
                                 href="/admin/departments"
-                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-emerald-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                                class="group flex items-center gap-4 p-5 rounded-xl bg-gradient-to-br from-emerald-50 via-white to-emerald-50/30 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 border border-emerald-100 dark:border-gray-600 hover:border-emerald-300 dark:hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-500/20 transition-all duration-300 relative overflow-hidden"
                             >
-                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
-                                    <BuildingOfficeIcon class="h-6 w-6 text-white" />
+                                <div class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-transparent to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="h-14 w-14 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10">
+                                    <BuildingOfficeIcon class="h-7 w-7 text-white" />
                                 </div>
                                 <div class="flex-1 relative z-10">
-                                    <h3 class="font-semibold text-slate-900 group-hover:text-emerald-600 transition-colors">Departamentos</h3>
-                                    <p class="text-xs text-slate-500">Gerir estrutura orgânica</p>
+                                    <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors text-base">Departamentos</h3>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Gerir estrutura organizacional</p>
                                 </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-emerald-500 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
+                                <div class="relative z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-emerald-500 group-hover:translate-x-2 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
                             </Link>
 
                             <Link
                                 v-if="hasPermission('manage-projects')"
                                 href="/admin/projects"
-                                class="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-br from-slate-50 to-slate-100/50 border border-slate-200 hover:border-purple-300 hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                                class="group flex items-center gap-4 p-5 rounded-xl bg-gradient-to-br from-purple-50 via-white to-purple-50/30 dark:from-gray-700 dark:via-gray-800 dark:to-gray-700 border border-purple-100 dark:border-gray-600 hover:border-purple-300 dark:hover:border-purple-500 hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-300 relative overflow-hidden"
                             >
-                                <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform relative z-10">
-                                    <FolderIcon class="h-6 w-6 text-white" />
+                                <div class="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                                <div class="h-14 w-14 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 relative z-10">
+                                    <FolderIcon class="h-7 w-7 text-white" />
                                 </div>
                                 <div class="flex-1 relative z-10">
-                                    <h3 class="font-semibold text-slate-900 group-hover:text-purple-600 transition-colors">Projectos</h3>
-                                    <p class="text-xs text-slate-500">Supervisão de projectos</p>
+                                    <h3 class="font-bold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors text-base">Projectos</h3>
+                                    <p class="text-xs text-gray-600 dark:text-gray-400 mt-0.5">Supervisão e acompanhamento</p>
                                 </div>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-purple-500 group-hover:translate-x-1 transition-all relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                </svg>
+                                <div class="relative z-10">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400 group-hover:text-purple-500 group-hover:translate-x-2 transition-all duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                    </svg>
+                                </div>
                             </Link>
 
                             <Link
@@ -189,35 +260,83 @@
                     </div>
 
                     <!-- Quick Stats Widget -->
-                    <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl shadow-lg shadow-blue-500/25 overflow-hidden text-white p-6 relative">
-                        <!-- Decorative bg -->
-                        <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 rounded-full bg-white/10 blur-xl"></div>
-                        <div class="absolute bottom-0 left-0 -ml-4 -mb-4 w-20 h-20 rounded-full bg-indigo-500/30 blur-xl"></div>
-
-                        <div class="relative z-10">
-                            <div class="flex items-center gap-3 mb-4">
-                                <div class="h-10 w-10 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden p-6 transition-all duration-300">
+                        <div class="relative">
+                            <div class="flex items-center gap-3 mb-6">
+                                <div class="p-2.5 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                     </svg>
                                 </div>
                                 <div>
-                                    <h3 class="font-semibold">Resumo Rápido</h3>
-                                    <p class="text-sm text-blue-200">Última atualização: agora</p>
+                                    <h3 class="font-bold text-lg text-gray-900 dark:text-white">Distribuição de Usuários</h3>
+                                    <p class="text-sm text-gray-600 dark:text-gray-400">Total cadastrados no sistema</p>
                                 </div>
                             </div>
                             <div class="space-y-3">
-                                <div class="flex items-center justify-between py-2 border-t border-white/20">
-                                    <span class="text-blue-100">Técnicos</span>
-                                    <span class="font-bold">17</span>
+                                <!-- Utentes -->
+                                <div class="group flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-blue-50 to-transparent dark:from-blue-900/10 hover:from-blue-100 dark:hover:from-blue-900/20 border border-blue-100 dark:border-blue-800/30 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-md">
+                                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Utentes</span>
+                                    </div>
+                                    <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ usersByRole.utentes }}</span>
                                 </div>
-                                <div class="flex items-center justify-between py-2 border-t border-white/20">
-                                    <span class="text-blue-100">Gestores</span>
-                                    <span class="font-bold">9</span>
+
+                                <!-- Técnicos -->
+                                <div class="group flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-900/10 hover:from-amber-100 dark:hover:from-amber-900/20 border border-amber-100 dark:border-amber-800/30 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md">
+                                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Técnicos</span>
+                                    </div>
+                                    <span class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ usersByRole.tecnicos }}</span>
                                 </div>
-                                <div class="flex items-center justify-between py-2 border-t border-white/20">
-                                    <span class="text-blue-100">Directores</span>
-                                    <span class="font-bold">6</span>
+
+                                <!-- Gestores -->
+                                <div class="group flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-emerald-50 to-transparent dark:from-emerald-900/10 hover:from-emerald-100 dark:hover:from-emerald-900/20 border border-emerald-100 dark:border-emerald-800/30 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-md">
+                                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Gestores</span>
+                                    </div>
+                                    <span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ usersByRole.gestores }}</span>
+                                </div>
+
+                                <!-- Directores -->
+                                <div class="group flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-indigo-50 to-transparent dark:from-indigo-900/10 hover:from-indigo-100 dark:hover:from-indigo-900/20 border border-indigo-100 dark:border-indigo-800/30 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center shadow-md">
+                                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">Directores</span>
+                                    </div>
+                                    <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ usersByRole.directores }}</span>
+                                </div>
+
+                                <!-- PCA -->
+                                <div class="group flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-purple-50 to-transparent dark:from-purple-900/10 hover:from-purple-100 dark:hover:from-purple-900/20 border border-purple-100 dark:border-purple-800/30 transition-all duration-200">
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-md">
+                                            <svg class="h-5 w-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </div>
+                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">PCA</span>
+                                    </div>
+                                    <span class="text-2xl font-bold text-purple-600 dark:text-purple-400">{{ usersByRole.pca }}</span>
                                 </div>
                             </div>
                         </div>
@@ -246,6 +365,16 @@ const props = defineProps({
     stats: {
         type: Object,
         required: true
+    },
+    usersByRole: {
+        type: Object,
+        default: () => ({
+            utentes: 0,
+            tecnicos: 0,
+            gestores: 0,
+            directores: 0,
+            pca: 0,
+        })
     }
 })
 

@@ -1,25 +1,43 @@
 <template>
     <Layout role="admin">
         <div class="p-6">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-2xl font-bold text-gray-900">Gestão de Projectos</h1>
-                <Link href="/admin/projects/create" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
-                    + Novo Projecto
-                </Link>
+            <!-- Header with Gradient -->
+            <div class="relative overflow-hidden rounded-2xl p-6 mb-6 shadow-lg border border-purple-400/30">
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-500 to-purple-600"></div>
+                <div class="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
+                <div class="relative z-10 flex justify-between items-center">
+                    <div>
+                        <h1 class="text-3xl font-bold text-white drop-shadow-lg">Gestão de Projectos</h1>
+                        <p class="text-purple-50 mt-1">Supervisione e controle todos os projectos em curso</p>
+                    </div>
+                    <Link href="/admin/projects/create" class="bg-white hover:bg-purple-50 text-purple-600 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Novo Projecto
+                    </Link>
+                </div>
             </div>
 
             <!-- Filtros -->
-            <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="bg-white rounded-xl shadow-sm p-4 mb-6 border border-gray-100">
                 <div class="flex flex-wrap gap-4">
-                    <input
-                        v-model="search"
-                        type="text"
-                        placeholder="Pesquisar projectos..."
-                        class="flex-1 min-w-64 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    >
+                    <div class="relative flex-1 min-w-64">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                            v-model="search"
+                            type="text"
+                            placeholder="Pesquisar projectos..."
+                            class="w-full pl-10 pr-4 py-3 border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all"
+                        >
+                    </div>
                     <select
                         v-model="departmentFilter"
-                        class="border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        class="border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 py-3 px-4 transition-all"
                     >
                         <option value="">Todos os Departamentos</option>
                         <option v-for="dept in departments" :key="dept.id" :value="dept.id">
@@ -29,51 +47,86 @@
                 </div>
             </div>
 
-            <!-- Tabela -->
-            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Província</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                            <th scope="col" class="relative px-6 py-3">
-                                <span class="sr-only">Ações</span>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="project in projects.data" :key="project.id" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="font-medium text-gray-900">{{ project.name }}</div>
-                                <div class="text-sm text-gray-500">{{ project.distrito }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
-                                    {{ project.department }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ project.provincia || 'N/A' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span :class="project.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'" class="px-2 py-1 text-xs rounded-full">
-                                    {{ project.is_active ? 'Activo' : 'Inactivo' }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-gray-600">{{ project.created_at }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                                <Link :href="`/admin/projects/${project.id}/edit`" class="text-indigo-600 hover:text-indigo-900">Editar</Link>
-                                <button @click="deleteProject(project.id)" class="text-red-600 hover:text-red-900">Apagar</button>
-                            </td>
-                        </tr>
-                        <tr v-if="!projects.data || projects.data.length === 0">
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                Nenhum projecto encontrado.
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Tabela Moderna -->
+            <div class="bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-100">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gradient-to-r from-purple-50 to-purple-100/50">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">Projecto</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">Departamento</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">Localização</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">Estado</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-purple-800 uppercase tracking-wider">Data</th>
+                                <th scope="col" class="relative px-6 py-4">
+                                    <span class="sr-only">Ações</span>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            <tr v-for="project in projects.data" :key="project.id" class="hover:bg-purple-50/30 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center">
+                                        <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold mr-3 shadow">
+                                            {{ project.name.charAt(0).toUpperCase() }}
+                                        </div>
+                                        <div>
+                                            <div class="font-semibold text-gray-900">{{ project.name }}</div>
+                                            <div class="text-xs text-gray-500">{{ project.distrito }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-3 py-1.5 text-xs font-medium rounded-full bg-purple-100 text-purple-800 shadow-sm">
+                                        {{ project.department }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center text-sm text-gray-600">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        {{ project.provincia || 'N/A' }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span :class="project.is_active ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'" class="px-3 py-1.5 text-xs font-semibold rounded-full border inline-flex items-center gap-1.5">
+                                        <span :class="project.is_active ? 'bg-emerald-500' : 'bg-red-500'" class="w-1.5 h-1.5 rounded-full"></span>
+                                        {{ project.is_active ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ project.created_at }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <Link :href="`/admin/projects/${project.id}/edit`" class="p-2 rounded-lg text-purple-600 hover:bg-purple-50 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </Link>
+                                        <button @click="deleteProject(project.id)" class="p-2 rounded-lg text-red-600 hover:bg-red-50 transition-all">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr v-if="!projects.data || projects.data.length === 0">
+                                <td colspan="6" class="px-6 py-16 text-center">
+                                    <div class="flex flex-col items-center">
+                                        <div class="h-16 w-16 rounded-full bg-purple-100 flex items-center justify-center mb-4">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <p class="text-gray-500 font-medium">Nenhum projecto encontrado</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <!-- Paginação -->

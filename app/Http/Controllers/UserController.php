@@ -67,6 +67,7 @@ class UserController extends Controller
     {
         return Inertia::render('Admin/Users/Create', [
             'roles' => Role::all()->pluck('name'),
+            'departments' => \App\Models\Department::all(['id', 'name']),
         ]);
     }
 
@@ -75,6 +76,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $rolesWithDepartment = ['Técnico', 'Director', 'Gestor', 'PCA'];
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -82,6 +85,15 @@ class UserController extends Controller
             'phone' => 'nullable|string|max:20',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => 'required|string|exists:roles,name',
+            'department_id' => [
+                'nullable',
+                'exists:departments,id',
+                function ($attribute, $value, $fail) use ($request, $rolesWithDepartment) {
+                    if (in_array($request->role, $rolesWithDepartment) && empty($value)) {
+                        $fail('O departamento é obrigatório para o role selecionado.');
+                    }
+                },
+            ],
         ]);
 
         $user = User::create([
@@ -90,6 +102,7 @@ class UserController extends Controller
             'username' => $validated['username'],
             'phone' => $validated['phone'],
             'password' => Hash::make($validated['password']),
+            'department_id' => $validated['department_id'] ?? null,
         ]);
 
         $user->assignRole($validated['role']);
@@ -115,6 +128,7 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Edit', [
             'user' => $user->load('roles'),
             'roles' => Role::all()->pluck('name'),
+            'departments' => \App\Models\Department::all(['id', 'name']),
         ]);
     }
 
@@ -123,12 +137,23 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
+        $rolesWithDepartment = ['Técnico', 'Director', 'Gestor', 'PCA'];
+        
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'username' => 'required|string|max:255|unique:users,username,' . $user->id,
             'phone' => 'nullable|string|max:20',
             'role' => 'required|string|exists:roles,name',
+            'department_id' => [
+                'nullable',
+                'exists:departments,id',
+                function ($attribute, $value, $fail) use ($request, $rolesWithDepartment) {
+                    if (in_array($request->role, $rolesWithDepartment) && empty($value)) {
+                        $fail('O departamento é obrigatório para o role selecionado.');
+                    }
+                },
+            ],
         ]);
 
         $user->update($validated);

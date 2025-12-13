@@ -51,6 +51,7 @@ class User extends Authenticatable
         'workload_capacity',
         'current_workload',
         'is_available',
+        'department_id',
     ];
 
     /**
@@ -216,5 +217,11 @@ class User extends Authenticatable
         return $this->projects()->where('projects.id', $projectId)->exists();
     }
 
-    
+    /**
+     * Get the department that the user belongs to.
+     */
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

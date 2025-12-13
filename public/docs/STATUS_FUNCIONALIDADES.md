@@ -547,3 +547,96 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 - **Menu Unificado com Links Diretos**: Substituição do link genérico "Dashboard" por links específicos para cada papel (Admin, Director, Gestor, PCA, Técnico, Utente) no menu lateral, facilitando a navegação direta para os painéis apropriados.
 - **Melhoria na UX de Navegação**: Usuários com múltiplos papéis ou permissões podem ter acesso facilitado aos seus respectivos dashboards através de rotas explícitas no menu.
+
+## Melhorias Visuais e UX (13/12/2025 - Tarde)
+
+### Dashboard Admin - Redesign Completo
+- **Cards de Estatísticas Premium**: Redesign completo dos 4 cards principais (Usuários, Departamentos, Projectos, Activos) com:
+  - Fundo branco/dark mode (não mais gradientes sólidos)
+  - Ícones com gradientes coloridos e sombras matching
+  - Números muito grandes (text-4xl) para melhor visualização
+  - Badges de status com ícones contextuais
+  - Background blur decorativo que expande no hover
+  - Animações suaves (elevação, scale e rotate nos ícones)
+  - Sombras coloridas que aumentam no hover
+
+- **Ações Rápidas Melhoradas**: Cards de navegação rápida com:
+  - Background gradient sutil por cor
+  - Ícones maiores (h-14 w-14) com efeito 3D
+  - Títulos em bold com descrições detalhadas
+  - Animação de rotação leve nos ícones ao hover
+  - Setas que se movem 2x mais no hover
+  - Sombras XL coloridas matching o tema
+
+- **Widget de Distribuição de Usuários Redesenhado**: 
+  - Cards individuais para cada role (5 tipos)
+  - Ícones SVG únicos e contextuais:
+    - 👤 Utentes (azul)
+    - ⚙️ Técnicos (âmbar)
+    - 👥 Gestores (emerald)
+    - 🏆 Directores (índigo)
+    - 🛡️ PCA (roxo)
+  - Gradientes coloridos por tipo de usuário
+  - Números em destaque (text-2xl)
+  - Borders coloridas matching
+  - Hover aumenta intensidade do background
+  - Contadores dinâmicos conectados ao banco de dados
+
+### Seção de Boas-Vindas Padronizada
+- **Todos os Dashboards (6 roles)**: Implementada seção "Bem-vindo(a), [Nome]!" com:
+  - Fundo 100% transparente (removidos gradientes coloridos)
+  - Tipografia responsiva (text-2xl → text-4xl)
+  - Suporte completo dark mode
+  - Consistência visual em todos os painéis:
+    - Admin/SuperAdmin ✅
+    - Gestor (Manager) ✅ (anteriormente não tinha)
+    - Director ✅
+    - PCA ✅
+    - Técnico ✅
+    - Utente ✅
+
+### CRUD - Design Moderno e Dinâmico
+- **Departamentos**: 
+  - Header com gradiente esmeralda
+  - Cards com hover effects 3D
+  - Formulários com campos arredondados
+  - Ícones de validação inline
+  
+- **Projectos**:
+  - Tabela moderna com header gradient
+  - Avatares circulares
+  - Badges coloridos para status
+  - Empty states elegantes
+  
+- **Usuários**:
+  - Header com gradiente laranja primário
+  - Campo de Departamento obrigatório para: Técnico, Director, Gestor, PCA
+  - Avatares com gradiente
+  - Badges de role com bordas coloridas
+  - Validação frontend e backend integrada
+
+### Sistema de Cores Primárias
+- **Paleta Consistente Aplicada**:
+  - Primary (laranja): Cards de usuários e admin
+  - Emerald (verde): Departamentos
+  - Purple (roxo): Projectos
+  - Amber (âmbar): Activos e técnicos
+  - Blue, Indigo, Purple: Distribuição de roles
+
+### Correções Técnicas
+- **Role "Gestor"**: Corrigido nome do role de "Gestor de Reclamações" para "Gestor" em:
+  - AdminDashboardController (queries de contagem)
+  - UserController (validação de departamento)
+  - Users/Create.vue e Edit.vue (campo departamento)
+  - Agora mostra corretamente 9 gestores no widget
+  
+- **Dashboard Manager**: Corrigido erro `Cannot read properties of undefined (reading 'name')` usando `$page.props.auth?.user?.name`
+
+### Dark Mode
+- **100% Compatível**: Todos os cards, badges, backgrounds e textos adaptam-se perfeitamente ao dark mode
+- Classes consistentes: `dark:bg-gray-800`, `dark:text-white`, `dark:border-gray-700`
+
+### Performance
+- **Build Otimizado**: Assets compilados com sucesso (8.36s)
+- **Sem Breaking Changes**: Funcionalidades existentes mantidas
+- **Responsividade**: Design adaptável mantido para mobile, tablet e desktop

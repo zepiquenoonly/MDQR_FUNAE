@@ -8,7 +8,18 @@
 
 ### Dezembro 2025
 
-#### Melhorias de Navegação (13/12/2025)
+#### Redesign Premium do Dashboard Admin (13/12/2025 - Tarde)
+- 🎨 **Cards Estatísticos Premium**: Redesign completo com fundo branco/dark, ícones com gradientes coloridos, números grandes (text-4xl), badges de status e animações suaves
+- 🚀 **Ações Rápidas Melhoradas**: Cards de navegação com ícones 3D maiores, background gradient sutil, animações de rotação e sombras XL coloridas
+- 👥 **Widget Distribuição de Usuários**: Cards individuais por role com ícones SVG únicos (Utentes 👤, Técnicos ⚙️, Gestores 👥, Directores 🏆, PCA 🛡️) e gradientes coloridos
+- 👋 **Boas-Vindas Padronizadas**: Seção "Bem-vindo(a)" com fundo transparente implementada em todos os 6 dashboards (Admin, Gestor, Director, PCA, Técnico, Utente)
+- 📋 **CRUD Modernizado**: Departamentos, Projectos e Usuários com design moderno, headers com gradientes, hover effects 3D e formulários elegantes
+- 🎯 **Campo Departamento**: Adicionado e validado para roles Técnico, Director, Gestor e PCA na criação/edição de usuários
+- 🔧 **Correção Role Gestor**: Corrigido nome do role de "Gestor de Reclamações" para "Gestor" - agora mostra corretamente 9 gestores
+- 🌙 **Dark Mode 100%**: Todos os novos componentes totalmente compatíveis com modo escuro
+- ⚡ **Performance**: Build otimizado em 8.36s, responsividade mantida
+
+#### Melhorias de Navegação (13/12/2025 - Manhã)
 - 🧭 **Menu Unificado**: Links diretos para dashboards por função (Admin, Director, Gestor, PCA, Técnico, Utente)
 - 🚀 **Navegação Otimizada**: Rotas explícitas no menu lateral para acesso rápido aos painéis
 
