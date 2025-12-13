@@ -1,13 +1,16 @@
 <template>
     <Layout :stats="safeStats" :role="'technician'">
         <div class="space-y-3 sm:space-y-6 px-3 sm:px-0">
-            <!-- Header com bem-vindo -->
-            <div>
-                <header class="flex flex-col gap-1 sm:gap-2">
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Bem-vindo(a), {{ props.user?.name }}</p>
-                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">Painel do Técnico</h1>
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Acompanhe as reclamações atribuídas, registe intervenções e solicite a conclusão ao gestor.</p>
-                </header>
+            <!-- Welcome Message - Transparent -->
+            <div class="mb-4">
+                <div class="py-4">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+                        Bem-vindo(a), {{ props.user?.name }}!
+                    </h1>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+                        Painel do Técnico - Acompanhe as reclamações atribuídas, registe intervenções e solicite a conclusão ao gestor
+                    </p>
+                </div>
             </div>
 
             <!-- KPIs Grid - Melhorado para mobile -->

@@ -737,6 +737,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import {
     XMarkIcon,
     DocumentTextIcon,
@@ -767,6 +768,10 @@ import {
     PaperAirplaneIcon,
     XCircleIcon
 } from '@heroicons/vue/24/outline'
+
+// Acessar usuário autenticado
+const page = usePage()
+const authUser = computed(() => page.props.auth?.user || null)
 
 const props = defineProps({
     isAnonymous: {
@@ -803,7 +808,8 @@ const formData = ref({
     contact_name: '',
     contact_email: '',
     contact_phone: '',
-    gender: ''
+    gender: '',
+    user_id: authUser.value?.id || null
 })
 
 const showOptionalContact = ref(false)
@@ -1231,6 +1237,8 @@ const handleSubmit = async () => {
         const formDataToSend = new FormData()
 
         // Adicionar dados do formulário
+        // IMPORTANTE: user_id é sempre enviado se o usuário estiver autenticado,
+        // mesmo em submissões anônimas, para rastreamento no dashboard do utente
         Object.keys(formData.value).forEach(key => {
             let value = formData.value[key]
             if (value !== null && value !== '' && value !== undefined) {

@@ -1,16 +1,20 @@
 <template>
     <Layout :role="'pca'">
         <div class="p-4 lg:p-6 space-y-6">
-            <!-- Header Section -->
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-                        Dashboard PCA
+            <!-- Welcome Message - Transparent -->
+            <div class="mb-4">
+                <div class="py-4">
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+                        Bem-vindo(a), {{ $page.props.auth?.user?.name }}!
                     </h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+                    <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
                         Painel de Controlo e Estatísticas Globais
                     </p>
                 </div>
+            </div>
+
+            <!-- Header Section -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
 
                 <!-- Filters -->
                 <div class="flex flex-wrap gap-3">

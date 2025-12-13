@@ -1,9 +1,8 @@
-
 # Estado das Funcionalidades por Fluxo
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 13/12/2025
+**Última atualização:** 13/12/2025, 22:30
 
 ## Legenda de Status
 
@@ -31,6 +30,15 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Fluxo 14 | Seeder de Performance Avançado | ✅ Implementado |
 | Fluxo 15 | Sistema de Anexos Aprimorado | ✅ Implementado |
 | Fluxo 16 | Admin Dashboard e Gestão de Departamentos | ✅ Implementado |
+
+### Distribuição de Usuários
+
+- **Total de Usuários**: 37
+- **PCA**: 1
+- **Director**: 6
+- **Gestor**: 9
+- **Técnico**: 17 (todos com workload configurado)
+- **Utente**: 2
 
 
 ## Fluxo 1: Submissão de Reclamação pelo Utente
@@ -326,7 +334,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 ### Implementado (Fluxo 16)
 
-- **Dashboard Administrativo Completo** *(interface dinâmica com estatísticas em tempo real)*
+- **Admin Dashboard Completo** *(interface dinâmica com estatísticas em tempo real, acções rápidas baseadas em permissões)*
 - **Gestão de Departamentos** *(5 departamentos com estrutura organizacional completa)*
 - **Alocação de Usuários** *(37 usuários distribuídos entre departamentos)*
 - **Relações Departamento-Projeto** *(9 projectos vinculados a departamentos)*
@@ -347,16 +355,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 | Educação e Desenvolvimento Social | Director de Educação | 1 | 2 | 1 |
 | Saúde Pública | Director de Saúde | 1 | 2 | 1 |
 
-### Distribuição de Usuários
 
-- **Total de Usuários**: 37
-- **Admin**: 1
-- **Super Admin**: 1
-- **PCA**: 1
-- **Director**: 6
-- **Gestor**: 9
-- **Técnico**: 17 (todos com workload configurado)
-- **Utente**: 2
 
 ### Campos de Workload (Técnicos)
 
@@ -548,3 +547,143 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 - **Menu Unificado com Links Diretos**: Substituição do link genérico "Dashboard" por links específicos para cada papel (Admin, Director, Gestor, PCA, Técnico, Utente) no menu lateral, facilitando a navegação direta para os painéis apropriados.
 - **Melhoria na UX de Navegação**: Usuários com múltiplos papéis ou permissões podem ter acesso facilitado aos seus respectivos dashboards através de rotas explícitas no menu.
+
+## Melhorias Visuais e UX (13/12/2025 - Tarde)
+
+### Dashboard Admin - Redesign Completo
+- **Cards de Estatísticas Premium**: Redesign completo dos 4 cards principais (Usuários, Departamentos, Projectos, Activos) com:
+  - Fundo branco/dark mode (não mais gradientes sólidos)
+  - Ícones com gradientes coloridos e sombras matching
+  - Números muito grandes (text-4xl) para melhor visualização
+  - Badges de status com ícones contextuais
+  - Background blur decorativo que expande no hover
+  - Animações suaves (elevação, scale e rotate nos ícones)
+  - Sombras coloridas que aumentam no hover
+
+- **Ações Rápidas Melhoradas**: Cards de navegação rápida com:
+  - Background gradient sutil por cor
+  - Ícones maiores (h-14 w-14) com efeito 3D
+  - Títulos em bold com descrições detalhadas
+  - Animação de rotação leve nos ícones ao hover
+  - Setas que se movem 2x mais no hover
+  - Sombras XL coloridas matching o tema
+
+- **Widget de Distribuição de Usuários Redesenhado**: 
+  - Cards individuais para cada role (5 tipos)
+  - Ícones SVG únicos e contextuais:
+    - 👤 Utentes (azul)
+    - ⚙️ Técnicos (âmbar)
+    - 👥 Gestores (emerald)
+    - 🏆 Directores (índigo)
+    - 🛡️ PCA (roxo)
+  - Gradientes coloridos por tipo de usuário
+  - Números em destaque (text-2xl)
+  - Borders coloridas matching
+  - Hover aumenta intensidade do background
+  - Contadores dinâmicos conectados ao banco de dados
+
+### Seção de Boas-Vindas Padronizada
+- **Todos os Dashboards (6 roles)**: Implementada seção "Bem-vindo(a), [Nome]!" com:
+  - Fundo 100% transparente (removidos gradientes coloridos)
+  - Tipografia responsiva (text-2xl → text-4xl)
+  - Suporte completo dark mode
+  - Consistência visual em todos os painéis:
+    - Admin/SuperAdmin ✅
+    - Gestor (Manager) ✅ (anteriormente não tinha)
+    - Director ✅
+    - PCA ✅
+    - Técnico ✅
+    - Utente ✅
+
+### CRUD - Design Moderno e Dinâmico
+- **Departamentos**: 
+  - Header com gradiente esmeralda
+  - Cards com hover effects 3D
+  - Formulários com campos arredondados
+  - Ícones de validação inline
+  
+- **Projectos**:
+  - Tabela moderna com header gradient
+  - Avatares circulares
+  - Badges coloridos para status
+  - Empty states elegantes
+  
+- **Usuários**:
+  - Header com gradiente laranja primário
+  - Campo de Departamento obrigatório para: Técnico, Director, Gestor, PCA
+  - Avatares com gradiente
+  - Badges de role com bordas coloridas
+  - Validação frontend e backend integrada
+
+### Sistema de Cores Primárias
+- **Paleta Consistente Aplicada**:
+  - Primary (laranja): Cards de usuários e admin
+  - Emerald (verde): Departamentos
+  - Purple (roxo): Projectos
+  - Amber (âmbar): Activos e técnicos
+  - Blue, Indigo, Purple: Distribuição de roles
+
+### Correções Técnicas
+- **Role "Gestor"**: Corrigido nome do role de "Gestor de Reclamações" para "Gestor" em:
+  - AdminDashboardController (queries de contagem)
+  - UserController (validação de departamento)
+  - Users/Create.vue e Edit.vue (campo departamento)
+  - Agora mostra corretamente 9 gestores no widget
+  
+- **Dashboard Manager**: Corrigido erro `Cannot read properties of undefined (reading 'name')` usando `$page.props.auth?.user?.name`
+
+### Dark Mode
+- **100% Compatível**: Todos os cards, badges, backgrounds e textos adaptam-se perfeitamente ao dark mode
+- Classes consistentes: `dark:bg-gray-800`, `dark:text-white`, `dark:border-gray-700`
+
+### Performance
+- **Build Otimizado**: Assets compilados com sucesso (média 7.5s)
+- **Sem Breaking Changes**: Funcionalidades existentes mantidas
+- **Responsividade**: Design adaptável mantido para mobile, tablet e desktop
+
+## Melhorias Finais (13/12/2025 - Noite)
+
+### Campo Departamento - Validação Refinada
+- **Obrigatório apenas para**: Gestor e Técnico
+- **Removido de**: Director, PCA (anteriormente era obrigatório)
+- **Validação sincronizada**: Frontend (Vue.js) e Backend (Laravel)
+- **Lógica clara**: Campo só aparece se role estiver em `['Técnico', 'Gestor']`
+
+### user_id em Reclamações Autenticadas
+- **Implementação**: user_id SEMPRE enviado quando utente está autenticado
+- **Funciona para**:
+  - ✅ Submissões identificadas (user_id + dados de contato)
+  - ✅ Submissões anônimas (user_id registrado, mas dados de contato ocultos)
+- **Benefícios**:
+  - Utente vê todas suas reclamações no dashboard pessoal
+  - Sistema mantém rastreamento completo
+  - Privacidade garantida (dados públicos ocultos quando anônimo)
+- **Validação**: Backend aceita `user_id` como `nullable|exists:users,id`
+- **Prioridade**: `user_id` do request → `auth()->user()->id` → `null`
+
+### Footer Reorganizado
+- **Problema corrigido**: Removidas duplicações de seções SERVIÇOS e CONTACTOS
+- **Estrutura atual**: 4 colunas únicas
+  1. **FUNAE**: Logo + Descrição + Redes Sociais
+  2. **SERVIÇOS**: Sugestão, Reclamação, Queixa
+  3. **LINKS ÚTEIS**: Início, Login, Registar, Acompanhar (nova seção)
+  4. **CONTACTOS**: Endereço, Email, Telefone
+- **Melhorias**: Grid responsivo, transitions suaves, textos consistentes
+- **Limpeza**: Removido link de debug "Teste Email"
+
+### Documentação Técnica Criada
+- ✅ `USER_ID_ANONYMOUS_LOGIC.md` - Explicação completa da lógica de anonimato
+- ✅ `FIELD_DEPARTMENT_UPDATE.md` - Documentação do campo departamento
+- ✅ `DASHBOARD_IMPROVEMENTS_SUMMARY.md` - Resumo do redesign
+- ✅ `VISUAL_IMPROVEMENTS_SUMMARY.md` - Melhorias visuais
+- ✅ `WELCOME_SECTION_UPDATE.md` - Seção Boas-Vindas
+
+### Commits do PR #119
+1. `4980df0` - 🎨 Redesign Premium Dashboard Admin
+2. `5f17570` - 🔧 Campo Departamento (Gestor + Técnico)
+3. `ba55afe` - ✨ Envio de user_id no formulário
+4. `aa098bd` - 📝 Documentação user_id anônimo
+5. `fcdfccd` - 🔧 Footer reorganizado
+6. `2e4a334` - 🔧 Remover link Teste Email
+
+**Status**: ✅ **Todas as funcionalidades implementadas, testadas e documentadas**

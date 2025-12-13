@@ -155,6 +155,7 @@ class GrievanceController extends Controller
                 'contact_email' => 'sometimes|nullable|email|max:255',
                 'contact_phone' => 'nullable|string|max:20',
                 'gender' => 'nullable|string|in:Masculino,Feminino,Outro',
+                'user_id' => 'nullable|exists:users,id',
                 'attachments' => 'nullable|array|max:5',
                 'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx,txt,csv,xls,xlsx,mp3,wav,ogg,webm,m4a,aac|max:10240',
                 'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,aac|max:10240',
@@ -180,7 +181,11 @@ class GrievanceController extends Controller
                 'priority' => 'medium',
                 'submitted_at' => now(),
                 'gender' => $validated['gender'] ?? null,
-                'user_id' => auth()->user()?->id ?? null,
+                // IMPORTANTE: user_id é SEMPRE associado se o usuário estiver autenticado,
+                // mesmo em submissões anônimas (is_anonymous = true).
+                // Isso permite que o utente veja suas reclamações no dashboard,
+                // mas mantém a identidade oculta publicamente (dados de contato não são exibidos).
+                'user_id' => $validated['user_id'] ?? auth()->user()?->id ?? null,
                 'contact_name' => $validated['contact_name'] ?? auth()->user()?->name ?? null,
                 'contact_email' => $validated['contact_email'] ?? auth()->user()?->email ?? null,
                 'contact_phone' => $validated['contact_phone'] ?? auth()->user()?->phone ?? null,
