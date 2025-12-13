@@ -25,14 +25,14 @@
 
       <!-- Right Section -->
       <div class="flex items-center flex-shrink-0 gap-2 sm:gap-3">
-        <!-- Notifications -->
+        <!-- Notifications
         <button class="relative flex-shrink-0 p-2 text-gray-700 transition-all hover:text-primary-600 rounded-xl hover:bg-primary-50 group">
           <BellIcon class="w-5 h-5 group-hover:animate-pulse" />
           <span
             class="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-lg -top-1 -right-1 bg-gradient-to-r from-primary-500 to-orange-600 animate-bounce">
             1
           </span>
-        </button>
+        </button> -->
 
         <!-- User Profile -->
         <UserDropdown :user="user" />
