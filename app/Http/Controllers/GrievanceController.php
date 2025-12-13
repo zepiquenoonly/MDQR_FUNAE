@@ -181,7 +181,10 @@ class GrievanceController extends Controller
                 'priority' => 'medium',
                 'submitted_at' => now(),
                 'gender' => $validated['gender'] ?? null,
-                // Prioriza user_id do request (se veio do frontend), depois auth, depois null
+                // IMPORTANTE: user_id é SEMPRE associado se o usuário estiver autenticado,
+                // mesmo em submissões anônimas (is_anonymous = true).
+                // Isso permite que o utente veja suas reclamações no dashboard,
+                // mas mantém a identidade oculta publicamente (dados de contato não são exibidos).
                 'user_id' => $validated['user_id'] ?? auth()->user()?->id ?? null,
                 'contact_name' => $validated['contact_name'] ?? auth()->user()?->name ?? null,
                 'contact_email' => $validated['contact_email'] ?? auth()->user()?->email ?? null,

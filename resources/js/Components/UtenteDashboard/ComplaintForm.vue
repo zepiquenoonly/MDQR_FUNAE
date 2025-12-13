@@ -1237,6 +1237,8 @@ const handleSubmit = async () => {
         const formDataToSend = new FormData()
 
         // Adicionar dados do formulário
+        // IMPORTANTE: user_id é sempre enviado se o usuário estiver autenticado,
+        // mesmo em submissões anônimas, para rastreamento no dashboard do utente
         Object.keys(formData.value).forEach(key => {
             let value = formData.value[key]
             if (value !== null && value !== '' && value !== undefined) {
