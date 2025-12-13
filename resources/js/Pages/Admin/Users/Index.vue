@@ -11,14 +11,14 @@
             <!-- Filtros -->
             <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
                 <div class="flex flex-wrap gap-4">
-                    <input 
-                        v-model="search" 
-                        type="text" 
-                        placeholder="Pesquisar utilizadores..." 
+                    <input
+                        v-model="search"
+                        type="text"
+                        placeholder="Pesquisar utilizadores..."
                         class="flex-1 min-w-64 border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     >
-                    <select 
-                        v-model="roleFilter" 
+                    <select
+                        v-model="roleFilter"
                         class="border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="">Todos os Roles</option>
@@ -89,7 +89,7 @@
 
 <script setup>
 import { Link } from '@inertiajs/vue3';
-import Layout from '@/Layouts/Layout.vue';
+import Layout from '@/Layouts/UnifiedLayout.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
@@ -108,9 +108,9 @@ let debounceTimer = null;
 watch([search, roleFilter], ([searchVal, roleVal]) => {
     clearTimeout(debounceTimer);
     debounceTimer = setTimeout(() => {
-        router.get('/admin/users', { 
-            search: searchVal, 
-            role: roleVal 
+        router.get('/admin/users', {
+            search: searchVal,
+            role: roleVal
         }, {
             preserveState: true,
             replace: true,

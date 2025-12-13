@@ -14,7 +14,7 @@
     />
 
     <!-- Role-specific sections -->
-    <template v-if="role === 'technician'">
+    <template v-if="role === 'technician' || role === 'utente'">
       <!-- MDQR Section -->
       <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
@@ -44,6 +44,13 @@
     </template>
 
     <template v-if="role === 'manager'">
+      <!-- Gestão de Projectos -->
+      <div
+        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+      >
+        Gestão de Projectos
+      </div>
+
       <!-- Projectos -->
       <MenuItem
         :active="false"
@@ -60,49 +67,48 @@
         @click="() => emitItem('tecnicos')"
       />
 
-      <!-- Estatísticas -->
+      <!-- Funcionários -->
+      <MenuItem
+        :active="$page.url.startsWith('/gestor/technicians')"
+        :icon="UserGroupIcon"
+        :text="'Funcionários'"
+        href="/gestor/technicians"
+      />
+
+      <!-- Relatórios Section -->
       <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
       >
         Relatórios
       </div>
+
+      <!-- Estatísticas -->
       <MenuItem
         :active="false"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
         @click="() => emitItem('estatisticas')"
       />
+
+      <!-- Indicadores -->
+      <MenuItem
+        :active="$page.url.startsWith('/gestor/estatisticas')"
+        :icon="ChartBarIcon"
+        :text="'Indicadores'"
+        href="/gestor/estatisticas"
+      />
     </template>
 
     <template v-if="role === 'director'">
-      <!-- <div
-        :class="[
-          'px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide transition-opacity duration-300',
-          isCollapsed ? 'opacity-0' : 'opacity-100',
-        ]"
-      >
-        Visão Geral e Casos
-      </div>
-
-     
-      <MenuItem
-        :active="$page.url === '/director/dashboard'"
-        :icon="HomeIcon"
-        :text="'Dashboard'"
-        :is-collapsed="isCollapsed"
-        href="/director/dashboard"
-      />-->
-
-      <!-- Submissões - usando complaints-overview existente -->
+      <!-- Submissões -->
       <MenuItem
         :active="$page.url.startsWith('/director/complaints-overview')"
         :icon="ClipboardDocumentListIcon"
         :text="'Submissões'"
-        :is-collapsed="isCollapsed"
         href="/director/complaints-overview"
       />
 
-      <!-- Indicadores (página existente) -->
+      <!-- Indicadores -->
       <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
@@ -110,21 +116,11 @@
         href="/gestor/estatisticas"
       />
 
-      <div
-        :class="[
-          'px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide transition-opacity duration-300 mt-4',
-          isCollapsed ? 'opacity-0' : 'opacity-100',
-        ]"
-      >
-        Gestão do Departamento
-      </div>
-
-      <!-- Funcionários - usando managers existente -->
+      <!-- Funcionários -->
       <MenuItem
         :active="$page.url.startsWith('/gestor/technicians')"
         :icon="UserGroupIcon"
         :text="'Funcionários'"
-        :is-collapsed="isCollapsed"
         href="/gestor/technicians"
       />
     </template>
@@ -138,12 +134,14 @@
         @click="() => emitItem('projectos')"
       />
 
-      <!-- Estatísticas -->
+      <!-- Relatórios Section -->
       <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
       >
         Relatórios
       </div>
+
+      <!-- Estatísticas -->
       <MenuItem
         :active="false"
         :icon="ChartBarIcon"
@@ -157,6 +155,39 @@
         :icon="UsersIcon"
         :text="'Usuários'"
         @click="() => emitItem('usuarios')"
+      />
+    </template>
+
+    <template v-if="role === 'admin'">
+      <!-- Gestão do Sistema -->
+      <div
+        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+      >
+        Gestão do Sistema
+      </div>
+
+      <!-- Utilizadores -->
+      <MenuItem
+        :active="false"
+        :icon="UsersIcon"
+        :text="'Utilizadores'"
+        @click="() => navigateToAdminUsers()"
+      />
+
+      <!-- Departamentos -->
+      <MenuItem
+        :active="false"
+        :icon="BuildingOfficeIcon"
+        :text="'Departamentos'"
+        @click="() => navigateToAdminDepartments()"
+      />
+
+      <!-- Projectos -->
+      <MenuItem
+        :active="false"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        @click="() => navigateToAdminProjects()"
       />
     </template>
 
@@ -200,6 +231,7 @@ import {
   ChartBarIcon,
   ClipboardDocumentListIcon,
   UsersIcon,
+  BuildingOfficeIcon,
 } from "@heroicons/vue/24/outline";
 import { router } from "@inertiajs/vue3";
 import MenuItem from "@/Components/UtenteDashboard/MenuItem.vue";
@@ -224,6 +256,18 @@ const navigateToProfile = () => {
 
 const navigateToTracking = () => {
   router.visit("/track");
+};
+
+const navigateToAdminUsers = () => {
+  router.visit("/admin/users");
+};
+
+const navigateToAdminDepartments = () => {
+  router.visit("/admin/departments");
+};
+
+const navigateToAdminProjects = () => {
+  router.visit("/admin/projects");
 };
 
 const handleLogout = () => {
