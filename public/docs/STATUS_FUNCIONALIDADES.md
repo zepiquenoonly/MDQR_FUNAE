@@ -1,4 +1,3 @@
-
 # Estado das Funcionalidades por Fluxo
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
@@ -326,7 +325,7 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 
 ### Implementado (Fluxo 16)
 
-- **Dashboard Administrativo Completo** *(interface dinâmica com estatísticas em tempo real)*
+- **Admin Dashboard Completo** *(interface dinâmica com estatísticas em tempo real, acções rápidas baseadas em permissões)*
 - **Gestão de Departamentos** *(5 departamentos com estrutura organizacional completa)*
 - **Alocação de Usuários** *(37 usuários distribuídos entre departamentos)*
 - **Relações Departamento-Projeto** *(9 projectos vinculados a departamentos)*
