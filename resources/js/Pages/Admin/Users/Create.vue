@@ -163,7 +163,7 @@ const form = useForm({
 });
 
 // Roles que requerem departamento
-const rolesWithDepartment = ['Técnico', 'Director', 'Gestor', 'PCA'];
+const rolesWithDepartment = ['Técnico', 'Gestor'];
 
 const shouldShowDepartmentField = computed(() => {
     return rolesWithDepartment.includes(form.role);
