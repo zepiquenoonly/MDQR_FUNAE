@@ -78,7 +78,7 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 📍 **Localização Completa**: Hierarquia provincial completa
   - 👤 **Informações Detalhadas**: Gênero, contato, tipo de submissão
   - 📅 **Datas Formatadas**: Todas as datas em formato legível
-- **Última Atualização**: 15/12/2025
+- **Última Atualização**: 14/12/2025
 
 ---
 
@@ -211,7 +211,7 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🔍 **Modais Funcionais**: Sistema completo de visualização modal
   - 📎 **Anexos Avançados**: Visualização inline e modal de imagens
   - 📅 **Datas Formatadas**: Sistema completo de formatação de datas
-- **Última Atualização**: 15/12/2025
+- **Última Atualização**: 14/12/2025
 
 ---
 
@@ -237,11 +237,13 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 ## 🐛 **Issues Conhecidos e Correções**
 
 ### ✅ **Resolvidos Recentemente**
-- 🔧 **Build Corrigido**: Import de layout corrigido para UnifiedLayout.vue (15/12/2025)
-- 🎨 **Página de Detalhes Enriquecida**: Informações completas da base de dados com localização, projeto e anexos avançados (15/12/2025)
-- 📎 **Sistema de Anexos Avançado**: Visualização inline de imagens e modal de tela cheia (15/12/2025)
-- 📅 **Datas Humanas Formatadas**: Todas as datas legíveis em português (15/12/2025)
-- 🏗️ **Backend Enriquecido**: Todas as relações carregadas eficientemente (15/12/2025)
+- 🎨 **Cores Primárias no Modal**: Aplicação consistente das cores primárias no modal GrievanceDetails (14/12/2025)
+- 📜 **Scroll na Tabela**: Implementação de scroll vertical automático quando há mais de 10 registros (14/12/2025)
+- 🔧 **Build Corrigido**: Import de layout corrigido para UnifiedLayout.vue (14/12/2025)
+- 🎨 **Página de Detalhes Enriquecida**: Informações completas da base de dados com localização, projeto e anexos avançados (14/12/2025)
+- 📎 **Sistema de Anexos Avançado**: Visualização inline de imagens e modal de tela cheia (14/12/2025)
+- 📅 **Datas Humanas Formatadas**: Todas as datas legíveis em português (14/12/2025)
+- 🏗️ **Backend Enriquecido**: Todas as relações carregadas eficientemente (14/12/2025)
 - 🔧 **Erro 404 Modal Corrigido**: Botão "Ver →" agora abre modal de detalhes sem erro (14/12/2025)
 - 🛠️ **FatalError Controller Resolvido**: Import duplicado `Inertia\Response` removido (14/12/2025)
 - 📄 **Página GrievanceDetail Criada**: Página completa para visualização direta de reclamações (14/12/2025)

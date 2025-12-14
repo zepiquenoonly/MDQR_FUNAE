@@ -8,7 +8,7 @@
 
 ### Dezembro 2025
 
-#### Página de Detalhes Enriquecida (15/12/2025)
+#### Página de Detalhes Enriquecida (14/12/2025)
 - 🎨 **Informações Completas**: Página de detalhes da reclamação totalmente enriquecida com dados da base de dados
   - Status completo com datas de atribuição e resolução
   - Informações detalhadas do requerente (nome, email, telefone, gênero, tipo de submissão)
@@ -595,3 +595,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 - [GENDER_FIELD_IMPLEMENTATION.md](./GENDER_FIELD_IMPLEMENTATION.md) - Implementação do campo de género
 - [DYNAMIC_SUBMISSION_FORM.md](./DYNAMIC_SUBMISSION_FORM.md) - Formulário dinâmico de submissão
 - [TROUBLESHOOTING_GRIEVANCE_INSERT.md](./TROUBLESHOOTING_GRIEVANCE_INSERT.md) - Troubleshooting de inserção
+
+---
+
+*Última atualização: 14 de Dezembro de 2025*
