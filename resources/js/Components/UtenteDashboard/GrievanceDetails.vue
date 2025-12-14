@@ -2,7 +2,7 @@
     <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
         <div class="bg-white rounded-lg shadow-2xl w-full max-w-[1200px] h-[90vh] flex flex-col">
             <!-- Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-500 to-blue-600">
+            <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-primary-500 to-primary-600">
                 <h2 class="flex-1 text-2xl font-bold text-center text-white">
                     Detalhes da Submissão #{{ grievance.reference_number || grievance.id }}
                 </h2>
@@ -15,7 +15,7 @@
             <div class="flex-1 overflow-y-auto">
                 <div v-if="loading" class="flex items-center justify-center h-full">
                     <div class="text-center">
-                        <div class="w-16 h-16 mx-auto mb-4 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+                        <div class="w-16 h-16 mx-auto mb-4 border-4 border-primary-500 rounded-full animate-spin border-t-transparent"></div>
                         <p class="text-gray-600">Carregando detalhes...</p>
                     </div>
                 </div>
@@ -25,7 +25,7 @@
                         <ExclamationCircleIcon class="w-16 h-16 mx-auto mb-4 text-red-500" />
                         <p class="mb-4 text-lg font-semibold text-gray-800">Erro ao carregar detalhes</p>
                         <p class="mb-4 text-gray-600">{{ error }}</p>
-                        <button @click="loadDetails" class="px-4 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600">
+                        <button @click="loadDetails" class="px-4 py-2 text-white bg-primary-500 rounded-lg hover:bg-primary-600">
                             Tentar novamente
                         </button>
                     </div>
@@ -118,7 +118,7 @@
                         <h3 class="mb-4 text-lg font-semibold text-gray-800">Projeto Relacionado</h3>
                         <div class="flex items-center justify-between">
                             <span class="text-sm text-gray-600">Nome do Projeto:</span>
-                            <span class="text-sm text-blue-600 font-medium">{{ details.project.name }}</span>
+                            <span class="text-sm text-primary-600 font-medium">{{ details.project.name }}</span>
                         </div>
                     </div>
 
@@ -193,7 +193,7 @@
                                         </p>
                                         <div class="mt-3 flex space-x-2">
                                             <a :href="`/storage/${attachment.file_path}`" target="_blank"
-                                               class="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
+                                               class="inline-flex items-center px-3 py-1 text-xs font-medium text-primary-600 bg-primary-50 rounded-md hover:bg-primary-100 transition-colors">
                                                 <ArrowDownTrayIcon class="w-3 h-3 mr-1" />
                                                 Download
                                             </a>
@@ -215,7 +215,7 @@
                             <h3 class="text-lg font-semibold text-gray-800">
                                 Histórico de Atualizações
                             </h3>
-                            <button @click="refreshUpdates" class="p-2 text-blue-500 transition-colors rounded-lg hover:bg-blue-50">
+                            <button @click="refreshUpdates" class="p-2 text-primary-500 transition-colors rounded-lg hover:bg-primary-50">
                                 <ArrowPathIcon class="w-5 h-5" :class="{ 'animate-spin': refreshing }" />
                             </button>
                         </div>
@@ -224,7 +224,7 @@
                                 class="relative pl-6 border-l-2 border-gray-200">
                                 <div :class="[
                                     'absolute left-0 top-0 -ml-2 w-4 h-4 rounded-full border-2 border-white',
-                                    index === 0 ? 'bg-blue-500' : 'bg-gray-400'
+                                    index === 0 ? 'bg-primary-500' : 'bg-gray-400'
                                 ]"></div>
                                 <div class="pb-4">
                                     <div class="flex items-center justify-between mb-1">
@@ -420,7 +420,7 @@ const closeImageModal = () => {
 
 const getStatusBadgeClass = (status) => {
     const classes = {
-        'submitted': 'bg-blue-100 text-blue-800',
+        'submitted': 'bg-primary-100 text-primary-800',
         'under_review': 'bg-yellow-100 text-yellow-800',
         'assigned': 'bg-purple-100 text-purple-800',
         'in_progress': 'bg-orange-100 text-orange-800',
