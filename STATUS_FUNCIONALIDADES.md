@@ -74,7 +74,11 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🔍 **Modal de Detalhes Funcional**: Botão "Ver →" abre modal completo com informações detalhadas
   - 📋 **Página de Detalhes Direta**: Acesso direto via URL `/utente/grievances/{id}`
   - 🎨 **UI Moderna**: Design consistente com gradientes e animações
-- **Última Atualização**: 14/12/2025
+  - 📎 **Sistema de Anexos Avançado**: Visualização inline de imagens com modal de tela cheia
+  - 📍 **Localização Completa**: Hierarquia provincial completa
+  - 👤 **Informações Detalhadas**: Gênero, contato, tipo de submissão
+  - 📅 **Datas Formatadas**: Todas as datas em formato legível
+- **Última Atualização**: 15/12/2025
 
 ---
 
@@ -205,7 +209,9 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🎨 Tailwind CSS
   - 📄 **Páginas Vue Criadas**: Arquivos faltantes implementados no manifest
   - 🔍 **Modais Funcionais**: Sistema completo de visualização modal
-- **Última Atualização**: 14/12/2025
+  - 📎 **Anexos Avançados**: Visualização inline e modal de imagens
+  - 📅 **Datas Formatadas**: Sistema completo de formatação de datas
+- **Última Atualização**: 15/12/2025
 
 ---
 
@@ -231,6 +237,10 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 ## 🐛 **Issues Conhecidos e Correções**
 
 ### ✅ **Resolvidos Recentemente**
+- 🎨 **Página de Detalhes Enriquecida**: Informações completas da base de dados com localização, projeto e anexos avançados (15/12/2025)
+- 📎 **Sistema de Anexos Avançado**: Visualização inline de imagens e modal de tela cheia (15/12/2025)
+- 📅 **Datas Humanas Formatadas**: Todas as datas legíveis em português (15/12/2025)
+- 🏗️ **Backend Enriquecido**: Todas as relações carregadas eficientemente (15/12/2025)
 - 🔧 **Erro 404 Modal Corrigido**: Botão "Ver →" agora abre modal de detalhes sem erro (14/12/2025)
 - 🛠️ **FatalError Controller Resolvido**: Import duplicado `Inertia\Response` removido (14/12/2025)
 - 📄 **Página GrievanceDetail Criada**: Página completa para visualização direta de reclamações (14/12/2025)
@@ -264,5 +274,5 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 
 ---
 
-*Última atualização: 14 de Dezembro de 2025*</content>
+*Última atualização: 15 de Dezembro de 2025*</content>
 <parameter name="filePath">/Users/edson/DEV_SETUP/PROJECTOS_CLIENTES/TECHSOLUTIONS/FUNAE/STATUS_FUNCIONALIDADES.md

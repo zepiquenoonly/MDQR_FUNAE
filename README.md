@@ -8,6 +8,27 @@
 
 ### Dezembro 2025
 
+#### Página de Detalhes Enriquecida (15/12/2025)
+- 🎨 **Informações Completas**: Página de detalhes da reclamação totalmente enriquecida com dados da base de dados
+  - Status completo com datas de atribuição e resolução
+  - Informações detalhadas do requerente (nome, email, telefone, gênero, tipo de submissão)
+  - Localização hierárquica (Província → Distrito → Posto Administrativo → Localidade)
+  - Projeto relacionado quando aplicável
+  - Responsável pela atribuição com dados de contato
+- 📎 **Sistema de Anexos Avançado**: Visualização aprimorada com previews inline para imagens
+  - Modal de visualização em tela cheia para imagens
+  - Download direto de todos os tipos de arquivo
+  - Metadados completos (tamanho, tipo, data de upload)
+  - Organização em grid responsivo
+- 📅 **Datas Humanas**: Todas as datas formatadas de forma legível em português
+  - Data de submissão, atribuição, resolução e escalação
+  - Formatação consistente: "15 de dezembro de 2025 às 14:30"
+- 🏗️ **Backend Enriquecido**: Controller atualizado para carregar todas as relações necessárias
+  - Projetos, usuários resolvedores, usuários que escalaram
+  - Dados completos de localização e contato
+  - Metadados e informações adicionais
+- ⚡ **Performance Otimizada**: Carregamento eficiente com eager loading de relações
+
 #### Correções Críticas de Modal e Controller (14/12/2025)
 - 🔧 **Erro 404 Modal Corrigido**: Resolvido problema onde clique no botão "Ver →" na tabela causava erro 404
   - Problema: Modal recebia `reference_number` em vez do `grievance_id` numérico
