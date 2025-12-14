@@ -52,6 +52,7 @@
                 <TableComponent 
                     title="Minhas Submissões Recentes" 
                     :rows="recentSubmissions"
+                    @view-details="handleViewSubmissionDetails"
                 />
             </div>
 
@@ -92,6 +93,7 @@
         </div>
         <ComplaintForm :visible="showComplaintForm" @close="showComplaintForm = false" @success="handleComplaintSuccess" />
         <SubmissionsModal :visible="showSubmissionsModal" @close="showSubmissionsModal = false" :submissions="recentSubmissions" />
+        <GrievanceDetails v-if="selectedGrievance" :grievance="selectedGrievance" @close="selectedGrievance = null" />
     </Layout>
 </template>
 
@@ -114,6 +116,7 @@ import ChartBarComponent from '@/Components/UtenteDashboard/ChartBarComponent.vu
 import TableComponent from '@/Components/UtenteDashboard/TableComponent.vue'
 import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
 import SubmissionsModal from '@/Components/UtenteDashboard/SubmissionsModal.vue'
+import GrievanceDetails from '@/Components/UtenteDashboard/GrievanceDetails.vue'
 
 const props = defineProps({
     user: {
@@ -252,6 +255,7 @@ const recentSubmissions = computed(() => {
 
 const { activePanel, setActivePanel, activeDropdown } = useDashboard()
 const selectedProjectId = ref(null)
+const selectedGrievance = ref(null)
 
 // Watch para mudanças no activePanel - IMPORTANTE: Fechar ProjectDetails quando o painel mudar
 watch(activePanel, (newPanel) => {
@@ -287,6 +291,11 @@ const handleViewProjectDetails = (projectId) => {
 const handleBackFromProjectDetails = () => {
     console.log('Voltando dos detalhes do projeto')
     selectedProjectId.value = null
+}
+
+const handleViewSubmissionDetails = (submission) => {
+    console.log('Visualizar detalhes da submissão:', submission)
+    selectedGrievance.value = submission
 }
 
 const showComplaintForm = ref(false)
