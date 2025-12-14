@@ -37,6 +37,13 @@
 - 🎨 **UI Consistente**: Mantém design system do dashboard
 - ⚡ **Performance Otimizada**: Modal carrega dados existentes sem requisições adicionais
 
+#### Tabela Submissões com Ação Modal (14/12/2025)
+- 🎯 **Botão 'Ver →' Funcional**: Clicável para visualizar detalhes da submissão
+- 🔍 **Modal GrievanceDetails Integrado**: Reutilização do componente existente
+- 📊 **Dados da Tabela**: Status, categoria, prioridade, datas formatadas
+- 🎨 **Transições Suaves**: Hover effects e animações consistentes
+- ⚡ **Performance**: Modal abre instantaneamente com dados locais
+
 #### Melhorias UX e Navegação (14/12/2025)
 - 🏠 **Página Inicial Acessível**: Usuários autenticados agora podem navegar pela página Home (/) livremente
   - Removida lógica de redirecionamento forçado para dashboards
