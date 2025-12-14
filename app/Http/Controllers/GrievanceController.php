@@ -137,7 +137,29 @@ class GrievanceController extends Controller
      */
     public function store(Request $request)
     {
-        $isAuthenticated = auth()->check();
+        // Resolve authenticated user from request (Sanctum/API) or session (web)
+        $authenticatedUser = $request->user() ?? auth()->user();
+        $isAuthenticated = (bool) $authenticatedUser;
+
+        // Early debug info to diagnose intermittent auth/session issues
+        Log::info('Store() request auth/session debug', [
+            'auth_check_at_start' => $isAuthenticated,
+            'auth_user_at_start' => $authenticatedUser ? $authenticatedUser->id : null,
+            'session_id' => session()->getId(),
+            'request_uri' => $request->getRequestUri(),
+            'request_method' => $request->getMethod(),
+            'client_ip' => $request->getClientIp(),
+            'request_cookies' => $request->cookies->all(),
+            'request_headers_snippet' => [
+                'cookie' => $request->header('cookie'),
+                'authorization' => $request->header('authorization'),
+                'x-xsrf-token' => $request->header('x-xsrf-token')
+            ],
+            'auth_guard' => config('auth.defaults.guard')
+        ]);
+
+        // Additional: log full headers separately at DEBUG level to avoid cluttering INFO
+        Log::debug('Store() full request headers', $request->headers->all());
 
         try {
             // Validação dos dados
@@ -187,7 +209,6 @@ class GrievanceController extends Controller
 
             // Se usuário está logado: usar dados da sessão (mesmo se anônimo)
             if ($isAuthenticated) {
-                $authenticatedUser = auth()->user();
                 $grievanceData['user_id'] = $authenticatedUser->id;
 
                 // Se identificado, associar dados pessoais
@@ -208,8 +229,14 @@ class GrievanceController extends Controller
                 $grievanceData['gender'] = $validated['gender'] ?? null;
             }
 
+            // Determine route context
+            $currentRoute = optional($request->route())->getName();
+            $routeMiddleware = optional($request->route())->gatherMiddleware() ?? [];
+
             // Log para debug
             Log::info('Criando grievance com dados:', [
+                'route' => $currentRoute,
+                'route_middleware' => $routeMiddleware,
                 'auth_check' => $isAuthenticated,
                 'user_id' => $grievanceData['user_id'] ?? null,
                 'is_anonymous' => $isAnonymous,

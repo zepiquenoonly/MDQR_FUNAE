@@ -96,28 +96,37 @@
 
                         <!-- Projeto -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700">Projeto Relacionado (Opcional)</label>
+                            <label class="block text-sm font-semibold text-gray-700">Projeto Relacionado <span class="text-red-500">*</span></label>
                             <select v-model="formData.project_id" @change="errors.project_id = ''"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                <option value="">Selecione um projeto (opcional)</option>
+                                :class="[
+                                    'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                    errors.project_id ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                ]">
+                                <option value="">Selecione um projeto</option>
                                 <option v-for="project in projects" :key="project.id" :value="project.id">
                                     {{ project.name }} {{ project.location ? '(' + project.location + ')' : '' }}
                                 </option>
                             </select>
-                            <p class="text-xs text-gray-500">Selecione o projeto relacionado à sua submissão, se aplicável.</p>
+                            <p v-if="errors.project_id" class="text-red-500 text-xs mt-1 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ errors.project_id }}
+                            </p>
+                            <p class="text-xs text-gray-500">Selecione o projeto relacionado à sua submissão.</p>
                         </div>
 
                         <!-- Categoria -->
-                        <div class="space-y-2">
+                        <!-- <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">
-                                Categoria <span class="text-red-500">*</span>
+                                Categoria (Opcional)
                             </label>
                             <select v-model="formData.category" @change="formData.subcategory = ''; errors.category = ''"
                                 :class="[
                                     'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
                                     errors.category ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
                                 ]">
-                                <option value="">Selecione uma categoria</option>
+                                <option value="">Selecione uma categoria (opcional)</option>
                                 <option v-for="(subs, cat) in categories" :key="cat" :value="cat">{{ cat }}</option>
                             </select>
                             <p v-if="errors.category" class="text-red-500 text-xs mt-1 flex items-center">
@@ -126,17 +135,17 @@
                                 </svg>
                                 {{ errors.category }}
                             </p>
-                        </div>
+                        </div> -->
 
                         <!-- Subcategoria -->
-                        <div class="space-y-2">
+                        <!-- <div class="space-y-2">
                             <label class="block text-sm font-semibold text-gray-700">Subcategoria</label>
                             <select v-model="formData.subcategory" :disabled="!formData.category"
                                 class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:bg-gray-100">
                                 <option value="">Selecione uma subcategoria</option>
                                 <option v-for="sub in (categories[formData.category] || [])" :key="sub" :value="sub">{{ sub }}</option>
                             </select>
-                        </div>
+                        </div> -->
 
                         <!-- Anonimato -->
                         <div class="space-y-2 md:col-span-2">
@@ -206,9 +215,9 @@
                         <!-- Descrição -->
                         <div class="space-y-2 md:col-span-2">
                             <label class="block text-sm font-semibold text-gray-700">
-                                Descrição da Reclamação <span class="text-red-500">*</span>
+                                Descrição da Reclamação (Opcional)
                             </label>
-                            <p class="text-xs text-gray-500 mb-2">Descreva detalhadamente a sua reclamação (mínimo 10 caracteres).</p>
+                            <p class="text-xs text-gray-500 mb-2">Descreva detalhadamente a sua reclamação (mínimo 50 caracteres se preenchido).</p>
                             <textarea v-model="formData.description" @input="errors.description = ''" rows="6"
                                 :class="[
                                     'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
@@ -239,12 +248,21 @@
 
                         <!-- Província -->
                         <div class="space-y-2">
-                            <label class="block text-sm font-semibold text-gray-700">Província</label>
-                            <select v-model="formData.province" @change="formData.district = ''"
-                                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+                            <label class="block text-sm font-semibold text-gray-700">Província <span class="text-red-500">*</span></label>
+                            <select v-model="formData.province" @change="formData.district = ''; errors.province = ''"
+                                :class="[
+                                    'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 transition-all',
+                                    errors.province ? 'border-red-500 focus:ring-red-500' : 'border-gray-300 focus:ring-orange-500'
+                                ]">
                                 <option value="">Selecione a província</option>
                                 <option v-for="(districts, prov) in locations" :key="prov" :value="prov">{{ prov }}</option>
                             </select>
+                            <p v-if="errors.province" class="text-red-500 text-xs mt-1 flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+                                </svg>
+                                {{ errors.province }}
+                            </p>
                         </div>
 
                         <!-- Distrito -->
@@ -419,12 +437,17 @@ const validateStep = () => {
     errors.value = {}
 
     if (currentStep.value === 1) {
-        if (!formData.value.category) {
-            errors.value.category = 'Selecione uma categoria'
+        if (!formData.value.project_id) {
+            errors.value.project_id = 'Selecione um projeto'
         }
-        if (!formData.value.description || formData.value.description.length < 10) {
-            errors.value.description = 'A descrição deve ter pelo menos 10 caracteres'
+        
+        // Categoria é opcional
+        
+        // Descrição é opcional, mas se preenchida deve ter 50+ caracteres
+        if (formData.value.description && formData.value.description.length < 50) {
+            errors.value.description = 'A descrição deve ter pelo menos 50 caracteres se fornecida'
         }
+
         if (formData.value.is_anonymous) {
             if (!formData.value.contact_name) {
                 errors.value.contact_name = 'Nome é obrigatório para reclamações anônimas'
@@ -432,6 +455,10 @@ const validateStep = () => {
             if (!formData.value.contact_email) {
                 errors.value.contact_email = 'Email é obrigatório para reclamações anônimas'
             }
+        }
+    } else if (currentStep.value === 2) {
+        if (!formData.value.province) {
+            errors.value.province = 'Selecione a província'
         }
     }
 
@@ -468,6 +495,7 @@ const removeFile = (index) => {
 const fetchProjects = async () => {
     try {
         const response = await fetch('/api/grievances/projects', {
+            // credentials: 'include',
             headers: {
                 'Accept': 'application/json',
                 'X-Requested-With': 'XMLHttpRequest'
@@ -523,8 +551,12 @@ const handleSubmit = async () => {
             contact_email: formData.value.contact_email
         })
 
+        // Ensure Sanctum CSRF cookie is present (for session auth)
+        // await fetch('/sanctum/csrf-cookie', { credentials: 'include' })
+
         const response = await fetch('/api/grievances', {
             method: 'POST',
+            credentials: 'include',
             body: formDataToSend,
             headers: {
                 'Accept': 'application/json',

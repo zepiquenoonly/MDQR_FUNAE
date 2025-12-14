@@ -45,6 +45,9 @@ Route::get('/grievances-home', function () {
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
 Route::middleware('api')->post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
 
+// Public web route for grievance creation (allow logged-in and guest submissions). Keep name for compatibility.
+Route::post('/api/grievances', [GrievanceController::class, 'store'])->name('api.grievances.store');
+
 // Locations API
 Route::get('/api/locations', [GrievanceController::class, 'getLocations'])->name('api.locations');
 
@@ -201,84 +204,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/attachments/{attachment}/download', [GrievanceController::class, 'downloadAttachment'])
         ->name('attachments.download');
 
-    // API para técnicos
-    /*Route::get('/api/tecnicos', function () {
-        try {
-            $tecnicos = \App\Models\User::whereHas('roles', function($query) {
-                $query->where('name', 'Técnico');
-            })->get();
-
-            $tecnicosData = $tecnicos->map(function ($tecnico) {
-                return [
-                    'id' => $tecnico->id,
-                    'name' => $tecnico->name,
-                    'email' => $tecnico->email,
-                    'username' => $tecnico->username,
-                    'phone' => $tecnico->phone ?? 'N/A',
-                    'province' => $tecnico->province ?? 'N/A',
-                    'district' => $tecnico->district ?? 'N/A',
-                    'is_active' => true,
-                    'active_cases_count' => 0,
-                    'total_cases' => 0,
-                    'created_at' => $tecnico->created_at,
-                ];
-            });
-
-            $stats = [
-                'totalTecnicos' => $tecnicosData->count(),
-                'tecnicosAtivos' => $tecnicosData->count(),
-                'casosAtribuidos' => 0,
-            ];
-
-            return response()->json([
-                'tecnicos' => $tecnicosData,
-                'stats' => $stats
-            ]);
-
-        } catch (\Exception $e) {
-            \Log::error('Erro na API Tecnicos: ' . $e->getMessage());
-
-            return response()->json([
-                'tecnicos' => [],
-                'stats' => [
-                    'totalTecnicos' => 0,
-                    'tecnicosAtivos' => 0,
-                    'casosAtribuidos' => 0
-                ]
-            ]);
-        }
-    })->name('api.tecnicos.index');
-
-    Route::get('/api/tecnicos/{tecnicoId}/desempenho', function ($tecnicoId) {
-        try {
-            $tecnico = \App\Models\User::findOrFail($tecnicoId);
-
-            $desempenho = [
-                'estatisticas_gerais' => [
-                    'total_casos' => 150,
-                    'casos_resolvidos' => 120,
-                    'taxa_sucesso' => 80,
-                    'tempo_medio' => 3.5,
-                ],
-                'desempenho_mensal' => [
-                    'casos_atribuidos' => 15,
-                    'casos_resolvidos' => 12,
-                    'em_progresso' => 3,
-                    'taxa_resolucao' => 80,
-                ],
-                'casos_mensais' => [],
-                'historico_mensal' => []
-            ];
-
-            return response()->json($desempenho);
-
-        } catch (\Exception $e) {
-            \Log::error('Erro ao carregar desempenho do técnico: ' . $e->getMessage());
-            return response()->json(['error' => 'Erro ao carregar dados'], 500);
-        }
-    })->name('api.tecnicos.desempenho');*/
-
-
 Route::prefix('api/projects')->group(function () {
     Route::get('/', [ProjectController::class, 'index'])->name('api.projects.index');
     Route::get('/{project}', [ProjectController::class, 'showJson'])->name('api.projects.show'); // Use showJson
@@ -288,8 +213,6 @@ Route::prefix('api/projects')->group(function () {
 
 
     // API de projetos
-
-
 Route::prefix('manager/projects')->group(function () {
     Route::get('/', [ProjectController::class, 'indexPage'])->name('projects');
     Route::post('/', [ProjectController::class, 'store'])->name('projects.store');
@@ -298,12 +221,10 @@ Route::prefix('manager/projects')->group(function () {
     Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 });
 
-    // Rotas do GrievanceController (acessíveis a usuários autenticados)
+    // Rotas do GrievanceController (index/show require auth)
     Route::get('/grievances', [GrievanceController::class, 'index'])->name('grievances.index');
-    Route::post('/grievances', [GrievanceController::class, 'store'])->name('grievances.store');
     Route::get('/grievances/{grievance}', [GrievanceController::class, 'show'])->name('grievances.show');
     Route::get('/grievances/track', [GrievanceController::class, 'track'])->name('grievances.track.api');
-
     // API de localizações e categorias
     Route::get('/api/categories', [GrievanceController::class, 'getCategories'])->name('api.categories');
 

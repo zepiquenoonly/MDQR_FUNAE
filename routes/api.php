@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 // Rotas públicas (não requerem autenticação)
-Route::post('/grievances', [GrievanceController::class, 'store'])->name('api.grievances.store');
+// Note: grievance creation now uses the web route protected by session auth.
+// The POST /grievances API route was removed to ensure submissions use web session authentication.
 Route::post('/grievances/track', [GrievanceController::class, 'track'])->name('api.grievances.track');
 
 // Rotas auxiliares
