@@ -549,6 +549,7 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ### 📝 Documentação Técnica Adicional
 
+- [CRUD_IMPROVEMENTS_SUMMARY.md](./CRUD_IMPROVEMENTS_SUMMARY.md) - Padronização das páginas Create/Edit CRUD
 - [USER_ID_ANONYMOUS_LOGIC.md](./USER_ID_ANONYMOUS_LOGIC.md) - Lógica de user_id em submissões anônimas
 - [FIELD_DEPARTMENT_UPDATE.md](./FIELD_DEPARTMENT_UPDATE.md) - Campo Departamento para Gestor e Técnico
 - [DASHBOARD_IMPROVEMENTS_SUMMARY.md](./DASHBOARD_IMPROVEMENTS_SUMMARY.md) - Resumo do redesign do Dashboard Admin
