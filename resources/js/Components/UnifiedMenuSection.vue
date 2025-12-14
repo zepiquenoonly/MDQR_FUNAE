@@ -44,7 +44,7 @@
     />
 
     <MenuItem v-if="role === 'utente'"
-      :icon="HomeIcon"
+      :icon="MagnifyingGlassIcon"
       :text="'Acompanhar submissão'"
       href="/track"
     />
