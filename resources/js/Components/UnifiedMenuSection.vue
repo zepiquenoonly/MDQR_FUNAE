@@ -43,6 +43,12 @@
       href="/utente/dashboard"
     />
 
+    <MenuItem v-if="role === 'utente'"
+      :icon="HomeIcon"
+      :text="'Acompanhar submissão'"
+      href="/track"
+    />
+
     <template v-if="role === 'manager'">
       <!-- Técnicos -->
       <MenuItem

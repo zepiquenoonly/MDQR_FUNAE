@@ -26,11 +26,10 @@
 
 
     <!-- Ver Submissões - Secondary Action -->
-    <button
+    <!-- <button
       @click="viewSubmissions"
       class="relative flex items-center justify-between p-4 overflow-hidden transition-all duration-300 border glass-card hover:scale-105 group sm:col-span-2 md:col-span-1 hover:shadow-xl border-white/40"
     >
-      <!-- Gradient overlay on hover -->
       <div class="absolute inset-0 transition-opacity duration-300 opacity-0 bg-gradient-to-br from-blue-500/5 to-indigo-500/5 group-hover:opacity-100"></div>
 
       <div class="relative z-10 flex items-center flex-1 min-w-0 gap-3">
@@ -47,7 +46,7 @@
       <svg class="relative z-10 flex-shrink-0 w-5 h-5 ml-2 text-gray-400 transition-all group-hover:text-blue-600 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
       </svg>
-    </button>
+    </button> -->
   </div>
 </template>
 
