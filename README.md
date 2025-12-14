@@ -8,6 +8,15 @@
 
 ### Dezembro 2025
 
+#### Correções de Autenticação e Routing (14/12/2025)
+- 🔧 **Providers Laravel Adicionados**: Criados AuthServiceProvider, EventServiceProvider e RouteServiceProvider para resolver problemas de bootstrap
+- ⚙️ **Configuração de Providers Expandida**: Adicionados providers essenciais (Hashing, Validation, Translation, Cache) em config/app.php
+- 🛠️ **Instrumentação de Debug no GrievanceController**: Logs detalhados para diagnóstico de autenticação, incluindo headers, cookies e sessão
+- 🛤️ **Rota POST para api/grievances**: Adicionada rota com middleware web para aceitar submissões com sessão autenticada
+- 🌐 **Configuração CORS**: Criado config/cors.php para suporte a credenciais em requisições cross-origin
+- 🔄 **Frontend Atualizado**: bootstrap.js com axios.withCredentials, ComplaintForm.vue com melhorias no formulário
+- 📦 **Commit e PR**: Mudanças commitadas na branch fix/grievance-auth-routing e PR #121 criada
+
 #### Melhorias UX e Navegação (14/12/2025)
 - 🏠 **Página Inicial Acessível**: Usuários autenticados agora podem navegar pela página Home (/) livremente
   - Removida lógica de redirecionamento forçado para dashboards
