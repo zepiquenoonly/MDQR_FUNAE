@@ -237,6 +237,7 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 ## 🐛 **Issues Conhecidos e Correções**
 
 ### ✅ **Resolvidos Recentemente**
+- 🔧 **Build Corrigido**: Import de layout corrigido para UnifiedLayout.vue (15/12/2025)
 - 🎨 **Página de Detalhes Enriquecida**: Informações completas da base de dados com localização, projeto e anexos avançados (15/12/2025)
 - 📎 **Sistema de Anexos Avançado**: Visualização inline de imagens e modal de tela cheia (15/12/2025)
 - 📅 **Datas Humanas Formatadas**: Todas as datas legíveis em português (15/12/2025)

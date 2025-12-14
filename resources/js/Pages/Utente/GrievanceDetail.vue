@@ -238,7 +238,7 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import Layout from '@/Layouts/Layout.vue'
+import Layout from '@/Layouts/UnifiedLayout.vue'
 import {
   PaperClipIcon,
   ArrowDownTrayIcon,

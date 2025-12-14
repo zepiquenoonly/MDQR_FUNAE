@@ -28,6 +28,7 @@
   - Dados completos de localização e contato
   - Metadados e informações adicionais
 - ⚡ **Performance Otimizada**: Carregamento eficiente com eager loading de relações
+- 🔧 **Build Corrigido**: Import de layout corrigido para UnifiedLayout.vue
 
 #### Correções Críticas de Modal e Controller (14/12/2025)
 - 🔧 **Erro 404 Modal Corrigido**: Resolvido problema onde clique no botão "Ver →" na tabela causava erro 404
