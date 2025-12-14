@@ -66,7 +66,10 @@ const getRoleTitle = () => {
   const titles = {
     technician: 'Painel do Técnico',
     manager: 'Painel do Gestor',
-    pca: 'Painel PCA'
+    pca: 'Painel do PCA',
+    director: 'Painel do Director',
+    admin: 'Painel do Administrador',
+    utente: 'Painel do Utente'
   }
   return titles[props.role] || 'Painel'
 }
