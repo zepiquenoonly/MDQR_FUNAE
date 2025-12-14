@@ -42,7 +42,7 @@ const rolesWithDepartment = ['Técnico', 'Gestor'];
 
 ---
 
-## 🎯 Comportamento Atual
+## 🎯 Comportamento Actual
 
 ### Criação/Edição de Usuário
 

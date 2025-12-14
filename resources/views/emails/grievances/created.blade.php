@@ -25,7 +25,7 @@
             <span class="detail-value">{{ $grievance->submitted_at->format('d/m/Y H:i') }}</span>
         </div>
         <div class="detail-row">
-            <span class="detail-label">Estado Atual:</span>
+            <span class="detail-label">Estado Actual:</span>
             <span class="detail-value">{{ $grievance->status_label }}</span>
         </div>
     </div>

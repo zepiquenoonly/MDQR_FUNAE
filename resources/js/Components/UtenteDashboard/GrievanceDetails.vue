@@ -36,7 +36,7 @@
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <!-- Status Card -->
                         <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-                            <h3 class="mb-4 text-lg font-semibold text-gray-800">Status Atual</h3>
+                            <h3 class="mb-4 text-lg font-semibold text-gray-800">Status Actual</h3>
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between">
                                     <span class="text-sm text-gray-600">Estado:</span>

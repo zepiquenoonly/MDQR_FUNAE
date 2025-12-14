@@ -89,7 +89,7 @@ Consultando o banco de dados:
 
 ## 🔍 Verificação da Correção
 
-### Contagem Atual de Usuários por Role:
+### Contagem Actual de Usuários por Role:
 
 ```bash
 Distribuição de Usuários:

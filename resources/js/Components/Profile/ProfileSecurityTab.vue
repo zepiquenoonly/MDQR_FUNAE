@@ -44,7 +44,7 @@
 
       <form @submit.prevent="updatePassword">
         <div class="space-y-4">
-          <!-- Password Atual -->
+          <!-- Password Actual -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-white mb-2">
               Palavra-passe Actual *

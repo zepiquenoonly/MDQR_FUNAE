@@ -527,5 +527,5 @@ php artisan email:test --grievance=1
 ---
 
 **Última Atualização**: 22 de Novembro, 2025  
-**Versão Atual**: 0.3  
+**Versão Actual**: 0.3  
 **Equipa**: TECHSOLUTIONS, LDA

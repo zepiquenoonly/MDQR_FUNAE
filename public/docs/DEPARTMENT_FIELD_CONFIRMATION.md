@@ -1,6 +1,6 @@
 # ✅ Confirmação: Campo Departamento para Gestor/Manager
 
-## 📋 Status Atual
+## 📋 Status Actual
 
 O campo **Departamento** já está **corretamente configurado** para aparecer como **obrigatório** para o role **"Gestor"** (Manager).
 
@@ -58,7 +58,7 @@ $rolesWithDepartment = ['Técnico', 'Director', 'Gestor', 'PCA'];
 
 ---
 
-## 🎯 Comportamento Atual
+## 🎯 Comportamento Actual
 
 ### Quando o Admin seleciona o role "Gestor":
 
