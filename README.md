@@ -17,6 +17,15 @@
 - 🔄 **Frontend Atualizado**: bootstrap.js com axios.withCredentials, ComplaintForm.vue com melhorias no formulário
 - 📦 **Commit e PR**: Mudanças commitadas na branch fix/grievance-auth-routing e PR #121 criada
 
+#### Melhorias de UI e Dashboard (14/12/2025)
+- 🎨 **Header Unificado Otimizado**: UnifiedHeader.vue tornado mais discreto e transparente
+  - Altura reduzida (h-32 → h-20), padding/gaps ajustados
+  - Transparência aumentada (bg-white/10 → bg-white/5)
+  - Margens removidas para melhor integração visual
+- 🗑️ **Seção de Notificações Removida**: NotificationWidget removido do Dashboard.vue
+  - Código limpo e interface simplificada
+  - Foco nas funcionalidades principais do dashboard
+
 #### Melhorias UX e Navegação (14/12/2025)
 - 🏠 **Página Inicial Acessível**: Usuários autenticados agora podem navegar pela página Home (/) livremente
   - Removida lógica de redirecionamento forçado para dashboards
