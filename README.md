@@ -8,6 +8,15 @@
 
 ### Dezembro 2025
 
+#### Campo de Género e Formulário Dinâmico (14/12/2025)
+- 👤 **Campo Género no Registro**: Adicionado campo de género (Masculino, Feminino, Outro) ao formulário "Dados do Munícipe" com validação completa
+- 🔄 **Formulário Dinâmico de Submissão**: Sistema inteligente que adapta o formulário baseado no estado de autenticação
+  - Usuário logado: apenas escolhe Anónimo/Identificado (dados vêm da sessão automaticamente)
+  - Usuário não logado: formulário completo com campos de dados pessoais
+- 🛠️ **Correção de Inserção**: Corrigido problema onde grievances não eram inseridas quando usuário estava logado
+- 📊 **Logs de Debug**: Implementados logs detalhados para troubleshooting no GrievanceController
+- ✅ **Validação Inteligente**: Validação adaptada ao contexto (logado vs não logado)
+
 #### Redesign Premium e Melhorias UX (13/12/2025)
 - 🎨 **Cards Estatísticos Premium**: Redesign completo com fundo branco/dark, ícones com gradientes coloridos, números grandes (text-4xl), badges de status e animações suaves
 - 🚀 **Ações Rápidas Melhoradas**: Cards de navegação com ícones 3D maiores, background gradient sutil, animações de rotação e sombras XL coloridas
@@ -21,8 +30,6 @@
 - 🔒 **Privacidade Garantida**: Dados de contato ocultos publicamente em reclamações anônimas, mas user_id mantido para dashboard pessoal
 - 🌙 **Dark Mode 100%**: Todos os novos componentes totalmente compatíveis com modo escuro
 - ⚡ **Performance**: Builds otimizados (média 7.5s), responsividade mantida
-
-#### Melhorias de Navegação (13/12/2025 - Manhã)
 - 🧭 **Menu Unificado**: Links diretos para dashboards por função (Admin, Director, Gestor, PCA, Técnico, Utente)
 - 🚀 **Navegação Otimizada**: Rotas explícitas no menu lateral para acesso rápido aos painéis
 
@@ -486,8 +493,8 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 1.3  
-**Última Atualização:** 13 de Dezembro de 2025, 22:30  
+**Versão:** 1.4  
+**Última Atualização:** 14 de Dezembro de 2025, 00:43  
 **Status:** ✅ Em Produção
 
 ---
@@ -499,3 +506,6 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 - [DASHBOARD_IMPROVEMENTS_SUMMARY.md](./DASHBOARD_IMPROVEMENTS_SUMMARY.md) - Resumo do redesign do Dashboard Admin
 - [VISUAL_IMPROVEMENTS_SUMMARY.md](./VISUAL_IMPROVEMENTS_SUMMARY.md) - Melhorias visuais implementadas
 - [WELCOME_SECTION_UPDATE.md](./WELCOME_SECTION_UPDATE.md) - Seção Boas-Vindas padronizada
+- [GENDER_FIELD_IMPLEMENTATION.md](./GENDER_FIELD_IMPLEMENTATION.md) - Implementação do campo de género
+- [DYNAMIC_SUBMISSION_FORM.md](./DYNAMIC_SUBMISSION_FORM.md) - Formulário dinâmico de submissão
+- [TROUBLESHOOTING_GRIEVANCE_INSERT.md](./TROUBLESHOOTING_GRIEVANCE_INSERT.md) - Troubleshooting de inserção

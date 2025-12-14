@@ -133,6 +133,21 @@
                     </div>
 
                     <div class="flex flex-col">
+                        <label for="genero"
+                            class="text-left text-xs sm:text-sm font-medium text-gray-700 mb-1">Género</label>
+                        <select id="genero" v-model="formData.genero"
+                            class="w-full py-2 px-3 sm:px-4 bg-gray-100 border border-gray-200 rounded-lg outline-none focus:ring-0 focus:border-brand transition-all duration-200 text-xs sm:text-sm md:text-base"
+                            :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-300': errors.genero }"
+                            required>
+                            <option value="">Selecione...</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="feminino">Feminino</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                        <p v-if="errors.genero" class="text-red-500 text-xs mt-1 text-left">{{ errors.genero }}</p>
+                    </div>
+
+                    <div class="flex flex-col">
                         <label for="celular"
                             class="text-left text-xs sm:text-sm font-medium text-gray-700 mb-1">Celular</label>
                         <input type="tel" id="celular" v-model="formData.celular" placeholder="+258 84 123 4567"
@@ -323,6 +338,7 @@ const registrationCompleted = ref(false)
 const formData = ref({
     nome: '',
     apelido: '',
+    genero: '',
     celular: '',
     provincia: '',
     distrito: '',
@@ -356,7 +372,7 @@ const progressWidth = computed(() => {
 
 const isStep1Valid = computed(() => {
     const celularValid = formData.value.celular.replace(/\D/g, '').length === 12
-    return formData.value.nome && formData.value.apelido && celularValid
+    return formData.value.nome && formData.value.apelido && formData.value.genero && celularValid
 })
 
 // Watch para limpar distrito quando província muda
