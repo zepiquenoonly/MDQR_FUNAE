@@ -12,7 +12,7 @@
         </button>
 
         <!-- Logo simples e grande -->
-        <div class="flex items-center gap-3">
+        <!-- <div class="flex items-center gap-3">
           <div class="w-28 h-28 flex items-center justify-center p-1">
             <img src="/images/Logotipo-scaled.png" alt="FUNAE" class="w-full h-full object-contain filter drop-shadow-lg" />
           </div>
@@ -20,7 +20,7 @@
             <h2 class="text-lg font-semibold text-gray-800">Dashboard</h2>
             <p class="text-sm text-gray-500">Painel de Usuário</p>
           </div>
-        </div>
+        </div> -->
       </div>
 
       <!-- Right Section -->
