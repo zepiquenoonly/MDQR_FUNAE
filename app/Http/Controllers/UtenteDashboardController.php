@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Grievance;
 use App\Models\GrievanceNotification;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -227,7 +228,7 @@ class UtenteDashboardController extends Controller
     /**
      * Display a specific grievance.
      */
-    public function show(Request $request, Grievance $grievance): Response
+    public function show(Request $request, Grievance $grievance): Response|\Illuminate\Http\JsonResponse
     {
         $user = $request->user();
 
@@ -239,6 +240,13 @@ class UtenteDashboardController extends Controller
             'assignedUser:id,name,email',
             'user:id,name,email',
         ]);
+
+        // If this is an AJAX request, return JSON data for the modal
+        if ($request->header('X-Requested-With') === 'XMLHttpRequest' || $request->expectsJson()) {
+            return response()->json([
+                'grievance' => $this->transformGrievance($grievance),
+            ]);
+        }
 
         return Inertia::render('Utente/GrievanceDetail', [
             'user' => [
