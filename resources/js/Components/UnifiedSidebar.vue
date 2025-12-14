@@ -13,16 +13,20 @@
           <XMarkIcon class="w-6 h-6" />
         </button>
 
-        <!-- Logo e Título -->
-        <div class="flex items-center space-x-3 flex-1 min-w-0">
-          <div class="w-12 h-12 bg-gradient-to-br from-primary-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg text-white flex-shrink-0 ring-2 ring-white/30 ring-offset-2 ring-offset-transparent transition-transform hover:scale-110 duration-300">
-            <img src="/images/Emblem_of_Mozambique.svg-2.png" alt="M" class="w-8 h-8 object-cover" />
-          </div>
-          <div class="overflow-hidden min-w-0 flex-1">
-            <h1 class="font-bold text-lg whitespace-nowrap truncate text-gray-900 drop-shadow-sm">MDQR</h1>
-            <p class="text-primary-700 text-sm truncate font-medium">{{ getRoleTitle() }}</p>
+        <!-- Logo -->
+        <div class="flex justify-center items-center w-full">
+          <div class="w-28 h-28 flex items-center justify-center p-1">
+            <img src="/images/Logotipo-scaled.png" alt="FUNAE" class="w-full h-full object-contain filter drop-shadow-lg" />
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Title Section -->
+    <div class="p-4 flex-shrink-0 bg-gradient-to-br from-primary-50/50 to-orange-50/30 border-b border-white/20">
+      <div class="text-center">
+        <h1 class="font-bold text-lg text-gray-900 drop-shadow-sm">Dashboard</h1>
+        <p class="text-primary-700 text-sm font-medium">{{ getRoleTitle() }}</p>
       </div>
     </div>
 
