@@ -91,11 +91,11 @@
     </template>
 
     <template v-if="role === 'admin'">
-      <!-- Utilizadores -->
+      <!-- Usuários -->
       <MenuItem
         :active="$page.url === '/admin/users'"
         :icon="UsersIcon"
-        :text="'Utilizadores'"
+        :text="'Usuários'"
         @click="() => navigateToAdminUsers()"
       />
 

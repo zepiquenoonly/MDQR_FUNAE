@@ -79,7 +79,7 @@ Celular
 
 ## Fluxo de Dados
 
-1. Utilizador preenche o formulário de registo (Step 1)
+1. Usuário preenche o formulário de registo (Step 1)
 2. Selecciona o género no dropdown
 3. Sistema valida que todos os campos obrigatórios estão preenchidos
 4. Ao submeter, dados são enviados para `/register/complete`
@@ -91,7 +91,7 @@ Celular
 ## Localização no Sistema
 
 O formulário "Dados do Munícipe" é exibido quando:
-- Utilizador completa o registo inicial
+- Usuário completa o registo inicial
 - É redirecionado para `/register/complete`
 - Página: `Auth/CompleteRegistration`
 

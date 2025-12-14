@@ -7,14 +7,14 @@
                 <div class="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
                 <div class="relative z-10 flex justify-between items-center">
                     <div>
-                        <h1 class="text-3xl font-bold text-white drop-shadow-lg">Gestão de Utilizadores</h1>
+                        <h1 class="text-3xl font-bold text-white drop-shadow-lg">Gestão de Usuários</h1>
                         <p class="text-primary-50 mt-1">Controle e administre todas as contas do sistema</p>
                     </div>
                     <Link href="/admin/users/create" class="bg-white hover:bg-primary-50 text-primary-600 font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        Novo Utilizador
+                        Novo Usuário
                     </Link>
                 </div>
             </div>
@@ -53,7 +53,7 @@
                     <table class="min-w-full divide-y divide-gray-200">
                         <thead class="bg-gradient-to-r from-primary-50 to-primary-100/50">
                             <tr>
-                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Utilizador</th>
+                                <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Usuário</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Email</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Role</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Telefone</th>

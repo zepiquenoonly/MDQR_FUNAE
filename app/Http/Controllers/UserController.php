@@ -77,7 +77,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $rolesWithDepartment = ['Técnico', 'Gestor'];
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -107,7 +107,7 @@ class UserController extends Controller
 
         $user->assignRole($validated['role']);
 
-        return redirect()->route('admin.users.index')->with('success', 'Utilizador criado com sucesso.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuário criado com sucesso.');
     }
 
     /**
@@ -138,7 +138,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $rolesWithDepartment = ['Técnico', 'Gestor'];
-        
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
@@ -159,7 +159,7 @@ class UserController extends Controller
         $user->update($validated);
         $user->syncRoles($validated['role']);
 
-        return redirect()->route('admin.users.index')->with('success', 'Utilizador atualizado com sucesso.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuário atualizado com sucesso.');
     }
 
     /**
@@ -168,6 +168,6 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'Utilizador removido com sucesso.');
+        return redirect()->route('admin.users.index')->with('success', 'Usuário removido com sucesso.');
     }
 }
