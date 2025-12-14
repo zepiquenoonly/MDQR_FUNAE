@@ -39,7 +39,7 @@
             </td>
             <td class="px-4 py-4 text-sm text-gray-500">{{ row.date }}</td>
             <td class="px-4 py-4">
-              <button @click="$emit('view-details', row)"
+              <button @click="$emit('view-details', { ...row, id: row.grievance_id || row.id })"
                 class="text-primary-600 hover:text-orange-600 transition-colors font-medium text-sm group-hover:scale-110 duration-200 cursor-pointer">
                 Ver →
               </button>
