@@ -8,6 +8,19 @@
 
 ### Dezembro 2025
 
+#### Correções Críticas de Modal e Controller (14/12/2025)
+- 🔧 **Erro 404 Modal Corrigido**: Resolvido problema onde clique no botão "Ver →" na tabela causava erro 404
+  - Problema: Modal recebia `reference_number` em vez do `grievance_id` numérico
+  - Solução: Modificado `TableComponent.vue` para emitir `grievance_id` correto
+  - Resultado: Modal de detalhes abre corretamente com dados completos
+- 🛠️ **Controller FatalError Corrigido**: Removido import duplicado `Inertia\Response` no `UtenteDashboardController.php`
+- 📄 **Página GrievanceDetail Criada**: Implementada página completa `Utente/GrievanceDetail.vue` para visualização direta
+  - Design responsivo com todas as informações da reclamação
+  - Compatível com modal e acesso direto via URL
+  - Funcionalidades: status, anexos, histórico de atualizações, resolução
+- ⚡ **Performance Otimizada**: Modal carrega instantaneamente com dados locais, sem requisições adicionais
+- ✅ **Build Estável**: Vite manifest atualizado, aplicação funcionando sem erros
+
 #### Correções de Autenticação e Routing (14/12/2025)
 - 🔧 **Providers Laravel Adicionados**: Criados AuthServiceProvider, EventServiceProvider e RouteServiceProvider para resolver problemas de bootstrap
 - ⚙️ **Configuração de Providers Expandida**: Adicionados providers essenciais (Hashing, Validation, Translation, Cache) em config/app.php

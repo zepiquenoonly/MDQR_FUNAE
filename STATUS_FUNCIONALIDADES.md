@@ -1,6 +1,6 @@
 # 📊 Status das Funcionalidades - Sistema GRM FUNAE
 
-> **Estado Atual das Funcionalidades Implementadas**  
+> **Estado Actual das Funcionalidades Implementadas**  
 > Atualizado em: 14 de Dezembro de 2025
 
 ---
@@ -71,6 +71,9 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 📝 Submissão de reclamações
   - 👁️ Acompanhamento em tempo real
   - 📊 Estatísticas pessoais
+  - 🔍 **Modal de Detalhes Funcional**: Botão "Ver →" abre modal completo com informações detalhadas
+  - 📋 **Página de Detalhes Direta**: Acesso direto via URL `/utente/grievances/{id}`
+  - 🎨 **UI Moderna**: Design consistente com gradientes e animações
 - **Última Atualização**: 14/12/2025
 
 ---
@@ -119,7 +122,9 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 💬 Sistema de comentários
   - 📧 Notificações por email
   - 📊 Logs detalhados
-- **Última Atualização**: 08/12/2025
+  - 🔍 **Modal de Detalhes Completo**: Visualização detalhada com status, anexos e histórico
+  - 📄 **Página de Detalhes Direta**: Acesso individual às reclamações via URL
+- **Última Atualização**: 14/12/2025
 
 ### ✅ **Sistema de Anexos** - COMPLETO
 - **Status**: ✅ Implementado e Funcional
@@ -173,6 +178,7 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🏠 Página inicial acessível
   - 🔄 Navegação fluida
   - 📍 Breadcrumbs dinâmicos
+  - 🔍 **Modal de Detalhes Integrado**: Funcionalidade completa de visualização modal
 - **Última Atualização**: 14/12/2025
 
 ---
@@ -186,6 +192,8 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🔒 Segurança robusta
   - 📦 Providers configurados
   - 🛠️ Debug instrumentado
+  - 🔧 **Erros Críticos Resolvidos**: Imports duplicados e routing corrigidos
+  - 📄 **Páginas Inertia Criadas**: Arquivos Vue faltantes implementados
 - **Última Atualização**: 14/12/2025
 
 ### ✅ **Vue.js Frontend** - COMPLETO
@@ -195,6 +203,8 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - ⚡ Hot reload
   - 📦 Vite build system
   - 🎨 Tailwind CSS
+  - 📄 **Páginas Vue Criadas**: Arquivos faltantes implementados no manifest
+  - 🔍 **Modais Funcionais**: Sistema completo de visualização modal
 - **Última Atualização**: 14/12/2025
 
 ---
@@ -221,8 +231,12 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 ## 🐛 **Issues Conhecidos e Correções**
 
 ### ✅ **Resolvidos Recentemente**
-- � **Tabela Submissões com Ação Modal**: Botão 'Ver →' abre modal de detalhes (14/12/2025)
-- �🎨 **Dashboard Utente Modernizado**: Botão 'Acompanhar Status' substituído por 'Ver Submissões' com modal (14/12/2025)
+- 🔧 **Erro 404 Modal Corrigido**: Botão "Ver →" agora abre modal de detalhes sem erro (14/12/2025)
+- 🛠️ **FatalError Controller Resolvido**: Import duplicado `Inertia\Response` removido (14/12/2025)
+- 📄 **Página GrievanceDetail Criada**: Página completa para visualização direta de reclamações (14/12/2025)
+- ⚡ **Performance Modal Otimizada**: Carregamento instantâneo com dados locais (14/12/2025)
+- 🎯 **Tabela Submissões com Ação Modal**: Botão 'Ver →' abre modal de detalhes (14/12/2025)
+- 🎨 **Dashboard Utente Modernizado**: Botão 'Acompanhar Status' substituído por 'Ver Submissões' com modal (14/12/2025)
 - 🎨 **Páginas CRUD Padronizadas**: Create/Edit Departments & Projects com cores primárias e notificações (14/12/2025)
 - 🔧 **Problema de Autenticação**: Resolvido com providers e routing (14/12/2025)
 - 🎨 **Header Muito Destacado**: Otimizado para discreto (14/12/2025)
