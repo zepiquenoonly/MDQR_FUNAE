@@ -221,6 +221,7 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 ## 🐛 **Issues Conhecidos e Correções**
 
 ### ✅ **Resolvidos Recentemente**
+- 🎨 **Dashboard Utente Modernizado**: Botão 'Acompanhar Status' substituído por 'Ver Submissões' com modal (14/12/2025)
 - 🎨 **Páginas CRUD Padronizadas**: Create/Edit Departments & Projects com cores primárias e notificações (14/12/2025)
 - 🔧 **Problema de Autenticação**: Resolvido com providers e routing (14/12/2025)
 - 🎨 **Header Muito Destacado**: Otimizado para discreto (14/12/2025)
