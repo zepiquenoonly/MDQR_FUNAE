@@ -27,7 +27,11 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🏢 Gestão de departamentos (5 departamentos)
   - 📋 Gestão de projetos
   - ⚙️ Configurações do sistema
-- **Última Atualização**: 11/12/2025
+  - 🎨 **UI Modernizada**: Cores primárias consistentes
+  - 🔔 **Notificações Integradas**: Sistema de toast notifications
+  - 🔒 **Modais de Confirmação**: Confirmação elegante para exclusões
+  - ✅ **Feedback Visual**: Mensagens de sucesso pós-ação
+- **Última Atualização**: 14/12/2025
 
 ### ✅ **Dashboard Director** - COMPLETO
 - **Status**: ✅ Implementado e Funcional
@@ -220,6 +224,9 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 - 🔧 **Problema de Autenticação**: Resolvido com providers e routing (14/12/2025)
 - 🎨 **Header Muito Destacado**: Otimizado para discreto (14/12/2025)
 - 🗑️ **Seção de Notificações**: Removida para simplificar UI (14/12/2025)
+- 🎨 **CRUDS Inconsistentes**: Padronizados com cores primárias (14/12/2025)
+- 🔔 **Falta de Feedback**: Sistema de notificações implementado (14/12/2025)
+- 🔒 **Confirmações Primitivas**: Modal elegante para exclusões (14/12/2025)
 - 📍 **Campo Departamento**: Validação sincronizada frontend/backend (13/12/2025)
 - 🔄 **Inserção de Grievances**: Corrigida para usuários logados (14/12/2025)
 

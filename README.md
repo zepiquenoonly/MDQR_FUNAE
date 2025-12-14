@@ -26,6 +26,22 @@
   - Código limpo e interface simplificada
   - Foco nas funcionalidades principais do dashboard
 
+#### CRUDs Admin Modernizados (14/12/2025)
+- 🎨 **Identidade Visual Unificada**: Departamentos e Projectos agora usam cores primárias (primary-500 + orange-600)
+  - Headers com gradientes consistentes
+  - Ícones e botões padronizados
+  - Hover effects harmoniosos
+- 🔔 **Sistema de Notificações**: Alertas de sucesso/erro implementados
+  - Toast notifications para feedback visual
+  - Mensagens contextualizadas por ação
+- 🔒 **Modal de Confirmação**: Substituição do confirm() padrão
+  - Modal elegante com ícone de warning
+  - Botões "Cancelar" e "Excluir" diferenciados
+  - Prevenção de exclusões acidentais
+- ✅ **Feedback Pós-Ação**: Mensagens de sucesso após operações
+  - Confirmação visual de exclusões bem-sucedidas
+  - Tratamento de erros com notificações adequadas
+
 #### Melhorias UX e Navegação (14/12/2025)
 - 🏠 **Página Inicial Acessível**: Usuários autenticados agora podem navegar pela página Home (/) livremente
   - Removida lógica de redirecionamento forçado para dashboards
