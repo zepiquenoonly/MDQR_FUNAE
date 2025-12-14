@@ -8,6 +8,20 @@
 
 ### Dezembro 2025
 
+#### Melhorias UX e Navegação (14/12/2025)
+- 🏠 **Página Inicial Acessível**: Usuários autenticados agora podem navegar pela página Home (/) livremente
+  - Removida lógica de redirecionamento forçado para dashboards
+  - Landing page exibe informações do usuário quando autenticado
+  - Usuários logados continuam bloqueados de acessar Login/Register
+- 🎨 **Sidebar Reorganizada**: Redesign visual da barra lateral com separação clara
+  - Logo FUNAE em seção dedicada no topo
+  - Título "Dashboard" e role em seção separada com gradiente sutil
+  - Melhor hierarquia visual e espaçamento
+- 🔧 **Menu Unificado Otimizado**: Estado ativo dos itens de menu melhorado
+  - Links diretos para cada dashboard por role
+  - Indicador visual aprimorado para item ativo
+  - Navegação mais intuitiva entre seções
+
 #### Campo de Género e Formulário Dinâmico (14/12/2025)
 - 👤 **Campo Género no Registro**: Adicionado campo de género (Masculino, Feminino, Outro) ao formulário "Dados do Munícipe" com validação completa
 - 🔄 **Formulário Dinâmico de Submissão**: Sistema inteligente que adapta o formulário baseado no estado de autenticação

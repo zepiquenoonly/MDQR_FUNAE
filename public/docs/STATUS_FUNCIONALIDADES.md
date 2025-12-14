@@ -2,7 +2,7 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 14/12/2025, 00:43
+**Última atualização:** 14/12/2025, 15:30
 
 ## Legenda de Status
 
@@ -726,4 +726,48 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - ✅ `DYNAMIC_SUBMISSION_FORM.md` - Documentação do formulário dinâmico
 - ✅ `TROUBLESHOOTING_GRIEVANCE_INSERT.md` - Guia de troubleshooting
 
-**Status**: ✅ **Todas as funcionalidades implementadas, testadas e documentadas**
+## Melhorias de UX e Navegação (14/12/2025 - Tarde)
+
+### Acesso à Página Inicial para Usuários Autenticados
+- **GuestController Atualizado**:
+  - ✅ Removida lógica de redirecionamento forçado para dashboards
+  - ✅ Usuários autenticados podem acessar a página Home (/) livremente
+  - ✅ Landing page adaptada para exibir informações do usuário quando logado
+  - ✅ Passa `isAuthenticated` e dados do `user` (nome, email, role) para o frontend
+  - ✅ Mantém proteção em rotas de Login/Register (usuários autenticados são redirecionados)
+
+### Redesign da Sidebar
+- **UnifiedSidebar.vue Refatorado**:
+  - ✅ Logo FUNAE movido para seção dedicada no topo
+  - ✅ Título "Dashboard" e role do usuário em seção separada
+  - ✅ Gradientes visuais distintos para cada seção:
+    - Seção do logo: `from-primary-500/20 via-orange-500/15 to-primary-500/10`
+    - Seção do título: `from-primary-50/50 to-orange-50/30`
+  - ✅ Melhor hierarquia visual e espaçamento
+  - ✅ Separação clara entre logo e informações do dashboard
+
+### Menu Unificado Otimizado
+- **UnifiedMenuSection.vue Melhorado**:
+  - ✅ Estado ativo dos itens de menu corrigido
+  - ✅ Links diretos para dashboards específicos por role:
+    - Admin → `/admin/dashboard`
+    - Director → `/director/dashboard`
+    - Gestor → `/manager/dashboard`
+    - PCA → `/pca/dashboard`
+    - Técnico → `/technician/dashboard`
+    - Utente → `/user/dashboard`
+  - ✅ Indicador visual aprimorado para item ativo
+  - ✅ Navegação mais intuitiva entre seções
+
+### UnifiedHeader Ajustado
+- **UnifiedHeader.vue Atualizado**:
+  - ✅ Logo comentado para manter consistência com sidebar
+  - ✅ Foco mantido em dropdown do usuário e tema
+
+### Impacto das Mudanças
+- ✨ **Experiência do Usuário**: Usuários autenticados podem explorar a landing page sem serem forçados aos dashboards
+- 🎯 **Navegação Melhorada**: Links diretos aos dashboards facilitam acesso rápido
+- 🎨 **Visual Refinado**: Separação clara de elementos na sidebar melhora hierarquia
+- 🔒 **Segurança Mantida**: Proteção de Login/Register permanece ativa via middleware `guest`
+
+**Status**: ✅ **Todas as melhorias de UX e navegação implementadas e testadas**
