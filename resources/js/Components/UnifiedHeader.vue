@@ -1,8 +1,8 @@
 <template>
-  <header class="relative px-3 py-3 m-3 h-32 transition-all duration-300 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl">
-    <!-- Removed decorative gradient overlay for a more discreet look -->
+  <header class="relative px-2 py-2 h-20 transition-all duration-300 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl">
+    <!-- Minimal transparent design -->
 
-    <div class="relative z-10 flex items-center justify-between gap-3">
+    <div class="relative z-10 flex items-center justify-between gap-2">
       <!-- Left Section -->
       <div class="flex items-center flex-1 min-w-0 gap-2 sm:gap-4">
         <!-- Botão Menu Mobile -->
@@ -24,15 +24,6 @@
 
       <!-- Right Section -->
       <div class="flex items-center flex-shrink-0 gap-2 sm:gap-3">
-        <!-- Notifications
-        <button class="relative flex-shrink-0 p-2 text-gray-700 transition-all hover:text-primary-600 rounded-xl hover:bg-primary-50 group">
-          <BellIcon class="w-5 h-5 group-hover:animate-pulse" />
-          <span
-            class="absolute flex items-center justify-center w-5 h-5 text-xs font-bold text-white rounded-full shadow-lg -top-1 -right-1 bg-gradient-to-r from-primary-500 to-orange-600 animate-bounce">
-            1
-          </span>
-        </button> -->
-
         <!-- User Profile -->
         <UserDropdown :user="user" />
       </div>
