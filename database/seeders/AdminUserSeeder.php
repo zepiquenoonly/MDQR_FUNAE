@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
+use App\Models\Department;
+use App\Models\Project;
 use Illuminate\Support\Facades\Hash;
 
 class AdminUserSeeder extends Seeder
@@ -80,10 +82,80 @@ class AdminUserSeeder extends Seeder
                     'name' => $userData['name'],
                     'email' => $userData['email'],
                     'password' => Hash::make('password'),
+                    'phone' => $userData['phone'] ?? null,
                 ]
             );
 
             $user->assignRole($userData['role']);
+        }
+
+        // Setup Relationships: Department and Project assignments
+        $this->setupRelationships();
+    }
+
+    /**
+     * Setup default relationships for seeded users.
+     */
+    private function setupRelationships(): void
+    {
+        // 1. Find key users
+        $director = User::where('username', 'director')->first();
+        $gestor = User::where('username', 'gestor')->first();
+        $tecnico = User::where('username', 'tecnico')->first();
+        $tecnico2 = User::where('username', 'tecnico2')->first();
+
+        if (!$director) return;
+
+        // 2. Create or find a Default Department
+        $department = Department::firstOrCreate(
+            ['name' => 'Departamento de Operações e Suporte'],
+            [
+                'description' => 'Departamento central para gestão de operações e suporte técnico.',
+                'manager_id' => $director->id,
+            ]
+        );
+
+        // Ensure director is the manager if department existed but had different/no manager
+        if ($department->manager_id !== $director->id) {
+            $department->manager_id = $director->id;
+            $department->save();
+        }
+
+        // 3. Assign Users to Department
+        $usersToAssign = [$director, $gestor, $tecnico, $tecnico2];
+        foreach ($usersToAssign as $user) {
+            if ($user && $user->department_id !== $department->id) {
+                $user->department_id = $department->id;
+                $user->save();
+            }
+        }
+
+        // 4. Create or find a Default Project
+        $project = Project::firstOrCreate(
+            ['name' => 'Projecto de Manutenção Geral'],
+            [
+                'description' => 'Projecto transversal para manutenção e suporte contínuo.',
+                'provincia' => 'Maputo',
+                'distrito' => 'Maputo Cidade',
+                'bairro' => 'Central',
+                'category' => 'andamento',
+                'data_criacao' => now(),
+                'department_id' => $department->id,
+            ]
+        );
+
+        // Ensure project belongs to department if it existed
+        if ($project->department_id !== $department->id) {
+            $project->department_id = $department->id;
+            $project->save();
+        }
+
+        // 5. Assign Technicians to Project
+        $technicians = [$tecnico, $tecnico2];
+        foreach ($technicians as $tech) {
+            if ($tech && !$tech->isAssignedToProject($project->id)) {
+                $tech->projects()->attach($project->id);
+            }
         }
     }
 }

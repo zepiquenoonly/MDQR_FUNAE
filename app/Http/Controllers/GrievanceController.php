@@ -137,6 +137,30 @@ class GrievanceController extends Controller
      */
     public function store(Request $request)
     {
+        // Resolve authenticated user from request (Sanctum/API) or session (web)
+        $authenticatedUser = $request->user() ?? auth()->user();
+        $isAuthenticated = (bool) $authenticatedUser;
+
+        // Early debug info to diagnose intermittent auth/session issues
+        Log::info('Store() request auth/session debug', [
+            'auth_check_at_start' => $isAuthenticated,
+            'auth_user_at_start' => $authenticatedUser ? $authenticatedUser->id : null,
+            'session_id' => session()->getId(),
+            'request_uri' => $request->getRequestUri(),
+            'request_method' => $request->getMethod(),
+            'client_ip' => $request->getClientIp(),
+            'request_cookies' => $request->cookies->all(),
+            'request_headers_snippet' => [
+                'cookie' => $request->header('cookie'),
+                'authorization' => $request->header('authorization'),
+                'x-xsrf-token' => $request->header('x-xsrf-token')
+            ],
+            'auth_guard' => config('auth.defaults.guard')
+        ]);
+
+        // Additional: log full headers separately at DEBUG level to avoid cluttering INFO
+        Log::debug('Store() full request headers', $request->headers->all());
+
         try {
             // Validação dos dados
             $validated = $request->validate([
@@ -163,9 +187,8 @@ class GrievanceController extends Controller
             DB::beginTransaction();
 
             // Preparar dados da reclamação
-            $user = Auth::user(); // Get authenticated user
             $isAnonymous = $validated['is_anonymous'] ?? false;
-            
+
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
@@ -185,14 +208,17 @@ class GrievanceController extends Controller
             ];
 
             // Se usuário está logado: usar dados da sessão (mesmo se anônimo)
-            if ($user) {
-                $grievanceData['user_id'] = $user->id;
+            if ($isAuthenticated) {
+                $grievanceData['user_id'] = $authenticatedUser->id;
+
                 // Se identificado, associar dados pessoais
                 if (!$isAnonymous) {
-                    $grievanceData['contact_name'] = $user->name;
-                    $grievanceData['contact_email'] = $user->email;
-                    $grievanceData['contact_phone'] = $user->phone;
-                    $grievanceData['gender'] = $user->gender;
+                    $grievanceData['contact_name'] = $authenticatedUser->name;
+                    $grievanceData['contact_email'] = $authenticatedUser->email;
+                    $grievanceData['contact_phone'] = $authenticatedUser->phone ?? null;
+                    $grievanceData['gender'] = $authenticatedUser->gender ?? null;
+                    $grievanceData['province'] = $authenticatedUser->province ?? null;
+                    $grievanceData['district'] = $authenticatedUser->district ?? null;
                 }
             } else {
                 // Se usuário NÃO está logado: usar dados fornecidos no formulário
@@ -203,18 +229,25 @@ class GrievanceController extends Controller
                 $grievanceData['gender'] = $validated['gender'] ?? null;
             }
 
+            // Determine route context
+            $currentRoute = optional($request->route())->getName();
+            $routeMiddleware = optional($request->route())->gatherMiddleware() ?? [];
+
             // Log para debug
             Log::info('Criando grievance com dados:', [
-                'user_logged_in' => $user ? true : false,
+                'route' => $currentRoute,
+                'route_middleware' => $routeMiddleware,
+                'auth_check' => $isAuthenticated,
                 'user_id' => $grievanceData['user_id'] ?? null,
                 'is_anonymous' => $isAnonymous,
                 'has_contact_data' => isset($grievanceData['contact_name']),
+                'contact_email' => $grievanceData['contact_email'] ?? null,
                 'data' => $grievanceData
             ]);
 
             // Criar a reclamação
             $grievance = Grievance::create($grievanceData);
-            
+
             Log::info('Grievance criada com sucesso:', [
                 'id' => $grievance->id,
                 'reference_number' => $grievance->reference_number
