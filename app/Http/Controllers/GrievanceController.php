@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attachment;
 use App\Models\Grievance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -141,8 +142,6 @@ class GrievanceController extends Controller
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'type' => 'required|in:complaint,grievance,suggestion',
-                // Description can be nullable; ensure it's either null or a string
-                'description' => 'nullable|string|max:1500',
                 'province' => 'required|string',
                 'district' => 'nullable|string',
                 'municipal_district' => 'nullable|string',
@@ -150,9 +149,9 @@ class GrievanceController extends Controller
                 'locality' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
-                // Contact fields optional; validate when present
                 'contact_name' => 'sometimes|nullable|string|max:255',
                 'contact_email' => 'sometimes|nullable|email|max:255',
+                'description' => 'nullable|string|min:50|max:1500',
                 'contact_phone' => 'nullable|string|max:20',
                 'gender' => 'nullable|string|in:Masculino,Feminino,Outro',
                 'user_id' => 'nullable|exists:users,id',
@@ -164,10 +163,13 @@ class GrievanceController extends Controller
             DB::beginTransaction();
 
             // Preparar dados da reclamação
+            $user = Auth::user(); // Get authenticated user
+            $isAnonymous = $validated['is_anonymous'] ?? false;
+            
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
-                'description' => $validated['description'] ?? null,
+                'description' => $validated['description'] ?? 'Sem descrição fornecida.',
                 'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
@@ -176,23 +178,47 @@ class GrievanceController extends Controller
                 'administrative_post' => $validated['administrative_post'] ?? null,
                 'locality' => $validated['locality'] ?? null,
                 'location_details' => $validated['location_details'] ?? null,
-                'is_anonymous' => $validated['is_anonymous'] ?? false,
+                'is_anonymous' => $isAnonymous,
                 'status' => 'submitted',
                 'priority' => 'medium',
                 'submitted_at' => now(),
-                'gender' => $validated['gender'] ?? null,
-                // IMPORTANTE: user_id é SEMPRE associado se o usuário estiver autenticado,
-                // mesmo em submissões anônimas (is_anonymous = true).
-                // Isso permite que o utente veja suas reclamações no dashboard,
-                // mas mantém a identidade oculta publicamente (dados de contato não são exibidos).
-                'user_id' => $validated['user_id'] ?? auth()->user()?->id ?? null,
-                'contact_name' => $validated['contact_name'] ?? auth()->user()?->name ?? null,
-                'contact_email' => $validated['contact_email'] ?? auth()->user()?->email ?? null,
-                'contact_phone' => $validated['contact_phone'] ?? auth()->user()?->phone ?? null,
             ];
+
+            // Se usuário está logado: usar dados da sessão (mesmo se anônimo)
+            if ($user) {
+                $grievanceData['user_id'] = $user->id;
+                // Se identificado, associar dados pessoais
+                if (!$isAnonymous) {
+                    $grievanceData['contact_name'] = $user->name;
+                    $grievanceData['contact_email'] = $user->email;
+                    $grievanceData['contact_phone'] = $user->phone;
+                    $grievanceData['gender'] = $user->gender;
+                }
+            } else {
+                // Se usuário NÃO está logado: usar dados fornecidos no formulário
+                $grievanceData['user_id'] = null;
+                $grievanceData['contact_name'] = $validated['contact_name'] ?? null;
+                $grievanceData['contact_email'] = $validated['contact_email'] ?? null;
+                $grievanceData['contact_phone'] = $validated['contact_phone'] ?? null;
+                $grievanceData['gender'] = $validated['gender'] ?? null;
+            }
+
+            // Log para debug
+            Log::info('Criando grievance com dados:', [
+                'user_logged_in' => $user ? true : false,
+                'user_id' => $grievanceData['user_id'] ?? null,
+                'is_anonymous' => $isAnonymous,
+                'has_contact_data' => isset($grievanceData['contact_name']),
+                'data' => $grievanceData
+            ]);
 
             // Criar a reclamação
             $grievance = Grievance::create($grievanceData);
+            
+            Log::info('Grievance criada com sucesso:', [
+                'id' => $grievance->id,
+                'reference_number' => $grievance->reference_number
+            ]);
 
             // Processar anexos se existirem
             Log::info('Iniciando processamento de anexos', [

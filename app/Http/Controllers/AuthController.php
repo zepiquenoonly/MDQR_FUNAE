@@ -169,6 +169,7 @@ class AuthController extends Controller {
             $validated = $request->validate([
                 'nome' => 'required|string|max:255',
                 'apelido' => 'required|string|max:255',
+                'genero' => 'required|in:masculino,feminino,outro',
                 'celular' => 'required|string|max:255',
                 'provincia' => 'required|string|max:255',
                 'distrito' => 'required|string|max:255',
@@ -180,6 +181,7 @@ class AuthController extends Controller {
                 'name' => $request->nome . ' ' . $request->apelido,
                 'username' => $basicData['username'],
                 'email' => $basicData['email'],
+                'gender' => $request->genero,
                 'password' => $basicData['password'],
                 'phone' => $request->celular,
                 'province' => $request->provincia,

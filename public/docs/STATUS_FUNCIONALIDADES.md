@@ -2,7 +2,7 @@
 
 Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos principais, funcionalidades técnicas, integrações, notificações e backlog. Cada fluxo está dividido em: **Implementado**, **Parcialmente Implementado** e **Por Implementar**.
 
-**Última atualização:** 13/12/2025, 22:30
+**Última atualização:** 14/12/2025, 00:43
 
 ## Legenda de Status
 
@@ -58,6 +58,12 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 - Envio de notificação de confirmação por email *(configuração de emails automáticos realizada, recomenda-se validação em produção)*
 - **Uso consistente de ícones (sem emojis)** *(Heroicons implementados em todo o formulário)*
 - **Modal de submissão acessível diretamente da landing page** *(implementado em 06/12/2025)*
+- **Campo de Género no Registro** *(adicionado em 14/12/2025 com validação completa)*
+- **Formulário Dinâmico Inteligente** *(implementado em 14/12/2025)*:
+  - Usuário logado: apenas escolhe Anónimo/Identificado (dados automáticos da sessão)
+  - Usuário não logado: formulário completo com campos de dados pessoais
+  - Validação contextual adaptada ao estado de autenticação
+  - Mensagens informativas sobre uso de dados da conta
 
 ### Parcialmente Implementado (Fluxo 1)
 
@@ -685,5 +691,39 @@ Este documento reflete o estado atual do sistema FUNAE, incluindo fluxos princip
 4. `aa098bd` - 📝 Documentação user_id anônimo
 5. `fcdfccd` - 🔧 Footer reorganizado
 6. `2e4a334` - 🔧 Remover link Teste Email
+
+## Últimas Melhorias (14/12/2025)
+
+### Campo de Género e Formulário Dinâmico
+- **Campo Género**: Adicionado ao formulário de registro "Dados do Munícipe"
+  - Opções: Masculino, Feminino, Outro
+  - Validação frontend e backend
+  - Migração criada e executada
+  - Campo incluído no modelo User
+  
+- **Formulário Dinâmico de Submissão**:
+  - **Lógica Inteligente**: Sistema detecta automaticamente se usuário está logado
+  - **Usuário Logado**: 
+    - Apenas escolhe: Anónimo ou Identificado
+    - Dados pessoais vêm automaticamente da sessão (nome, email, telefone, género)
+    - Mensagem informativa mostra dados da conta que serão utilizados
+  - **Usuário Não Logado**:
+    - Formulário completo com todos os campos de dados pessoais
+    - Opção de fornecer dados em submissões anônimas
+  - **Backend Atualizado**:
+    - Prioriza dados da sessão quando usuário está logado
+    - Usa dados do formulário quando usuário não está logado
+    - Logs de debug implementados para troubleshooting
+
+- **Correções de Bugs**:
+  - ✅ Corrigido import incorreto da facade Auth
+  - ✅ Campo `description` com valor padrão para evitar erros NULL
+  - ✅ Logs detalhados para debug de inserção
+  - ✅ Cache do Laravel limpo completamente
+
+### Documentação Técnica Criada
+- ✅ `GENDER_FIELD_IMPLEMENTATION.md` - Guia completo do campo de género
+- ✅ `DYNAMIC_SUBMISSION_FORM.md` - Documentação do formulário dinâmico
+- ✅ `TROUBLESHOOTING_GRIEVANCE_INSERT.md` - Guia de troubleshooting
 
 **Status**: ✅ **Todas as funcionalidades implementadas, testadas e documentadas**
