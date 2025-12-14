@@ -1,7 +1,6 @@
 <template>
-  <header class="relative px-3 py-3 m-3 h-32 transition-all duration-300 border glass-nav shadow-glass sm:px-6 sm:py-4 rounded-2xl backdrop-blur-xl border-white/20 hover:shadow-xl">
-    <!-- Decorative gradient overlay -->
-    <div class="absolute top-0 right-0 w-64 h-full pointer-events-none bg-gradient-to-l from-primary-500/5 to-transparent"></div>
+  <header class="relative px-3 py-3 m-3 h-32 transition-all duration-300 bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl">
+    <!-- Removed decorative gradient overlay for a more discreet look -->
 
     <div class="relative z-10 flex items-center justify-between gap-3">
       <!-- Left Section -->
