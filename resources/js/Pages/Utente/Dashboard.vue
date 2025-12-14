@@ -50,7 +50,7 @@
 
                 <!-- Table Component -->
                 <TableComponent 
-                    title="Minhas Submissões Recentes" 
+                    title="Minhas Submissões" 
                     :rows="recentSubmissions"
                     @view-details="handleViewSubmissionDetails"
                 />

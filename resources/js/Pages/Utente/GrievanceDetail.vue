@@ -28,23 +28,49 @@
                   </span>
                 </div>
                 <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-600">Tipo:</span>
+                  <span class="text-sm text-gray-800">{{ grievance.type_label || grievance.category }}</span>
+                </div>
+                <div class="flex items-center justify-between">
                   <span class="text-sm text-gray-600">Data de Submissão:</span>
-                  <span class="text-sm text-gray-800">{{ formatDate(grievance.created_at) }}</span>
+                  <span class="text-sm text-gray-800">{{ formatDate(grievance.submitted_at || grievance.created_at) }}</span>
+                </div>
+                <div v-if="grievance.assigned_at" class="flex items-center justify-between">
+                  <span class="text-sm text-gray-600">Atribuído em:</span>
+                  <span class="text-sm text-gray-800">{{ formatDate(grievance.assigned_at) }}</span>
+                </div>
+                <div v-if="grievance.resolved_at" class="flex items-center justify-between">
+                  <span class="text-sm text-gray-600">Resolvido em:</span>
+                  <span class="text-sm text-gray-800">{{ formatDate(grievance.resolved_at) }}</span>
                 </div>
               </div>
             </div>
 
-            <!-- Informações do Usuário -->
+            <!-- Informações do Requerente -->
             <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
               <h3 class="mb-4 text-lg font-semibold text-gray-800">Informações do Requerente</h3>
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-gray-600">Nome:</span>
-                  <span class="text-sm text-gray-800">{{ user.name }}</span>
+                  <span class="text-sm text-gray-800">{{ grievance.contact_name || user.name }}</span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-sm text-gray-600">Email:</span>
-                  <span class="text-sm text-gray-800">{{ user.email }}</span>
+                  <span class="text-sm text-gray-800">{{ grievance.contact_email || user.email }}</span>
+                </div>
+                <div v-if="grievance.contact_phone" class="flex items-center justify-between">
+                  <span class="text-sm text-gray-600">Telefone:</span>
+                  <span class="text-sm text-gray-800">{{ grievance.contact_phone }}</span>
+                </div>
+                <div v-if="grievance.gender" class="flex items-center justify-between">
+                  <span class="text-sm text-gray-600">Género:</span>
+                  <span class="text-sm text-gray-800">{{ getGenderLabel(grievance.gender) }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-600">Tipo de Submissão:</span>
+                  <span :class="grievance.is_anonymous ? 'text-orange-600' : 'text-green-600'" class="text-sm font-medium">
+                    {{ grievance.is_anonymous ? 'Anónima' : 'Identificada' }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -56,19 +82,98 @@
             <p class="text-gray-700 whitespace-pre-wrap">{{ grievance.description }}</p>
           </div>
 
+          <!-- Localização -->
+          <div v-if="grievance.province || grievance.district || grievance.locality" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 class="mb-4 text-lg font-semibold text-gray-800">Localização</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-if="grievance.province" class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Província:</span>
+                <span class="text-sm text-gray-800">{{ grievance.province }}</span>
+              </div>
+              <div v-if="grievance.district" class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Distrito:</span>
+                <span class="text-sm text-gray-800">{{ grievance.district }}</span>
+              </div>
+              <div v-if="grievance.municipal_district" class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Posto Administrativo:</span>
+                <span class="text-sm text-gray-800">{{ grievance.municipal_district }}</span>
+              </div>
+              <div v-if="grievance.locality" class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Localidade:</span>
+                <span class="text-sm text-gray-800">{{ grievance.locality }}</span>
+              </div>
+            </div>
+            <div v-if="grievance.location_details" class="mt-4">
+              <span class="text-sm text-gray-600">Detalhes da Localização:</span>
+              <p class="text-sm text-gray-800 mt-1">{{ grievance.location_details }}</p>
+            </div>
+          </div>
+
+          <!-- Projeto Relacionado -->
+          <div v-if="grievance.project" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 class="mb-4 text-lg font-semibold text-gray-800">Projeto Relacionado</h3>
+            <div class="flex items-center justify-between">
+              <span class="text-sm text-gray-600">Nome do Projeto:</span>
+              <span class="text-sm text-blue-600 font-medium">{{ grievance.project.name }}</span>
+            </div>
+          </div>
+
+          <!-- Responsável pela Atribuição -->
+          <div v-if="grievance.assigned_to" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <h3 class="mb-4 text-lg font-semibold text-gray-800">Responsável pela Atribuição</h3>
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Técnico Responsável:</span>
+                <span class="text-sm text-gray-800">{{ grievance.assigned_to.name }}</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600">Email:</span>
+                <span class="text-sm text-gray-800">{{ grievance.assigned_to.email }}</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Anexos -->
           <div v-if="grievance.attachments && grievance.attachments.length > 0" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Anexos</h3>
-            <div class="space-y-2">
-              <div v-for="attachment in grievance.attachments" :key="attachment.id" class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div class="flex items-center space-x-3">
-                  <PaperClipIcon class="w-5 h-5 text-gray-500" />
-                  <span class="text-sm text-gray-700">{{ attachment.original_filename }}</span>
-                  <span class="text-xs text-gray-500">({{ formatFileSize(attachment.file_size) }})</span>
+            <h3 class="mb-4 text-lg font-semibold text-gray-800">Anexos ({{ grievance.attachments.length }})</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div v-for="attachment in grievance.attachments" :key="attachment.id" class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start space-x-3">
+                  <!-- Preview para imagens -->
+                  <div v-if="isImage(attachment.mime_type)" class="flex-shrink-0">
+                    <img :src="`/storage/${attachment.file_path}`" :alt="attachment.original_filename"
+                         class="w-16 h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                         @click="openImageModal(attachment)" />
+                  </div>
+                  <!-- Ícone para outros tipos de arquivo -->
+                  <div v-else class="flex-shrink-0">
+                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <DocumentIcon class="w-8 h-8 text-gray-500" />
+                    </div>
+                  </div>
+
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 truncate">{{ attachment.original_filename }}</p>
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ formatFileSize(attachment.file_size) }} • {{ getFileTypeLabel(attachment.mime_type) }}
+                    </p>
+                    <p v-if="attachment.uploaded_at" class="text-xs text-gray-400 mt-1">
+                      Enviado em {{ formatDate(attachment.uploaded_at) }}
+                    </p>
+                    <div class="mt-3 flex space-x-2">
+                      <a :href="`/storage/${attachment.file_path}`" target="_blank"
+                         class="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
+                        <ArrowDownTrayIcon class="w-3 h-3 mr-1" />
+                        Download
+                      </a>
+                      <button v-if="isImage(attachment.mime_type)" @click="openImageModal(attachment)"
+                              class="inline-flex items-center px-3 py-1 text-xs font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors">
+                        <EyeIcon class="w-3 h-3 mr-1" />
+                        Visualizar
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <a :href="`/storage/${attachment.file_path}`" target="_blank" class="text-blue-600 hover:text-blue-800">
-                  <ArrowDownTrayIcon class="w-5 h-5" />
-                </a>
               </div>
             </div>
           </div>
@@ -93,9 +198,15 @@
           <div v-if="grievance.resolution_notes && (grievance.status === 'resolved' || grievance.status === 'closed')" class="p-6 border-green-200 rounded-lg shadow-sm bg-green-50">
             <h3 class="mb-3 text-lg font-semibold text-green-800">Resolução</h3>
             <p class="text-gray-700 whitespace-pre-wrap">{{ grievance.resolution_notes }}</p>
-            <div v-if="grievance.resolved_by" class="flex items-center mt-3 text-sm text-gray-600">
-              <CheckCircleIcon class="w-4 h-4 mr-2 text-green-600" />
-              <span>Resolvido por: <strong>{{ grievance.resolved_by.name }}</strong></span>
+            <div class="mt-4 space-y-2">
+              <div v-if="grievance.resolved_by" class="flex items-center text-sm text-gray-600">
+                <CheckCircleIcon class="w-4 h-4 mr-2 text-green-600" />
+                <span>Resolvido por: <strong>{{ grievance.resolved_by.name }}</strong> ({{ grievance.resolved_by.email }})</span>
+              </div>
+              <div v-if="grievance.resolved_at" class="flex items-center text-sm text-gray-600">
+                <ClockIcon class="w-4 h-4 mr-2 text-green-600" />
+                <span>Data da resolução: <strong>{{ formatDate(grievance.resolved_at) }}</strong></span>
+              </div>
             </div>
           </div>
         </div>
@@ -105,23 +216,47 @@
             Voltar ao Dashboard
           </a>
         </div>
+
+        <!-- Modal de Visualização de Imagem -->
+        <div v-if="imageModal.open" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75" @click="closeImageModal">
+          <div class="relative max-w-4xl max-h-full">
+            <img :src="`/storage/${imageModal.attachment.file_path}`" :alt="imageModal.attachment.original_filename"
+                 class="max-w-full max-h-full object-contain rounded-lg" />
+            <button @click="closeImageModal" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-colors">
+              <XMarkIcon class="w-6 h-6" />
+            </button>
+            <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 rounded-lg p-4 text-white">
+              <p class="font-medium">{{ imageModal.attachment.original_filename }}</p>
+              <p class="text-sm opacity-75">{{ formatFileSize(imageModal.attachment.file_size) }}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </Layout>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import Layout from '@/Layouts/Layout.vue'
 import {
   PaperClipIcon,
   ArrowDownTrayIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ClockIcon,
+  EyeIcon,
+  DocumentIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 
 const props = defineProps({
   user: Object,
   grievance: Object
+})
+
+const imageModal = ref({
+  open: false,
+  attachment: null
 })
 
 const getStatusBadgeClass = (status) => {
@@ -165,5 +300,42 @@ const formatFileSize = (bytes) => {
   const sizes = ['Bytes', 'KB', 'MB', 'GB']
   const i = Math.floor(Math.log(bytes) / Math.log(k))
   return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i]
+}
+
+const getGenderLabel = (gender) => {
+  const labels = {
+    'male': 'Masculino',
+    'female': 'Feminino',
+    'other': 'Outro'
+  }
+  return labels[gender] || gender
+}
+
+const isImage = (mimeType) => {
+  return mimeType && mimeType.startsWith('image/')
+}
+
+const getFileTypeLabel = (mimeType) => {
+  if (!mimeType) return 'Arquivo'
+  if (mimeType.startsWith('image/')) return 'Imagem'
+  if (mimeType.startsWith('audio/')) return 'Áudio'
+  if (mimeType.startsWith('video/')) return 'Vídeo'
+  if (mimeType.includes('pdf')) return 'PDF'
+  if (mimeType.includes('document') || mimeType.includes('word')) return 'Documento'
+  return 'Arquivo'
+}
+
+const openImageModal = (attachment) => {
+  imageModal.value = {
+    open: true,
+    attachment: attachment
+  }
+}
+
+const closeImageModal = () => {
+  imageModal.value = {
+    open: false,
+    attachment: null
+  }
 }
 </script>
