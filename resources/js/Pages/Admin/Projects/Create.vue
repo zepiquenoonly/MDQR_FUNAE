@@ -49,7 +49,7 @@
                             <select v-model="form.category" id="category"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4">
                                 <option value="1">Em Andamento</option>
-                                <!-- <option value="parados">Parado</option> -->
+                                <option value="parados">Parado</option>
                                 <option value="0">Finalizado</option>
                             </select>
                         </div>
@@ -117,7 +117,7 @@ const form = useForm({
     provincia: '',
     distrito: '',
     bairro: '',
-    category: 'andamento',
+    category: '1',
 });
 
 function submit() {

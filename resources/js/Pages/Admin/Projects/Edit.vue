@@ -48,9 +48,9 @@
                             <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
                             <select v-model="form.category" id="category"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4">
-                                <option value="1">Em Andamento</option>
-                                <!-- <option value="parados">Parado</option> -->
-                                <option value="0">Finalizado</option>
+                                <option value="andamento">Em Andamento</option>
+                                <option value="parados">Parado</option>
+                                <option value="finalizados">Finalizado</option>
                             </select>
                         </div>
                         <div>
@@ -124,7 +124,7 @@ const form = useForm({
 function submit() {
     form.put(`/admin/projects/${props.project.id}`, {
         onSuccess: () => {
-            success('Projecto actualizado com sucesso!');
+            success('Projecto atualizado com sucesso!');
         },
         onError: () => {
             error('Erro ao atualizar projecto. Tente novamente.');

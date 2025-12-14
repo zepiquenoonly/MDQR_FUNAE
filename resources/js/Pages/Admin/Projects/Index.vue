@@ -59,7 +59,7 @@
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Estado</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-primary-800 uppercase tracking-wider">Data</th>
                                 <th scope="col" class="relative px-6 py-4">
-                                    <span class="sr-only">Ações</span>
+                                    <span class="sr-only">Acções</span>
                                 </th>
                             </tr>
                         </thead>
@@ -78,7 +78,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-3 py-1.5 text-xs font-medium rounded-full bg-primary-100 text-primary-800 shadow-sm">
-                                        {{ project.department }}
+                                        {{ project.department }} / {{ project.status }} / {{ project.category }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -91,9 +91,17 @@
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span :class="project.is_active ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-red-100 text-red-800 border-red-200'" class="px-3 py-1.5 text-xs font-semibold rounded-full border inline-flex items-center gap-1.5">
-                                        <span :class="project.is_active ? 'bg-emerald-500' : 'bg-red-500'" class="w-1.5 h-1.5 rounded-full"></span>
-                                        {{ project.is_active ? 'Activo' : 'Inactivo' }}
+                                    <span :class="{
+                                        'bg-blue-100 text-blue-800 border-blue-200': project.category == 1,
+                                        'bg-yellow-100 text-yellow-800 border-yellow-200': project.category === 'parados',
+                                        'bg-emerald-100 text-emerald-800 border-emerald-200': project.category == 0
+                                    }" class="px-3 py-1.5 text-xs font-semibold rounded-full border inline-flex items-center gap-1.5">
+                                        <span :class="{
+                                            'bg-green-500': project.category == 1,
+                                            'bg-yellow-500': project.category === 'parados',
+                                            'bg-red-500': project.category == 0
+                                        }" class="w-1.5 h-1.5 rounded-full"></span>
+                                        {{ project.category == 1 ? 'Em Andamento' : project.category === 'parados' ? 'Parado' : 'Finalizado' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ project.created_at }}</td>
