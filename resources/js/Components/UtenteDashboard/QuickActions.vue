@@ -25,9 +25,9 @@
 
 
 
-    <!-- Acompanhar Status -->
+    <!-- Ver Submissões - Secondary Action -->
     <button
-      @click="trackComplaint"
+      @click="viewSubmissions"
       class="relative flex items-center justify-between p-4 overflow-hidden transition-all duration-300 border glass-card hover:scale-105 group sm:col-span-2 md:col-span-1 hover:shadow-xl border-white/40"
     >
       <!-- Gradient overlay on hover -->
@@ -36,12 +36,12 @@
       <div class="relative z-10 flex items-center flex-1 min-w-0 gap-3">
         <div class="flex items-center justify-center flex-shrink-0 w-10 h-10 transition-all duration-300 border border-blue-200 shadow-sm sm:w-12 sm:h-12 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl group-hover:scale-110 group-hover:rotate-3">
           <svg class="w-5 h-5 text-blue-600 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
           </svg>
         </div>
         <div class="min-w-0 text-left">
-          <div class="text-sm font-semibold text-gray-800 truncate transition-colors sm:text-base group-hover:text-blue-600">Acompanhar Status</div>
-          <div class="text-xs text-gray-600 truncate">Verificar progresso</div>
+          <div class="text-sm font-semibold text-gray-800 truncate transition-colors sm:text-base group-hover:text-blue-600">Ver Submissões</div>
+          <div class="text-xs text-gray-600 truncate">Visualizar dados em modal</div>
         </div>
       </div>
       <svg class="relative z-10 flex-shrink-0 w-5 h-5 ml-2 text-gray-400 transition-all group-hover:text-blue-600 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +54,7 @@
 <script setup>
 import { useDashboardState } from './Composables/useDashboardState.js'
 
-const emit = defineEmits(['create-complaint'])
+const emit = defineEmits(['create-complaint', 'view-submissions'])
 const { setActivePanel, setActiveDropdown } = useDashboardState()
 
 const createNewComplaint = () => {
@@ -66,7 +66,7 @@ const viewAllComplaints = () => {
   setActiveDropdown('reclamacoes')
 }
 
-const trackComplaint = () => {
-  window.open('/track', '_blank')
+const viewSubmissions = () => {
+  emit('view-submissions')
 }
 </script>

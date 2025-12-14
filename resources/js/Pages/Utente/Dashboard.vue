@@ -26,7 +26,7 @@
                 </div>
 
                 <!-- Quick Actions -->
-                <QuickActions @create-complaint="showComplaintForm = true" />
+                <QuickActions @create-complaint="showComplaintForm = true" @view-submissions="showSubmissionsModal = true" />
 
                 <!-- Stats Grid -->
                 <StatsGrid />
@@ -91,6 +91,7 @@
             </div>
         </div>
         <ComplaintForm :visible="showComplaintForm" @close="showComplaintForm = false" @success="handleComplaintSuccess" />
+        <SubmissionsModal :visible="showSubmissionsModal" @close="showSubmissionsModal = false" :submissions="recentSubmissions" />
     </Layout>
 </template>
 
@@ -112,6 +113,7 @@ import Complaints from '@/Components/UtenteDashboard/Complaints.vue'
 import ChartBarComponent from '@/Components/UtenteDashboard/ChartBarComponent.vue'
 import TableComponent from '@/Components/UtenteDashboard/TableComponent.vue'
 import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
+import SubmissionsModal from '@/Components/UtenteDashboard/SubmissionsModal.vue'
 
 const props = defineProps({
     user: {
@@ -288,6 +290,7 @@ const handleBackFromProjectDetails = () => {
 }
 
 const showComplaintForm = ref(false)
+const showSubmissionsModal = ref(false)
 
 const handleComplaintSuccess = () => {
     showComplaintForm.value = false
