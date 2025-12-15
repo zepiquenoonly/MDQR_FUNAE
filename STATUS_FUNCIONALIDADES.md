@@ -10,7 +10,7 @@
 O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital completa para gestão de queixas, reclamações e sugestões, com dashboards específicos por perfil de usuário.
 
 ### 📈 **Status Geral**: ✅ **PRODUÇÃO** (Versão Estável)
-- **Última Atualização**: 14/12/2025
+- **Última Atualização**: 15/12/2025
 - **Cobertura de Funcionalidades**: ~95%
 - **Performance**: Ótima (Build médio: 7.5s)
 - **Compatibilidade**: Laravel 10+, Vue 3, Inertia.js
