@@ -24,7 +24,7 @@
             </div>
 
             <!-- Stats -->
-            <div class="mb-6 space-y-4">
+            <!-- <div class="mb-6 space-y-4">
                 <div class="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-dark-accent">
                     <div class="flex items-center space-x-3">
                         <div
@@ -52,7 +52,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Menu de Navegação -->
             <nav class="space-y-2">
