@@ -85,8 +85,8 @@ const props = defineProps({
     filters: {
         type: Object,
         default: () => ({
-            status: null,
-            priority: null,
+            status: '',
+            priority: '',
             search: '',
         }),
     },
