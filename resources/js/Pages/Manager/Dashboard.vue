@@ -8,6 +8,18 @@
 
     <!-- Conteúdo normal do dashboard para outros casos -->
     <div v-else class="space-y-3 sm:space-y-6">
+      <!-- Welcome Message - Transparent -->
+      <div class="mb-4">
+        <div class="py-4">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+            Bem-vindo(a), {{ $page.props.auth?.user?.name || 'Gestor' }}!
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+            Painel de Gestão de Reclamações - Supervisão e Controle
+          </p>
+        </div>
+      </div>
+
       <!-- KPIs Grid - Melhorado para mobile -->
       <div
         class="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6"

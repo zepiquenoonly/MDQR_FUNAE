@@ -102,7 +102,7 @@ class EmailTestController extends Controller
         $grievance->subcategory = 'Teste';
         $grievance->status = 'submitted';
         $grievance->priority = 'medium';
-        $grievance->contact_name = 'Utilizador de Teste';
+        $grievance->contact_name = 'Usuário de Teste';
         $grievance->contact_email = 'teste@example.com';
         $grievance->province = 'Maputo';
         $grievance->district = 'Maputo';

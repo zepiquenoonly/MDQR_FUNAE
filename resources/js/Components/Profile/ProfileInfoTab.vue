@@ -1,12 +1,12 @@
 <template>
-    <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6">
+    <div class="p-6 bg-white shadow-sm dark:bg-dark-secondary rounded-xl">
         <div class="flex items-center justify-between mb-6">
             <h3 class="text-2xl font-semibold text-gray-800 dark:text-dark-text-primary">Informações Pessoais</h3>
         </div>
 
         <!-- Mensagens de Status -->
         <div v-if="$page.props.flash.success"
-            class="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+            class="p-4 mb-6 border border-green-200 rounded-lg bg-green-50 dark:bg-green-900/20 dark:border-green-800">
             <div class="flex items-center space-x-2 text-green-800 dark:text-green-300">
                 <CheckCircleIcon class="w-5 h-5" />
                 <span class="font-medium">{{ $page.props.flash.success }}</span>
@@ -14,20 +14,20 @@
         </div>
 
         <div v-if="form.errors && Object.keys(form.errors).length > 0"
-            class="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <div class="flex items-center space-x-2 text-red-800 dark:text-red-300 mb-2">
+            class="p-4 mb-6 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-800">
+            <div class="flex items-center mb-2 space-x-2 text-red-800 dark:text-red-300">
                 <ExclamationTriangleIcon class="w-5 h-5" />
                 <span class="font-medium">Por favor, corrija os seguintes erros:</span>
             </div>
-            <ul class="list-disc list-inside text-sm text-red-700 dark:text-red-300 space-y-1">
+            <ul class="space-y-1 text-sm text-red-700 list-disc list-inside dark:text-red-300">
                 <li v-for="error in form.errors" :key="error">{{ error }}</li>
             </ul>
         </div>
 
         <form @submit.prevent="submitForm">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="grid grid-cols-1 gap-6 mb-8 md:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome Completo</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome Completo</label>
                     <input type="text" v-model="form.name" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.name ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'
@@ -37,7 +37,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nome de
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Nome de
                         Utilizador</label>
                     <input type="text" v-model="form.username" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
@@ -48,7 +48,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
                     <input type="email" v-model="form.email" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.email ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'
@@ -58,7 +58,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Telefone</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Telefone</label>
                     <input type="tel" v-model="form.phone" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.phone ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'
@@ -68,11 +68,11 @@
                 </div>
             </div>
 
-            <h4 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-4">Informações de Localização
+            <h4 class="mb-4 text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Informações de Localização
             </h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Província</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Província</label>
                     <select v-model="form.province" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.province ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'
@@ -94,7 +94,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Distrito</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Distrito</label>
                     <select v-model="form.district" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.district ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'
@@ -113,7 +113,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Bairro</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Bairro</label>
                     <input type="text" v-model="form.neighborhood" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.neighborhood ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'
@@ -124,7 +124,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Rua</label>
+                    <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Rua</label>
                     <input type="text" v-model="form.street" :class="[
                         'w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-0 transition-colors dark:bg-dark-accent dark:text-dark-text-primary',
                         form.errors.street ? 'border-red-300 focus:ring-red-500' : 'border-gray-300 dark:border-gray-600 focus:ring-orange-500 focus:border-brand'

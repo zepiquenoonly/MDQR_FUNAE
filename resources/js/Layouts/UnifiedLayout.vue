@@ -54,6 +54,9 @@
         <slot />
       </main>
     </div>
+
+    <!-- Notification Container -->
+    <NotificationContainer />
   </div>
 </template>
 
@@ -62,6 +65,7 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { router, usePage } from "@inertiajs/vue3";
 import Sidebar from "@/Components/UnifiedSidebar.vue";
 import Header from "@/Components/UnifiedHeader.vue";
+import NotificationContainer from "@/Components/NotificationContainer.vue";
 import { useAuth } from "@/Composables/useAuth";
 import { useDashboard } from "@/Composables/useDashboard"; // Adicionado
 

@@ -189,7 +189,7 @@
       <MenuItem
         :active="activePanel === 'admin-users'"
         :icon="UsersIcon"
-        :text="'Gestão de Utilizadores'"
+        :text="'Gestão de Usuários'"
         @click="() => navigateToAdminUsers()"
       />
       <MenuItem

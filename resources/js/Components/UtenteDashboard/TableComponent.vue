@@ -8,7 +8,11 @@
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full">
+      <div :class="[
+        'overflow-y-auto',
+        rows.length > 10 ? 'max-h-96' : ''
+      ]">
+        <table class="w-full">
         <thead>
           <tr class="border-b-2 border-gray-200">
             <th v-for="(header, index) in headers" :key="index"
@@ -38,14 +42,16 @@
               </span>
             </td>
             <td class="px-4 py-4 text-sm text-gray-500">{{ row.date }}</td>
-            <!-- <td class="px-4 py-4">
-              <button class="text-primary-600 hover:text-orange-600 transition-colors font-medium text-sm group-hover:scale-110 duration-200">
-                Ver →
+            <td class="px-4 py-4">
+              <button @click="$emit('view-details', { ...row, id: row.grievance_id || row.id })"
+                class="text-primary-600 hover:text-orange-600 transition-colors font-medium text-sm group-hover:scale-110 duration-200 cursor-pointer">
+                Ver Detalhes →
               </button>
-            </td> -->
+            </td>
           </tr>
         </tbody>
       </table>
+      </div>
     </div>
 
     <!-- Empty state -->
@@ -68,7 +74,7 @@ defineProps({
   },
   headers: {
     type: Array,
-    default: () => ['ID', 'Tipo', 'Status', 'Data']
+    default: () => ['ID', 'Tipo', 'Status', 'Data', 'Acções']
   },
   rows: {
     type: Array,

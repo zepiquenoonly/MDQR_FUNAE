@@ -20,12 +20,16 @@
 
     <!-- Conteúdo principal -->
     <div v-else class="max-w-full mx-auto">
-      <!-- Cabeçalho -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        <p class="text-gray-600 dark:text-gray-400 mt-2">
-          Visão geral das reclamações, queixas e sugestões do departamento
-        </p>
+      <!-- Welcome Message - Transparent -->
+      <div class="mb-6">
+        <div class="py-4">
+          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
+            Bem-vindo(a), {{ $page.props.auth?.user?.name }}!
+          </h1>
+          <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+            Painel de Diretor - Visão geral das reclamações, queixas e sugestões do departamento
+          </p>
+        </div>
       </div>
 
       <!-- Métricas Principais -->
