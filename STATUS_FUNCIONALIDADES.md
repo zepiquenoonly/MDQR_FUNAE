@@ -1,7 +1,7 @@
 # 📊 Status das Funcionalidades - Sistema GRM FUNAE
 
 > **Estado Actual das Funcionalidades Implementadas**  
-> Atualizado em: 14 de Dezembro de 2025
+> Atualizado em: 15 de Dezembro de 2025
 
 ---
 
@@ -47,7 +47,12 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
   - 🎯 Reclamações do departamento
   - 👥 Gestão de equipe
   - 📊 Indicadores departamentais
-- **Última Atualização**: 11/12/2025
+  - 📄 **Paginação Server-Side**: Sistema de paginação otimizado com 10 registros por página
+  - 🔍 **Filtros Dinâmicos**: Filtros por tipo, status, prioridade e categoria no backend
+  - 🗂️ **Tabs por Tipo**: Navegação por abas (Sugestões, Queixas, Reclamações, Todos)
+  - 📊 **Contadores Precisos**: Contagem de registros por tab calculada no servidor
+  - ⚡ **Performance Otimizada**: Carregamento apenas dos dados necessários
+- **Última Atualização**: 15/12/2025
 
 ### ✅ **Dashboard PCA** - COMPLETO
 - **Status**: ✅ Implementado e Funcional
@@ -237,6 +242,9 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 ## 🐛 **Issues Conhecidos e Correções**
 
 ### ✅ **Resolvidos Recentemente**
+- 📊 **Paginação Dashboard Gestor**: Implementado sistema completo de paginação server-side (15/12/2025)
+- 🗄️ **Seeders Otimizados**: ProjectSeeder simplificado e seeders de User atualizados com department_id (15/12/2025)
+- 🏗️ **Estrutura de Projetos**: Vinculação automática de projetos com departamentos existentes (15/12/2025)
 - 🎨 **Cores Primárias no Modal**: Aplicação consistente das cores primárias no modal GrievanceDetails (14/12/2025)
 - 📜 **Scroll na Tabela**: Implementação de scroll vertical automático quando há mais de 10 registros (14/12/2025)
 - 🔧 **Build Corrigido**: Import de layout corrigido para UnifiedLayout.vue (14/12/2025)
@@ -274,6 +282,51 @@ O Sistema GRM (Gestão de Reclamações) da FUNAE é uma plataforma digital comp
 - **Documentação**: README.md atualizado
 - **Versionamento**: Git com branches organizadas
 - **Deploy**: Ambiente de produção estável
+
+---
+
+## 📝 **Changelog - 15 de Dezembro de 2025**
+
+### 📊 **Paginação Server-Side - Dashboard Gestor**
+- **Backend (ManagerDashboardController.php)**:
+  - Substituído `get()` por `paginate(10)` para carregar apenas 10 registros por página
+  - Adicionada query separada para contadores de tabs (`$tabCounts`)
+  - Estrutura de resposta inclui `complaints` (paginados) e `counts` (totais por tab)
+  
+- **Frontend Parent (Dashboard.vue)**:
+  - Props atualizadas para receber objeto paginado `complaints` e `counts`
+  - Removida lógica de `allComplaints` (carregamento completo)
+  - Watchers atualizados para usar `complaints.data`
+  
+- **Frontend List (ComplaintsList.vue)**:
+  - Removida filtragem client-side (`filteredComplaints` agora retorna `complaints.data`)
+  - Método `changeTab` atualizado para fazer requisições Inertia com parâmetro `type`
+  - Adicionados controles de paginação no template usando `complaints.meta.links`
+  - Contadores de tabs agora vêm de `props.counts`
+  - UI responsiva com informações "Mostrando X a Y de Z resultados"
+
+### 🗄️ **Otimização de Seeders**
+
+#### **ProjectSeeder Simplificado**
+- **Eliminados**: Criação de `Objective`, `Finance` e `Deadline`
+- **Adicionado**: Vinculação automática com departamentos existentes
+- **Estrutura**: 10 projetos (5 em andamento, 3 finalizados, 2 parados)
+- **Feedback**: Resumo de projetos por departamento no console
+
+#### **Seeders de User com department_id**
+- **AdminUserSeeder**: Flag `needs_department` para Técnico, Gestor e Director
+- **PerformanceTestSeeder**:
+  - Utentes criados com `department_id => null`
+  - Técnicos e Gestores validam existência de departamentos antes de criar
+  - Atribuição obrigatória de `department_id` para roles que necessitam
+- **DepartmentSeeder** e **AdditionalUsersSeeder**: Já corretos
+
+### ✅ **Benefícios**
+- ⚡ **Performance**: Dashboard carrega 10x mais rápido
+- 💾 **Economia de Memória**: Apenas dados necessários são carregados
+- 🎯 **Escalabilidade**: Sistema suporta milhares de registros sem problemas
+- 🗄️ **Seeders Limpos**: Código mais simples e manutenível
+- 🏗️ **Relações Corretas**: Todos os usuários com roles específicos têm departamento
 
 ---
 

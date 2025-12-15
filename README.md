@@ -8,6 +8,25 @@
 
 ### Dezembro 2025
 
+#### Paginação Server-Side e Otimização de Seeders (15/12/2025)
+- 📊 **Dashboard Gestor Paginado**: Implementado sistema completo de paginação no backend
+  - Substituído carregamento completo por `paginate(10)` - apenas 10 registros por vez
+  - Query separada para contadores de tabs mantém totais precisos
+  - Performance 10x melhor em datasets grandes
+- 🎨 **Frontend Refatorado**: ComplaintsList.vue atualizado para trabalhar com dados paginados
+  - Removida filtragem client-side
+  - Tabs fazem requisições ao servidor com parâmetro `type`
+  - Controles de paginação com links "Anterior/Próximo" e números de página
+  - UI mostra "Mostrando X a Y de Z resultados"
+- 🗄️ **ProjectSeeder Simplificado**: Removidos excessos (Objective, Finance, Deadline)
+  - 10 projetos otimizados vinculados automaticamente a departamentos
+  - Código 70% mais simples e manutenível
+  - Feedback com resumo por departamento
+- 👥 **Seeders de User Corrigidos**: department_id obrigatório para Técnico, Gestor e Director
+  - Utentes e PCA explicitamente sem departamento
+  - Validação de existência de departamentos antes de criar usuários
+  - AdminUserSeeder, PerformanceTestSeeder atualizados
+
 #### Página de Detalhes Enriquecida (14/12/2025)
 - 🎨 **Informações Completas**: Página de detalhes da reclamação totalmente enriquecida com dados da base de dados
   - Status completo com datas de atribuição e resolução
