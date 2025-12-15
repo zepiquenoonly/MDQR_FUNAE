@@ -22,10 +22,10 @@ class ProfileController extends Controller {
    public function edit(Request $request): Response
 {
     $user = $request->user();
-    
+
     $activeTab = 'info';
     $currentRoute = $request->route()->getName();
-    
+
     if ($currentRoute === 'profile.security') {
         $activeTab = 'security';
     } elseif ($currentRoute === 'profile.notifications') {
@@ -33,10 +33,10 @@ class ProfileController extends Controller {
     } elseif ($currentRoute === 'profile.preferences') {
         $activeTab = 'preferences';
     }
-    
+
     $userRole = $user->getRoleNames()->first() ?? 'Utente';
     $showStats = $userRole === 'Utente';
-    
+
     $stats = $showStats ? [
         'suggestions' => 0,
         'complaints' => 0,
@@ -80,47 +80,47 @@ class ProfileController extends Controller {
 
         // Validar todos os dados de uma vez
         $validated = $request->validate( [
-            'name' => [ 'required', 'string', 'max:255' ],
-            'username' => [ 'required', 'string', 'max:255', 'unique:users,username,' . $userId ],
-            'email' => [ 'required', 'string', 'email', 'max:255', 'unique:users,email,' . $userId ],
-            'phone' => [
-                'nullable',
-                'regex:/^\+258\s(8[2-7])\s\d{3}\s\d{4}$/'
-            ],
-            'province' => [ 'required', 'string', 'max:255' ],
-            'district' => [ 'required', 'string', 'max:255' ],
-            'neighborhood' => [ 'required', 'string', 'max:255' ],
+            'name' => [ 'string', 'max:255' ],
+            'username' => [ 'string', 'max:255', 'unique:users,username,' . $userId ],
+            'email' => [ 'string', 'email', 'max:255', 'unique:users,email,' . $userId ],
+            // 'phone' => [
+            //     'nullable',
+            //     'regex:/^\+258\s(8[2-7])\s\d{3}\s\d{4}$/'
+            // ],
+            'province' => [ 'string', 'max:255' ],
+            'district' => [ 'string', 'max:255' ],
+            'neighborhood' => [ 'string', 'max:255' ],
             'street' => [ 'nullable', 'string', 'max:255' ],
         ], [
-            'name.required' => 'O campo nome é obrigatório.',
+            'name' => 'O campo nome é obrigatório.',
             'name.string' => 'O nome deve ser um texto.',
             'name.max' => 'O nome não pode ter mais de 255 caracteres.',
 
-            'username.required' => 'O campo nome de utilizador é obrigatório.',
+            'username' => 'O campo nome de utilizador é obrigatório.',
             'username.string' => 'O nome de utilizador deve ser um texto.',
             'username.max' => 'O nome de utilizador não pode ter mais de 255 caracteres.',
             'username.unique' => 'Este nome de utilizador já está em uso.',
 
-            'email.required' => 'O campo email é obrigatório.',
+            'email' => 'O campo email é obrigatório.',
             'email.string' => 'O email deve ser um texto.',
             'email.email' => 'O email deve ser um endereço de email válido.',
             'email.max' => 'O email não pode ter mais de 255 caracteres.',
             'email.unique' => 'Este email já está em uso.',
 
-            'phone.required' => 'O campo telefone é obrigatório.',
-            'phone.string' => 'O telefone deve ser um texto.',
-            'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
-            'phone.regex' => 'O número de telefone deve estar no formato +258 XX XXX XXXX e começar com 82–87.',
+            // 'phone' => 'O campo telefone é obrigatório.',
+            // 'phone.string' => 'O telefone deve ser um texto.',
+            // 'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
+            // 'phone.regex' => 'O número de telefone deve estar no formato +258 XX XXX XXXX e começar com 82–87.',
 
-            'province.required' => 'O campo província é obrigatório.',
+            'province' => 'O campo província é obrigatório.',
             'province.string' => 'A província deve ser um texto.',
             'province.max' => 'A província não pode ter mais de 255 caracteres.',
 
-            'district.required' => 'O campo distrito é obrigatório.',
+            'district' => 'O campo distrito é obrigatório.',
             'district.string' => 'O distrito deve ser um texto.',
             'district.max' => 'O distrito não pode ter mais de 255 caracteres.',
 
-            'neighborhood.required' => 'O campo bairro é obrigatório.',
+            'neighborhood' => 'O campo bairro é obrigatório.',
             'neighborhood.string' => 'O bairro deve ser um texto.',
             'neighborhood.max' => 'O bairro não pode ter mais de 255 caracteres.',
 
@@ -152,7 +152,7 @@ class ProfileController extends Controller {
         ], [
             'current_password.required' => 'A password atual é obrigatória.',
             'current_password.current_password' => 'A password atual está incorreta.',
-            
+
             'password.required' => 'A nova password é obrigatória.',
             'password.confirmed' => 'A confirmação da password não corresponde.',
             'password.min' => 'A password deve ter pelo menos 8 caracteres.',
@@ -209,7 +209,7 @@ class ProfileController extends Controller {
 
         $fileName = 'avatar-' . $user->id . '-' . Str::random(10) . '.' . $file->getClientOriginalExtension();
         $path = $file->storeAs('avatars', $fileName, 'public');
-        
+
         \Log::info('Arquivo armazenado', ['path' => $path]);
 
         // Update user record
@@ -268,7 +268,7 @@ class ProfileController extends Controller {
    public function getAvatar(Request $request)
     {
         $user = $request->user();
-        
+
         return response()->json([
             'avatar_url' => $user->avatar_url
         ]);
