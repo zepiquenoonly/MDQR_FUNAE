@@ -384,6 +384,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { Link, router, useForm } from '@inertiajs/vue3'
+import { buildRoute } from '@/utils/routes'
 import Layout from '@/Layouts/UnifiedLayout.vue'
 import StatusBadge from '@/Components/Grievance/StatusBadge.vue'
 import { DocumentTextIcon, ClockIcon, PaperClipIcon, ArrowDownTrayIcon, RocketLaunchIcon, CheckIcon, PencilSquareIcon, FolderIcon, InformationCircleIcon, MapPinIcon, CheckBadgeIcon } from '@heroicons/vue/24/outline'
@@ -423,7 +424,7 @@ const handleCompletionFiles = (event) => {
 const startWork = async () => {
     isProcessing.value = true
     try {
-        await router.patch(route('technician.grievances.start', props.grievance.id), {}, {
+        await router.patch(buildRoute('technician.grievances.start', { grievance: props.grievance.id }), {}, {
             preserveScroll: true,
         })
     } finally {
@@ -434,7 +435,7 @@ const startWork = async () => {
 const submitUpdate = async () => {
     isProcessing.value = true
     try {
-        await updateForm.post(route('technician.grievances.updates.store', props.grievance.id), {
+        await updateForm.post(buildRoute('technician.grievances.updates.store', { grievance: props.grievance.id }), {
             preserveScroll: true,
             forceFormData: true,
             onSuccess: () => {
@@ -454,7 +455,7 @@ const requestCompletion = async () => {
     isProcessing.value = true
     try {
         await completionForm.post(
-            route('technician.grievances.request-completion', props.grievance.id),
+            buildRoute('technician.grievances.request-completion', { grievance: props.grievance.id }),
             {
                 preserveScroll: true,
                 forceFormData: true,

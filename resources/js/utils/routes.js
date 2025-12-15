@@ -11,13 +11,16 @@ const routes = {
   'user.dashboard': '/utente/dashboard',
   'home': '/',
   'technician.grievances.show': '/technician/grievances/{grievance}',
+  'technician.grievances.start': '/technician/grievances/{grievance}/start',
+  'technician.grievances.updates.store': '/technician/grievances/{grievance}/updates',
+  'technician.grievances.request-completion': '/technician/grievances/{grievance}/request-completion',
   'profile.edit': '/profile',
   'logout': '/logout',
   'track': '/track',
   'grievance.track.search': '/track',
   'login': '/login',
   'register': '/register',
-  
+
   // Admin Routes
   'admin.departments.index': '/admin/departments',
   'admin.projects.index': '/admin/projects',
