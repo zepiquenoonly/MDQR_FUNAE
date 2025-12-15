@@ -122,9 +122,23 @@ class Attachment extends Model
      */
     public function getUrlAttribute(): string
     {
-        if (str_starts_with($this->path, '/uploads') || str_starts_with($this->path, 'uploads')) {
-            return url($this->path);
+        $path = $this->path;
+
+        // Remove leading slash
+        if (str_starts_with($path, '/')) {
+            $path = substr($path, 1);
         }
+
+        // If path starts with uploads/, return direct URL
+        if (str_starts_with($path, 'uploads/')) {
+            return url($path);
+        }
+
+        // If path starts with storage/uploads/, fix it to uploads/
+        if (str_starts_with($path, 'storage/uploads/')) {
+            return url(str_replace('storage/uploads/', 'uploads/', $path));
+        }
+
         return Storage::url($this->path);
     }
 
