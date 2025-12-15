@@ -208,19 +208,20 @@
                         <!-- Mensagem de Anonimato -->
                         <transition name="fade-slide">
                             <div v-if="formData.is_anonymous" class="bg-orange-50 border border-orange-200 rounded-xl p-6">
-                                <div class="flex items-start gap-4 mb-4">
+                                <div class="flex items-start gap-4" :class="{ 'mb-4': !authUser }">
                                     <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
                                         <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
                                     </div>
                                     <div>
                                         <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
                                         <p class="text-sm text-orange-700">
-                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
+                                            A sua identidade será protegida. {{ authUser ? 'Seus dados de conta não serão associados a esta submissão.' : 'Não será necessário fornecer dados pessoais.' }}
                                             No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
                                         </p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-2 mt-2 ml-16">
+                                <!-- Opção apenas para usuários NÃO logados -->
+                                <div v-if="!authUser" class="flex items-center gap-2 mt-2 ml-16">
                                     <input type="checkbox" id="showOptionalContact" v-model="showOptionalContact" 
                                         class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
                                     <label for="showOptionalContact" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
@@ -230,9 +231,9 @@
                             </div>
                         </transition>
 
-                        <!-- Formulário de Dados Pessoais (visível se identificado OU se optou por fornecer em anónimo) -->
+                        <!-- Formulário de Dados Pessoais (apenas para usuários NÃO logados) -->
                         <transition name="fade-slide">
-                            <div v-if="!formData.is_anonymous || showOptionalContact" class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
+                            <div v-if="!authUser && (!formData.is_anonymous || showOptionalContact)" class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
                                 <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                                         <UserIcon class="w-5 h-5 text-blue-600" />
@@ -329,6 +330,23 @@
                                                 {{ errors.gender }}
                                             </p>
 
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <!-- Informação para usuários logados -->
+                        <transition name="fade-slide">
+                            <div v-if="authUser && !formData.is_anonymous" class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <UserIcon class="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-blue-900 mb-1">Submissão Identificada</h4>
+                                        <p class="text-sm text-blue-700">
+                                            Seus dados pessoais serão utilizados a partir da sua conta: <span class="font-semibold">{{ authUser.name }}</span> ({{ authUser.email }}).
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -737,6 +755,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import {
     XMarkIcon,
     DocumentTextIcon,
@@ -767,6 +786,10 @@ import {
     PaperAirplaneIcon,
     XCircleIcon
 } from '@heroicons/vue/24/outline'
+
+// Acessar usuário autenticado
+const page = usePage()
+const authUser = computed(() => page.props.auth?.user || null)
 
 const props = defineProps({
     isAnonymous: {
@@ -803,7 +826,8 @@ const formData = ref({
     contact_name: '',
     contact_email: '',
     contact_phone: '',
-    gender: ''
+    gender: '',
+    user_id: authUser.value?.id || null
 })
 
 const showOptionalContact = ref(false)
@@ -1104,8 +1128,8 @@ const validateStep = () => {
     errors.value = {}
 
     if (currentStep.value === 1) {
-        // Validar dados pessoais se identificado OU se optou por fornecer dados em anónimo
-        if (!formData.value.is_anonymous || showOptionalContact.value) {
+        // Para usuários NÃO logados: validar dados pessoais se identificado OU se optou por fornecer dados em anónimo
+        if (!authUser.value && (!formData.value.is_anonymous || showOptionalContact.value)) {
             if (!formData.value.contact_name || formData.value.contact_name.trim().length < 3) {
                 errors.value.contact_name = 'Nome é obrigatório (mínimo 3 caracteres)'
             }
@@ -1118,6 +1142,7 @@ const validateStep = () => {
                 errors.value.gender = 'O Gênero é obrigatório'
             }
         }
+        // Para usuários logados: não precisa validar dados pessoais (vêm da sessão)
     }
 
     if (currentStep.value === 2) {
@@ -1231,6 +1256,8 @@ const handleSubmit = async () => {
         const formDataToSend = new FormData()
 
         // Adicionar dados do formulário
+        // IMPORTANTE: user_id é sempre enviado se o usuário estiver autenticado,
+        // mesmo em submissões anônimas, para rastreamento no dashboard do utente
         Object.keys(formData.value).forEach(key => {
             let value = formData.value[key]
             if (value !== null && value !== '' && value !== undefined) {

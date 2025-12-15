@@ -822,7 +822,7 @@ private function exportToExcel($indicatorIds, $startDate, $endDate)
         $sheet->setCellValue('A4', 'Gerado por: ' . auth()->user()->name);
         
         // Cabeçalho da tabela (linha 6)
-        $headers = ['Indicador', 'Categoria', 'Valor Atual', 'Meta', 'Desempenho', 'Tendência', 'Unidade', 'Status'];
+        $headers = ['Indicador', 'Categoria', 'Valor Actual', 'Meta', 'Desempenho', 'Tendência', 'Unidade', 'Status'];
         $col = 'A';
         foreach ($headers as $header) {
             $sheet->setCellValue($col . '6', $header);
@@ -1081,7 +1081,7 @@ private function exportToExcel($indicatorIds, $startDate, $endDate)
                 <tr>
                     <th>Indicador</th>
                     <th>Categoria</th>
-                    <th>Valor Atual</th>
+                    <th>Valor Actual</th>
                     <th>Meta</th>
                     <th>Desempenho</th>
                     <th>Tendência</th>

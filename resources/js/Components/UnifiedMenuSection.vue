@@ -7,40 +7,46 @@
 
     <!-- Dashboards -->
     <MenuItem v-if="role === 'admin'"
-      :active="$page.url === '/admin/dashboard'"
+      :active="$page.url.startsWith('/admin/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/admin/dashboard"
     />
     <MenuItem v-if="role === 'director'"
-      :active="$page.url === '/director/dashboard'"
+      :active="$page.url.startsWith('/director/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/director/dashboard"
     />
     <MenuItem v-if="role === 'manager'"
-      :active="$page.url === '/gestor/dashboard'"
+      :active="$page.url.startsWith('/gestor/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/gestor/dashboard"
     />
     <MenuItem v-if="role === 'pca'"
-      :active="$page.url === '/pca/dashboard'"
+      :active="$page.url.startsWith('/pca/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/pca/dashboard"
     />
     <MenuItem v-if="role === 'technician'"
-      :active="$page.url === '/tecnico/dashboard'"
+      :active="$page.url.startsWith('/tecnico/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/tecnico/dashboard"
     />
     <MenuItem v-if="role === 'utente'"
-      :active="$page.url === '/utente/dashboard'"
+      :active="$page.url.startsWith('/utente/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/utente/dashboard"
+    />
+
+    <MenuItem v-if="role === 'utente'"
+      :icon="MagnifyingGlassIcon"
+      :text="'Acompanhar submissão'"
+      href="/track"
     />
 
     <template v-if="role === 'manager'">
@@ -71,20 +77,13 @@
       />
 
       <!-- Estatísticas -->
-      <!-- <MenuItem
+      <MenuItem
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        href="/gestor/estatisticas"
-      /> -->
+        href="/director/indicators"
+      />
 
-      <!-- Funcionários -->
-      <!-- <MenuItem
-        :active="$page.url.startsWith('/gestor/technicians')"
-        :icon="UserGroupIcon"
-        :text="'Funcionários'"
-        href="/gestor/technicians"
-      /> -->
     </template>
 
     <template v-if="role === 'pca'">
@@ -98,18 +97,11 @@
     </template>
 
     <template v-if="role === 'admin'">
-      <!-- Gestão do Sistema -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-      >
-        Gestão do Sistema
-      </div>
-
-      <!-- Utilizadores -->
+      <!-- Usuários -->
       <MenuItem
         :active="$page.url === '/admin/users'"
         :icon="UsersIcon"
-        :text="'Utilizadores'"
+        :text="'Usuários'"
         @click="() => navigateToAdminUsers()"
       />
 

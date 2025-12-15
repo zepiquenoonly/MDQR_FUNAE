@@ -168,10 +168,10 @@
                   </p>
                 </div>
 
-                <!-- Nome de Utilizador -->
+                <!-- Nome de Usuário -->
                 <div>
                   <label class="block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Nome de Utilizador *
+                    Nome de Usuário *
                   </label>
                   <input
                     type="text"
@@ -488,7 +488,7 @@ const hasErrors = computed(() => {
 const getFieldLabel = (field) => {
   const labels = {
     name: "Nome Completo",
-    username: "Nome de Utilizador",
+    username: "Nome de Usuário",
     email: "Email",
     phone: "Telefone",
     province: "Província",

@@ -8,6 +8,139 @@
 
 ### Dezembro 2025
 
+#### Página de Detalhes Enriquecida (14/12/2025)
+- 🎨 **Informações Completas**: Página de detalhes da reclamação totalmente enriquecida com dados da base de dados
+  - Status completo com datas de atribuição e resolução
+  - Informações detalhadas do requerente (nome, email, telefone, gênero, tipo de submissão)
+  - Localização hierárquica (Província → Distrito → Posto Administrativo → Localidade)
+  - Projeto relacionado quando aplicável
+  - Responsável pela atribuição com dados de contato
+- 📎 **Sistema de Anexos Avançado**: Visualização aprimorada com previews inline para imagens
+  - Modal de visualização em tela cheia para imagens
+  - Download direto de todos os tipos de arquivo
+  - Metadados completos (tamanho, tipo, data de upload)
+  - Organização em grid responsivo
+- 📅 **Datas Humanas**: Todas as datas formatadas de forma legível em português
+  - Data de submissão, atribuição, resolução e escalação
+  - Formatação consistente: "15 de dezembro de 2025 às 14:30"
+- 🏗️ **Backend Enriquecido**: Controller atualizado para carregar todas as relações necessárias
+  - Projetos, usuários resolvedores, usuários que escalaram
+  - Dados completos de localização e contato
+  - Metadados e informações adicionais
+- ⚡ **Performance Otimizada**: Carregamento eficiente com eager loading de relações
+- 🔧 **Build Corrigido**: Import de layout corrigido para UnifiedLayout.vue
+
+#### Correções Críticas de Modal e Controller (14/12/2025)
+- 🔧 **Erro 404 Modal Corrigido**: Resolvido problema onde clique no botão "Ver →" na tabela causava erro 404
+  - Problema: Modal recebia `reference_number` em vez do `grievance_id` numérico
+  - Solução: Modificado `TableComponent.vue` para emitir `grievance_id` correto
+  - Resultado: Modal de detalhes abre corretamente com dados completos
+- 🛠️ **Controller FatalError Corrigido**: Removido import duplicado `Inertia\Response` no `UtenteDashboardController.php`
+- 📄 **Página GrievanceDetail Criada**: Implementada página completa `Utente/GrievanceDetail.vue` para visualização direta
+  - Design responsivo com todas as informações da reclamação
+  - Compatível com modal e acesso direto via URL
+  - Funcionalidades: status, anexos, histórico de atualizações, resolução
+- ⚡ **Performance Otimizada**: Modal carrega instantaneamente com dados locais, sem requisições adicionais
+- ✅ **Build Estável**: Vite manifest atualizado, aplicação funcionando sem erros
+
+#### Correções de Autenticação e Routing (14/12/2025)
+- 🔧 **Providers Laravel Adicionados**: Criados AuthServiceProvider, EventServiceProvider e RouteServiceProvider para resolver problemas de bootstrap
+- ⚙️ **Configuração de Providers Expandida**: Adicionados providers essenciais (Hashing, Validation, Translation, Cache) em config/app.php
+- 🛠️ **Instrumentação de Debug no GrievanceController**: Logs detalhados para diagnóstico de autenticação, incluindo headers, cookies e sessão
+- 🛤️ **Rota POST para api/grievances**: Adicionada rota com middleware web para aceitar submissões com sessão autenticada
+- 🌐 **Configuração CORS**: Criado config/cors.php para suporte a credenciais em requisições cross-origin
+- 🔄 **Frontend Atualizado**: bootstrap.js com axios.withCredentials, ComplaintForm.vue com melhorias no formulário
+- 📦 **Commit e PR**: Mudanças commitadas na branch fix/grievance-auth-routing e PR #121 criada
+
+#### Melhorias de UI e Dashboard (14/12/2025)
+- 🎨 **Header Unificado Otimizado**: UnifiedHeader.vue tornado mais discreto e transparente
+  - Altura reduzida (h-32 → h-20), padding/gaps ajustados
+  - Transparência aumentada (bg-white/10 → bg-white/5)
+  - Margens removidas para melhor integração visual
+- 🗑️ **Seção de Notificações Removida**: NotificationWidget removido do Dashboard.vue
+  - Código limpo e interface simplificada
+  - Foco nas funcionalidades principais do dashboard
+
+#### Dashboard Utente Modernizado (14/12/2025)
+- 🎯 **Botão 'Acompanhar Status' Removido**: Substituído por funcionalidade mais útil
+- 📋 **Novo Botão 'Ver Submissões'**: Abre modal elegante com lista completa de submissões
+- 🔍 **Modal de Submissões**: Interface moderna para visualizar dados de reclamações
+  - Status atual com badges coloridas
+  - Informações detalhadas (categoria, prioridade, datas)
+  - Design responsivo e acessível
+  - Botão para ver detalhes completos
+- 🎨 **UI Consistente**: Mantém design system do dashboard
+- ⚡ **Performance Otimizada**: Modal carrega dados existentes sem requisições adicionais
+
+#### Tabela Submissões com Ação Modal (14/12/2025)
+- 🎯 **Botão 'Ver →' Funcional**: Clicável para visualizar detalhes da submissão
+- 🔍 **Modal GrievanceDetails Integrado**: Reutilização do componente existente
+- 📊 **Dados da Tabela**: Status, categoria, prioridade, datas formatadas
+- 🎨 **Transições Suaves**: Hover effects e animações consistentes
+- ⚡ **Performance**: Modal abre instantaneamente com dados locais
+
+#### Melhorias UX e Navegação (14/12/2025)
+- 🏠 **Página Inicial Acessível**: Usuários autenticados agora podem navegar pela página Home (/) livremente
+  - Removida lógica de redirecionamento forçado para dashboards
+  - Landing page exibe informações do usuário quando autenticado
+  - Usuários logados continuam bloqueados de acessar Login/Register
+- 🎨 **Sidebar Reorganizada**: Redesign visual da barra lateral com separação clara
+  - Logo FUNAE em seção dedicada no topo
+  - Título "Dashboard" e role em seção separada com gradiente sutil
+  - Melhor hierarquia visual e espaçamento
+- 🔧 **Menu Unificado Otimizado**: Estado ativo dos itens de menu melhorado
+  - Links diretos para cada dashboard por role
+  - Indicador visual aprimorado para item ativo
+  - Navegação mais intuitiva entre seções
+
+#### Campo de Género e Formulário Dinâmico (14/12/2025)
+- 👤 **Campo Género no Registro**: Adicionado campo de género (Masculino, Feminino, Outro) ao formulário "Dados do Munícipe" com validação completa
+- 🔄 **Formulário Dinâmico de Submissão**: Sistema inteligente que adapta o formulário baseado no estado de autenticação
+  - Usuário logado: apenas escolhe Anónimo/Identificado (dados vêm da sessão automaticamente)
+  - Usuário não logado: formulário completo com campos de dados pessoais
+- 🛠️ **Correção de Inserção**: Corrigido problema onde grievances não eram inseridas quando usuário estava logado
+- 📊 **Logs de Debug**: Implementados logs detalhados para troubleshooting no GrievanceController
+- ✅ **Validação Inteligente**: Validação adaptada ao contexto (logado vs não logado)
+
+#### Redesign Premium e Melhorias UX (13/12/2025)
+- 🎨 **Cards Estatísticos Premium**: Redesign completo com fundo branco/dark, ícones com gradientes coloridos, números grandes (text-4xl), badges de status e animações suaves
+- 🚀 **Ações Rápidas Melhoradas**: Cards de navegação com ícones 3D maiores, background gradient sutil, animações de rotação e sombras XL coloridas
+- 👥 **Widget Distribuição de Usuários**: Cards individuais por role com ícones SVG únicos (Utentes 👤, Técnicos ⚙️, Gestores 👥, Directores 🏆, PCA 🛡️) e gradientes coloridos
+- 👋 **Boas-Vindas Padronizadas**: Seção "Bem-vindo(a)" com fundo transparente implementada em todos os 6 dashboards (Admin, Gestor, Director, PCA, Técnico, Utente)
+- 📋 **CRUD Modernizado**: Departamentos, Projectos e Usuários com design moderno, headers com gradientes, hover effects 3D e formulários elegantes
+- 🎯 **Campo Departamento**: Validado para roles **Gestor e Técnico** na criação/edição de usuários (validação frontend e backend sincronizada)
+- 🔧 **Correção Role Gestor**: Corrigido nome do role de "Gestor de Reclamações" para "Gestor" - agora mostra corretamente 9 gestores
+- 👤 **user_id em Reclamações**: Implementado envio automático de user_id quando utente está autenticado, mesmo em submissões anônimas (para rastreamento no dashboard pessoal)
+- 🗂️ **Footer Reorganizado**: Removidas duplicações (SERVIÇOS e CONTACTOS), adicionada seção "Links Úteis" com 4 colunas organizadas
+- 🔒 **Privacidade Garantida**: Dados de contato ocultos publicamente em reclamações anônimas, mas user_id mantido para dashboard pessoal
+- 🌙 **Dark Mode 100%**: Todos os novos componentes totalmente compatíveis com modo escuro
+- ⚡ **Performance**: Builds otimizados (média 7.5s), responsividade mantida
+- 🧭 **Menu Unificado**: Links diretos para dashboards por função (Admin, Director, Gestor, PCA, Técnico, Utente)
+- 🚀 **Navegação Otimizada**: Rotas explícitas no menu lateral para acesso rápido aos painéis
+
+#### Finalização de Dashboards e UX (12/12/2025)
+- 📈 **Dashboard Director Completo**: Implementação total com métricas executivas e gestão de províncias
+- ⚡ **Acesso Rápido Utente**: Novo modal de submissão direta e UX simplificada no dashboard
+- 🛠️ **Estabilidade do Modal**: Correções críticas no fechamento e feedback do modal de submissão
+- 🔄 **Lógica de Associação**: Melhoria no preenchimento automático de dados para usuários autenticados
+#### Melhorias de Localização e Privacidade (11/12/2025)
+- 📍 **Localização Detalhada**: Hierarquia completa (Província, Distrito, Posto, Localidade) e distinção Maputo Cidade/Província
+- 🛡️ **Privacidade Anônima**: Ocultação inteligente de dados pessoais com opção voluntária de contato
+- 📊 **Dados Estatísticos**: Inclusão de campo de Gênero para fins estatísticos
+- 🎯 **Routing Inteligente**: Gestores visualizam exclusivamente reclamações associadas aos seus departamentos
+- ✅ **Validação Rigorosa**: Campos de localização tornados obrigatórios para garantir integridade dos dados
+
+#### Admin Dashboard e Gestão de Departamentos (10-11/12/2025)
+- 🏢 **Admin Dashboard Completo**: Interface dinâmica com estatísticas em tempo real e acções rápidas
+- 📊 **Sistema de Departamentos**: 5 departamentos organizacionais (Infraestrutura, Energia, Água, Educação, Saúde)
+- 👥 **Gestão de Usuários por Departamento**: 37 usuários distribuídos estrategicamente
+- 🔗 **Relações Departamento-Projeto**: Projectos vinculados a departamentos específicos
+- ⚡ **Workload para Técnicos**: Sistema de carga de trabalho exclusivo para técnicos
+- 🎯 **Seeders Avançados**: Criação automática de estrutura organizacional completa
+- 🔑 **Permissões Granulares**: Acções baseadas em permissões do usuário
+- 📈 **Estatísticas Dinâmicas**: Contadores em tempo real de recursos do sistema
+
+
 #### Sistema de Anexos Aprimorado (08/12/2025)
 - 📎 **Visualização inline de anexos**: Preview direto de imagens, PDFs e áudios no navegador
 - 🔊 **Suporte expandido para áudio**: Tipos de ficheiros de áudio adicionais suportados (MP3, WAV, OGG)
@@ -35,6 +168,11 @@
 - 🚀 **Modal de submissão direto da landing page**: Acesso imediato ao formulário desde a página inicial
 - 🎨 **Melhorias na landing page**: Textos revisados e footer aprimorado para melhor usabilidade
 
+#### Melhorias de UX e Formulário (04/12/2025)
+- 🎤 **Gravação Otimizada**: Limite de áudio ajustado para 60 segundos com melhor experiência de usuário
+- 📝 **Campos Opcionais**: Descrição e Projeto agora opcionais para simplificar submissão
+- 📊 **PCA Dashboard Reimaginado**: Foco nos 3 tipos de fluxo (Reclamação/Queixa/Sugestão) e insights de projetos
+
 #### Seeder de Performance (04/12/2025)
 - 📊 **PerformanceTestSeeder**: Geração de 15 projetos, 500 utentes, 20 técnicos, 2000 reclamações
 - 🎯 **Atribuição inteligente**: Técnicos priorizados por projeto relacionado
@@ -45,22 +183,6 @@
 - 🛡️ **Proteção completa**: Usuários logados não acessam rotas de login/register
 - ✅ **Cobertura de testes**: Testes automatizados para todos cenários de redirecionamento
 
-#### Admin Dashboard e Gestão de Departamentos (10-11/12/2025)
-- 🏢 **Admin Dashboard Completo**: Interface dinâmica com estatísticas em tempo real e acções rápidas
-- 📊 **Sistema de Departamentos**: 5 departamentos organizacionais (Infraestrutura, Energia, Água, Educação, Saúde)
-- 👥 **Gestão de Usuários por Departamento**: 37 usuários distribuídos estrategicamente
-- 🔗 **Relações Departamento-Projeto**: Projectos vinculados a departamentos específicos
-- ⚡ **Workload para Técnicos**: Sistema de carga de trabalho exclusivo para técnicos
-- 🎯 **Seeders Avançados**: Criação automática de estrutura organizacional completa
-- 🔑 **Permissões Granulares**: Acções baseadas em permissões do usuário
-- 📈 **Estatísticas Dinâmicas**: Contadores em tempo real de recursos do sistema
-
-#### Melhorias de Localização e Privacidade (11/12/2025)
-- 📍 **Localização Detalhada**: Hierarquia completa (Província, Distrito, Posto, Localidade) e distinção Maputo Cidade/Província
-- 🛡️ **Privacidade Anônima**: Ocultação inteligente de dados pessoais com opção voluntária de contato
-- 📊 **Dados Estatísticos**: Inclusão de campo de Gênero para fins estatísticos
-- 🎯 **Routing Inteligente**: Gestores visualizam exclusivamente reclamações associadas aos seus departamentos
-- ✅ **Validação Rigorosa**: Campos de localização tornados obrigatórios para garantir integridade dos dados
 
 ### Novembro 2025
 
@@ -456,7 +578,24 @@ tail -f storage/logs/laravel.log  # Ver logs em tempo real
 
 ---
 
-**Versão:** 1.2  
-**Última Atualização:** 11 de Dezembro de 2025  
+**Versão:** 1.4  
+**Última Atualização:** 14 de Dezembro de 2025, 00:43  
 **Status:** ✅ Em Produção
 
+---
+
+### 📝 Documentação Técnica Adicional
+
+- [CRUD_IMPROVEMENTS_SUMMARY.md](./CRUD_IMPROVEMENTS_SUMMARY.md) - Padronização das páginas Create/Edit CRUD
+- [USER_ID_ANONYMOUS_LOGIC.md](./USER_ID_ANONYMOUS_LOGIC.md) - Lógica de user_id em submissões anônimas
+- [FIELD_DEPARTMENT_UPDATE.md](./FIELD_DEPARTMENT_UPDATE.md) - Campo Departamento para Gestor e Técnico
+- [DASHBOARD_IMPROVEMENTS_SUMMARY.md](./DASHBOARD_IMPROVEMENTS_SUMMARY.md) - Resumo do redesign do Dashboard Admin
+- [VISUAL_IMPROVEMENTS_SUMMARY.md](./VISUAL_IMPROVEMENTS_SUMMARY.md) - Melhorias visuais implementadas
+- [WELCOME_SECTION_UPDATE.md](./WELCOME_SECTION_UPDATE.md) - Seção Boas-Vindas padronizada
+- [GENDER_FIELD_IMPLEMENTATION.md](./GENDER_FIELD_IMPLEMENTATION.md) - Implementação do campo de género
+- [DYNAMIC_SUBMISSION_FORM.md](./DYNAMIC_SUBMISSION_FORM.md) - Formulário dinâmico de submissão
+- [TROUBLESHOOTING_GRIEVANCE_INSERT.md](./TROUBLESHOOTING_GRIEVANCE_INSERT.md) - Troubleshooting de inserção
+
+---
+
+*Última atualização: 14 de Dezembro de 2025*

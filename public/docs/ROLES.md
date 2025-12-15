@@ -7,7 +7,7 @@ Este documento descreve as funções (roles) e permissões (permissions) impleme
 O sistema possui as seguintes funções principais:
 
 *   **Utente:**
-    *   **Descrição:** Utilizador comum que submete reclamações e acompanha o seu estado.
+    *   **Descrição:** Usuário comum que submete reclamações e acompanha o seu estado.
     *   **Permissões:** `submit_complaint`, `view_own_complaints`
 
 *   **Técnico:**
@@ -52,7 +52,7 @@ Conforme discutido, foi criada uma nova função de **Administrador do Sistema**
 
 Com a introdução do Administrador do Sistema, o fluxo de gestão de entidades é o seguinte:
 
-*   **Utilizadores:** Apenas o Administrador do Sistema pode criar, editar e remover contas de utilizadores e atribuir-lhes funções.
+*   **Usuários:** Apenas o Administrador do Sistema pode criar, editar e remover contas de utilizadores e atribuir-lhes funções.
 *   **Projectos:** Apenas o Administrador do Sistema pode criar, editar e remover projetos.
 *   **Departamentos:** Apenas o Administrador do Sistema pode criar, editar e remover departamentos e associá-los a gestores.
 

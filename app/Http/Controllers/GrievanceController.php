@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attachment;
 use App\Models\Grievance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -136,13 +137,35 @@ class GrievanceController extends Controller
      */
     public function store(Request $request)
     {
+        // Resolve authenticated user from request (Sanctum/API) or session (web)
+        $authenticatedUser = $request->user() ?? auth()->user();
+        $isAuthenticated = (bool) $authenticatedUser;
+
+        // Early debug info to diagnose intermittent auth/session issues
+        Log::info('Store() request auth/session debug', [
+            'auth_check_at_start' => $isAuthenticated,
+            'auth_user_at_start' => $authenticatedUser ? $authenticatedUser->id : null,
+            'session_id' => session()->getId(),
+            'request_uri' => $request->getRequestUri(),
+            'request_method' => $request->getMethod(),
+            'client_ip' => $request->getClientIp(),
+            'request_cookies' => $request->cookies->all(),
+            'request_headers_snippet' => [
+                'cookie' => $request->header('cookie'),
+                'authorization' => $request->header('authorization'),
+                'x-xsrf-token' => $request->header('x-xsrf-token')
+            ],
+            'auth_guard' => config('auth.defaults.guard')
+        ]);
+
+        // Additional: log full headers separately at DEBUG level to avoid cluttering INFO
+        Log::debug('Store() full request headers', $request->headers->all());
+
         try {
             // Validação dos dados
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'type' => 'required|in:complaint,grievance,suggestion',
-                // Description can be nullable; ensure it's either null or a string
-                'description' => 'nullable|string|max:1500',
                 'province' => 'required|string',
                 'district' => 'nullable|string',
                 'municipal_district' => 'nullable|string',
@@ -150,11 +173,12 @@ class GrievanceController extends Controller
                 'locality' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
-                // Contact fields optional; validate when present
                 'contact_name' => 'sometimes|nullable|string|max:255',
                 'contact_email' => 'sometimes|nullable|email|max:255',
+                'description' => 'nullable|string|min:50|max:1500',
                 'contact_phone' => 'nullable|string|max:20',
                 'gender' => 'nullable|string|in:Masculino,Feminino,Outro',
+                'user_id' => 'nullable|exists:users,id',
                 'attachments' => 'nullable|array|max:5',
                 'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx,txt,csv,xls,xlsx,mp3,wav,ogg,webm,m4a,aac|max:10240',
                 'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,aac|max:10240',
@@ -163,10 +187,12 @@ class GrievanceController extends Controller
             DB::beginTransaction();
 
             // Preparar dados da reclamação
+            $isAnonymous = $validated['is_anonymous'] ?? false;
+
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
-                'description' => $validated['description'] ?? null,
+                'description' => $validated['description'] ?? 'Sem descrição fornecida.',
                 'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
@@ -175,19 +201,57 @@ class GrievanceController extends Controller
                 'administrative_post' => $validated['administrative_post'] ?? null,
                 'locality' => $validated['locality'] ?? null,
                 'location_details' => $validated['location_details'] ?? null,
-                'is_anonymous' => $validated['is_anonymous'] ?? false,
+                'is_anonymous' => $isAnonymous,
                 'status' => 'submitted',
                 'priority' => 'medium',
                 'submitted_at' => now(),
-                'gender' => $validated['gender'] ?? null,
-                'user_id' => auth()->user()?->id ?? null,
-                'contact_name' => $validated['contact_name'] ?? auth()->user()?->name ?? null,
-                'contact_email' => $validated['contact_email'] ?? auth()->user()?->email ?? null,
-                'contact_phone' => $validated['contact_phone'] ?? auth()->user()?->phone ?? null,
             ];
+
+            // Se usuário está logado: usar dados da sessão (mesmo se anônimo)
+            if ($isAuthenticated) {
+                $grievanceData['user_id'] = $authenticatedUser->id;
+
+                // Se identificado, associar dados pessoais
+                if (!$isAnonymous) {
+                    $grievanceData['contact_name'] = $authenticatedUser->name;
+                    $grievanceData['contact_email'] = $authenticatedUser->email;
+                    $grievanceData['contact_phone'] = $authenticatedUser->phone ?? null;
+                    $grievanceData['gender'] = $authenticatedUser->gender ?? null;
+                    $grievanceData['province'] = $authenticatedUser->province ?? null;
+                    $grievanceData['district'] = $authenticatedUser->district ?? null;
+                }
+            } else {
+                // Se usuário NÃO está logado: usar dados fornecidos no formulário
+                $grievanceData['user_id'] = null;
+                $grievanceData['contact_name'] = $validated['contact_name'] ?? null;
+                $grievanceData['contact_email'] = $validated['contact_email'] ?? null;
+                $grievanceData['contact_phone'] = $validated['contact_phone'] ?? null;
+                $grievanceData['gender'] = $validated['gender'] ?? null;
+            }
+
+            // Determine route context
+            $currentRoute = optional($request->route())->getName();
+            $routeMiddleware = optional($request->route())->gatherMiddleware() ?? [];
+
+            // Log para debug
+            Log::info('Criando grievance com dados:', [
+                'route' => $currentRoute,
+                'route_middleware' => $routeMiddleware,
+                'auth_check' => $isAuthenticated,
+                'user_id' => $grievanceData['user_id'] ?? null,
+                'is_anonymous' => $isAnonymous,
+                'has_contact_data' => isset($grievanceData['contact_name']),
+                'contact_email' => $grievanceData['contact_email'] ?? null,
+                'data' => $grievanceData
+            ]);
 
             // Criar a reclamação
             $grievance = Grievance::create($grievanceData);
+
+            Log::info('Grievance criada com sucesso:', [
+                'id' => $grievance->id,
+                'reference_number' => $grievance->reference_number
+            ]);
 
             // Processar anexos se existirem
             Log::info('Iniciando processamento de anexos', [

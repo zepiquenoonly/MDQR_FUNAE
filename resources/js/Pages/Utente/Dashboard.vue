@@ -13,33 +13,20 @@
         <div v-else>
             <!-- Default Dashboard Content -->
             <div v-if="activePanel === 'dashboard'" class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-                <!-- Welcome Message with Glass Effect -->
-                <div class="relative overflow-hidden rounded-2xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-orange-400/30 group transition-all duration-500 hover:shadow-3xl">
-                    <!-- Animated Gradient Background -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-primary-500 via-orange-500 to-orange-600"></div>
-                    <!-- Glass Layer -->
-                    <div class="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
-                    <!-- Content -->
-                    <div class="relative z-10">
-                        <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-white drop-shadow-lg">
+                <!-- Welcome Message - Transparent -->
+                <div class="mb-4">
+                    <div class="py-4">
+                        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
                             Bem-vindo(a), {{ user.name }}!
                         </h1>
-                        <p class="text-orange-50 text-sm sm:text-base lg:text-lg font-medium drop-shadow">Acompanhe suas reclamações e submissões em tempo real</p>
+                        <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+                            Acompanhe suas reclamações e submissões em tempo real
+                        </p>
                     </div>
-                    <!-- Decorative Elements -->
-                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
-                    <div class="absolute -left-10 -top-10 w-32 h-32 bg-orange-300/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
-                    <!-- Floating particles -->
-                    <div class="absolute top-1/4 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
-                    <div class="absolute top-3/4 right-1/3 w-2 h-2 bg-white/20 rounded-full animate-pulse"></div>
-                    <div class="absolute top-1/2 right-1/2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
                 </div>
 
-                <!-- Notifications Widget -->
-                <NotificationWidget />
-
                 <!-- Quick Actions -->
-                <QuickActions @create-complaint="showComplaintForm = true" />
+                <QuickActions @create-complaint="showComplaintForm = true" @view-submissions="showSubmissionsModal = true" />
 
                 <!-- Stats Grid -->
                 <StatsGrid />
@@ -63,8 +50,9 @@
 
                 <!-- Table Component -->
                 <TableComponent 
-                    title="Minhas Submissões Recentes" 
+                    title="Minhas Submissões" 
                     :rows="recentSubmissions"
+                    @view-details="handleViewSubmissionDetails"
                 />
             </div>
 
@@ -104,6 +92,8 @@
             </div>
         </div>
         <ComplaintForm :visible="showComplaintForm" @close="showComplaintForm = false" @success="handleComplaintSuccess" />
+        <SubmissionsModal :visible="showSubmissionsModal" @close="showSubmissionsModal = false" :submissions="recentSubmissions" />
+        <GrievanceDetails v-if="selectedGrievance" :grievance="selectedGrievance" @close="selectedGrievance = null" />
     </Layout>
 </template>
 
@@ -125,6 +115,8 @@ import Complaints from '@/Components/UtenteDashboard/Complaints.vue'
 import ChartBarComponent from '@/Components/UtenteDashboard/ChartBarComponent.vue'
 import TableComponent from '@/Components/UtenteDashboard/TableComponent.vue'
 import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
+import SubmissionsModal from '@/Components/UtenteDashboard/SubmissionsModal.vue'
+import GrievanceDetails from '@/Components/UtenteDashboard/GrievanceDetails.vue'
 
 const props = defineProps({
     user: {
@@ -263,6 +255,7 @@ const recentSubmissions = computed(() => {
 
 const { activePanel, setActivePanel, activeDropdown } = useDashboard()
 const selectedProjectId = ref(null)
+const selectedGrievance = ref(null)
 
 // Watch para mudanças no activePanel - IMPORTANTE: Fechar ProjectDetails quando o painel mudar
 watch(activePanel, (newPanel) => {
@@ -300,7 +293,13 @@ const handleBackFromProjectDetails = () => {
     selectedProjectId.value = null
 }
 
+const handleViewSubmissionDetails = (submission) => {
+    console.log('Visualizar detalhes da submissão:', submission)
+    selectedGrievance.value = submission
+}
+
 const showComplaintForm = ref(false)
+const showSubmissionsModal = ref(false)
 
 const handleComplaintSuccess = () => {
     showComplaintForm.value = false

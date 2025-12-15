@@ -3,7 +3,7 @@
     <!-- Section Header -->
     <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-white">
       <div class="flex items-center justify-between">
-        <h2 class="text-xl font-semibold text-gray-800">Minhas Submissões Recentes</h2>
+        <h2 class="text-xl font-semibold text-gray-800">Minhas Submissões</h2>
         <span v-if="grievances.data" class="text-sm text-gray-600 bg-white px-3 py-1 rounded-full">
           {{ grievances.total }} total
         </span>
