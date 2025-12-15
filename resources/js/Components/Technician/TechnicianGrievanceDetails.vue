@@ -61,8 +61,7 @@
 
         <!-- Anexos -->
         <div class="space-y-3">
-            <h4 class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">Anexos</h4>
-            <AttachmentsGallery :attachments="grievance.attachments ?? []" />
+            <AttachmentsGallery :attachments="grievance.attachments ?? []" title="Anexos" />
         </div>
 
         <!-- Ações Rápidas -->

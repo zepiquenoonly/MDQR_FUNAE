@@ -213,6 +213,7 @@ private function formatGrievanceForShow($grievance): array
                 'name' => $attachment->original_filename,
                 'size' => $this->formatBytes($attachment->size),
                 'path' => $attachment->path,
+                'url' => $attachment->url,
                 'download_url' => route('attachments.download', $attachment),
             ];
         })->toArray(),

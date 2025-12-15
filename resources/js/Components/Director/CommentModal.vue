@@ -317,6 +317,10 @@ const form = useForm({
 
 const isSubmitting = ref(false);
 const fileInput = ref(null);
+const files = ref([]);
+const commentContent = ref("");
+const commentType = ref("internal");
+const notifyUser = ref(false);
 
 const handleClose = () => {
   if (!isSubmitting.value) {
@@ -326,9 +330,15 @@ const handleClose = () => {
 };
 
 const handleSubmit = async () => {
-  if (!form.content.trim() || isSubmitting.value) return;
+  if (!commentContent.value.trim() || isSubmitting.value) return;
 
   isSubmitting.value = true;
+  
+  // Sync refs to form
+  form.content = commentContent.value;
+  form.comment_type = commentType.value;
+  form.notify_user = notifyUser.value;
+  form.attachments = files.value;
 
   try {
     await form.post(`/director/complaints/${props.submission.id}/comment`, {
@@ -338,9 +348,7 @@ const handleSubmit = async () => {
         // Resetar formulário
         form.reset();
         form.clearErrors();
-
-        // Limpar arquivos
-        form.attachments = [];
+        resetForm();
 
         // Fechar modal
         emit("close");

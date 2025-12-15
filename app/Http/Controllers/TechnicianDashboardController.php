@@ -97,7 +97,7 @@ class TechnicianDashboardController extends Controller
                 'mime_type' => $attachment->mime_type,
                 'size' => $attachment->size,
                 'uploaded_at' => optional($attachment->uploaded_at)->toIso8601String(),
-                'url' => route('attachments.download', $attachment),
+                'url' => $attachment->url,
             ];
         });
 
