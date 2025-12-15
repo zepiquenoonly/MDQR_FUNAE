@@ -1,6 +1,6 @@
 <template>
     <Layout role="admin">
-        <div class="p-6 max-w-4xl mx-auto">
+        <div class="p-6 mx-auto">
             <div class="mb-8">
                 <Link href="/admin/projects" class="inline-flex items-center text-gray-600 hover:text-primary-600 font-medium mb-4 transition-colors group">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
