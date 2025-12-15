@@ -181,20 +181,33 @@ Route::middleware('auth')->group(function () {
     });
 
     // Rotas de perfil
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-        Route::get('/info', [ProfileController::class, 'edit'])->name('info');
-        Route::get('/security', [ProfileController::class, 'edit'])->name('security');
-        Route::get('/notifications', [ProfileController::class, 'edit'])->name('notifications');
-        Route::get('/preferences', [ProfileController::class, 'edit'])->name('preferences');
+    // Route::prefix('profile')->name('profile.')->group(function () {
+    //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+    //     Route::get('/info', [ProfileController::class, 'edit'])->name('info');
+    //     Route::get('/security', [ProfileController::class, 'edit'])->name('security');
+    //     Route::get('/notifications', [ProfileController::class, 'edit'])->name('notifications');
+    //     Route::get('/preferences', [ProfileController::class, 'edit'])->name('preferences');
 
-        Route::post('/infoUpdate', [ProfileController::class, 'update'])->name('update');
-        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('update.password');
-        Route::delete('/account', [ProfileController::class, 'destroy'])->name('destroy');
+    //     Route::post('/infoUpdate', [ProfileController::class, 'update'])->name('update');
+    //     Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('update.password');
+    //     Route::delete('/account', [ProfileController::class, 'destroy'])->name('destroy');
 
-        Route::post('/avatar', [ProfileController::class, 'uploadAvatar'])->name('avatar.upload');
-        Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.delete');
-        Route::get('/avatar', [ProfileController::class, 'getAvatar'])->name('avatar.get');
+    //     Route::post('/avatar', [ProfileController::class, 'uploadAvatar'])->name('avatar.upload');
+    //     Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.delete');
+    //     Route::get('/avatar', [ProfileController::class, 'getAvatar'])->name('avatar.get');
+    // });
+
+        // Rotas do Perfil
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('/info', [ProfileController::class, 'edit'])->name('profile.info');
+        Route::get('/security', [ProfileController::class, 'edit'])->name('profile.security');
+        Route::get('/notifications', [ProfileController::class, 'edit'])->name('profile.notifications');
+        Route::get('/preferences', [ProfileController::class, 'edit'])->name('profile.preferences');
+
+        Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
+        Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
     // Download de anexos
