@@ -23,12 +23,12 @@
     </div>
 
     <!-- Title Section -->
-    <div class="p-4 flex-shrink-0 bg-gradient-to-br from-primary-50/50 to-orange-50/30 border-b border-white/20">
+    <!-- <div class="p-4 flex-shrink-0 bg-gradient-to-br from-primary-50/50 to-orange-50/30 border-b border-white/20">
       <div class="text-center">
         <h1 class="font-bold text-lg text-gray-900 drop-shadow-sm">Dashboard</h1>
         <p class="text-primary-700 text-sm font-medium">{{ getRoleTitle() }}</p>
       </div>
-    </div>
+    </div> -->
 
     <!-- Menu Items -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-primary-300 scrollbar-track-transparent hover:scrollbar-thumb-primary-400 transition-colors">

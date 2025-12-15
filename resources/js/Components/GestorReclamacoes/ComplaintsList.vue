@@ -236,7 +236,7 @@
                         Mostrando <span class="font-medium">{{ currentTabData.length }}</span> de
                         {{ filteredComplaints.length }} resultados
                     </p>
-                    <div class="flex gap-2 self-end">
+                    <!-- <div class="flex gap-2 self-end">
                         <button @click="handleExport"
                             class="px-3 py-1.5 bg-brand text-white rounded text-xs font-medium hover:bg-orange-600 transition-all duration-200"
                             :disabled="loading">
@@ -247,7 +247,7 @@
                             v-if="isManager" :disabled="loading">
                             Atribuição Auto.
                         </button>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
