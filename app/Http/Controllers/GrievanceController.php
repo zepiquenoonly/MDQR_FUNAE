@@ -141,26 +141,6 @@ class GrievanceController extends Controller
         $authenticatedUser = $request->user() ?? auth()->user();
         $isAuthenticated = (bool) $authenticatedUser;
 
-        // Early debug info to diagnose intermittent auth/session issues
-        Log::info('Store() request auth/session debug', [
-            'auth_check_at_start' => $isAuthenticated,
-            'auth_user_at_start' => $authenticatedUser ? $authenticatedUser->id : null,
-            'session_id' => session()->getId(),
-            'request_uri' => $request->getRequestUri(),
-            'request_method' => $request->getMethod(),
-            'client_ip' => $request->getClientIp(),
-            'request_cookies' => $request->cookies->all(),
-            'request_headers_snippet' => [
-                'cookie' => $request->header('cookie'),
-                'authorization' => $request->header('authorization'),
-                'x-xsrf-token' => $request->header('x-xsrf-token')
-            ],
-            'auth_guard' => config('auth.defaults.guard')
-        ]);
-
-        // Additional: log full headers separately at DEBUG level to avoid cluttering INFO
-        Log::debug('Store() full request headers', $request->headers->all());
-
         try {
             // Validação dos dados
             $validated = $request->validate([
@@ -229,75 +209,22 @@ class GrievanceController extends Controller
                 $grievanceData['gender'] = $validated['gender'] ?? null;
             }
 
-            // Determine route context
-            $currentRoute = optional($request->route())->getName();
-            $routeMiddleware = optional($request->route())->gatherMiddleware() ?? [];
-
-            // Log para debug
-            Log::info('Criando grievance com dados:', [
-                'route' => $currentRoute,
-                'route_middleware' => $routeMiddleware,
-                'auth_check' => $isAuthenticated,
-                'user_id' => $grievanceData['user_id'] ?? null,
-                'is_anonymous' => $isAnonymous,
-                'has_contact_data' => isset($grievanceData['contact_name']),
-                'contact_email' => $grievanceData['contact_email'] ?? null,
-                'data' => $grievanceData
-            ]);
-
             // Criar a reclamação
             $grievance = Grievance::create($grievanceData);
-
-            Log::info('Grievance criada com sucesso:', [
-                'id' => $grievance->id,
-                'reference_number' => $grievance->reference_number
-            ]);
-
-            // Processar anexos se existirem
-            Log::info('Iniciando processamento de anexos', [
-                'has_attachments' => $request->hasFile('attachments'),
-                'has_audio' => $request->hasFile('audio_attachment'),
-                'attachments_count' => $request->hasFile('attachments') ? count($request->file('attachments')) : 0
-            ]);
 
             // Processar anexos de ficheiros
             if ($request->hasFile('attachments')) {
                 $attachments = $request->file('attachments');
-                Log::info('Processando anexos regulares', ['count' => count($attachments)]);
 
                 foreach ($attachments as $index => $file) {
-                    Log::info('Processando anexo', [
-                        'index' => $index,
-                        'filename' => $file->getClientOriginalName(),
-                        'size' => $file->getSize(),
-                        'mime' => $file->getMimeType()
-                    ]);
-
                     $result = $this->storeAttachment($grievance, $file);
-                    if (!$result) {
-                        Log::error('Falha ao armazenar anexo', [
-                            'index' => $index,
-                            'filename' => $file->getClientOriginalName()
-                        ]);
-                    }
                 }
             }
 
             // Processar anexo de áudio
             if ($request->hasFile('audio_attachment')) {
                 $audioFile = $request->file('audio_attachment');
-                Log::info('Processando anexo de áudio', [
-                    'filename' => $audioFile->getClientOriginalName(),
-                    'size' => $audioFile->getSize(),
-                    'mime' => $audioFile->getMimeType()
-                ]);
-
                 $result = $this->storeAttachment($grievance, $audioFile, 'audio');
-                if (!$result) {
-                    Log::error('Falha ao armazenar anexo de áudio', [
-                        'filename' => $audioFile->getClientOriginalName()
-                    ]);
-                }
             }
 
             DB::commit();
@@ -329,7 +256,7 @@ class GrievanceController extends Controller
 
             Log::error('Erro ao submeter submissão: ' . $e->getMessage(), [
                 'exception' => $e,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->user()->id(),
                 'error_type' => get_class($e),
             ]);
 
