@@ -48,7 +48,7 @@ const getFileIcon = (mimeType) => {
 
                 <div class="flex-1 min-w-0">
                     <a
-                        :href="attachment.path"
+                        :href="attachment.url"
                         target="_blank"
                         class="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline block truncate"
                         :title="attachment.original_filename"
@@ -69,7 +69,7 @@ const getFileIcon = (mimeType) => {
 
                 <div class="flex-shrink-0">
                     <a
-                        :href="attachment.path"
+                        :href="attachment.url"
                         target="_blank"
                         class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50 transition-colors"
                         title="Abrir arquivo"

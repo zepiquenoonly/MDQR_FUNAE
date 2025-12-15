@@ -338,9 +338,10 @@ class UtenteDashboardController extends Controller
                 'original_filename' => $attachment->original_filename,
                 'mime_type' => $attachment->mime_type,
                 'file_size' => $attachment->size,
-                'file_path' => $attachment->file_path,
+                'file_path' => $attachment->path,
                 'uploaded_at' => optional($attachment->uploaded_at)->toIso8601String(),
-                'url' => route('attachments.download', $attachment),
+                'url' => $attachment->url,
+                'download_url' => route('attachments.download', $attachment),
             ];
         });
 

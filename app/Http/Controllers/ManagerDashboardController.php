@@ -100,6 +100,7 @@ class ManagerDashboardController extends Controller
                         'id' => $attachment->id,
                         'name' => $attachment->original_filename,
                         'size' => $attachment->size,
+                        'url' => $attachment->url,
                     ];
                 })->toArray(),
             ];
@@ -141,6 +142,7 @@ class ManagerDashboardController extends Controller
                 'id' => $attachment->id,
                 'name' => $attachment->original_filename,
                 'size' => $attachment->size,
+                'url' => $attachment->url,
             ];
         })->toArray(),
     ];

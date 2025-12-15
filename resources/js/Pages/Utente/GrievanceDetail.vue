@@ -141,7 +141,7 @@
                 <div class="flex items-start space-x-3">
                   <!-- Preview para imagens -->
                   <div v-if="isImage(attachment.mime_type)" class="flex-shrink-0">
-                    <img :src="`/storage/${attachment.file_path}`" :alt="attachment.original_filename"
+                    <img :src="attachment.url" :alt="attachment.original_filename"
                          class="w-16 h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
                          @click="openImageModal(attachment)" />
                   </div>
@@ -161,7 +161,7 @@
                       Enviado em {{ formatDate(attachment.uploaded_at) }}
                     </p>
                     <div class="mt-3 flex space-x-2">
-                      <a :href="`/storage/${attachment.file_path}`" target="_blank"
+                      <a :href="attachment.url" target="_blank"
                          class="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
                         <ArrowDownTrayIcon class="w-3 h-3 mr-1" />
                         Download
