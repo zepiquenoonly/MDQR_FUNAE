@@ -437,7 +437,7 @@ private function getStatusLabel(?string $status): string
 }
 
     /**
-     * Atualizar status de uma reclamação
+     * Actualizar status de uma reclamação
      */
     public function updateStatus(Request $request, $id)
     {
@@ -523,7 +523,7 @@ private function getStatusLabel(?string $status): string
                 $this->updateTechnicianWorkload($grievance, 'decrement');
             }
 
-            // Atualizar a reclamação
+            // Actualizar a reclamação
             $updates = [
                 'assigned_to' => $validated['technician_id'],
                 'status' => 'assigned',
@@ -536,7 +536,7 @@ private function getStatusLabel(?string $status): string
 
             $grievance->update($updates);
 
-            // Atualizar workload do novo técnico
+            // Actualizar workload do novo técnico
             $this->updateTechnicianWorkload($grievance, 'increment', $technician);
 
             // Registrar a atribuição
@@ -565,7 +565,7 @@ private function getStatusLabel(?string $status): string
     }
 
     /**
-     * Atualizar prioridade de uma reclamação
+     * Actualizar prioridade de uma reclamação
      */
     public function updatePriority(Request $request, $id)
     {
@@ -594,7 +594,7 @@ private function getStatusLabel(?string $status): string
     }
 
     /**
-     * Atualizar informações básicas da reclamação
+     * Actualizar informações básicas da reclamação
      */
     public function updateInfo(Request $request, $id)
     {
@@ -672,7 +672,7 @@ private function getStatusLabel(?string $status): string
                 $this->updateTechnicianWorkload($grievance, 'decrement');
             }
 
-            // Atualizar a reclamação
+            // Actualizar a reclamação
             $grievance->update([
                 'assigned_to' => $validated['new_assignee_id'],
                 'assigned_at' => now(),
@@ -767,7 +767,7 @@ private function getStatusLabel(?string $status): string
                 'resolution_notes' => $validated['resolution_notes'],
             ]);
 
-            // Atualizar workload do técnico se houver um atribuído
+            // Actualizar workload do técnico se houver um atribuído
             if ($grievance->assigned_to) {
                 $this->updateTechnicianWorkload($grievance, 'decrement');
             }
@@ -814,7 +814,7 @@ private function getStatusLabel(?string $status): string
                 'resolution_notes' => $validated['reason'],
             ]);
 
-            // Atualizar workload do técnico se houver um atribuído
+            // Actualizar workload do técnico se houver um atribuído
             if ($grievance->assigned_to) {
                 $this->updateTechnicianWorkload($grievance, 'decrement');
             }
@@ -1195,7 +1195,7 @@ public function validateCase(Request $request, $id)
 
     DB::beginTransaction();
     try {
-        // Atualizar metadados da validação
+        // Actualizar metadados da validação
         $metadata = $grievance->metadata ?? [];
         $metadata['director_validation'] = [
             'status' => $validated['status'],
@@ -1215,7 +1215,7 @@ public function validateCase(Request $request, $id)
             $metadata['is_validated'] = true;
             $metadata['validation_status'] = 'approved';
             
-            // Atualizar prioridade se necessário
+            // Actualizar prioridade se necessário
             if ($grievance->priority !== 'high' && $grievance->priority !== 'critical') {
                 $grievance->priority = 'high';
             }
@@ -1650,7 +1650,7 @@ private function storeCommentAttachment(Grievance $grievance, GrievanceUpdate $c
     }
 
     /**
-     * Atualizar workload do técnico
+     * Actualizar workload do técnico
      */
     private function updateTechnicianWorkload(Grievance $grievance, string $operation, ?User $technician = null): void
     {

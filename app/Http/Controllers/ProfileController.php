@@ -130,12 +130,12 @@ class ProfileController extends Controller {
 
         $user = $request->user();
 
-        // Atualizar email_verified_at se o email mudou
+        // Actualizar email_verified_at se o email mudou
         if ( $user->email !== $validated[ 'email' ] ) {
             $validated[ 'email_verified_at' ] = null;
         }
 
-        // Atualizar todos os dados
+        // Actualizar todos os dados
         $user->update( $validated );
 
         return Redirect::route( 'profile.info' )->with( 'success', 'Informações do perfil atualizadas com sucesso!' );

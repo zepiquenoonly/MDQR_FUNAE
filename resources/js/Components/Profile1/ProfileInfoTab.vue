@@ -690,10 +690,10 @@ const formatPhone = (event) => {
   // Limitar a 9 dígitos reais
   digits = digits.slice(0, 9);
 
-  // Atualizar a versão formatada
+  // Actualizar a versão formatada
   phoneDisplay.value = formatDigits(digits);
 
-  // Atualizar o form apenas se estiver válido
+  // Actualizar o form apenas se estiver válido
   if (digits.length === 9) {
     form.phone = `+258 ${phoneDisplay.value}`;
   } else {

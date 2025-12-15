@@ -19,8 +19,7 @@
                 <p class="text-sm text-gray-600 dark:text-gray-400">{{ user.role }}</p>
                 <div class="flex justify-center mt-2 space-x-2">
                     <span
-                        class="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full dark:bg-green-900/30 dark:text-green-300">Verificado
-                        Verificado</span>
+                        class="px-2 py-1 text-xs text-green-800 bg-green-100 rounded-full dark:bg-green-900/30 dark:text-green-300">Verificado</span>
                 </div>
             </div>
 

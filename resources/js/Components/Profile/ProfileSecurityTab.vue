@@ -9,7 +9,7 @@
                 <div class="space-y-4">
                     <div>
                         <label class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">Password
-                            Atual</label>
+                            Actual</label>
                         <div class="relative">
                             <input :type="showCurrentPassword ? 'text' : 'password'"
                                 v-model="passwordForm.current_password"
@@ -61,13 +61,13 @@
 
                     <button
                         class="px-6 py-3 font-medium text-white transition-colors bg-orange-500 rounded-lg hover:bg-orange-600">
-                        Atualizar Password
+                        Actualizar Password
                     </button>
                 </div>
             </div>
 
             <!-- Autenticação de Dois Fatores -->
-            <div class="p-6 border border-gray-200 rounded-lg dark:border-gray-700">
+            <!-- <div class="p-6 border border-gray-200 rounded-lg dark:border-gray-700">
                 <div class="flex items-center justify-between">
                     <div>
                         <h4 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Autenticação de Dois
@@ -82,10 +82,10 @@
                         </div>
                     </label>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Sessões Ativas -->
-            <div class="p-6 border border-gray-200 rounded-lg dark:border-gray-700">
+            <!-- <div class="p-6 border border-gray-200 rounded-lg dark:border-gray-700">
                 <h4 class="mb-4 text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Sessões Ativas</h4>
                 <div class="space-y-4">
                     <div class="flex items-center justify-between p-4 rounded-lg bg-gray-50 dark:bg-dark-accent">
@@ -117,7 +117,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
 </template>

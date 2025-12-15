@@ -139,7 +139,7 @@ O widget agora rastreia **5 tipos de usuários**:
 
 - [x] Backend: Adicionar queries para contagem por role
 - [x] Backend: Enviar dados via Inertia
-- [x] Frontend: Atualizar props do componente
+- [x] Frontend: Actualizar props do componente
 - [x] Frontend: Redesenhar widget com novos dados
 - [x] Design: Adicionar indicadores coloridos
 - [x] Design: Melhorar tipografia e espaçamento

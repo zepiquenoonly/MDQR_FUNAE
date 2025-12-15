@@ -1105,7 +1105,7 @@ watch(
   () => props.filters,
   (newFilters) => {
     if (newFilters) {
-      // Atualizar filtros locais baseados nos filtros recebidos
+      // Actualizar filtros locais baseados nos filtros recebidos
       if (newFilters.category) localFilters.value.category = newFilters.category;
       if (newFilters.type) localFilters.value.type = newFilters.type;
       if (newFilters.priority) localFilters.value.priority = newFilters.priority;

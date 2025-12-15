@@ -515,7 +515,7 @@ const handleRevokeEscalation = async () => {
         preserveScroll: true,
         preserveState: true,
         onSuccess: (page) => {
-          // Atualizar dados locais
+          // Actualizar dados locais
           if (page.props.flash?.updatedGrievance) {
             Object.assign(submission, page.props.flash.updatedGrievance);
           }
@@ -525,7 +525,7 @@ const handleRevokeEscalation = async () => {
             "success"
           );
 
-          // Atualizar timeline
+          // Actualizar timeline
           refreshComplaintData();
         },
         onError: (errors) => {

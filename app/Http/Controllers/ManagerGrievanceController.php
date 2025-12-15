@@ -1034,7 +1034,7 @@ public function checkDirectorInterventions()
                 'novo_tecnico_nome' => $technician->name
             ]);
 
-            // Atualizar grievance
+            // Actualizar grievance
             $grievance->assigned_to = $technician->id;
             $grievance->assigned_at = now();
             $grievance->status = 'assigned';
@@ -1644,7 +1644,7 @@ public function getDirectorInterventions(Request $request)
         DB::beginTransaction();
 
         try {
-            // Atualizar grievance como resolvida
+            // Actualizar grievance como resolvida
             $grievance->update([
                 'status' => 'resolved',
                 'resolved_at' => now(),
@@ -1666,7 +1666,7 @@ public function getDirectorInterventions(Request $request)
                 isPublic: $validated['is_public']
             );
 
-            // Atualizar status publicamente
+            // Actualizar status publicamente
             GrievanceUpdate::log(
                 grievanceId: $grievance->id,
                 actionType: 'status_changed',
@@ -1738,7 +1738,7 @@ public function getDirectorInterventions(Request $request)
                 isPublic: $validated['is_public']
             );
 
-            // Atualizar status
+            // Actualizar status
             GrievanceUpdate::log(
                 grievanceId: $grievance->id,
                 actionType: 'status_changed',

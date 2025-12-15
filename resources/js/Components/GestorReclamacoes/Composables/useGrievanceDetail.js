@@ -45,7 +45,7 @@ const revokeEscalation = async () => {
           if (page.props.flash?.updatedGrievance) {
             const updated = page.props.flash.updatedGrievance;
             
-            // Atualizar dados locais
+            // Actualizar dados locais
             complaint.value.escalated = updated.escalated;
             complaint.value.status = updated.status;
             complaint.value.priority = updated.priority;
@@ -506,7 +506,7 @@ const revokeEscalation = async () => {
             if (page.props.flash?.updatedGrievance) {
               const updated = page.props.flash.updatedGrievance;
               
-              // Atualizar os dados locais
+              // Actualizar os dados locais
               complaint.value.escalated = updated.escalated;
               complaint.value.status = 'escalated';
               complaint.value.priority = updated.priority;
