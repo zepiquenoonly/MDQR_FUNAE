@@ -259,7 +259,6 @@ class PerformanceTestSeeder extends Seeder
             
             // Assign Department (obrigatório para técnicos)
             $user->update(['department_id' => $departments->random()]);
-        }
 
             // Associar técnico a 1-3 projetos aleatórios
             $numProjects = fake()->numberBetween(1, 3);
