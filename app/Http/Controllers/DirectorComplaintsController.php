@@ -1552,35 +1552,38 @@ private function sendValidationNotifications(Grievance $grievance, array $data):
 }
 
 
-private function storeCommentAttachment(Grievance $grievance, GrievanceUpdate $comment, $file): \App\Models\Attachment
-{
-    $originalFilename = $file->getClientOriginalName();
-    $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
+    private function storeCommentAttachment(Grievance $grievance, GrievanceUpdate $comment, $file): \App\Models\Attachment
+    {
+        $originalFilename = $file->getClientOriginalName();
+        $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
 
-    $path = $file->storeAs(
-        'grievances/' . $grievance->id . '/comments/' . $comment->id,
-        $filename,
-        'private'
-    );
+        $publicPath = 'uploads/grievances/' . $grievance->id . '/comments/' . $comment->id;
+        $fullPath = public_path($publicPath);
 
-    return \App\Models\Attachment::create([
-        'grievance_id' => $grievance->id,
-        'original_filename' => $originalFilename,
-        'filename' => $filename,
-        'path' => $path,
-        'mime_type' => $file->getMimeType(),
-        'size' => $file->getSize(),
-        'metadata' => [
-            'uploaded_via' => 'director_comment',
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+
+        $file->move($fullPath, $filename);
+        $path = '/' . $publicPath . '/' . $filename;
+
+        return \App\Models\Attachment::create([
+            'grievance_id' => $grievance->id,
+            'original_filename' => $originalFilename,
+            'filename' => $filename,
+            'path' => $path,
+            'mime_type' => $file->getMimeType(),
+            'size' => $file->getSize(),
+            'metadata' => [
+                'uploaded_via' => 'director_comment',
+                'uploaded_by' => auth()->id(),
+                'comment_id' => $comment->id,
+                'uploaded_at' => now()->toISOString(),
+            ],
             'uploaded_by' => auth()->id(),
-            'comment_id' => $comment->id,
-            'uploaded_at' => now()->toISOString(),
-        ],
-        'uploaded_by' => auth()->id(),
-        'uploaded_at' => now(),
-    ]);
-}
-
+            'uploaded_at' => now(),
+        ]);
+    }
     /**
      * Obter técnicos disponíveis
      */

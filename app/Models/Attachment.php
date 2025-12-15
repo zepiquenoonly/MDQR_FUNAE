@@ -47,6 +47,17 @@ class Attachment extends Model
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'url',
+        'human_readable_size',
+        'extension',
+    ];
+
+    /**
      * The attributes that should be cast.
      *
      * @return array<string, string>
@@ -76,8 +87,16 @@ class Attachment extends Model
 
         static::deleting(function ($attachment) {
             // Delete the actual file when the attachment record is deleted
-            if ($attachment->path && Storage::exists($attachment->path)) {
-                Storage::delete($attachment->path);
+            if ($attachment->path) {
+                // Check if file is in public/uploads
+                if (str_starts_with($attachment->path, '/uploads') || str_starts_with($attachment->path, 'uploads')) {
+                    $fullPath = public_path($attachment->path);
+                    if (file_exists($fullPath)) {
+                        unlink($fullPath);
+                    }
+                } elseif (Storage::exists($attachment->path)) {
+                    Storage::delete($attachment->path);
+                }
             }
         });
     }
@@ -103,6 +122,9 @@ class Attachment extends Model
      */
     public function getUrlAttribute(): string
     {
+        if (str_starts_with($this->path, '/uploads') || str_starts_with($this->path, 'uploads')) {
+            return url($this->path);
+        }
         return Storage::url($this->path);
     }
 
