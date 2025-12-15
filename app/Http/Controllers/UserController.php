@@ -56,7 +56,10 @@ class UserController extends Controller
         return Inertia::render('Admin/Users/Index', [
             'users' => $users,
             'roles' => Role::all()->pluck('name'),
-            'filters' => $request->only(['search', 'role']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'role' => $request->input('role', ''),
+            ],
         ]);
     }
 

@@ -76,8 +76,8 @@ class DirectorTeamController extends Controller
                     'workload' => [
                         'current' => $employee->current_workload ?? 0,
                         'capacity' => $employee->workload_capacity ?? 20,
-                        'percentage' => $employee->workload_capacity > 0 
-                            ? round(($employee->current_workload / $employee->workload_capacity) * 100) 
+                        'percentage' => $employee->workload_capacity > 0
+                            ? round(($employee->current_workload / $employee->workload_capacity) * 100)
                             : 0,
                     ],
                 ];
@@ -104,7 +104,11 @@ class DirectorTeamController extends Controller
             'employees' => $employees,
             'stats' => $stats,
             'departments' => [], // Array vazio por enquanto
-            'filters' => $request->only(['search', 'role', 'status']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'role' => $request->input('role', ''),
+                'status' => $request->input('status', ''),
+            ],
         ]);
     }
 
@@ -133,7 +137,7 @@ class DirectorTeamController extends Controller
                 ->first()
                 ->avg_days ?? 0,
             'success_rate' => $employee->assignedGrievances()->count() > 0
-                ? round(($employee->assignedGrievances()->where('status', 'resolved')->count() 
+                ? round(($employee->assignedGrievances()->where('status', 'resolved')->count()
                     / $employee->assignedGrievances()->count()) * 100)
                 : 0,
         ];
@@ -143,7 +147,7 @@ class DirectorTeamController extends Controller
         for ($i = 5; $i >= 0; $i--) {
             $monthStart = now()->subMonths($i)->startOfMonth();
             $monthEnd = now()->subMonths($i)->endOfMonth();
-            
+
             $monthlyPerformance[] = [
                 'month' => $monthStart->format('M/Y'),
                 'assigned' => $employee->assignedGrievances()

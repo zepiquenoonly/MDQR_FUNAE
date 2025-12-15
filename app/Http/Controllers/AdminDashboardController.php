@@ -13,7 +13,7 @@ class AdminDashboardController extends Controller
     {
         try {
             $user = auth()->user();
-            
+
             // Get statistics with default values
             $stats = [
                 'totalUsers' => \App\Models\User::count() ?? 0,
@@ -23,7 +23,7 @@ class AdminDashboardController extends Controller
                     $query->whereIn('name', ['Técnico', 'Gestor', 'Director']);
                 })->count() ?? 0,
             ];
-            
+
             // Get user distribution by role
             $usersByRole = [
                 'utentes' => \App\Models\User::whereHas('roles', function($query) {
@@ -42,10 +42,10 @@ class AdminDashboardController extends Controller
                     $query->where('name', 'PCA');
                 })->count() ?? 0,
             ];
-            
+
             // Get user permissions
             $permissions = $user->getAllPermissions()->pluck('name')->toArray();
-            
+
             return Inertia::render('Admin/Dashboard', [
                 'user' => [
                     'id' => $user->id,
@@ -59,7 +59,7 @@ class AdminDashboardController extends Controller
             ]);
         } catch (\Exception $e) {
             \Log::error('Error in Admin Dashboard: ' . $e->getMessage());
-            
+
             // Return with default values
             return Inertia::render('Admin/Dashboard', [
                 'user' => [
@@ -118,7 +118,10 @@ class AdminDashboardController extends Controller
         return Inertia::render('Admin/Projects/Index', [
             'projects' => $projects,
             'departments' => \App\Models\Department::all(['id', 'name']),
-            'filters' => $request->only(['search', 'department']),
+            'filters' => [
+                'search' => $request->input('search', ''),
+                'department' => $request->input('department', ''),
+            ],
         ]);
     }
 

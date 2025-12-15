@@ -23,8 +23,8 @@ class TechnicianDashboardController extends Controller
         $priority = $request->input('priority');
 
         $filters = [
-            'status' => $status !== null && $status !== '' ? $status : null,
-            'priority' => $priority !== null && $priority !== '' ? $priority : null,
+            'status' => $status !== null && $status !== '' ? $status : '',
+            'priority' => $priority !== null && $priority !== '' ? $priority : '',
             'search' => $request->input('search'),
         ];
 

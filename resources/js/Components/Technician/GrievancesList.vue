@@ -114,10 +114,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:filters', 'select-grievance'])
 
-const localFilters = ref({ ...props.filters })
+const localFilters = ref({
+    status: props.filters.status || '',
+    priority: props.filters.priority || '',
+    search: props.filters.search || '',
+})
 
 watch(() => props.filters, (newFilters) => {
-    localFilters.value = { ...newFilters }
+    localFilters.value = {
+        status: newFilters.status || '',
+        priority: newFilters.priority || '',
+        search: newFilters.search || '',
+    }
 }, { deep: true })
 
 const handleFilterChange = () => {
