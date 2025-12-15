@@ -23,48 +23,59 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Obter departamentos existentes para atribuição
+        $departments = Department::pluck('id');
+        $defaultDepartmentId = $departments->isNotEmpty() ? $departments->first() : null;
+
         $adminUsers = [
             [
                 'name' => 'Admin',
                 'username' => 'admin',
                 'email' => 'admin@funae.co.mz',
                 'role' => 'Admin',
+                'needs_department' => false,
             ],
             [
                 'name' => 'Super Admin',
                 'username' => 'superadmin',
                 'email' => 'superadmin@funae.co.mz',
                 'role' => 'Super Admin',
+                'needs_department' => false,
             ],
             [
                 'name' => 'Gestor de Reclamações',
                 'username' => 'gestor',
                 'email' => 'gestor@funae.co.mz',
                 'role' => 'Gestor',
+                'needs_department' => true,
             ],
             [
                 'name' => 'Técnico de Suporte',
                 'username' => 'tecnico',
                 'email' => 'tecnico@funae.co.mz',
                 'role' => 'Técnico',
+                'needs_department' => true,
             ],
             [
                 'name' => 'PCA',
                 'username' => 'pca',
                 'email' => 'pca@funae.co.mz',
                 'role' => 'PCA',
+                'needs_department' => false,
             ],
             [
                 'name' => 'Utente',
                 'username' => 'utente',
                 'email' => 'utente@gmail.com',
                 'role' => 'Utente',
+                'needs_department' => false,
             ],
             [
                 'name' => 'Técnico de Suporte 2',
                 'username' => 'tecnico2',
                 'email' => 'tecnico2@funae.co.mz',
                 'role' => 'Técnico',
+                'needs_department' => true,
             ],
             [
                 'name' => 'Director de Departamento',
@@ -72,6 +83,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'director@funae.co.mz',
                 'phone' => '+258846789012',
                 'role' => 'Director',
+                'needs_department' => true,
             ],
         ];
 
@@ -83,10 +95,16 @@ class AdminUserSeeder extends Seeder
                     'email' => $userData['email'],
                     'password' => Hash::make('password'),
                     'phone' => $userData['phone'] ?? null,
+                    'department_id' => ($userData['needs_department'] && $defaultDepartmentId) ? $defaultDepartmentId : null,
                 ]
             );
 
             $user->assignRole($userData['role']);
+            
+            // Se já existe e precisa de department mas não tem, atualizar
+            if ($userData['needs_department'] && !$user->department_id && $defaultDepartmentId) {
+                $user->update(['department_id' => $defaultDepartmentId]);
+            }
         }
 
         // Setup Relationships: Department and Project assignments
@@ -121,10 +139,10 @@ class AdminUserSeeder extends Seeder
             $department->save();
         }
 
-        // 3. Assign Users to Department
-        $usersToAssign = [$director, $gestor, $tecnico, $tecnico2];
+        // 3. Assign Users to Department (garantir que todos têm department_id)
+        $usersToAssign = array_filter([$director, $gestor, $tecnico, $tecnico2]);
         foreach ($usersToAssign as $user) {
-            if ($user && $user->department_id !== $department->id) {
+            if (!$user->department_id) {
                 $user->department_id = $department->id;
                 $user->save();
             }
