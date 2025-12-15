@@ -78,7 +78,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span class="px-3 py-1.5 text-xs font-medium rounded-full bg-primary-100 text-primary-800 shadow-sm">
-                                        {{ project.department }} / {{ project.status }} / {{ project.category }}
+                                        {{ project.department }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
@@ -92,16 +92,16 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <span :class="{
-                                        'bg-blue-100 text-blue-800 border-blue-200': project.category == 1,
+                                        'bg-blue-100 text-blue-800 border-blue-200': project.category === 'andamento',
                                         'bg-yellow-100 text-yellow-800 border-yellow-200': project.category === 'parados',
-                                        'bg-emerald-100 text-emerald-800 border-emerald-200': project.category == 0
+                                        'bg-emerald-100 text-emerald-800 border-emerald-200': project.category === 'finalizados'
                                     }" class="px-3 py-1.5 text-xs font-semibold rounded-full border inline-flex items-center gap-1.5">
                                         <span :class="{
-                                            'bg-green-500': project.category == 1,
+                                            'bg-green-500': project.category === 'andamento',
                                             'bg-yellow-500': project.category === 'parados',
-                                            'bg-red-500': project.category == 0
+                                            'bg-red-500': project.category === 'finalizados'
                                         }" class="w-1.5 h-1.5 rounded-full"></span>
-                                        {{ project.category == 1 ? 'Em Andamento' : project.category === 'parados' ? 'Parado' : 'Finalizado' }}
+                                        {{ project.category === 'andamento' ? 'Em Andamento' : project.category === 'parados' ? 'Parado' : 'Finalizado' }}
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{ project.created_at }}</td>

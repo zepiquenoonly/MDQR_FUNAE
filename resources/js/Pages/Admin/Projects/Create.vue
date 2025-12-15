@@ -37,7 +37,7 @@
                         <div>
                             <label for="department_id" class="block text-sm font-semibold text-gray-700 mb-2">Departamento</label>
                             <select v-model="form.department_id" id="department_id"
-                                class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4">
+                                class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4" required>
                                 <option value="">Selecione um departamento</option>
                                 <option v-for="dept in departments" :key="dept.id" :value="dept.id">
                                     {{ dept.name }}
@@ -48,34 +48,34 @@
                             <label for="category" class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
                             <select v-model="form.category" id="category"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4">
-                                <option value="1">Em Andamento</option>
+                                <option value="andamento">Em Andamento</option>
                                 <option value="parados">Parado</option>
-                                <option value="0">Finalizado</option>
+                                <option value="finalizados">Finalizado</option>
                             </select>
                         </div>
                         <div>
                             <label for="provincia" class="block text-sm font-semibold text-gray-700 mb-2">Província</label>
                             <input v-model="form.provincia" type="text" id="provincia"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4"
-                                placeholder="Ex: Maputo">
+                                placeholder="Ex: Maputo" required>
                         </div>
                         <div>
                             <label for="distrito" class="block text-sm font-semibold text-gray-700 mb-2">Distrito</label>
                             <input v-model="form.distrito" type="text" id="distrito"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4"
-                                placeholder="Ex: KaMpfumu">
+                                placeholder="Ex: KaMpfumu" required>
                         </div>
                         <div>
                             <label for="bairro" class="block text-sm font-semibold text-gray-700 mb-2">Bairro</label>
                             <input v-model="form.bairro" type="text" id="bairro"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4"
-                                placeholder="Ex: Centro">
+                                placeholder="Ex: Centro" required>
                         </div>
                         <div class="md:col-span-2">
                             <label for="description" class="block text-sm font-semibold text-gray-700 mb-2">Descrição</label>
                             <textarea v-model="form.description" id="description" rows="4"
                                 class="block w-full border-gray-300 rounded-xl shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all py-3 px-4"
-                                placeholder="Descreva os detalhes do projecto..."></textarea>
+                                placeholder="Descreva os detalhes do projecto..." required></textarea>
                         </div>
                     </div>
                 </div>
@@ -117,7 +117,7 @@ const form = useForm({
     provincia: '',
     distrito: '',
     bairro: '',
-    category: '1',
+    category: 'andamento',
 });
 
 function submit() {
