@@ -23,7 +23,7 @@
       <div class="flex items-center flex-shrink-0 gap-3 sm:gap-4">
 
         <!-- User Profile com alta prioridade z-index -->
-        <div class="relative z-[9999]">
+        <div class="relative z-[99999]">
           <UserDropdown :user="user" />
         </div>
       </div>
@@ -128,7 +128,7 @@ header::before {
 /* Garantir que o dropdown fique acima de tudo */
 :deep(.dropdown-container),
 :deep(.user-dropdown-menu) {
-  z-index: 99999 !important;
+  z-index: 999999 !important;
   position: relative;
 }
 
