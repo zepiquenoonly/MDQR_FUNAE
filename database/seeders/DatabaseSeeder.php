@@ -41,15 +41,15 @@ class DatabaseSeeder extends Seeder
             $testUser->assignRole('Utente');
         }
 
+         // Create departments with directors and assign users/projects
+        $this->call(DepartmentSeeder::class);
+
         // Create sample grievances with different statuses
         $this->call(GrievanceSeeder::class);
 
         // Another seeders cruciais
         $this->call(ProjectSeeder::class);
         $this->call(UserSpecializationsSeeder::class);
-        
-        // Create departments with directors and assign users/projects
-        $this->call(DepartmentSeeder::class);
         
         // Create additional managers and technicians
         $this->call(AdditionalUsersSeeder::class);
