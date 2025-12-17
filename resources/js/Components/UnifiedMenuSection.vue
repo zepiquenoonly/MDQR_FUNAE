@@ -1,3 +1,4 @@
+<!-- UnifiedMenuSection.vue -->
 <template>
   <nav class="py-4">
     <!-- Navigation Label -->
@@ -7,14 +8,23 @@
 
     <!-- Dashboard -->
     <MenuItem
-      :active="false"
+      :active="$page.url === dashboardRoute"
       :icon="HomeIcon"
       :text="'Dashboard'"
-      @click="() => emitItem('dashboard')"
+      :href="dashboardRoute"
+    />
+
+    <!-- Projectos - Mostrar apenas se tiver permissão -->
+    <MenuItem
+      v-if="permissions.canManageProjects"
+      :active="$page.url.startsWith(projectsRoute)"
+      :icon="BriefcaseIcon"
+      :text="'Projectos'"
+      :href="projectsRoute"
     />
 
     <!-- Role-specific sections -->
-    <template v-if="role === 'technician'">
+    <template v-if="role === 'technician' || role === 'utente'">
       <!-- MDQR Section -->
       <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
@@ -27,136 +37,122 @@
         :icon="DocumentPlusIcon"
         :text="'Nova Submissão'"
         :items="[
-          { id: 'reclamacoes', text: 'Reclamação', icon: ExclamationCircleIcon },
-          { id: 'queixas', text: 'Queixa', icon: ExclamationTriangleIcon },
-          { id: 'sugestoes', text: 'Sugestão', icon: LightBulbIcon },
+          {
+            id: 'complaints',
+            text: 'Reclamação',
+            icon: ExclamationCircleIcon,
+            href: '/reclamacoes/nova?type=complaint',
+          },
+          {
+            id: 'grievances',
+            text: 'Queixa',
+            icon: ExclamationTriangleIcon,
+            href: '/reclamacoes/nova?type=grievance',
+          },
+          {
+            id: 'suggestions',
+            text: 'Sugestão',
+            icon: LightBulbIcon,
+            href: '/reclamacoes/nova?type=suggestion',
+          },
         ]"
-        @item-clicked="emitItem"
+        @item-clicked="navigateToRoute"
       />
 
       <!-- Acompanhamento -->
       <MenuItem
-        :active="false"
+        :active="$page.url.startsWith('/reclamacoes/acompanhar')"
         :icon="MagnifyingGlassIcon"
         :text="'Acompanhamento'"
-        @click="() => navigateToTracking()"
+        :href="'/reclamacoes/acompanhar'"
       />
     </template>
 
     <template v-if="role === 'manager'">
-      <!-- Projectos -->
-      <MenuItem
-        :active="false"
-        :icon="BriefcaseIcon"
-        :text="'Projectos'"
-        @click="() => emitItem('projectos')"
-      />
-
       <!-- Técnicos -->
       <MenuItem
-        :active="false"
+        :active="$page.url.startsWith('/gestor/technicians')"
         :icon="UserGroupIcon"
         :text="'Técnicos'"
-        @click="() => emitItem('tecnicos')"
+        :href="'/gestor/technicians'"
       />
 
       <!-- Estatísticas -->
       <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+        v-if="permissions.canViewStatistics"
       >
         Relatórios
       </div>
       <MenuItem
-        :active="false"
+        v-if="permissions.canViewStatistics"
+        :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        @click="() => emitItem('estatisticas')"
+        :href="'/gestor/estatisticas'"
       />
     </template>
 
     <template v-if="role === 'director'">
-      <!-- <div
-        :class="[
-          'px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide transition-opacity duration-300',
-          isCollapsed ? 'opacity-0' : 'opacity-100',
-        ]"
-      >
-        Visão Geral e Casos
-      </div>
-
-     
-      <MenuItem
-        :active="$page.url === '/director/dashboard'"
-        :icon="HomeIcon"
-        :text="'Dashboard'"
-        :is-collapsed="isCollapsed"
-        href="/director/dashboard"
-      />-->
-
-      <!-- Submissões - usando complaints-overview existente -->
+      <!-- Submissões -->
       <MenuItem
         :active="$page.url.startsWith('/director/complaints-overview')"
         :icon="ClipboardDocumentListIcon"
         :text="'Submissões'"
-        :is-collapsed="isCollapsed"
-        href="/director/complaints-overview"
+        :href="'/director/complaints-overview'"
       />
 
-      <!-- Indicadores (página existente) -->
+      <!-- Indicadores -->
       <MenuItem
-        :active="$page.url.startsWith('/gestor/estatisticas')"
+        :active="$page.url.startsWith('/director/indicators')"
         :icon="ChartBarIcon"
         :text="'Indicadores'"
-        href="/gestor/estatisticas"
+        :href="'/director/indicators'"
       />
 
       <div
-        :class="[
-          'px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide transition-opacity duration-300 mt-4',
-          isCollapsed ? 'opacity-0' : 'opacity-100',
-        ]"
+        class="px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide mt-4"
+        v-if="permissions.canManageUsers"
       >
         Gestão do Departamento
       </div>
 
-      <!-- Funcionários - usando managers existente -->
+      <!-- Funcionários -->
       <MenuItem
-        :active="$page.url.startsWith('/gestor/technicians')"
+        v-if="permissions.canManageUsers"
+        :active="
+          $page.url.startsWith('/director/team') ||
+          $page.url.startsWith('/director/managers')
+        "
         :icon="UserGroupIcon"
         :text="'Funcionários'"
-        :is-collapsed="isCollapsed"
-        href="/gestor/technicians"
+        :href="'/director/managers'"
       />
     </template>
 
     <template v-if="role === 'pca'">
-      <!-- Projectos -->
-      <MenuItem
-        :active="false"
-        :icon="BriefcaseIcon"
-        :text="'Projectos'"
-        @click="() => emitItem('projectos')"
-      />
-
       <!-- Estatísticas -->
       <div
         class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
+        v-if="permissions.canViewStatistics"
       >
         Relatórios
       </div>
       <MenuItem
-        :active="false"
+        v-if="permissions.canViewStatistics"
+        :active="$page.url.startsWith('/pca/statistics')"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        @click="() => emitItem('estatisticas')"
+        :href="'/pca/statistics'"
       />
 
       <!-- Gestão de Usuários -->
       <MenuItem
-        :active="false"
+        v-if="permissions.canManageUsers"
+        :active="$page.url.startsWith('/pca/users')"
         :icon="UsersIcon"
         :text="'Usuários'"
-        @click="() => emitItem('usuarios')"
+        :href="'/pca/users'"
       />
     </template>
 
@@ -169,10 +165,10 @@
 
     <!-- Meu Perfil -->
     <MenuItem
-      :active="false"
+      :active="$page.url.startsWith('/profile')"
       :icon="UserCircleIcon"
       :text="'Meu Perfil'"
-      @click="() => navigateToProfile()"
+      :href="'/profile'"
     />
 
     <!-- Logout -->
@@ -201,32 +197,81 @@ import {
   ClipboardDocumentListIcon,
   UsersIcon,
 } from "@heroicons/vue/24/outline";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
+import { useAuth } from "@/Composables/useAuth";
 import MenuItem from "@/Components/UtenteDashboard/MenuItem.vue";
 import MenuDropdown from "@/Components/UtenteDashboard/MenuDropdown.vue";
+import { computed } from "vue";
 
-const props = defineProps({
-  role: {
-    type: String,
-    default: "technician",
-  },
+const page = usePage();
+const csrfToken = computed(() => {
+  const metaTag = document.querySelector('meta[name="csrf-token"]');
+  return metaTag ? metaTag.getAttribute("content") : null;
 });
 
-const emit = defineEmits(["item-clicked"]);
+// Usar useAuth para obter informações do usuário
+const { role, roleLabel, permissions, isAuthenticated, user } = useAuth();
 
-const emitItem = (item) => {
-  emit("item-clicked", item);
+// Computed properties para rotas
+const dashboardRoute = computed(() => {
+  switch (role.value) {
+    case "director":
+      return "/director/dashboard";
+    case "manager":
+      return "/gestor/dashboard";
+    case "pca":
+      return "/pca/dashboard";
+    case "technician":
+      return "/technician/dashboard";
+    case "utente":
+      return "/utente/dashboard";
+    default:
+      return "/dashboard";
+  }
+});
+
+const projectsRoute = computed(() => {
+  switch (role.value) {
+    case "director":
+      return "/director/projects";
+    case "manager":
+      return "/gestor/projects";
+    case "pca":
+      return "/pca/projects";
+    default:
+      return null;
+  }
+});
+
+// Função para navegar a partir de itens do dropdown
+const navigateToRoute = (item) => {
+  if (item.href) {
+    router.visit(item.href);
+  }
 };
 
-const navigateToProfile = () => {
-  router.visit("/profile");
-};
-
-const navigateToTracking = () => {
-  router.visit("/track");
-};
-
+// Logout
 const handleLogout = () => {
-  router.post("/logout");
+  router.post(
+    "/logout",
+    {},
+    {
+      headers: {
+        "X-CSRF-TOKEN": csrfToken.value,
+      },
+    }
+  );
 };
+
+// Debug info
+if (import.meta.env.DEV) {
+  console.log("🔍 UnifiedMenuSection montado", {
+    role: role.value,
+    roleLabel: roleLabel.value,
+    permissions: permissions.value,
+    isAuthenticated: isAuthenticated.value,
+    dashboardRoute: dashboardRoute.value,
+    projectsRoute: projectsRoute.value,
+  });
+}
 </script>

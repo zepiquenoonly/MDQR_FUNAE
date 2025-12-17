@@ -17,4 +17,23 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        host: 'localhost',
+        hmr: {
+            host: 'localhost',
+            protocol: 'ws',
+        },
+        cors: {
+            origin: true,
+            credentials: true,
+        },
+        allowedHosts: true,
+        strictPort: true,
+        port: 5173,
+    },
+    resolve: {
+        alias: {
+            '@': '/resources/js',
+        },
+    },
 });

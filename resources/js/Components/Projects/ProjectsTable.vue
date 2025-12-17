@@ -50,8 +50,8 @@
 
         <tbody>
           <tr
-            v-for="(project, index) in projects"
-            :key="project.id"
+            v-for="(project, index) in safeProjects"
+            :key="getProjectKey(project, index)"
             class="border-b border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-dark-accent transition-colors"
           >
             <td
@@ -65,11 +65,12 @@
             >
               <div class="flex items-center gap-1 sm:gap-2 min-w-0">
                 <img
-                  :src="project.image_url || '/images/default-project.png'"
+                  :src="getProjectImage(project)"
                   class="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded object-cover flex-shrink-0"
+                  :alt="getProjectName(project)"
                 />
                 <span class="truncate text-xs sm:text-sm">{{
-                  project.finance?.responsavel || "N/A"
+                  getProjectResponsible(project)
                 }}</span>
               </div>
             </td>
@@ -78,24 +79,26 @@
               class="py-2 px-1 sm:px-2 md:px-4 text-xs sm:text-sm text-gray-800 dark:text-dark-text-primary"
             >
               <span class="truncate-2-lines block leading-tight text-xs sm:text-sm">{{
-                project.name
+                getProjectName(project)
               }}</span>
             </td>
 
             <td
               class="py-2 px-1 sm:px-2 md:px-4 text-xs sm:text-sm text-gray-600 dark:text-gray-400"
             >
-              <span class="truncate block text-xs sm:text-sm">{{ project.bairro }}</span>
+              <span class="truncate block text-xs sm:text-sm">{{
+                getProjectBairro(project)
+              }}</span>
             </td>
 
             <td class="py-2 px-1 sm:px-2 md:px-4">
               <span
                 :class="[
                   'px-1.5 py-0.5 sm:px-2 sm:py-1 text-xs font-semibold rounded-full whitespace-nowrap',
-                  getStatusClass(project.category),
+                  getStatusClass(project?.category),
                 ]"
               >
-                {{ getStatusLabel(project.category) }}
+                {{ getStatusLabel(project?.category) }}
               </span>
             </td>
 
@@ -113,6 +116,7 @@
 
             <td class="py-2 px-1 sm:px-2 md:px-4">
               <Link
+                v-if="isValidProject(project)"
                 :href="`/manager/projects/${project.id}`"
                 class="inline-block bg-brand hover:bg-orange-600 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded text-xs font-semibold flex items-center gap-1 w-full justify-center whitespace-nowrap transition-colors"
               >
@@ -120,6 +124,13 @@
                 <span class="hidden xs:inline">Detalhes</span>
                 <span class="xs:hidden">Ver</span>
               </Link>
+              <span
+                v-else
+                class="inline-block bg-gray-300 text-gray-600 px-2 py-1 sm:px-3 sm:py-1.5 rounded text-xs font-semibold flex items-center gap-1 w-full justify-center whitespace-nowrap"
+              >
+                <EyeSlashIcon class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                N/A
+              </span>
             </td>
           </tr>
         </tbody>
@@ -137,7 +148,10 @@
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="projects.length === 0 && !loading" class="text-center py-6 sm:py-8">
+    <div
+      v-else-if="safeProjects.length === 0 && !loading"
+      class="text-center py-6 sm:py-8"
+    >
       <FolderIcon
         class="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-600 mx-auto mb-2 sm:mb-3"
       />
@@ -148,7 +162,7 @@
 
     <!-- No Results State -->
     <div
-      v-else-if="projects.length === 0 && search && !loading"
+      v-else-if="safeProjects.length === 0 && search && !loading"
       class="text-center py-6 sm:py-8"
     >
       <MagnifyingGlassIcon
@@ -163,7 +177,13 @@
 
 <script setup>
 import { Link } from "@inertiajs/vue3";
-import { EyeIcon, FolderIcon, MagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { computed } from "vue";
+import {
+  EyeIcon,
+  FolderIcon,
+  MagnifyingGlassIcon,
+  EyeSlashIcon,
+} from "@heroicons/vue/24/outline";
 
 const emit = defineEmits(["view-details"]);
 
@@ -182,8 +202,57 @@ const props = defineProps({
   },
 });
 
-// Badge de estado
+// Funções helper para segurança de dados
+const isValidProject = (project) => {
+  return project && typeof project === "object" && project.id;
+};
+
+const getProjectKey = (project, index) => {
+  return isValidProject(project) ? project.id : `project-${index}`;
+};
+
+const getProjectImage = (project) => {
+  return isValidProject(project)
+    ? project.image_url || "/images/default-project.png"
+    : "/images/default-project.png";
+};
+
+const getProjectName = (project) => {
+  return isValidProject(project)
+    ? project.name || "Nome não disponível"
+    : "Projecto inválido";
+};
+
+const getProjectResponsible = (project) => {
+  return isValidProject(project) ? project.finance?.responsavel || "N/A" : "N/A";
+};
+
+const getProjectBairro = (project) => {
+  return isValidProject(project) ? project.bairro || "N/A" : "N/A";
+};
+
+// Garantir que sempre temos um array válido
+const safeProjects = computed(() => {
+  console.log("Projects recebidos:", props.projects);
+  console.log("Tipo:", typeof props.projects);
+
+  if (!props.projects || !Array.isArray(props.projects)) {
+    console.warn("Projects não é um array válido:", props.projects);
+    return [];
+  }
+
+  const filtered = props.projects.filter((project) => {
+    return project && typeof project === "object";
+  });
+
+  console.log("Projetos filtrados:", filtered.length);
+  return filtered;
+});
+
+// Badge de estado - agora mais seguro
 const getStatusClass = (category) => {
+  if (!category) return "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
+
   switch (category) {
     case "finalizados":
       return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300";
@@ -197,6 +266,8 @@ const getStatusClass = (category) => {
 };
 
 const getStatusLabel = (category) => {
+  if (!category) return "N/A";
+
   const labels = {
     finalizados: "Finalizado",
     andamento: "Em Andamento",

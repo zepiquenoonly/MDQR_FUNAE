@@ -139,7 +139,6 @@ class ManagerDashboardController extends Controller
             'high_priority' => Grievance::where('priority', 'high')->count() ?: 0,
             'pending_completion_requests' => Grievance::where('status', 'pending_approval')->count() ?: 0,
         ];
-
         // Técnicos disponíveis
         $indexTechnicians = User::role('Técnico')
             ->select('id', 'name', 'email')

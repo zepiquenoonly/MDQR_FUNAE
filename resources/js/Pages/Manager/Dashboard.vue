@@ -1,5 +1,24 @@
 <template>
   <Layout :stats="safeStats" :role="'manager'">
+    <div class="mb-4 sm:mb-6">
+      <h1
+        class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-dark-text-primary"
+      >
+        <span v-if="isDirector">Gestão de Submissões - Visão do Gestor</span>
+        <span v-else-if="isManager">Submissões do Departamento</span>
+        <span v-else>Gestão de Submissões - Visão do Gestor</span>
+      </h1>
+      <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base mt-1 sm:mt-2">
+        <span v-if="isDirector">
+          Veja e gere todas as submissões, sejam sugestões, queixas e reclamações
+        </span>
+        <span v-else-if="isManager">
+          Gere reclamações, queixas e sugestões do seu departamento
+        </span>
+        <span v-else> Gere reclamações, queixas e sugestões </span>
+      </p>
+    </div>
+
     <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
     <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
 

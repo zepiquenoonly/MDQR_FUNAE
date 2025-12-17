@@ -42,45 +42,28 @@
         </ul>
       </div>
 
-      <!-- 1ª LINHA - COLUNA 2 (SERVIÇOS) -->
+      <!-- 2ª LINHA - COLUNA 1 (LINKS ÚTEIS) -->
       <div class="col-span-1 md:col-span-1 text-left">
-        <h3 class="text-lg font-semibold mb-4 text-left">SERVIÇOS</h3>
+        <h3 class="text-lg font-semibold mb-4 text-left">LINKS ÚTEIS</h3>
         <ul class="space-y-3">
-          <li><a class="block text-left text-white/80 hover:text-white">Sugestão</a></li>
           <li>
-            <a class="block text-left text-white/80 hover:text-white">Reclamação</a>
+            <a class="block text-left text-white/80 hover:text-white"
+              >Conselho Municipal</a
+            >
           </li>
-          <li><a class="block text-left text-white/80 hover:text-white">Queixa</a></li>
+          <li>
+            <a class="block text-left text-white/80 hover:text-white"
+              >Assembleia da República</a
+            >
+          </li>
+          <li>
+            <a class="block text-left text-white/80 hover:text-white">Presidência</a>
+          </li>
         </ul>
       </div>
 
       <!-- 2ª LINHA - COLUNA 2 (CONTACTOS) -->
       <div class="col-span-2 md:col-span-1 text-left">
-        <h3 class="text-lg font-semibold mb-4 text-left">CONTACTOS</h3>
-        <div class="space-y-4">
-          <div
-            class="flex items-center justify-start gap-3 text-white/80 hover:text-white"
-          >
-            <HomeIcon class="h-5 w-5 flex-shrink-0" />
-            <span>Maputo, MZ</span>
-          </div>
-          <div
-            class="flex items-center justify-start gap-3 text-white/80 hover:text-white"
-          >
-            <EnvelopeIcon class="h-5 w-5 flex-shrink-0" />
-            <span>info@enabel.co.mz</span>
-          </div>
-          <div
-            class="flex items-center justify-start gap-3 text-white/80 hover:text-white"
-          >
-            <PhoneIcon class="h-5 w-5 flex-shrink-0" />
-            <span>+258 21 123 456</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2ª LINHA - COLUNA 2 (CONTACTOS) -->
-      <div class="col-span-1 md:col-span-1 text-left">
         <h3 class="text-lg font-semibold mb-4 text-left">CONTACTOS</h3>
         <div class="space-y-4">
           <div
@@ -120,7 +103,8 @@
             >Teste Email</a
           >
         </div>
-
+      </div>
+    </div>
   </footer>
 </template>
 

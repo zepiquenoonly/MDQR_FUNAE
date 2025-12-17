@@ -1,21 +1,24 @@
-<!-- GrievanceActions.vue -->
 <template>
   <div class="w-full bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6">
     <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4">
       Acções
     </h2>
 
-    <!-- Verificar se complaint existe -->
     <div v-if="!complaint" class="text-center py-4 text-gray-500">
       Carregando dados...
     </div>
 
     <div v-else class="space-y-2">
-      <!-- Comentar a Submissão (sem restrição) -->
       <button
-        @click="$emit('open-modal', 'comment')"
-        :disabled="loading.comment"
-        class="w-full bg-blue-600 text-white px-4 py-3 rounded font-semibold hover:bg-blue-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
+        @click="handleCommentClick"
+        :disabled="isCommentButtonDisabled"
+        :class="[
+          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 relative mb-3',
+          !isCommentButtonDisabled
+            ? 'bg-blue-600 text-white hover:bg-blue-700'
+            : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+        ]"
+        :title="commentButtonTitle"
       >
         <template v-if="loading.comment">
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
@@ -23,119 +26,140 @@
         </template>
         <template v-else>
           <ChatBubbleLeftIcon class="h-4 w-4" />
-          <span>Comentar a Submissão</span>
+          <span>Comentários ({{ complaint.comments_count || 0 }})</span>
+          <!-- Debug indicator -->
+          <span
+            v-if="isCommentButtonDisabled"
+            class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
+            title="Desativado: resolved ou rejected"
+          ></span>
         </template>
       </button>
 
-      <!-- Definir Prioridade (apenas Submetida ou Em Análise) -->
+      <!-- Botões condicionais -->
+      <template v-if="shouldShowActions">
+        <!-- Definir Prioridade -->
+        <button
+          v-if="showPriorityButton"
+          @click="handlePriorityClick"
+          :disabled="isButtonDisabled('priority')"
+          :class="[
+            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
+            !isButtonDisabled('priority')
+              ? 'bg-brand text-white hover:bg-orange-700'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+          ]"
+        >
+          <template v-if="loading.priority">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>Processando...</span>
+          </template>
+          <template v-else>
+            <FlagIcon class="h-4 w-4" />
+            <span>Definir Prioridade</span>
+          </template>
+        </button>
+
+        <!-- Reatribuir Técnico -->
+        <button
+          v-if="showReassignButton"
+          @click="handleReassignClick"
+          :disabled="isButtonDisabled('reassign')"
+          :class="[
+            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 border',
+            !isButtonDisabled('reassign')
+              ? 'bg-white dark:bg-dark-accent text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-brand'
+              : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 cursor-not-allowed',
+          ]"
+        >
+          <template v-if="loading.reassign">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand"></div>
+            <span>Processando...</span>
+          </template>
+          <template v-else>
+            <UserGroupIcon class="h-4 w-4" />
+            <span>Reatribuir Técnico</span>
+          </template>
+        </button>
+
+        <!-- Enviar ao Director (apenas para Gestor quando não escalado) -->
+        <button
+          v-if="showSendToDirectorButton && !isEscalatedToDirector"
+          @click="handleSendToDirectorClick"
+          :disabled="isButtonDisabled('sendToDirector')"
+          :class="[
+            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 mb-3',
+            !isButtonDisabled('sendToDirector')
+              ? 'bg-green-600 text-white hover:bg-green-700'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+          ]"
+        >
+          <template v-if="loading.sendToDirector">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>Processando...</span>
+          </template>
+          <template v-else>
+            <PaperAirplaneIcon class="h-4 w-4" />
+            <span>Enviar ao Director</span>
+          </template>
+        </button>
+
+        <!-- Botão de Validação -->
+        <button
+          v-if="showValidationButton"
+          @click="handleValidationClick"
+          :disabled="isButtonDisabled('markComplete')"
+          :class="[
+            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 mb-3',
+            !isButtonDisabled('markComplete')
+              ? 'bg-green-600 text-white hover:bg-green-700'
+              : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed',
+          ]"
+        >
+          <template v-if="loading.markComplete || loading.submitValidation">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>A Processar...</span>
+          </template>
+          <template v-else>
+            <CheckCircleIcon class="h-4 w-4" />
+            <span>{{ validationButtonText }}</span>
+          </template>
+        </button>
+
+        <!-- Botão de Rejeição -->
+        <button
+          v-if="showRejectButton"
+          @click="handleRejectClick"
+          :disabled="isButtonDisabled('reject')"
+          :class="[
+            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
+            !isButtonDisabled('reject')
+              ? 'bg-red-600 text-white hover:bg-red-700'
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+          ]"
+        >
+          <template v-if="loading.reject">
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            <span>Processando...</span>
+          </template>
+          <template v-else>
+            <XCircleIcon class="h-4 w-4" />
+            <span>Rejeitar Submissão</span>
+          </template>
+        </button>
+      </template>
+
+      <!-- Botão para Director responder à solicitação -->
       <button
-        @click="$emit('open-modal', 'priority')"
-        :disabled="loading.priority || !canUpdatePriority"
+        v-if="isDirector && isEscalatedToDirector && !hasDirectorValidation"
+        @click="handleValidationClick"
         :class="[
-          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
-          canUpdatePriority
-            ? 'bg-brand text-white hover:bg-orange-700'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 mb-3',
+          'bg-purple-600 text-white hover:bg-purple-700',
         ]"
       >
-        <template v-if="loading.priority">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>Processando...</span>
-        </template>
-        <template v-else>
-          <FlagIcon class="h-4 w-4" />
-          <span>Definir Prioridade</span>
-        </template>
-      </button>
-
-      <!-- Reatribuir Técnico (apenas Submetida, Em Análise, Atribuída) -->
-      <button
-        @click="$emit('open-modal', 'reassign')"
-        :disabled="loading.reassign || !canReassignTechnician"
-        :class="[
-          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 border',
-          canReassignTechnician
-            ? 'bg-white dark:bg-dark-accent text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-brand'
-            : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 cursor-not-allowed',
-        ]"
-      >
-        <template v-if="loading.reassign">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand"></div>
-          <span>Processando...</span>
-        </template>
-        <template v-else>
-          <UserGroupIcon class="h-4 w-4" />
-          <span>Reatribuir Técnico</span>
-        </template>
-      </button>
-
-      <!-- Enviar ao Director (apenas Submetida, Em Análise, Atribuída) - Ocultar se role for director -->
-      <button
-        v-if="showSendToDirectorButton"
-        @click="handleEscalationClick"
-        :disabled="loading.escalation || !canEscalate"
-        :class="[
-          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
-          isEscalated
-            ? 'bg-red-600 text-white hover:bg-red-700'
-            : 'bg-green-600 text-white hover:bg-green-700',
-        ]"
-      >
-        <template v-if="loading.escalation">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>Processando...</span>
-        </template>
-        <template v-else>
-          <PaperAirplaneIcon v-if="!isEscalated" class="h-4 w-4" />
-          <XCircleIcon v-else class="h-4 w-4" />
-          <span>{{
-            isEscalated ? "Revogar o encaminhamento" : "Enviar ao Director"
-          }}</span>
-        </template>
-      </button>
-
-      <!-- Aprovar Conclusão (sempre visível, habilitado apenas quando status for pending_approval) -->
-      <button
-        @click="$emit('mark-complete')"
-        :disabled="loading.markComplete || complaint.status !== 'pending_approval'"
-        :class="[
-          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
-          complaint.status === 'pending_approval' && !loading.markComplete
-            ? 'bg-green-600 text-white hover:bg-green-700'
-            : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed',
-        ]"
-      >
-        <template v-if="loading.markComplete">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>A Processar...</span>
-        </template>
-        <template v-else>
-          <CheckCircleIcon class="h-4 w-4" />
-          <span>
-            {{
-              complaint.status === "pending_approval"
-                ? "Marcar Concluído"
-                : "A aguardar Aprovação"
-            }}
-          </span>
-        </template>
-      </button>
-
-      <!-- Rejeitar Submissão (para outros status) -->
-      <button
-        v-if="complaint.status !== 'pending_approval' && complaint.status !== 'resolved'"
-        @click="$emit('reject-submission')"
-        :disabled="loading.rejectSubmission"
-        class="w-full bg-red-600 text-white px-4 py-3 rounded font-semibold hover:bg-red-700 transition-all shadow-sm text-sm flex items-center justify-center gap-2"
-      >
-        <template v-if="loading.rejectSubmission">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>Processando...</span>
-        </template>
-        <template v-else>
-          <XCircleIcon class="h-4 w-4" />
-          <span>Rejeitar Submissão</span>
-        </template>
+        <PaperAirplaneIcon class="h-4 w-4" />
+        <span>Responder à Solicitação do Gestor</span>
       </button>
     </div>
   </div>
@@ -149,15 +173,15 @@ import {
   PaperAirplaneIcon,
   CheckCircleIcon,
   XCircleIcon,
+  ClockIcon,
+  UserIcon,
 } from "@heroicons/vue/24/outline";
 import { computed } from "vue";
-import { useAuth } from "@/Composables/useAuth";
 
 const props = defineProps({
   complaint: {
     type: Object,
     required: true,
-    default: () => ({}),
   },
   technicians: {
     type: Array,
@@ -167,75 +191,213 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+  user: {
+    type: Object,
+    default: () => ({}),
+  },
+  isPendingApproval: {
+    type: Boolean,
+    default: false,
+  },
+  isRejected: {
+    type: Boolean,
+    default: false,
+  },
+  isResolved: {
+    type: Boolean,
+    default: false,
+  },
+  isApproved: {
+    type: Boolean,
+    default: false,
+  },
+  isEscalatedToDirector: {
+    type: Boolean,
+    default: false,
+  },
+  hasDirectorValidation: {
+    type: Boolean,
+    default: false,
+  },
+  isDirector: {
+    type: Boolean,
+    default: false,
+  },
+  isManager: {
+    type: Boolean,
+    default: false,
+  },
+  hasDirectorAssumedCase: {
+    type: Boolean,
+    default: false,
+  },
+  hasDirectorCommentedAndReturned: {
+    type: Boolean,
+    default: false,
+  },
+  isWaitingDirectorIntervention: {
+    type: Boolean,
+    default: false,
+  },
+  isCaseAssumedByDirector: {
+    type: Boolean,
+    default: false,
+  },
+  isCaseReturnedToManager: {
+    type: Boolean,
+    default: false,
+  },
+  shouldShowActions: {
+    type: Boolean,
+    default: true,
+  },
+  canComment: {
+    type: Boolean,
+    require: true,
+  },
 });
 
-// Use o composable de auth
-const { role, checkRole } = useAuth();
+const emit = defineEmits(["open-modal", "refresh"]);
 
-// Computed properties para validação de estado
-const canReassignTechnician = computed(() => {
-  if (!props.complaint || !props.complaint.status) return false;
-  const allowedStatuses = ["submitted", "under_review", "assigned"];
-  return allowedStatuses.includes(props.complaint.status);
-});
+// ========== COMPUTED PROPERTIES ==========
 
-const canUpdatePriority = computed(() => {
-  if (!props.complaint || !props.complaint.status) return false;
-  const allowedStatuses = ["submitted", "under_review"];
-  return allowedStatuses.includes(props.complaint.status);
-});
-
-const canSendToDirector = computed(() => {
-  if (!props.complaint || !props.complaint.status) return false;
-  const allowedStatuses = ["submitted", "under_review", "assigned"];
-  return allowedStatuses.includes(props.complaint.status);
-});
-
-// Mostrar botão "Enviar ao Director" apenas se o usuário NÃO for director
-const showSendToDirectorButton = computed(() => {
-  // Use checkRole para verificar se é director
-  return !checkRole("director");
-});
-
-const handleEscalationClick = () => {
-  if (isEscalated.value) {
-    // Se já está escalado, emitir evento para revogar
-    emit("revoke-escalation");
+const validationButtonText = computed(() => {
+  if (props.isDirector && props.isEscalatedToDirector && !props.hasDirectorValidation) {
+    return "Validar Solicitação";
+  } else if (props.isPendingApproval) {
+    return "Validar Aprovação";
   } else {
-    // Se não está escalado, emitir evento para abrir modal
-    emit("open-modal", "sendToDirector");
+    return "Validar";
   }
-};
-
-const isEscalated = computed(() => {
-  if (!props.complaint) return false;
-  return (
-    props.complaint.escalated === true ||
-    props.complaint.status === "escalated" ||
-    (props.complaint.updates &&
-      props.complaint.updates.some((u) => u.action_type === "escalated_to_director"))
-  );
 });
 
-const canEscalate = computed(() => {
-  if (!props.complaint || !props.complaint.status) return false;
+const showPriorityButton = computed(() => {
+  return props.shouldShowActions;
+});
 
-  if (isEscalated.value) {
-    // Pode revogar se for escalado
+const showReassignButton = computed(() => {
+  return props.shouldShowActions;
+});
+
+const showRejectButton = computed(() => {
+  return props.shouldShowActions && !props.isRejected;
+});
+
+const showValidationButton = computed(() => {
+  if (props.isDirector) {
+    return props.isCaseAssumedByDirector && props.isPendingApproval;
+  }
+
+  if (props.isManager) {
+    return props.shouldShowActions && props.isPendingApproval;
+  }
+
+  return false;
+});
+
+const showSendToDirectorButton = computed(() => {
+  // Apenas Gestor pode enviar ao Director
+  if (!props.isManager) return false;
+
+  // Não mostrar se já foi escalado
+  if (props.isEscalatedToDirector) return false;
+
+  // Não mostrar se caso está resolvido ou rejeitado
+  if (props.isResolved || props.isRejected || props.isApproved) return false;
+
+  return props.shouldShowActions;
+});
+
+// ========== FUNÇÕES DE CLIQUE ==========
+
+const isCommentButtonDisabled = computed(() => {
+  console.log("=== DEBUG isCommentButtonDisabled ===");
+  console.log("loading.comment:", props.loading.comment);
+  console.log("canComment (from props):", props.canComment);
+  console.log("isResolved:", props.isResolved);
+  console.log("isRejected:", props.isRejected);
+  console.log("status:", props.complaint?.status);
+
+  // Se está em loading, desabilita
+  if (props.loading.comment) {
+    console.log("Desabilitado porque está em loading");
     return true;
   }
 
-  // Pode enviar se não for escalado e estiver nos status permitidos
-  const allowedStatuses = ["submitted", "under_review", "assigned"];
-  return allowedStatuses.includes(props.complaint.status);
+  // Usa a prop canComment que vem do composable
+  // (que deve retornar false apenas para resolved/rejected)
+  if (!props.canComment) {
+    console.log("Desabilitado porque canComment é false");
+    return true;
+  }
+
+  console.log("Habilitado - pode comentar");
+  return false;
 });
 
-const emit = defineEmits([
-  "open-modal",
-  "mark-complete",
-  "revoke-escalation",
-  "reject-completion",
-  "reject-submission",
-  "refresh",
-]);
+const handleCommentClick = () => {
+  if (isCommentButtonDisabled.value) {
+    console.log("Botão de comentários desabilitado, ignorando clique");
+    console.log(
+      "Debug: canComment=",
+      props.canComment,
+      "loading.comment=",
+      props.loading.comment
+    );
+    return;
+  }
+
+  console.log("Abrindo modal de comentários");
+  emit("open-modal", "comment");
+};
+
+const handlePriorityClick = () => {
+  if (!props.shouldShowActions) return;
+  emit("open-modal", "priority");
+};
+
+const handleReassignClick = () => {
+  if (!props.shouldShowActions) return;
+  emit("open-modal", "reassign");
+};
+
+const handleSendToDirectorClick = () => {
+  if (!props.shouldShowActions) return;
+  emit("open-modal", "sendToDirector");
+};
+
+const handleValidationClick = () => {
+  if (props.isDirector && props.isEscalatedToDirector && !props.hasDirectorValidation) {
+    // Director respondendo à solicitação do gestor pela primeira vez
+    emit("open-modal", "approvalDirector");
+  } else if (props.isDirector && props.isCaseAssumedByDirector) {
+    // Director com caso assumido validando aprovação
+    emit("open-modal", "validateSubmission");
+  } else if (props.isManager) {
+    // Gestor validando aprovação de técnico
+    emit("open-modal", "validateSubmission");
+  }
+};
+
+const handleRejectClick = () => {
+  if (!props.shouldShowActions) return;
+  emit("open-modal", "reject");
+};
+
+// ========== FUNÇÃO PARA VERIFICAR SE BOTÃO ESTÁ DESABILITADO ==========
+
+const isButtonDisabled = (buttonType) => {
+  // NOTA: Botão de comentários NÃO usa esta função - tem sua própria lógica
+
+  // Verificar se está em loading
+  if (props.loading[buttonType]) return true;
+
+  // Se não deve mostrar ações, desabilita outros botões
+  if (!props.shouldShowActions) return true;
+
+  // Verificar estado final para outros botões
+  if (props.isResolved || props.isRejected || props.isApproved) return true;
+
+  return false;
+};
 </script>

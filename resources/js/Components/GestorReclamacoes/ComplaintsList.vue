@@ -1,28 +1,60 @@
+<!-- ComplaintsList.vue - template atualizado -->
 <template>
   <div
     class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
   >
-    <!-- Header compacto -->
+    <!-- Header compacto - APENAS VISÍVEL NA VISUALIZAÇÃO RESUMIDA -->
     <div
+      v-if="!showAllComplaints"
       class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6"
     >
       <h3 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">
         {{ headerTitle }}
       </h3>
       <div class="flex gap-2 self-end sm:self-auto">
+        <!-- Botão Ver Todos com notificações dinâmicas -->
         <button
           @click="toggleAllComplaints"
           class="text-brand hover:text-orange-600 text-sm font-medium flex items-center gap-1.5 group relative"
           :disabled="loading"
         >
-          <span>{{ showAllComplaints ? "Ver Resumo" : "Ver Todos" }}</span>
+          <span>Ver Todos</span>
 
-          <!-- Badge de contagem (só aparece quando houver dados não vistos) -->
+          <!-- Badge de notificações dinâmico -->
           <span
             v-if="unseenCount > 0 && !showAllComplaints"
-            class="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium leading-none rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300 transform group-hover:scale-110 transition-transform duration-200"
+            class="inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium leading-none rounded-full transform group-hover:scale-110 transition-all duration-200 animate-pulse"
+            :class="[
+              isDirector && unseenManagerRequests > 0
+                ? 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+                : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+            ]"
           >
             {{ unseenCount > 99 ? "99+" : unseenCount }}
+
+            <!-- Tooltip explicativo -->
+            <span
+              class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-10"
+            >
+              <span v-if="isDirector && unseenManagerRequests > 0">
+                {{ unseenManagerRequests }} nova{{
+                  unseenManagerRequests !== 1 ? "s" : ""
+                }}
+                solicitação{{ unseenManagerRequests !== 1 ? "ões" : "" }} do gestor
+              </span>
+              <span v-else-if="isManager && unseenDirectorInterventions > 0">
+                {{ unseenDirectorInterventions }} nova{{
+                  unseenDirectorInterventions !== 1 ? "s" : ""
+                }}
+                intervenção{{ unseenDirectorInterventions !== 1 ? "ões" : "" }} do
+                director
+              </span>
+              <span v-else>
+                {{ unseenCount }} nova{{ unseenCount !== 1 ? "s" : "" }} submissão{{
+                  unseenCount !== 1 ? "es" : ""
+                }}
+              </span>
+            </span>
           </span>
 
           <!-- Ícone dinâmico -->
@@ -42,117 +74,7 @@
               d="M19 9l-7 7-7-7"
             />
           </svg>
-
-          <!-- Tooltip para novos dados -->
-          <span
-            v-if="hasNewData && !showAllComplaints"
-            class="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs rounded py-1 px-2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none"
-          >
-            {{ unseenCount }} nova{{ unseenCount !== 1 ? "s" : "" }} submissão{{
-              unseenCount !== 1 ? "es" : ""
-            }}
-          </span>
         </button>
-      </div>
-    </div>
-
-    <div v-if="showAllComplaints" class="mb-6">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-        <!-- Filtro de Categoria -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Categoria
-          </label>
-          <select
-            v-model="localFilters.category"
-            @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-brand focus:border-transparent dark:bg-dark-secondary dark:text-dark-text-primary"
-          >
-            <option value="">Todas as Categorias</option>
-            <option value="Ambiental">Ambiental</option>
-            <option value="Social">Social</option>
-            <option value="Económico">Económico</option>
-            <option value="Segurança">Segurança</option>
-            <option value="Saúde">Saúde</option>
-            <option value="Educação">Educação</option>
-          </select>
-        </div>
-
-        <!-- Filtro de Tipo -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Tipo
-          </label>
-          <select
-            v-model="localFilters.type"
-            @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-brand focus:border-transparent dark:bg-dark-secondary dark:text-dark-text-primary"
-          >
-            <option value="">Todos os Tipos</option>
-            <option value="suggestion">Sugestão</option>
-            <option value="complaint">Reclamação</option>
-            <option value="grievance">Queixa</option>
-          </select>
-        </div>
-
-        <!-- Filtro de Prioridade -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Prioridade
-          </label>
-          <select
-            v-model="localFilters.priority"
-            @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-brand focus:border-transparent dark:bg-dark-secondary dark:text-dark-text-primary"
-          >
-            <option value="">Todas as Prioridades</option>
-            <option value="low">Baixa</option>
-            <option value="medium">Média</option>
-            <option value="high">Alta</option>
-          </select>
-        </div>
-
-        <!-- Filtro de Estado -->
-        <div>
-          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-            Estado
-          </label>
-          <select
-            v-model="localFilters.status"
-            @change="applyFilters"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:ring-2 focus:ring-brand focus:border-transparent dark:bg-dark-secondary dark:text-dark-text-primary"
-          >
-            <option value="">Todos os Estados</option>
-            <option value="submitted">Submetida</option>
-            <option value="in_progress">Em Análise</option>
-            <option value="assigned">Atribuída</option>
-            <option value="pending">Em Progresso</option>
-            <option value="pending_approval">Pendente de Aprovação</option>
-            <option value="resolved">Aprovada</option>
-            <option value="rejected">Rejeitada</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Botões de ação dos filtros -->
-      <div class="flex justify-between items-center">
-        <div class="text-sm text-gray-500 dark:text-gray-400">
-          <span v-if="activeFiltersCount > 0">
-            {{ activeFiltersCount }} filtro{{
-              activeFiltersCount !== 1 ? "s" : ""
-            }}
-            ativo{{ activeFiltersCount !== 1 ? "s" : "" }}
-          </span>
-        </div>
-        <div class="flex gap-2">
-          <button
-            @click="resetFilters"
-            class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200"
-            :disabled="loading || !hasActiveFilters"
-          >
-            Limpar Filtros
-          </button>
-        </div>
       </div>
     </div>
 
@@ -169,14 +91,33 @@
       <!-- Visualização Resumida -->
       <div v-if="!showAllComplaints">
         <div class="space-y-4">
-          <div v-for="complaint in allComplaints.slice(0, 3)" :key="complaint.id">
-            <ComplaintRow
-              :complaint="complaint"
-              :role="role"
-              :selected="selectedComplaintId === complaint.id"
-            />
-          </div>
-          <div v-if="allComplaints.length === 0" class="text-center py-8">
+          <!-- Para Director: mostrar 4 submissões mais recentes -->
+          <template v-if="isDirector">
+            <div v-for="complaint in recentSubmissions.slice(0, 4)" :key="complaint.id">
+              <ComplaintRow
+                :complaint="complaint"
+                :role="role"
+                :selected="selectedComplaintId === complaint.id"
+                :is-recent="isRecentSubmission(complaint)"
+                @mark-as-seen="markSubmissionAsSeen(complaint)"
+              />
+            </div>
+          </template>
+
+          <!-- Para Manager: mostrar 4 submissões mais recentes -->
+          <template v-else>
+            <div v-for="complaint in recentSubmissions.slice(0, 4)" :key="complaint.id">
+              <ComplaintRow
+                :complaint="complaint"
+                :role="role"
+                :selected="selectedComplaintId === complaint.id"
+                :is-recent="isRecentSubmission(complaint)"
+                @mark-as-seen="markSubmissionAsSeen(complaint)"
+              />
+            </div>
+          </template>
+
+          <div v-if="recentSubmissions.length === 0" class="text-center py-8">
             <p class="text-gray-500 dark:text-gray-400">Nenhuma submissão encontrada</p>
           </div>
         </div>
@@ -185,7 +126,9 @@
       <!-- Visualização Completa -->
       <div v-else class="space-y-4">
         <!-- Header da visualização completa -->
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div
+          class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4"
+        >
           <h3
             class="text-lg sm:text-xl font-semibold text-gray-800 dark:text-dark-text-primary"
           >
@@ -194,9 +137,36 @@
               (Total: {{ filteredComplaints.length }})
             </span>
           </h3>
+
+          <!-- Botão Ver Resumo -->
+          <div class="flex gap-2 self-end sm:self-auto">
+            <button
+              @click="toggleAllComplaints"
+              class="text-brand hover:text-orange-600 text-sm font-medium flex items-center gap-1.5"
+              :disabled="loading"
+            >
+              <span>Ver Resumo</span>
+              <svg
+                :class="[
+                  'w-4 h-4 transition-transform duration-300',
+                  showAllComplaints ? 'rotate-180' : '',
+                ]"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
 
-        <!-- Tabs DINÂMICAS baseadas no role -->
+        <!-- Tabs DINÂMICAS -->
         <div class="border-b border-gray-200 dark:border-gray-700">
           <nav class="-mb-px flex space-x-4 overflow-x-auto">
             <!-- Tabs comuns para todos os roles -->
@@ -263,7 +233,7 @@
               @click="changeTab('manager_requests')"
               :class="[
                 activeTab === 'manager_requests'
-                  ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
                 'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1',
                 loading ? 'opacity-50 cursor-not-allowed' : '',
@@ -275,6 +245,27 @@
                 class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs"
               >
                 {{ getTabCount("manager_requests") }}
+              </span>
+            </button>
+
+            <!-- Tab específica para Director: Minhas Intervenções -->
+            <button
+              v-if="isDirector"
+              @click="changeTab('director_interventions')"
+              :class="[
+                activeTab === 'director_interventions'
+                  ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
+                'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1',
+                loading ? 'opacity-50 cursor-not-allowed' : '',
+              ]"
+              :disabled="loading"
+            >
+              Minhas Intervenções
+              <span
+                class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs"
+              >
+                {{ getTabCount("director_interventions") }}
               </span>
             </button>
 
@@ -296,6 +287,67 @@
                 class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs"
               >
                 {{ getTabCount("director_interventions") }}
+              </span>
+            </button>
+
+            <!-- NOVA TAB PARA MANAGER: Minhas Submissões ao Director -->
+            <button
+              v-if="isManager"
+              @click="changeTab('my_submissions_to_director')"
+              :class="[
+                activeTab === 'my_submissions_to_director'
+                  ? 'border-green-500 text-green-600 dark:text-green-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
+                'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1',
+                loading ? 'opacity-50 cursor-not-allowed' : '',
+              ]"
+              :disabled="loading"
+            >
+              Minhas Submissões ao Director
+              <span
+                class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs"
+              >
+                {{ getTabCount("my_submissions_to_director") }}
+              </span>
+            </button>
+
+            <!-- Tab Concluídos -->
+            <button
+              @click="changeTab('resolved')"
+              :class="[
+                activeTab === 'resolved'
+                  ? 'border-green-500 text-green-600 dark:text-green-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
+                'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1',
+                loading ? 'opacity-50 cursor-not-allowed' : '',
+              ]"
+              :disabled="loading"
+            >
+              Concluídos
+              <span
+                class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs"
+              >
+                {{ getTabCount("resolved") }}
+              </span>
+            </button>
+
+            <!-- Tab Rejeitados -->
+            <button
+              @click="changeTab('rejected')"
+              :class="[
+                activeTab === 'rejected'
+                  ? 'border-red-500 text-red-600 dark:text-red-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600',
+                'whitespace-nowrap py-2 px-1 border-b-2 font-medium text-xs sm:text-sm flex items-center gap-1',
+                loading ? 'opacity-50 cursor-not-allowed' : '',
+              ]"
+              :disabled="loading"
+            >
+              Rejeitados
+              <span
+                class="bg-gray-100 dark:bg-dark-accent text-gray-900 dark:text-dark-text-primary py-0.5 px-1.5 rounded-full text-xs"
+              >
+                {{ getTabCount("rejected") }}
               </span>
             </button>
 
@@ -330,6 +382,15 @@
               >
                 <thead class="bg-gray-50 dark:bg-dark-accent">
                   <tr>
+                    <!-- Coluna especial para Solicitações do Gestor -->
+                    <th
+                      v-if="isDirector && activeTab === 'manager_requests'"
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Gestor
+                    </th>
+
                     <th
                       scope="col"
                       class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
@@ -393,25 +454,90 @@
                     v-for="item in currentTabData"
                     :key="item.id"
                     :class="[
-                      'hover:bg-gray-50 dark:hover:bg-dark-accent',
+                      'hover:bg-gray-50 dark:hover:bg-dark-accent transition-colors',
                       item.has_director_intervention ? 'has-director-response' : '',
+                      item.manager_request || item.is_escalated_to_director
+                        ? 'has-manager-request'
+                        : '',
+                      isNewSubmission(item) ? 'new-submission' : '',
                     ]"
                   >
+                    <!-- Coluna do Gestor que escalou (apenas para tab manager_requests do Director) -->
                     <td
-                      class="px-3 py-2 whitespace-nowrap font-medium text-gray-900 dark:text-dark-text-primary"
+                      v-if="isDirector && activeTab === 'manager_requests'"
+                      class="px-3 py-2 whitespace-nowrap"
                     >
-                      {{ item.reference_number }}
+                      <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-1">
+                          <UserIcon class="w-3 h-3 text-blue-500 flex-shrink-0" />
+                          <span
+                            class="text-xs font-medium text-blue-700 dark:text-blue-300 truncate max-w-24"
+                          >
+                            {{ getEscalatedBy(item) }}
+                          </span>
+                        </div>
+                        <span
+                          class="text-xs text-gray-500"
+                          :title="getEscalationReason(item)"
+                        >
+                          {{ truncateText(getEscalationReason(item), 30) }}
+                        </span>
+                      </div>
                     </td>
+
+                    <!-- ID com indicador de novo -->
+                    <td
+                      class="px-3 py-2 whitespace-nowrap font-medium relative"
+                      :class="[
+                        isNewSubmission(item)
+                          ? 'text-green-700 dark:text-green-300'
+                          : 'text-gray-900 dark:text-dark-text-primary',
+                      ]"
+                    >
+                      <div class="flex items-center gap-1">
+                        {{ item.reference_number }}
+                        <!-- Indicador de nova solicitação do gestor -->
+                        <span
+                          v-if="isDirector && isNewManagerRequest(item)"
+                          class="inline-flex items-center justify-center w-3 h-3 text-[8px] font-bold text-white bg-blue-500 rounded-full animate-pulse"
+                          title="Nova solicitação do gestor"
+                        >
+                          !
+                        </span>
+                        <!-- Indicador de nova intervenção do director -->
+                        <span
+                          v-if="isManager && isNewDirectorIntervention(item)"
+                          class="inline-flex items-center justify-center w-3 h-3 text-[8px] font-bold text-white bg-purple-500 rounded-full animate-pulse"
+                          title="Nova intervenção do director"
+                        >
+                          !
+                        </span>
+                        <!-- Indicador de nova submissão -->
+                        <span
+                          v-if="isNewSubmission(item)"
+                          class="inline-flex items-center justify-center w-3 h-3 text-[8px] font-bold text-white bg-green-500 rounded-full animate-pulse"
+                          title="Nova submissão"
+                        >
+                          N
+                        </span>
+                      </div>
+                    </td>
+
+                    <!-- Título -->
                     <td
                       class="px-3 py-2 text-gray-900 dark:text-dark-text-primary max-w-32 truncate"
                     >
                       {{ item.title || item.description }}
                     </td>
+
+                    <!-- Tipo -->
                     <td class="px-3 py-2 whitespace-nowrap">
                       <span :class="getTypeBadgeClass(item.type)">
                         {{ getTypeLabel(item.type) }}
                       </span>
                     </td>
+
+                    <!-- Categoria -->
                     <td class="px-3 py-2 whitespace-nowrap">
                       <span
                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400"
@@ -419,19 +545,30 @@
                         {{ item.category || item.department || "N/A" }}
                       </span>
                     </td>
+
+                    <!-- Prioridade -->
                     <td class="px-3 py-2 whitespace-nowrap">
                       <span :class="getPriorityBadgeClass(item.priority)">
                         {{ getPriorityLabel(item.priority) }}
                       </span>
                     </td>
+
+                    <!-- Estado -->
                     <td class="px-3 py-2 whitespace-nowrap">
                       <div class="flex flex-col gap-1">
                         <span :class="getStatusBadgeClass(item.status)">
                           {{ getStatusLabel(item.status) }}
                         </span>
+                        <span
+                          v-if="isDirector && activeTab === 'manager_requests'"
+                          class="text-xs text-blue-600 dark:text-blue-400"
+                        >
+                          Solicitado há {{ getTimeSinceEscalation(item) }}
+                        </span>
                       </div>
                     </td>
 
+                    <!-- Data -->
                     <td
                       class="px-3 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400"
                     >
@@ -470,9 +607,16 @@
                           {{ item.director_comments_count }} comentário(s)
                         </span>
                       </div>
+                      <span
+                        v-else-if="item.manager_request"
+                        class="text-xs text-blue-600 dark:text-blue-400"
+                      >
+                        Aguardando análise
+                      </span>
                       <span v-else class="text-gray-400 text-xs">Sem intervenção</span>
                     </td>
 
+                    <!-- Ações -->
                     <td class="px-3 py-2 whitespace-nowrap font-medium">
                       <button
                         @click="handleRowClick(item)"
@@ -493,16 +637,34 @@
                 />
                 <p class="text-gray-500 dark:text-gray-400">Nenhum dado encontrado</p>
                 <p
-                  v-if="activeTab === 'director_interventions'"
+                  v-if="activeTab === 'director_interventions' && isDirector"
+                  class="text-sm text-gray-400 mt-2"
+                >
+                  Nenhuma intervenção sua encontrada
+                </p>
+                <p
+                  v-if="activeTab === 'director_interventions' && isManager"
                   class="text-sm text-gray-400 mt-2"
                 >
                   Nenhuma intervenção do director encontrada
                 </p>
                 <p
-                  v-if="activeTab === 'director_interventions' && isManager"
-                  class="text-sm text-gray-500 mt-2"
+                  v-if="activeTab === 'manager_requests' && isDirector"
+                  class="text-sm text-gray-400 mt-2"
                 >
-                  As submissões reencaminhadas ao Director aparecerão aqui
+                  Nenhuma solicitação do gestor encontrada
+                </p>
+                <p
+                  v-if="activeTab === 'my_submissions_to_director' && isManager"
+                  class="text-sm text-gray-400 mt-2"
+                >
+                  Nenhuma submissão sua enviada ao director encontrada
+                </p>
+                <p v-if="activeTab === 'resolved'" class="text-sm text-gray-400 mt-2">
+                  Nenhuma submissão concluída encontrada
+                </p>
+                <p v-if="activeTab === 'rejected'" class="text-sm text-gray-400 mt-2">
+                  Nenhuma submissão rejeitada encontrada
                 </p>
               </div>
             </div>
@@ -519,16 +681,9 @@
           </p>
           <div class="flex gap-2 self-end">
             <button
-              @click="handleExport"
-              class="px-3 py-1.5 bg-brand text-white rounded text-xs font-medium hover:bg-orange-600 transition-all duration-200"
-              :disabled="loading"
-            >
-              Exportar {{ getExportLabel() }}
-            </button>
-            <button
               @click="handleBulkAssign"
               class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200"
-              v-if="isManager"
+              v-if="isManager && activeTab !== 'director_interventions'"
               :disabled="loading"
             >
               Atribuição Auto.
@@ -543,25 +698,22 @@
 <script setup>
 import { ref, computed, watch, onMounted } from "vue";
 import { router } from "@inertiajs/vue3";
-import { DocumentMagnifyingGlassIcon } from "@heroicons/vue/24/outline";
+import { DocumentMagnifyingGlassIcon, UserIcon } from "@heroicons/vue/24/outline";
 import ComplaintRow from "./ComplaintRow.vue";
 
 const props = defineProps({
-  complaints: {
+  complaints: { type: Array, default: () => [] },
+  filters: { type: Object, default: () => ({}) },
+  allComplaints: { type: Array, default: () => [] },
+  role: { type: String, default: "manager" },
+  recentSubmissions: { type: Array, default: () => [] },
+  director_interventions: {
     type: Array,
     default: () => [],
   },
-  filters: {
-    type: Object,
-    default: () => ({}),
-  },
-  allComplaints: {
+  my_submissions_to_director: {
     type: Array,
     default: () => [],
-  },
-  role: {
-    type: String,
-    default: "manager",
   },
   counts: {
     type: Object,
@@ -571,25 +723,67 @@ const props = defineProps({
       complaints: 0,
       director_interventions: 0,
       manager_requests: 0,
+      my_submissions_to_director: 0,
       total: 0,
     }),
   },
-  debug_info: {
-    type: Object,
-    default: () => ({}),
-  },
+  debug_info: { type: Object, default: () => ({}) },
 });
 
 // Debug mode
 const debugMode = ref(true);
 
+const debugProps = () => {
+  console.log("=== 🔍 DEBUG PROPS PARA GESTOR ===");
+  console.log("Role:", props.role);
+  console.log("Is Manager?", isManager.value);
+  console.log("Is Director?", isDirector.value);
+
+  console.log("\n📊 Dados específicos para Gestor:");
+  console.log(
+    "director_interventions (props):",
+    props.director_interventions?.length || 0
+  );
+  console.log(
+    "my_submissions_to_director (props):",
+    props.my_submissions_to_director?.length || 0
+  );
+
+  if (props.director_interventions && props.director_interventions.length > 0) {
+    console.log("\n📋 Exemplo de director_interventions[0]:");
+    const sample = props.director_interventions[0];
+    console.log("ID:", sample.id);
+    console.log("Reference:", sample.reference_number);
+    console.log("has_director_intervention:", sample.has_director_intervention);
+    console.log("escalated:", sample.escalated);
+    console.log("director_updates:", sample.director_updates?.length || 0);
+  }
+
+  if (props.my_submissions_to_director && props.my_submissions_to_director.length > 0) {
+    console.log("\n📋 Exemplo de my_submissions_to_director[0]:");
+    const sample = props.my_submissions_to_director[0];
+    console.log("ID:", sample.id);
+    console.log("Reference:", sample.reference_number);
+    console.log("escalated:", sample.escalated);
+    console.log("escalated_by:", sample.escalated_by);
+    console.log("escalated_at:", sample.escalated_at);
+  }
+};
+
 // Estado
 const showAllComplaints = ref(false);
-const activeTab = ref("director_interventions");
+const activeTab = ref("all");
 const selectedComplaintId = ref(null);
 const loading = ref(false);
 const unseenCount = ref(0);
+const unseenDirectorInterventions = ref(0);
+const unseenManagerRequests = ref(0);
 const hasNewData = ref(false);
+
+// Armazenar histórico de notificações vistas
+const seenSubmissions = ref(new Set());
+const seenInterventions = ref(new Set());
+const seenRequests = ref(new Set());
 
 // Filtros locais
 const localFilters = ref({
@@ -604,22 +798,117 @@ const isDirector = computed(() => props.role?.toLowerCase() === "director");
 const isManager = computed(() => props.role?.toLowerCase() === "manager");
 
 const headerTitle = computed(() => {
-  if (isDirector.value) return "Submissões do Departamento";
+  if (isDirector.value) return "Submissões Recentes";
   if (isManager.value) return "Submissões Atribuídas";
   return "Minhas Submissões";
 });
 
 const fullViewTitle = computed(() => {
-  if (isDirector.value) return "Todas as Submissões";
-  if (isManager.value) return "Submissões Atribuídas";
-  return "Minhas Submissões";
+  if (isDirector.value) {
+    if (activeTab.value === "manager_requests") return "Solicitações do Gestor";
+    if (activeTab.value === "director_interventions") return "Minhas Intervenções";
+    if (activeTab.value === "resolved") return "Submissões Concluídas";
+    if (activeTab.value === "rejected") return "Submissões Rejeitadas";
+    return "Submissões Ativas";
+  }
+  if (isManager.value) {
+    if (activeTab.value === "director_interventions") return "Intervenções do Director";
+    if (activeTab.value === "my_submissions_to_director")
+      return "Minhas Submissões ao Director";
+    if (activeTab.value === "resolved") return "Submissões Concluídas";
+    if (activeTab.value === "rejected") return "Submissões Rejeitadas";
+    return "Submissões Ativas";
+  }
+  if (activeTab.value === "resolved") return "Submissões Concluídas";
+  if (activeTab.value === "rejected") return "Submissões Rejeitadas";
+  return "Minhas Submissões Ativas";
 });
+
+// **OBTER AS 4 SUBMISSÕES MAIS RECENTES - ATUALIZADO**
+const recentSubmissions = computed(() => {
+  // Se temos recentSubmissions específicas do props, usamos essas
+  if (props.recentSubmissions && props.recentSubmissions.length > 0) {
+    // Filtrar para remover resolved/rejected
+    return [...props.recentSubmissions]
+      .filter((item) => item.status !== "resolved" && item.status !== "rejected")
+      .slice(0, 4);
+  }
+
+  // Caso contrário, usamos allComplaints e pegamos as 4 mais recentes
+  const data = allComplaints.value;
+
+  if (data.length === 0) return [];
+
+  // Ordenar por data de criação (mais recente primeiro)
+  // E filtrar para remover resolved/rejected
+  return [...data]
+    .filter((item) => item.status !== "resolved" && item.status !== "rejected")
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at || a.submitted_at || 0);
+      const dateB = new Date(b.created_at || b.submitted_at || 0);
+      return dateB - dateA;
+    })
+    .slice(0, 4); // Sempre pegar as 4 mais recentes
+});
+
+// Calcular notificações não vistas
+const calculateUnseenCounts = () => {
+  const data = allComplaints.value;
+
+  // Reset counters
+  unseenCount.value = 0;
+  unseenDirectorInterventions.value = 0;
+  unseenManagerRequests.value = 0;
+
+  data.forEach((item) => {
+    // Ignorar itens com status resolved ou rejected
+    if (item.status === "resolved" || item.status === "rejected") {
+      return;
+    }
+
+    const itemId = item.id || item.reference_number;
+
+    // Verificar se é uma nova submissão (menos de 24 horas)
+    if (isNewSubmission(item) && !seenSubmissions.value.has(itemId)) {
+      unseenCount.value++;
+    }
+
+    // Verificar intervenções do director não vistas (para Manager)
+    if (
+      isManager.value &&
+      isNewDirectorIntervention(item) &&
+      !seenInterventions.value.has(itemId)
+    ) {
+      unseenDirectorInterventions.value++;
+    }
+
+    // Verificar solicitações do gestor não vistas (para Director)
+    if (
+      isDirector.value &&
+      isNewManagerRequest(item) &&
+      !seenRequests.value.has(itemId)
+    ) {
+      unseenManagerRequests.value++;
+    }
+  });
+
+  // Atualizar contador total para badge
+  if (isDirector.value && unseenManagerRequests.value > 0) {
+    hasNewData.value = true;
+  } else if (isManager.value && unseenDirectorInterventions.value > 0) {
+    hasNewData.value = true;
+  } else if (unseenCount.value > 0) {
+    hasNewData.value = true;
+  } else {
+    hasNewData.value = false;
+  }
+};
 
 // Filtro aplicado às reclamações
 const filteredComplaints = computed(() => {
-  if (!props.allComplaints || props.allComplaints.length === 0) return [];
+  if (!allComplaints.value || allComplaints.value.length === 0) return [];
 
-  let filtered = [...props.allComplaints];
+  let filtered = [...allComplaints.value];
 
   // Aplicar filtros locais
   if (localFilters.value.category) {
@@ -668,9 +957,8 @@ const hasActiveFilters = computed(() => {
 
 // Método para aplicar filtros
 const applyFilters = () => {
-  // Aqui você pode adicionar lógica para recarregar dados com os filtros
-  // Por enquanto, apenas atualiza a lista localmente
   console.log("Filtros aplicados:", localFilters.value);
+  calculateUnseenCounts();
 };
 
 // Método para resetar filtros
@@ -690,160 +978,469 @@ const getTabCount = (tab) => {
   return data.length;
 };
 
+// **MÉTODO CORRIGIDO: getTabData**
 const getTabData = (tab) => {
+  console.log(
+    `🔍 getTabData: ${tab} | isManager: ${isManager.value} | isDirector: ${isDirector.value}`
+  );
+
+  // Primeiro, vamos obter os dados base filtrados
+  const baseData = filteredComplaints.value;
+
+  // Para as tabs principais (suggestions, grievances, complaints, all),
+  // vamos EXCLUIR os status "rejected" e "resolved"
+  const excludeResolvedRejected = (data) => {
+    return data.filter(
+      (item) => item.status !== "resolved" && item.status !== "rejected"
+    );
+  };
+
+  // Para Director: Solicitações do Gestor
+  if (isDirector.value && tab === "manager_requests") {
+    // Filtrar primeiro, depois excluir resolved/rejected
+    const filtered = getManagerRequests();
+    return excludeResolvedRejected(filtered);
+  }
+
+  // Para Director: Minhas Intervenções
+  if (isDirector.value && tab === "director_interventions") {
+    const filtered = getDirectorInterventions();
+    return excludeResolvedRejected(filtered);
+  }
+
+  // Para Manager: Intervenções do Director
+  if (isManager.value && tab === "director_interventions") {
+    const filtered = getDirectorInterventions();
+    return excludeResolvedRejected(filtered);
+  }
+
+  // Para Manager: Minhas Submissões ao Director
+  if (isManager.value && tab === "my_submissions_to_director") {
+    const filtered = getMySubmissionsToDirector();
+    return excludeResolvedRejected(filtered);
+  }
+
+  // Para as tabs Concluídos e Rejeitados, mostramos APENAS esses status
+  if (tab === "resolved") {
+    return baseData.filter((item) => item.status === "resolved");
+  }
+
+  if (tab === "rejected") {
+    return baseData.filter((item) => item.status === "rejected");
+  }
+
+  // Para as outras tabs, excluímos resolved/rejected
+  const data = baseData;
+  const filteredByStatus = excludeResolvedRejected(data);
+
   switch (tab) {
     case "suggestions":
-      return filteredComplaints.value.filter(
+      return filteredByStatus.filter(
         (item) =>
           item.type?.toLowerCase().includes("suggestion") ||
           item.type?.toLowerCase().includes("sugest")
       );
     case "grievances":
-      return filteredComplaints.value.filter(
+      return filteredByStatus.filter(
         (item) =>
           item.type?.toLowerCase().includes("grievance") ||
           item.type?.toLowerCase().includes("queixa")
       );
     case "complaints":
-      return filteredComplaints.value.filter(
+      return filteredByStatus.filter(
         (item) =>
           item.type?.toLowerCase().includes("complaint") ||
           item.type?.toLowerCase().includes("reclam")
       );
-    case "manager_requests":
-      return filteredComplaints.value.filter(
-        (item) =>
-          item.escalated ||
-          item.metadata?.is_escalated_to_director ||
-          item.status === "escalated"
-      );
-    case "director_interventions":
-      return directorInterventionsData.value.filter((item) =>
-        filteredComplaints.value.some((f) => f.id === item.id)
-      );
+    case "all":
     default:
-      return filteredComplaints.value;
+      return data;
   }
 };
 
-// Dados para a aba de intervenções do director
-const directorInterventionsData = computed(() => {
-  if (!props.allComplaints || !Array.isArray(props.allComplaints)) return [];
+const getMySubmissionsToDirector = () => {
+  if (props.my_submissions_to_director && props.my_submissions_to_director.length > 0) {
+    return props.my_submissions_to_director;
+  }
+  return filteredComplaints.value.filter(
+    (item) =>
+      item.escalated === true ||
+      item.is_escalated_to_director === true ||
+      item.manager_request ||
+      (item.metadata && item.metadata.is_escalated_to_director === true)
+  );
+};
 
-  // Filtrar reclamações que têm intervenção do director
-  return props.allComplaints.filter((item) => {
-    // Verificar propriedades diretas
-    if (item.has_director_intervention === true) {
-      return true;
-    }
+// Métodos auxiliares para obter dados específicos
+const getManagerRequests = () => {
+  if (props.manager_requests && props.manager_requests.length > 0) {
+    return props.manager_requests;
+  }
+  return filteredComplaints.value.filter(
+    (item) =>
+      item.escalated === true ||
+      item.is_escalated_to_director === true ||
+      item.manager_request ||
+      (item.metadata && item.metadata.is_escalated_to_director === true)
+  );
+};
 
-    // Verificar director_updates
-    if (item.director_updates && item.director_updates.length > 0) {
-      return true;
-    }
-
-    // Verificar director_comments_count
-    if (item.director_comments_count > 0) {
-      return true;
-    }
-
-    // Verificar director_validation
-    if (item.director_validation) {
-      return true;
-    }
-
-    // Verificar metadata
-    if (item.metadata && item.metadata.director_validation) {
-      return true;
-    }
-
-    // Verificar se foi escalado
-    if (item.escalated === true || item.is_escalated_to_director === true) {
-      return true;
-    }
-
-    // Verificar updates no array (se existir)
-    if (item.updates && Array.isArray(item.updates)) {
-      const hasDirectorUpdate = item.updates.some((update) => {
-        return (
-          update.action_type?.includes("director") ||
-          (update.user && update.user.role === "Director") ||
-          (update.metadata &&
-            (update.metadata.created_by_director === true || update.metadata.director_id))
-        );
-      });
-
-      if (hasDirectorUpdate) {
-        return true;
-      }
-    }
-
-    return false;
-  });
-});
+const getDirectorInterventions = () => {
+  if (props.director_interventions && props.director_interventions.length > 0) {
+    return props.director_interventions;
+  }
+  return filteredComplaints.value.filter(
+    (item) =>
+      item.has_director_intervention === true ||
+      item.director_updates?.length > 0 ||
+      item.director_validation ||
+      item.director_comments_count > 0
+  );
+};
 
 // Dados da tab atual (usando dados filtrados)
 const currentTabData = computed(() => {
-  return getTabData(activeTab.value);
+  console.log(`🔄 currentTabData computed chamado, activeTab: ${activeTab.value}`);
+  const data = getTabData(activeTab.value);
+  console.log(
+    `📋 currentTabData retornando: ${data?.length || 0} itens para tab ${activeTab.value}`
+  );
+
+  // Log de exemplo dos primeiros itens
+  if (data && data.length > 0) {
+    console.log(`📄 Primeiro item da tab ${activeTab.value}:`, {
+      id: data[0].id,
+      reference_number: data[0].reference_number,
+      title: data[0].title,
+      has_director_intervention: data[0].has_director_intervention,
+      escalated: data[0].escalated,
+      director_updates_count: data[0].director_updates?.length || 0,
+    });
+  }
+
+  return data || [];
 });
 
-// **MÉTODO PRINCIPAL: Mudar de tab com Inertia**
-const changeTab = (tab) => {
-  if (loading.value) return; // Não fazer nada se já estiver carregando
+const allComplaints = computed(() => {
+  console.log("📦 allComplaints computed chamado");
+  console.log("props.allComplaints:", props.allComplaints?.length || 0);
+  console.log("props.complaints:", props.complaints?.length || 0);
 
-  // Se já está na mesma tab, não fazer nada
+  // Se temos allComplaints, usamos esses
+  if (props.allComplaints && props.allComplaints.length > 0) {
+    console.log("✅ Usando props.allComplaints");
+    return props.allComplaints;
+  }
+
+  // Caso contrário, usamos complaints
+  if (props.complaints && props.complaints.length > 0) {
+    console.log("✅ Usando props.complaints");
+    return props.complaints;
+  }
+
+  console.log("⚠️ Nenhum dado encontrado, retornando array vazio");
+  return [];
+});
+
+// **MÉTODO PRINCIPAL: Mudar de tab sem redirecionamento**
+const changeTab = async (tab) => {
+  if (loading.value) return;
   if (activeTab.value === tab) return;
 
   activeTab.value = tab;
+  loading.value = true;
 
-  // Apenas para Manager na aba de intervenções
-  if (isManager.value && tab === "director_interventions") {
-    loading.value = true;
+  try {
+    // Determinar URL baseada no role
+    let apiUrl;
+    if (isDirector.value) {
+      apiUrl = "/director/api/tab-data";
+    } else if (isManager.value) {
+      apiUrl = "/gestor/api/tab-data";
+    } else {
+      apiUrl = "/api/submissions/tab-data";
+    }
 
-    // Recarregar com filtro de intervenções do director
-    router.get(
-      route("manager.dashboard"),
-      {
-        ...props.filters,
-        director_interventions: true,
-      },
-      {
-        preserveState: true,
-        preserveScroll: true,
-        onFinish: () => {
-          loading.value = false;
-        },
-      }
-    );
-  }
-  // Se mudar para outra tab e tinha filtro de intervenções, remover
-  else if (isManager.value && props.filters.director_interventions) {
-    loading.value = true;
-
-    const newFilters = { ...props.filters };
-    delete newFilters.director_interventions;
-
-    router.get(route("manager.dashboard"), newFilters, {
-      preserveState: true,
-      preserveScroll: true,
-      onFinish: () => {
-        loading.value = false;
+    // Fazer requisição para obter dados específicos da tab
+    /* const response = await fetch(`${apiUrl}?tab=${tab}`, {
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRF-TOKEN":
+          document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ||
+          "",
       },
     });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log(`Dados da tab ${tab}:`, result.data.length);
+
+      // Aqui você precisaria atualizar os dados localmente
+      // Dependendo da sua implementação, você pode:
+      // 1. Atualizar a propriedade allComplaints
+      // 2. Usar um estado reativo para cada tab
+      // 3. Redirecionar para uma nova rota com filtros
+
+      // Para simplificar, vamos apenas logar os resultados
+      if (result.success) {
+        console.log(`Tab ${tab} carregada com ${result.count} itens`);
+
+        // Marcar como visto quando o usuário muda para a tab
+        if (tab === "director_interventions" && isManager.value) {
+          markDirectorInterventionsAsSeen(result.data);
+        } else if (tab === "manager_requests" && isDirector.value) {
+          markManagerRequestsAsSeen(result.data);
+        } else if (tab === "my_submissions_to_director" && isManager.value) {
+          markMySubmissionsAsSeen(result.data);
+        }
+      }
+    }*/
+  } catch (error) {
+    console.error(`Erro ao carregar tab ${tab}:`, error);
+    // Fallback para dados locais
+  } finally {
+    loading.value = false;
   }
-  // Para outras situações (Director ou outras tabs), apenas atualizar localmente
-  else {
-    // Atualização local apenas - não precisa recarregar
-  }
+
+  // Atualizar contadores
+  calculateUnseenCounts();
 };
 
-// Métodos da UI
+const debugData = () => {
+  console.log("=== DEBUG DATA ===");
+  console.log("Active Tab:", activeTab.value);
+  console.log("Filtered Complaints:", filteredComplaints.value.length);
+  console.log("Current Tab Data:", currentTabData.value.length);
+
+  // Verificar dados específicos
+  if (isManager.value) {
+    console.log(
+      "Manager - Director Interventions from props:",
+      props.director_interventions?.length || 0
+    );
+    console.log(
+      "Manager - My Submissions from props:",
+      props.my_submissions_to_director?.length || 0
+    );
+  }
+
+  if (isDirector.value) {
+    console.log(
+      "Director - Manager Requests from props:",
+      props.manager_requests?.length || 0
+    );
+    console.log(
+      "Director - My Interventions from props:",
+      props.director_interventions?.length || 0
+    );
+  }
+
+  // Testar filtro
+  const testData = filteredComplaints.value;
+  const withDirectorIntervention = testData.filter(
+    (item) =>
+      item.has_director_intervention === true ||
+      item.director_validation ||
+      item.director_updates?.length > 0
+  );
+
+  console.log("Items with director intervention:", withDirectorIntervention.length);
+  console.log(
+    "Sample:",
+    withDirectorIntervention.slice(0, 3).map((item) => ({
+      id: item.id,
+      has_director_intervention: item.has_director_intervention,
+      director_updates: item.director_updates?.length,
+    }))
+  );
+};
+
+// Métodos para marcar como visto
+const markDirectorInterventionsAsSeen = (interventions) => {
+  interventions.forEach((item) => {
+    const itemId = item.id || item.reference_number;
+    seenInterventions.value.add(itemId);
+  });
+  calculateUnseenCounts();
+};
+
+const markManagerRequestsAsSeen = (requests) => {
+  requests.forEach((item) => {
+    const itemId = item.id || item.reference_number;
+    seenRequests.value.add(itemId);
+  });
+  calculateUnseenCounts();
+};
+
+const markMySubmissionsAsSeen = (submissions) => {
+  submissions.forEach((item) => {
+    const itemId = item.id || item.reference_number;
+    seenSubmissions.value.add(itemId);
+  });
+  calculateUnseenCounts();
+};
+
 const toggleAllComplaints = () => {
   showAllComplaints.value = !showAllComplaints.value;
+
+  // Quando mostrar todos, marcar tudo como visto
+  if (showAllComplaints.value) {
+    markAllAsSeen();
+  }
 };
 
-// ComplaintsList.vue - método handleRowClick
-const handleRowClick = (item) => {
+const markAllAsSeen = async () => {
+  if (loading.value) return;
+
+  try {
+    loading.value = true;
+
+    // Filtrar apenas submissões novas
+    const newSubmissions = recentSubmissions.value.filter(
+      (item) => isNewSubmission(item) && !seenSubmissions.value.has(item.id)
+    );
+
+    if (newSubmissions.length === 0) {
+      console.log("Nenhuma submissão nova para marcar como vista");
+      return;
+    }
+
+    console.log(`Marcando ${newSubmissions.length} submissões como vistas...`);
+
+    // Determinar a URL correta
+    let markAllUrl;
+    if (isDirector.value) {
+      markAllUrl = `/director/api/mark-all-as-seen`;
+    } else if (isManager.value) {
+      markAllUrl = `/gestor/api/mark-all-as-seen`;
+    } else {
+      markAllUrl = `/api/submissions/mark-all-as-seen`;
+    }
+
+    // Enviar IDs das submissões para marcar como vistas
+    const submissionIds = newSubmissions.map((item) => item.id);
+
+    const response = await fetch(markAllUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN":
+          document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ||
+          "",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        submission_ids: submissionIds,
+        status: "under_review",
+      }),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+
+      if (result.success) {
+        // Atualizar todas as submissões localmente
+        newSubmissions.forEach((item) => {
+          const index = allComplaints.value.findIndex((c) => c.id === item.id);
+          if (index !== -1) {
+            allComplaints.value[index].status = "under_review";
+            allComplaints.value[index].reviewed_at = new Date().toISOString();
+            allComplaints.value[index].reviewed_by = props.user?.id;
+
+            // Adicionar ao histórico de vistos
+            seenSubmissions.value.add(item.id);
+          }
+        });
+
+        // Resetar contadores
+        unseenCount.value = 0;
+        unseenDirectorInterventions.value = 0;
+        unseenManagerRequests.value = 0;
+        hasNewData.value = false;
+
+        showToast(
+          `${newSubmissions.length} submissões marcadas como 'Em Análise'`,
+          "success"
+        );
+      }
+    }
+  } catch (error) {
+    console.error("Erro ao marcar todas como vistas:", error);
+    showToast("Erro ao marcar submissões como vistas", "error");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// **NOVO MÉTODO: Marcar submissão específica como vista**
+const markSubmissionAsSeen = async (item) => {
+  if (loading.value) return;
+
+  console.log("Marcando submissão como vista:", item.id);
+
+  try {
+    loading.value = true;
+
+    // Determinar a URL correta baseada no role
+    let markSeenUrl;
+    if (isDirector.value) {
+      markSeenUrl = `/director/grievances/${item.id}/mark-as-seen`;
+    } else if (isManager.value) {
+      markSeenUrl = `/gestor/grievances/${item.id}/mark-as-seen`;
+    } else {
+      markSeenUrl = `/api/grievances/${item.id}/mark-as-seen`;
+    }
+
+    // Fazer requisição para marcar como visto
+    const response = await fetch(markSeenUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-TOKEN":
+          document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ||
+          "",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        status: "under_review", // Atualizar status para "Em Análise"
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Erro ao atualizar status");
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
+      console.log(`Submissão ${item.id} marcada como vista:`, result);
+
+      // Atualizar o item localmente
+      const index = allComplaints.value.findIndex((c) => c.id === item.id);
+      if (index !== -1) {
+        // Remover o indicador "NOVO"
+        allComplaints.value[index].status = "under_review";
+        allComplaints.value[index].reviewed_at = new Date().toISOString();
+        allComplaints.value[index].reviewed_by = props.user?.id;
+      }
+
+      // Atualizar contadores
+      calculateUnseenCounts();
+
+      // Mostrar feedback
+      showToast("Submissão marcada como 'Em Análise'", "success");
+    }
+  } catch (error) {
+    console.error("Erro ao marcar como visto:", error);
+    showToast("Erro ao atualizar submissão", "error");
+  } finally {
+    loading.value = false;
+  }
+};
+
+// ComplaintsList.vue - método handleRowClick ATUALIZADO
+const handleRowClick = async (item) => {
   if (loading.value) return;
 
   console.log("=== DEBUG CLICK ===");
@@ -854,9 +1451,89 @@ const handleRowClick = (item) => {
 
   selectedComplaintId.value = item.id;
 
-  // URL direta baseada no role (igual ao detailUrl do ComplaintRow)
+  // Marcar como visto
+  const itemId = item.id || item.reference_number;
+  seenSubmissions.value.add(itemId);
+
+  if (isNewDirectorIntervention(item)) {
+    seenInterventions.value.add(itemId);
+  }
+
+  if (isNewManagerRequest(item)) {
+    seenRequests.value.add(itemId);
+  }
+
+  // Atualizar contadores
+  calculateUnseenCounts();
+
+  // **SE A SUBMISSÃO É NOVA E TEM LABEL "NOVO", ATUALIZAR STATUS PARA "EM ANÁLISE"**
+  if (isNewSubmission(item) && props.role !== "utente") {
+    try {
+      loading.value = true;
+
+      // Determinar a URL correta baseada no role
+      let markSeenUrl;
+      if (isDirector.value) {
+        markSeenUrl = `/director/grievances/${item.id}/mark-as-seen`;
+      } else if (isManager.value) {
+        markSeenUrl = `/gestor/grievances/${item.id}/mark-as-seen`;
+      } else {
+        // Rota API comum
+        markSeenUrl = `/api/grievances/${item.id}/mark-as-seen`;
+      }
+
+      // Fazer requisição para atualizar o status
+      const response = await fetch(markSeenUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN":
+            document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") ||
+            "",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          status: "under_review",
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erro ao atualizar status");
+      }
+
+      const result = await response.json();
+      console.log(
+        `Status atualizado para "Em Análise" para submissão ${item.id}:`,
+        result
+      );
+
+      // Atualizar o item localmente
+      if (result.success && result.grievance) {
+        const index = allComplaints.value.findIndex((c) => c.id === item.id);
+        if (index !== -1) {
+          allComplaints.value[index].status = "under_review";
+        }
+      }
+    } catch (error) {
+      console.error("Erro ao atualizar status:", error);
+      // Não impedir a navegação mesmo se houver erro
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  // URL baseada no role
   let url;
-  url = `/complaints/grievance/${item.reference_number || item.id}`;
+  if (isDirector.value) {
+    // Para Director, use a rota do director
+    url = `/director/grievances/${item.reference_number || item.id}`;
+  } else if (isManager.value) {
+    // Para Manager, use a rota do gestor
+    url = `/gestor/grievances/${item.reference_number || item.id}`;
+  } else {
+    // Para utente ou outros
+    url = `/complaints/${item.reference_number || item.id}`;
+  }
 
   console.log(`Navegando para: ${url}`);
   router.get(url);
@@ -875,23 +1552,23 @@ const handleExport = () => {
   // Implementar lógica de exportação
   console.log(`Exportando ${dataToExport.length} registros de ${label}...`);
   alert(`Exportando ${dataToExport.length} registros de ${label}...`);
-
-  // Para uma implementação real, você pode usar:
-  // router.post(route('complaints.export'), {
-  //   tab: exportType,
-  //   filters: localFilters.value,
-  //   data: dataToExport
-  // });
 };
 
 const handleBulkAssign = () => {
   if (loading.value) return;
 
-  // Implementar lógica de atribuição automática
-  alert("Atribuição automática em desenvolvimento...");
+  // Filtrar apenas submissões que não estão resolved/rejected
+  const assignableItems = currentTabData.value.filter(
+    (item) => item.status !== "resolved" && item.status !== "rejected"
+  );
 
-  // Para uma implementação real, você pode usar:
-  // router.post(route('complaints.bulk-assign'));
+  if (assignableItems.length === 0) {
+    alert("Não há submissões disponíveis para atribuição automática.");
+    return;
+  }
+
+  // Implementar lógica de atribuição automática
+  console.log(`Atribuindo automaticamente ${assignableItems.length} submissões...`);
 };
 
 const getExportLabel = () => {
@@ -900,8 +1577,13 @@ const getExportLabel = () => {
     grievances: "Queixas",
     complaints: "Reclamações",
     manager_requests: "Solicitações do Gestor",
-    director_interventions: "Intervenções do Director",
-    all: "Todos os Dados",
+    director_interventions: isDirector.value
+      ? "Minhas Intervenções"
+      : "Intervenções do Director",
+    my_submissions_to_director: "Minhas Submissões ao Director",
+    resolved: "Concluídos",
+    rejected: "Rejeitados",
+    all: "Todas as Submissões Ativas",
   };
   return labels[activeTab.value] || "Dados";
 };
@@ -964,6 +1646,86 @@ const getInterventionType = (item) => {
   }
 
   return "Intervenção do Director";
+};
+
+// Métodos auxiliares de validação
+const isNewSubmission = (item) => {
+  if (!item.created_at) return false;
+  const createdAt = new Date(item.created_at);
+  const now = new Date();
+  const hoursDiff = (now - createdAt) / (1000 * 60 * 60);
+  return hoursDiff < 24; // Considerar "novo" se tiver menos de 24 horas
+};
+
+const isNewDirectorIntervention = (item) => {
+  if (!item.director_updates || item.director_updates.length === 0) return false;
+
+  const lastIntervention = item.director_updates[0];
+  if (!lastIntervention.created_at) return false;
+
+  const interventionDate = new Date(lastIntervention.created_at);
+  const now = new Date();
+  const hoursDiff = (now - interventionDate) / (1000 * 60 * 60);
+
+  return hoursDiff < 24; // Considerar "nova" se tiver menos de 24 horas
+};
+
+const isNewManagerRequest = (item) => {
+  if (!item.escalated_at && !item.manager_request?.escalated_at) return false;
+
+  const escalatedAt = item.escalated_at || item.manager_request?.escalated_at;
+  const escalationDate = new Date(escalatedAt);
+  const now = new Date();
+  const hoursDiff = (now - escalationDate) / (1000 * 60 * 60);
+
+  return hoursDiff < 24; // Considerar "nova" se tiver menos de 24 horas
+};
+
+const isRecentSubmission = (item) => {
+  return (
+    isNewSubmission(item) || isNewDirectorIntervention(item) || isNewManagerRequest(item)
+  );
+};
+
+// Métodos para Solicitações do Gestor (Director)
+const getEscalatedBy = (item) => {
+  if (item.manager_request?.escalated_by?.name) {
+    return item.manager_request.escalated_by.name;
+  }
+  if (item.escalated_by?.name) {
+    return item.escalated_by.name;
+  }
+  return "Gestor";
+};
+
+const getEscalationReason = (item) => {
+  if (item.manager_request?.escalation_reason) {
+    return item.manager_request.escalation_reason;
+  }
+  if (item.escalation_reason) {
+    return item.escalation_reason;
+  }
+  return "Sem motivo especificado";
+};
+
+const getTimeSinceEscalation = (item) => {
+  const escalatedAt = item.escalated_at || item.manager_request?.escalated_at;
+  if (!escalatedAt) return "desconhecido";
+
+  const escalationDate = new Date(escalatedAt);
+  const now = new Date();
+  const diffMs = now - escalationDate;
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+
+  if (diffHours < 1) {
+    const diffMinutes = Math.floor(diffMs / (1000 * 60));
+    return `${diffMinutes} min`;
+  } else if (diffHours < 24) {
+    return `${diffHours} h`;
+  } else {
+    const diffDays = Math.floor(diffHours / 24);
+    return `${diffDays} dias`;
+  }
 };
 
 // Métodos auxiliares de formatação
@@ -1083,21 +1845,10 @@ const formatDate = (dateString) => {
   }
 };
 
-const formatDateTime = (dateString) => {
-  if (!dateString) return "N/A";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleString("pt-PT", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  } catch (error) {
-    console.error("Erro ao formatar data/hora:", error);
-    return "Data/hora inválida";
-  }
+const truncateText = (text, maxLength) => {
+  if (!text) return "";
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + "...";
 };
 
 // Inicializar filtros com base nos props
@@ -1115,10 +1866,71 @@ watch(
   { immediate: true }
 );
 
+// Atualizar contadores quando os dados mudam
+watch(
+  () => props.allComplaints,
+  () => {
+    calculateUnseenCounts();
+  },
+  { deep: true }
+);
+
 onMounted(() => {
-  console.log("=== COMPLAINTS LIST MOUNTED ===");
-  console.log("Filtros locais:", localFilters.value);
-  console.log("Filtros ativos:", activeFiltersCount.value);
+  console.log("=== 🚨 VERIFICAÇÃO COMPLETA DE TODOS OS PROPS NO COMPLAINTSLIST ===");
+
+  // Mostrar TODOS os props
+  const allProps = Object.keys(props);
+  console.log("📋 TODOS OS PROPS DISPONÍVEIS:", allProps);
+
+  allProps.forEach((propName) => {
+    const propValue = props[propName];
+    console.log(`\n📌 Prop: ${propName}`);
+    console.log(`   Tipo: ${typeof propValue}`);
+
+    if (Array.isArray(propValue)) {
+      console.log(`   É array? ✅ SIM`);
+      console.log(`   Tamanho: ${propValue.length}`);
+      if (propValue.length > 0) {
+        console.log(`   Primeiro item:`, propValue[0]);
+        console.log(`   Campos do primeiro item:`, Object.keys(propValue[0]));
+      }
+    } else if (typeof propValue === "object" && propValue !== null) {
+      console.log(`   É objeto? ✅ SIM`);
+      console.log(`   Chaves:`, Object.keys(propValue));
+      console.log(`   Valores:`, propValue);
+    } else {
+      console.log(`   Valor:`, propValue);
+    }
+  });
+
+  // Verificar especificamente os props que nos interessam
+  console.log("\n=== 🔍 PROPS ESPECÍFICOS DETALHADOS ===");
+
+  const specificProps = [
+    "director_interventions",
+    "my_submissions_to_director",
+    "manager_requests",
+    "counts",
+  ];
+  specificProps.forEach((propName) => {
+    console.log(`\n🎯 ${propName}:`);
+    console.log(`   Disponível? ${propName in props ? "✅ SIM" : "❌ NÃO"}`);
+    console.log(`   Valor:`, props[propName]);
+
+    if (props[propName] && Array.isArray(props[propName])) {
+      console.log(`   Tamanho do array: ${props[propName].length}`);
+      if (props[propName].length > 0) {
+        console.log(`   Estrutura do primeiro item:`);
+        const firstItem = props[propName][0];
+        Object.keys(firstItem).forEach((key) => {
+          console.log(`     - ${key}: ${firstItem[key]} (${typeof firstItem[key]})`);
+        });
+      }
+    }
+  });
+
+  // Calcular contadores não vistos
+  calculateUnseenCounts();
 });
 </script>
 
@@ -1137,19 +1949,67 @@ tr.has-director-response:hover {
   background-color: rgba(147, 51, 234, 0.1) !important;
 }
 
+/* Destaque para solicitações do gestor */
+tr.has-manager-request {
+  background-color: rgba(59, 130, 246, 0.05) !important;
+  border-left: 3px solid #3b82f6;
+}
+
+tr.has-manager-request:hover {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Estilo para novas submissões */
+tr.new-submission {
+  background-color: rgba(34, 197, 94, 0.05) !important;
+  border-left: 3px solid #10b981;
+}
+
+tr.new-submission:hover {
+  background-color: rgba(34, 197, 94, 0.1) !important;
+}
+
 /* Estilo para botões desabilitados */
 button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* Estilos para os badges de intervenção */
-.intervention-badge {
-  transition: all 0.2s ease;
+/* Animação para novos itens */
+@keyframes highlight {
+  0% {
+    background-color: rgba(34, 197, 94, 0.1);
+  }
+
+  100% {
+    background-color: transparent;
+  }
 }
 
-.intervention-badge:hover {
-  transform: scale(1.05);
+tr:has(.text-green-700) {
+  animation: highlight 2s ease-in-out;
+}
+
+/* Badge de notificação pulsante */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s infinite;
 }
 
 /* Scrollbar personalizada */
@@ -1185,15 +2045,5 @@ button:disabled {
   .table-scroll-container::-webkit-scrollbar-thumb:hover {
     background: #718096;
   }
-}
-
-/* Estilos para os selects */
-select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
 }
 </style>

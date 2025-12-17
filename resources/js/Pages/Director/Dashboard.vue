@@ -527,6 +527,7 @@ import { ref, computed } from "vue";
 import { usePage, Link, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import DistributionChart from "@/Components/Indicators/Charts/DistributionChart.vue";
+import { useAuth, usePermissions } from "@/Composables/useAuth";
 import {
   ClockIcon,
   ExclamationTriangleIcon,
@@ -549,11 +550,27 @@ import {
   ChartBarIcon,
 } from "@heroicons/vue/24/outline";
 
+const { role, isDirector, isManager, checkRole } = useAuth();
+const { can } = usePermissions();
+
 const page = usePage();
 
+// URLs baseadas no role
+const complaintsOverviewUrl = computed(() => {
+  if (checkRole("director")) return "/director/complaints-overview";
+  if (checkRole("manager")) return "/gestor/complaints";
+  return "/user/complaints";
+});
+
+const indicatorsUrl = computed(() => {
+  if (checkRole("director")) return "/director/indicators";
+  if (checkRole("manager")) return "/gestor/dashboard/indicadores";
+  return "#";
+});
+
 // URLs fixas - use as URLs diretas ou obtenha do page.props
-const complaintsOverviewUrl = "/director/complaints-overview";
-const indicatorsUrl = "/director/indicators";
+//const complaintsOverviewUrl = "/director/complaints-overview";
+//const indicatorsUrl = "/director/indicators";
 const managersUrl = "/director/managers";
 
 // Acessar dados do Inertia

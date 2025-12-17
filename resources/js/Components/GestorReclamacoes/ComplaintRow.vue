@@ -6,8 +6,18 @@
       selected
         ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20 shadow-md'
         : 'border-gray-200 dark:border-gray-700 hover:border-orange-300 dark:hover:border-orange-500 hover:shadow-sm',
+      isRecent && 'border-l-4 border-l-green-500',
     ]"
+    @click="handleClick"
   >
+    <!-- Indicador de novo (se for recente)
+    <div v-if="isRecent" class="absolute -top-2 -right-2 z-10">
+      <span
+        class="inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform rotate-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full shadow-lg"
+      >
+        NOVO
+      </span>
+    </div> -->
     <div class="flex items-start gap-4">
       <!-- User Avatar -->
       <div
@@ -130,11 +140,15 @@ const props = defineProps({
     type: String,
     default: "manager", // 'director' ou 'manager'
   },
+  isRecent: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-// URL de detalhes - usando a mesma abordagem do seu código funcional
+const emit = defineEmits(["mark-as-seen"]);
+
 const detailUrl = computed(() => {
-  // Obter o ID da reclamação
   const complaintId = props.complaint.reference_number || props.complaint.id;
 
   if (!complaintId) {
@@ -142,16 +156,18 @@ const detailUrl = computed(() => {
     return "#";
   }
 
-  // Determinar a rota baseada no role - SIMPLIFICADO
   if (props.role?.toLowerCase() === "director") {
-    // Rota para Director
-    //return `/director/complaints-overview/${complaintId}`;
+    return `/director/grievances/${complaintId}`;
   } else {
-    const url = `/complaints/grievance/${complaintId}`;
-    console.log("  - Manager URL:", url);
-    return url;
+    return `/gestor/grievances/${complaintId}`;
   }
 });
+
+const handleClick = (event) => {
+  if (props.isRecent) {
+    emit("mark-as-seen", props.complaint);
+  }
+};
 
 const hasDirectorIntervention = computed(() => {
   const complaint = props.complaint;

@@ -85,7 +85,7 @@
         @create="openRegisterForm"
       />
 
-      <ProjectsTable :projects="filteredProjects" :loading="loading" :search="search" />
+      <ProjectsTable :projects="projectList" :loading="loading" :search="search" />
 
       <!-- Informação de resultados -->
       <div
@@ -108,7 +108,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { useForm, usePage } from "@inertiajs/vue3"; // Importe do Inertia
 import {
   XMarkIcon,
@@ -127,11 +127,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
-  initialProjects: {
-    type: Array,
+  projects: {
+    type: [Object, Array],
     default: () => [],
   },
-  initialStats: {
+  stats: {
     type: Object,
     default: () => ({
       total: 0,
@@ -143,46 +143,41 @@ const props = defineProps({
 });
 
 const page = usePage();
-
 const showRegisterForm = ref(false);
 const loading = ref(false);
 const search = ref("");
 
-// Usar projetos iniciais passados via Inertia
-const projects = ref(props.initialProjects);
+// Usar stats diretamente das props
+const stats = computed(() => props.stats);
 
-// Usar estatísticas iniciais ou calcular a partir dos projetos
-const stats = computed(() => {
-  // Se temos projetos, calcular estatísticas em tempo real
-  if (projects.value.length > 0) {
-    const finished = projects.value.filter((p) => p.category === "finalizados").length;
-    const progress = projects.value.filter((p) => p.category === "andamento").length;
-    const suspended = projects.value.filter((p) => p.category === "parados").length;
-    const total = projects.value.length;
+// Extrair dados de projects (tratando tanto Paginator quanto Array)
+const projectList = computed(() => {
+  if (!props.projects) return [];
 
-    return {
-      finished,
-      progress,
-      suspended,
-      total,
-    };
+  // Se for um objeto paginator, extrair a propriedade data
+  if (props.projects.data && Array.isArray(props.projects.data)) {
+    return props.projects.data;
   }
 
-  // Caso contrário, usar estatísticas iniciais
-  return props.initialStats;
+  // Se já for um array, usar diretamente
+  if (Array.isArray(props.projects)) {
+    return props.projects;
+  }
+
+  return [];
 });
 
 // Filtro da pesquisa
 const filteredProjects = computed(() => {
-  if (!search.value) return projects.value;
+  if (!search.value) return projectList.value;
 
-  return projects.value.filter(
+  return projectList.value.filter(
     (project) =>
-      project.name.toLowerCase().includes(search.value.toLowerCase()) ||
-      (project.finance?.responsavel?.toLowerCase() || "").includes(
+      project?.name?.toLowerCase().includes(search.value.toLowerCase()) ||
+      (project?.finance?.responsavel?.toLowerCase() || "").includes(
         search.value.toLowerCase()
       ) ||
-      project.bairro.toLowerCase().includes(search.value.toLowerCase())
+      project?.bairro?.toLowerCase().includes(search.value.toLowerCase())
   );
 });
 
