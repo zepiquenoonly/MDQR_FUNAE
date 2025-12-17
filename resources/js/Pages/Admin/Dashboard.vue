@@ -1,13 +1,30 @@
-<template>
+s<template>
     <Layout role="admin" :user="user">
-        <div class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-            <!-- Welcome Message - Transparent -->
-            <div class="mb-6">
-                <div class="py-6">
-                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
-                        Bem-vindo(a), {{ user.name }}!
-                    </h1>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+        <div class="space-y-6 sm:space-y-8 px-3 sm:px-0">
+            <!-- Welcome Message - Glassmorphism Hero -->
+            <div class="relative overflow-hidden rounded-3xl">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                <!-- Floating Elements -->
+                <div class="absolute top-6 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+                <div class="absolute bottom-6 right-10 w-32 h-32 bg-purple-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+                <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-indigo-200/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+                <div class="relative p-8 sm:p-10">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl shadow-black/10">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-white drop-shadow-2xl">
+                                Bem-vindo(a), <span class="bg-gradient-to-r from-purple-200 to-indigo-200 bg-clip-text text-transparent">{{ user.name }}</span>!
+                            </h1>
+                            <div class="w-24 h-1 bg-gradient-to-r from-purple-300 to-indigo-300 rounded-full mb-4"></div>
+                        </div>
+                    </div>
+                    <p class="text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl drop-shadow-lg">
                         Painel Administrativo - Visão Geral do Sistema
                     </p>
                 </div>
@@ -19,13 +36,13 @@
                 <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                     <!-- Background decorativo -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-primary-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
-                    
+
                     <div class="relative">
                         <!-- Ícone -->
                         <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg shadow-primary-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
                             <UsersIcon class="h-6 w-6 text-white" />
                         </div>
-                        
+
                         <!-- Conteúdo -->
                         <div>
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Usuários Totais</p>
@@ -46,13 +63,13 @@
                 <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                     <!-- Background decorativo -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-emerald-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
-                    
+
                     <div class="relative">
                         <!-- Ícone -->
                         <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 shadow-lg shadow-emerald-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
                             <BuildingOfficeIcon class="h-6 w-6 text-white" />
                         </div>
-                        
+
                         <!-- Conteúdo -->
                         <div>
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Departamentos</p>
@@ -73,13 +90,13 @@
                 <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                     <!-- Background decorativo -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
-                    
+
                     <div class="relative">
                         <!-- Ícone -->
                         <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg shadow-purple-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
                             <FolderIcon class="h-6 w-6 text-white" />
                         </div>
-                        
+
                         <!-- Conteúdo -->
                         <div>
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Projectos</p>
@@ -100,13 +117,13 @@
                 <div class="group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 p-6 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
                     <!-- Background decorativo -->
                     <div class="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/10 to-transparent rounded-full blur-2xl transition-all duration-500 group-hover:scale-150"></div>
-                    
+
                     <div class="relative">
                         <!-- Ícone -->
                         <div class="inline-flex p-3 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 shadow-lg shadow-amber-500/30 mb-4 group-hover:scale-110 transition-transform duration-300">
                             <UserGroupIcon class="h-6 w-6 text-white" />
                         </div>
-                        
+
                         <!-- Conteúdo -->
                         <div>
                             <p class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Usuários Activos</p>
@@ -124,7 +141,7 @@
 
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-                
+
                 <!-- Quick Actions Section -->
                 <div class="lg:col-span-2">
                     <div class="glass-card p-6 border border-white/40 rounded-2xl shadow-sm hover:shadow-md transition-all duration-300">
@@ -138,7 +155,7 @@
                                 Acções Rápidas
                             </h2>
                         </div>
-                        
+
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <Link
                                 v-if="hasPermission('manage-users')"

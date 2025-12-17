@@ -7,14 +7,32 @@
     <TecnicoList v-else-if="activePanel === 'tecnicos'" />
 
     <!-- Conteúdo normal do dashboard para outros casos -->
-    <div v-else class="space-y-3 sm:space-y-6">
-      <!-- Welcome Message - Transparent -->
-      <div class="mb-4">
-        <div class="py-4">
-          <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold mb-2 text-gray-900 dark:text-white">
-            Bem-vindo(a), {{ $page.props.auth?.user?.name || 'Gestor' }}!
-          </h1>
-          <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base lg:text-lg">
+    <div v-else class="space-y-6 sm:space-y-8">
+      <!-- Welcome Message - Glassmorphism Hero -->
+      <div class="relative overflow-hidden rounded-3xl">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+
+        <!-- Floating Elements -->
+        <div class="absolute top-6 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+        <div class="absolute bottom-6 right-10 w-32 h-32 bg-orange-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-amber-200/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+        <div class="relative p-8 sm:p-10">
+          <div class="flex items-center gap-4 mb-6">
+            <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl shadow-black/10">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-white drop-shadow-2xl">
+                Bem-vindo(a), <span class="bg-gradient-to-r from-orange-200 to-amber-200 bg-clip-text text-transparent">{{ $page.props.auth?.user?.name || 'Gestor' }}</span>!
+              </h1>
+              <div class="w-24 h-1 bg-gradient-to-r from-orange-300 to-amber-300 rounded-full mb-4"></div>
+            </div>
+          </div>
+          <p class="text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl drop-shadow-lg">
             Painel de Gestão de Reclamações - Supervisão e Controle
           </p>
         </div>
