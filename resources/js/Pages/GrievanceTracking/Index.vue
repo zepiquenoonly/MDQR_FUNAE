@@ -422,64 +422,6 @@ const categoryLabels = {
                   </span>
                 </h3>
 
-                <!-- Motivo principal da rejeição -->
-                <div class="flex items-start gap-3 mb-4">
-                  <div class="flex-1">
-                    <h4 class="font-semibold text-gray-900 text-lg mb-2">
-                      Motivo da Rejeição
-                    </h4>
-                    <p
-                      class="text-gray-800 leading-relaxed whitespace-pre-line bg-red-50 p-4 rounded-lg"
-                    >
-                      {{ grievance.rejection_details.reason }}
-                    </p>
-                  </div>
-                </div>
-
-                <!-- Comentário adicional -->
-                <div
-                  v-if="grievance.rejection_details.internal_comment"
-                  class="mt-4 pt-4 border-t border-gray-200"
-                >
-                  <h5 class="font-medium text-gray-900 mb-2 text-sm">
-                    Comentário adicional do gestor:
-                  </h5>
-                  <p
-                    class="text-gray-700 text-sm leading-relaxed whitespace-pre-line bg-blue-50 p-3 rounded"
-                  >
-                    {{ grievance.rejection_details.internal_comment }}
-                  </p>
-                </div>
-
-                <!-- Detalhes da rejeição -->
-                <div class="bg-white rounded-lg p-4 border border-gray-300">
-                  <div class="text-sm text-gray-700 space-y-3">
-                    <div
-                      v-if="grievance.rejection_details.rejection_type"
-                      class="flex items-center gap-3"
-                    >
-                      <span class="font-medium min-w-[120px]">Tipo de Rejeição:</span>
-                      <span
-                        class="ml-2 px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
-                      >
-                        {{
-                          formatRejectionType(grievance.rejection_details.rejection_type)
-                        }}
-                      </span>
-                    </div>
-                    <div class="flex-1">
-                      <h4 class="font-medium min-w-[120px] text-gray-900 text-sm mb-2">
-                        Motivo da Rejeição
-                      </h4>
-                      <p
-                        class="text-gray-800 leading-relaxed whitespace-pre-line bg-red-50 p-4 rounded-lg"
-                      >
-                        {{ grievance.rejection_details.reason }}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
                 <!-- Updates de rejeição -->
                 <div
                   v-if="
@@ -524,6 +466,14 @@ const categoryLabels = {
                         </p>
                       </div>
                     </div>
+                    <h5 class="font-medium text-gray-900 mt-8 mb-2 text-sm">
+                      Comentário adicional do gestor:
+                    </h5>
+                    <p
+                      class="text-gray-700 text-sm leading-relaxed whitespace-pre-line bg-blue-50 p-3 rounded"
+                    >
+                      {{ grievance.rejection_details.internal_comment }}
+                    </p>
                   </div>
                 </div>
 
