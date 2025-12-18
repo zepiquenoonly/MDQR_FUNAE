@@ -30,50 +30,7 @@
       </div>
     </div>
 
-    <!-- CARDS SUPERIORES -->
-    <div
-      class="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 lg:gap-6 mb-4 sm:mb-8"
-    >
-      <ProjectStatsCard
-        title="Finalizados"
-        :value="stats.finished"
-        description="Projectos Finalizados"
-        :icon="CheckCircleIcon"
-        title-color-class="text-green-700 dark:text-green-400"
-        icon-bg-class="bg-green-100 dark:bg-green-900/20"
-        icon-color-class="text-green-600 dark:text-green-400"
-      />
-
-      <ProjectStatsCard
-        title="Em Andamento"
-        :value="stats.progress"
-        description="Projectos em Andamento"
-        :icon="ClockIcon"
-        title-color-class="text-yellow-700 dark:text-yellow-400"
-        icon-bg-class="bg-yellow-100 dark:bg-yellow-900/20"
-        icon-color-class="text-yellow-600 dark:text-yellow-400"
-      />
-
-      <ProjectStatsCard
-        title="Parados"
-        :value="stats.suspended"
-        description="Projectos Parados"
-        :icon="PauseCircleIcon"
-        title-color-class="text-red-700 dark:text-red-400"
-        icon-bg-class="bg-red-100 dark:bg-red-900/20"
-        icon-color-class="text-red-600 dark:text-red-400"
-      />
-
-      <ProjectStatsCard
-        title="Total"
-        :value="stats.total"
-        description="Todos Projectos"
-        :icon="FolderIcon"
-        title-color-class="text-blue-700 dark:text-blue-400"
-        icon-bg-class="bg-blue-100 dark:bg-blue-900/20"
-        icon-color-class="text-blue-600 dark:text-blue-400"
-      />
-    </div>
+    
 
     <!-- LISTAGEM DOS PROJECTOS -->
     <div
