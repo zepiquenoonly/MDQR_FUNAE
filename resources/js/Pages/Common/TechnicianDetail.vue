@@ -1,6 +1,6 @@
 <template>
   <UnifiedLayout>
-    <div class="min-h-screen bg-gray-50 dark:bg-dark-primary p-4 sm:p-6">
+    <div class="min-h-screen dark:bg-dark-primary p-4 sm:p-6">
       <!-- Breadcrumb - use URLs diretas -->
       <nav class="mb-6">
         <ol class="flex items-center space-x-2 text-sm">
@@ -65,19 +65,6 @@
         </div>
 
         <div class="flex gap-2">
-          <!--<button
-            v-if="canEdit"
-            @click="toggleStatus"
-            :class="[
-              'inline-flex items-center px-4 py-2 rounded-lg transition-colors font-medium',
-              technician.is_available
-                ? 'bg-yellow-500 hover:bg-yellow-600 text-white'
-                : 'bg-green-500 hover:bg-green-600 text-white',
-            ]"
-          >
-            <ArrowPathIcon class="w-5 h-5 mr-2" />
-            {{ technician.is_available ? "Desativar" : "Ativar" }}
-          </button>-->
           <Link
             href="/gestor/technicians"
             class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 rounded-lg transition-colors font-medium"
@@ -325,7 +312,7 @@
                           getPriorityClass(task.priority),
                         ]"
                       >
-                        {{ task.priority || "Normal" }}
+                        {{ capitalizePriority(task.priority) || "Normal" }}
                       </span>
                     </div>
                     <div class="text-sm text-gray-600 dark:text-gray-400">
@@ -400,12 +387,12 @@
                 <div class="space-y-2">
                   <div v-for="item in tasks_by_status" :key="item.status">
                     <div class="flex justify-between text-sm">
-                      <span class="text-gray-600 dark:text-gray-400">{{
-                        item.status
-                      }}</span>
-                      <span class="font-medium text-gray-900 dark:text-white">{{
-                        item.count
-                      }}</span>
+                      <span class="text-gray-600 dark:text-gray-400">
+                        {{ getStatusLabel(item.status) }}
+                      </span>
+                      <span class="font-medium text-gray-900 dark:text-white">
+                        {{ item.count }}
+                      </span>
                     </div>
                     <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                       <div
@@ -437,9 +424,9 @@
                 :key="month.month"
                 class="flex items-center"
               >
-                <span class="w-16 text-sm text-gray-600 dark:text-gray-400">{{
-                  month.month
-                }}</span>
+                <span class="w-16 text-sm text-gray-600 dark:text-gray-400">
+                  {{ formatMonth(month.month) }}
+                </span>
                 <div class="flex-1 ml-2">
                   <div class="flex justify-between text-xs mb-1">
                     <span>{{ month.completed }}/{{ month.total }} tarefas</span>
@@ -480,22 +467,16 @@
                   <div
                     :class="[
                       'w-3 h-3 rounded-full mr-2',
-                      item.priority === 'Alta'
-                        ? 'bg-red-500'
-                        : item.priority === 'Média'
-                        ? 'bg-yellow-500'
-                        : item.priority === 'Baixa'
-                        ? 'bg-green-500'
-                        : 'bg-gray-400',
+                      getPriorityDotClass(item.priority),
                     ]"
                   ></div>
-                  <span class="text-sm text-gray-700 dark:text-gray-300">{{
-                    item.priority
-                  }}</span>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">
+                    {{ capitalizePriority(item.priority) }}
+                  </span>
                 </div>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                  item.count
-                }}</span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ item.count }}
+                </span>
               </div>
             </div>
           </div>
@@ -509,32 +490,34 @@
             </h2>
             <div class="space-y-3">
               <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400"
-                  >Total Atribuído</span
-                >
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                  stats.total_assigned
-                }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  Total Atribuído
+                </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ stats.total_assigned }}
+                </span>
               </div>
               <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Em Progresso</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                  stats.in_progress
-                }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  Em Progresso
+                </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ stats.in_progress }}
+                </span>
               </div>
               <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Canceladas</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                  stats.cancelled
-                }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400"> Canceladas </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ stats.cancelled }}
+                </span>
               </div>
               <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400"
-                  >Tempo Médio Resolução</span
-                >
-                <span class="text-sm font-medium text-gray-900 dark:text-white"
-                  >{{ stats.average_resolution_time }}h</span
-                >
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  Tempo Médio Resolução
+                </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ stats.average_resolution_time }}h
+                </span>
               </div>
             </div>
           </div>
@@ -623,6 +606,47 @@ const formatDateTime = (dateString) => {
   }
 };
 
+const formatMonth = (monthNumber) => {
+  const months = [
+    "Jan",
+    "Fev",
+    "Mar",
+    "Abr",
+    "Mai",
+    "Jun",
+    "Jul",
+    "Ago",
+    "Set",
+    "Out",
+    "Nov",
+    "Dez",
+  ];
+
+  const monthIndex = parseInt(monthNumber) - 1;
+  return months[monthIndex] || monthNumber;
+};
+
+const capitalizePriority = (priority) => {
+  if (!priority) return "Normal";
+
+  const priorityMap = {
+    alta: "Alta",
+    media: "Média",
+    baixa: "Baixa",
+    high: "Alta",
+    medium: "Média",
+    low: "Baixa",
+    urgent: "Urgente",
+    normal: "Normal",
+    urgente: "Urgente",
+  };
+
+  return (
+    priorityMap[priority.toLowerCase()] ||
+    priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase()
+  );
+};
+
 const getStatusClass = (status) => {
   const classes = {
     completed: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300",
@@ -655,48 +679,41 @@ const getStatusLabel = (status) => {
 };
 
 const getPriorityClass = (priority) => {
+  const priorityKey = priority ? priority.toLowerCase() : "normal";
+
   const classes = {
-    Alta: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
-    Média: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300",
-    Baixa: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300",
+    alta: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
+    media: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300",
+    baixa: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300",
+    high: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
+    medium: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-300",
+    low: "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-300",
+    urgente: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
+    urgent: "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300",
+    normal: "bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-300",
   };
+
   return (
-    classes[priority] ||
+    classes[priorityKey] ||
     "bg-gray-100 text-gray-700 dark:bg-gray-900/20 dark:text-gray-300"
   );
 };
 
-const toggleStatus = async () => {
-  const newStatus = !props.technician.is_available;
-  const action = newStatus ? "ativar" : "desativar";
+const getPriorityDotClass = (priority) => {
+  const priorityKey = priority ? priority.toLowerCase() : "normal";
 
-  if (!confirm(`Tem certeza que deseja ${action} este técnico?`)) {
-    return;
-  }
+  const classes = {
+    alta: "bg-red-500",
+    media: "bg-yellow-500",
+    baixa: "bg-green-500",
+    high: "bg-red-500",
+    medium: "bg-yellow-500",
+    low: "bg-green-500",
+    urgente: "bg-red-500",
+    urgent: "bg-red-500",
+    normal: "bg-gray-400",
+  };
 
-  try {
-    // URL direta para a API
-    const response = await fetch(`/gestor/technicians/${props.technician.id}/status`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": document
-          .querySelector('meta[name="csrf-token"]')
-          .getAttribute("content"),
-      },
-      body: JSON.stringify({
-        is_available: newStatus,
-      }),
-    });
-
-    if (response.ok) {
-      // Recarrega a página para atualizar os dados
-      window.location.reload();
-    } else {
-      console.error("Erro ao atualizar status:", response.statusText);
-    }
-  } catch (error) {
-    console.error("Erro ao atualizar status:", error);
-  }
+  return classes[priorityKey] || "bg-gray-400";
 };
 </script>

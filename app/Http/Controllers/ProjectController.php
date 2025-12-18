@@ -19,7 +19,7 @@ class ProjectController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('can:manage-projects')->except(['index', 'show', 'webIndex']);
+        //$this->middleware('can:manage-projects')->except(['index', 'show', 'webIndex']);
     }
 
     /**

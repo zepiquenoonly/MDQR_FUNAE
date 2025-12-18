@@ -1,12 +1,12 @@
 <template>
   <UnifiedLayout :stats="stats" @change-view="handleViewChange">
-    <div class="min-h-screen bg-gray-50 dark:bg-dark-primary p-4 sm:p-6">
+    <div class="min-h-screen dark:bg-dark-primary p-4 sm:p-6">
       <!-- Breadcrumb -->
       <nav class="mb-6">
         <ol class="flex items-center space-x-2 text-sm">
           <li>
             <router-link
-              to="/manager/projects"
+              :to="getProjectsRoute"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               Projectos
@@ -75,16 +75,6 @@
           </div>
 
           <div class="flex gap-2">
-            <!-- Botão Editar - apenas para Admin e Super Admin -->
-            <router-link
-              v-if="canEdit"
-              :to="`/manager/projects/${project.id}/edit`"
-              class="inline-flex items-center px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-            >
-              <PencilIcon class="w-4 h-4 mr-2" />
-              Editar
-            </router-link>
-
             <!-- Botão Eliminar - apenas para Admin e Super Admin -->
             <button
               v-if="canDelete"
@@ -95,18 +85,38 @@
               Eliminar
             </button>
 
-            <router-link
-              to="/manager/projects"
-              class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 rounded-lg transition-colors"
+            <!-- Botão Voltar com loading state -->
+            <button
+              @click="goBack"
+              :disabled="backLoading"
+              class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ArrowLeftIcon class="w-4 h-4 mr-2" />
-              Voltar
-            </router-link>
+              <template v-if="backLoading">
+                <div
+                  class="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-800 dark:border-gray-300 mr-2"
+                ></div>
+                A carregar...
+              </template>
+              <template v-else>
+                <ArrowLeftIcon class="w-4 h-4 mr-2" />
+                Voltar
+              </template>
+            </button>
           </div>
         </div>
 
+        <!-- Loading State for Back Button -->
+        <div v-if="backLoading" class="text-center py-6 sm:py-8">
+          <div
+            class="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-brand mx-auto"
+          ></div>
+          <p class="text-gray-600 dark:text-gray-400 mt-2 text-xs sm:text-sm">
+            A carregar projectos...
+          </p>
+        </div>
+
         <!-- Main Content -->
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <!-- Left Column -->
           <div class="lg:col-span-2 space-y-6">
             <!-- Project Image -->
@@ -319,10 +329,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from "vue";
-import { router } from "@inertiajs/vue3";
+import { ref, computed } from "vue";
+import { router } from "@inertiajs/vue3"; // ✅ Inertia router
 import UnifiedLayout from "@/Layouts/UnifiedLayout.vue";
-import { useAuth, usePermissions } from "@/Composables/useAuth";
+import { useAuth } from "@/Composables/useAuth";
 import {
   PencilIcon,
   TrashIcon,
@@ -334,26 +344,48 @@ import {
   ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
 
-// Usar useAuth para permissões
-const { role, user } = useAuth();
-const { permissions } = usePermissions();
+// Usar useAuth
+const { role: authRole } = useAuth();
+
+// Obter userRole
+const userRole = computed(() => {
+  return String(authRole.value || props.userRole || "gestor");
+});
 
 const props = defineProps({
   stats: Object,
   project: Object,
+  userRole: String,
 });
 
-// Verificar permissões baseadas no role
+// Computed para rota de projetos
+const getProjectsRoute = computed(() => {
+  const routes = {
+    manager: "/gestor/projects",
+    gestor: "/gestor/projects",
+    director: "/director/projects",
+    admin: "/admin/projects",
+    technician: "/technician/projects",
+  };
+
+  const role = String(userRole.value || "").toLowerCase() || "gestor";
+  return routes[role] || "/gestor/projects";
+});
+
+// Verificar permissões
 const canEdit = computed(() => {
-  return role.value === "admin" || role.value === "super_admin";
+  const role = String(userRole.value || "").toLowerCase();
+  return role === "admin" || role === "director" || role === "gestor";
 });
 
 const canDelete = computed(() => {
-  return role.value === "admin" || role.value === "super_admin";
+  const role = String(userRole.value || "").toLowerCase();
+  return role === "admin";
 });
 
-// Estado local permanece igual
+// Estado local
 const loading = ref(false);
+const backLoading = ref(false); // Estado específico para loading do botão voltar
 const error = ref(null);
 
 // Campos de data
@@ -365,10 +397,41 @@ const dateFields = [
   { key: "data_inauguracao", label: "Data de Inauguração" },
 ];
 
-// Handlers
-const handleViewChange = (view) => {
-  console.log("Mudando para view:", view);
-  emit("change-view", view);
+// ✅ FUNÇÃO goBack COM LOADING STATE
+const goBack = () => {
+  const routes = {
+    manager: "/gestor/projects",
+    gestor: "/gestor/projects",
+    director: "/director/projects",
+    admin: "/admin/projects",
+    technician: "/technician/projects",
+  };
+
+  const role = String(userRole.value || "").toLowerCase() || "gestor";
+  const fallbackRoute = routes[role] || "/gestor/projects";
+
+  // Ativar loading
+  backLoading.value = true;
+
+  // Simular um pequeno delay para mostrar o loading (opcional)
+  setTimeout(() => {
+    // ✅ Use window.history.back() para voltar no histórico do navegador
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      // Se não há histórico, vai para rota fallback usando Inertia
+      router.visit(fallbackRoute, {
+        preserveScroll: true,
+        preserveState: true,
+        onFinish: () => {
+          backLoading.value = false;
+        },
+        onError: () => {
+          backLoading.value = false;
+        },
+      });
+    }
+  }, 300);
 };
 
 // Eliminar projeto
@@ -377,11 +440,17 @@ const deleteProject = () => {
     return;
   }
 
-  router.delete(`/manager/projects/${props.project.id}`, {
+  const role = String(userRole.value || "").toLowerCase();
+  const deleteRoute =
+    role === "director"
+      ? `/director/projects/${props.project.id}`
+      : `/gestor/projects/${props.project.id}`;
+
+  router.delete(deleteRoute, {
     preserveState: false,
     preserveScroll: false,
     onSuccess: () => {
-      router.visit("/manager/projects");
+      router.visit(getProjectsRoute.value);
     },
     onError: (errors) => {
       console.error("Erro ao eliminar projecto:", errors);

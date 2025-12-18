@@ -154,7 +154,7 @@ public function directorDashboard(Request $request): Response
     $user = $request->user();
     
     // Verificar se é Director
-    if (!$user->hasRole('Director')) {
+    if (!$user->hasRole(['Gestor', 'PCA', 'Director'])) {
         abort(403, 'Acesso não autorizado.');
     }
 

@@ -17,15 +17,26 @@ class StatisticsController extends Controller
     /**
      * Display general statistics dashboard
      */
-    public function index(Request $request): Response
-    {
+    // StatisticsController.php - Atualize o método index
+public function index(Request $request): Response
+{
+    try {
         $user = $request->user();
         
         // Verificar permissão
-        abort_if(!$user || !$user->hasAnyRole(['Gestor', 'Director', 'PCA']), 403);
+        if (!$user || !$user->hasAnyRole(['Gestor', 'Director', 'PCA'])) {
+            abort(403, 'Acesso não autorizado');
+        }
 
-        // Período para filtro (últimos 12 meses por padrão)
+        // Período para filtro
         $period = $request->input('period', '12months');
+        
+        // Validar período
+        $validPeriods = ['today', 'week', 'month', '3months', '6months', 'year', '12months'];
+        if (!in_array($period, $validPeriods)) {
+            $period = '12months';
+        }
+        
         $startDate = $this->getStartDate($period);
         $endDate = now();
 
@@ -72,7 +83,11 @@ class StatisticsController extends Controller
             'time_series_data' => $timeSeriesData,
             'canExport' => $user->hasAnyRole(['Gestor', 'Director', 'PCA']),
         ]);
+    } catch (\Exception $e) {
+        \Log::error('Erro no StatisticsController: ' . $e->getMessage());
+        abort(500, 'Erro ao carregar estatísticas');
     }
+}
 
     /**
      * Get start date based on period

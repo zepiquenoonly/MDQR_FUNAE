@@ -7,7 +7,7 @@
           class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto"
         ></div>
         <p class="mt-4 text-gray-600 dark:text-gray-400">
-          Carregando detalhes do caso...
+          A carregar detalhes da submissão...
         </p>
       </div>
 
@@ -382,7 +382,6 @@
               </div>
             </div>
           </div>
-          <!-- NOTA: REMOVIDA A SEÇÃO DE "Comentários e Intervenções" DAQUI -->
 
           <!-- Anexos -->
           <div v-if="complaint.attachments?.length > 0" class="glass rounded-xl">
@@ -392,10 +391,36 @@
 
         <!-- Sidebar -->
         <div class="space-y-6">
-          <!-- Informações do Caso -->
+          <!-- CARD DE AÇÕES (agora no lugar da card Informações da Submissão) -->
+          <template v-if="shouldShowActions">
+            <GrievanceActions
+              :complaint="complaint"
+              :technicians="technicians"
+              :loading="loading"
+              :user="user"
+              :can-comment="canComment"
+              :is-resolved="isResolved"
+              :is-rejected="isRejected"
+              :is-pending-approval="isPendingApproval"
+              :is-approved="isApproved"
+              :is-escalated-to-director="isEscalatedToDirector"
+              :has-director-validation="hasDirectorValidation"
+              :is-director="isDirector"
+              :is-manager="isManager"
+              :has-director-assumed-case="isCaseAssumedByDirector"
+              :has-director-commented-and-returned="isCaseReturnedToManager"
+              :is-waiting-director-intervention="isWaitingDirectorIntervention"
+              :is-case-assumed-by-director="isCaseAssumedByDirector"
+              :is-case-returned-to-manager="isCaseReturnedToManager"
+              :should-show-actions="shouldShowActions"
+              @open-modal="handleOpenModal"
+            />
+          </template>
+
+          <!-- CARD DE INFORMAÇÕES DA SUBMISSÃO (agora no lugar da card Timeline) -->
           <div class="glass p-6 rounded-xl">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-              Informações do Caso
+              Informações da Submissão
             </h3>
             <div class="space-y-3">
               <div>
@@ -449,7 +474,7 @@
                     }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-gray-600 dark:text-gray-400">Data:</span>
+                    <span class="text-gray-500 dark:text-gray-400">Data:</span>
                     <span class="font-medium">{{
                       formatShortDate(escalationDetails.escalated_at)
                     }}</span>
@@ -459,36 +484,7 @@
             </div>
           </div>
 
-          <!-- Atualizações -->
-          <div class="glass rounded-xl">
-            <GrievanceTimeline :complaint="complaint" :timelineData="timelineData" />
-          </div>
-
-          <!-- Ações
-          <template v-if="shouldShowActions">  -->
-          <GrievanceActions
-            :complaint="complaint"
-            :technicians="technicians"
-            :loading="loading"
-            :user="user"
-            :can-comment="canComment"
-            :is-resolved="isResolved"
-            :is-rejected="isRejected"
-            :is-pending-approval="isPendingApproval"
-            :is-approved="isApproved"
-            :is-escalated-to-director="isEscalatedToDirector"
-            :has-director-validation="hasDirectorValidation"
-            :is-director="isDirector"
-            :is-manager="isManager"
-            :has-director-assumed-case="isCaseAssumedByDirector"
-            :has-director-commented-and-returned="isCaseReturnedToManager"
-            :is-waiting-director-intervention="isWaitingDirectorIntervention"
-            :is-case-assumed-by-director="isCaseAssumedByDirector"
-            :is-case-returned-to-manager="isCaseReturnedToManager"
-            :should-show-actions="shouldShowActions"
-            @open-modal="handleOpenModal"
-          />
-
+          <!-- Mensagem informativa quando não é director e não deve ver ações -->
           <template v-if="!isDirector && !shouldManagerSeeActions">
             <div class="glass p-6 rounded-xl">
               <div class="text-center p-8">
@@ -524,6 +520,11 @@
               </div>
             </div>
           </template>
+
+          <!-- CARD DE TIMELINE (agora no fim) -->
+          <div class="glass rounded-xl">
+            <GrievanceTimeline :complaint="complaint" :timelineData="timelineData" />
+          </div>
         </div>
       </div>
 

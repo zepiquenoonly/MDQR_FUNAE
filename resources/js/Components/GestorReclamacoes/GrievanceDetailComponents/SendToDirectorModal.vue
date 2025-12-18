@@ -355,7 +355,7 @@
                 <div
                   class="animate-spin rounded-full h-6 w-6 border-b-3 border-white"
                 ></div>
-                <span>Processando Encaminhamento...</span>
+                <span>A processar...</span>
               </template>
               <template v-else>
                 <PaperAirplaneIcon class="h-6 w-6" />

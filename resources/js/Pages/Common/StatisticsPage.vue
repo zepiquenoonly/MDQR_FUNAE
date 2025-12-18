@@ -25,7 +25,7 @@
           <h1
             class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary"
           >
-            Estatísticas Gerais
+            Indicadores do Departamento
           </h1>
           <p class="text-gray-600 dark:text-gray-400 mt-2">
             Análise completa de submissões, funcionários e desempenho
@@ -812,7 +812,7 @@ const loadStatistics = async () => {
 
   try {
     router.get(
-      "/statistics",
+      "/director/statistics",
       { period: period.value },
       {
         preserveState: true,
@@ -852,7 +852,7 @@ const handleExport = async (format) => {
       format: format,
     });
 
-    const url = `/statistics/export?${params.toString()}`;
+    const url = `director/statistics/export?${params.toString()}`;
 
     // Método 1: Download direto (recomendado para arquivos)
     window.location.href = url;
