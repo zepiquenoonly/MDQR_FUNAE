@@ -88,37 +88,205 @@
 
     <!-- Conteúdo principal -->
     <div v-else>
-      <!-- Visualização Resumida -->
+      <!-- Visualização Resumida - TABELA -->
       <div v-if="!showAllComplaints">
-        <div class="space-y-4">
-          <!-- Para Director: mostrar 4 submissões mais recentes -->
-          <template v-if="isDirector">
-            <div v-for="complaint in recentSubmissions.slice(0, 4)" :key="complaint.id">
-              <ComplaintRow
-                :complaint="complaint"
-                :role="role"
-                :selected="selectedComplaintId === complaint.id"
-                :is-recent="isRecentSubmission(complaint)"
-                @mark-as-seen="markSubmissionAsSeen(complaint)"
-              />
-            </div>
-          </template>
+        <!-- Container com rolagem interna para tabela -->
+        <div class="table-scroll-container">
+          <div class="overflow-x-auto -mx-4 sm:mx-0">
+            <div class="min-w-full inline-block align-middle">
+              <table
+                class="min-w-full divide-y divide-gray-300 dark:divide-gray-600 text-xs sm:text-sm"
+              >
+                <thead class="table-header-sticky bg-gray-50 dark:bg-dark-accent">
+                  <tr>
+                    <!-- Coluna especial para Solicitações do Gestor -->
+                    <th
+                      v-if="isDirector && activeTab === 'manager_requests'"
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Gestor
+                    </th>
 
-          <!-- Para Manager: mostrar 4 submissões mais recentes -->
-          <template v-else>
-            <div v-for="complaint in recentSubmissions.slice(0, 4)" :key="complaint.id">
-              <ComplaintRow
-                :complaint="complaint"
-                :role="role"
-                :selected="selectedComplaintId === complaint.id"
-                :is-recent="isRecentSubmission(complaint)"
-                @mark-as-seen="markSubmissionAsSeen(complaint)"
-              />
-            </div>
-          </template>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      ID
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider min-w-32"
+                    >
+                      Título
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Tipo
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Prioridade
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Estado
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Data
+                    </th>
+                    <th
+                      scope="col"
+                      class="px-3 py-2 text-left font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider"
+                    >
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  class="bg-white dark:bg-dark-secondary divide-y divide-gray-200 dark:divide-gray-700"
+                >
+                  <tr
+                    v-for="item in recentSubmissions.slice(0, 4)"
+                    :key="item.id"
+                    :class="[
+                      'hover:bg-gray-50 dark:hover:bg-dark-accent transition-colors',
+                      item.has_director_intervention ? 'has-director-response' : '',
+                      item.manager_request || item.is_escalated_to_director
+                        ? 'has-manager-request'
+                        : '',
+                      isNewSubmission(item) ? 'new-submission' : '',
+                    ]"
+                  >
+                    <!-- Coluna do Gestor que escalou (apenas para tab manager_requests do Director) -->
+                    <td
+                      v-if="isDirector && activeTab === 'manager_requests'"
+                      class="px-3 py-2 whitespace-nowrap"
+                    >
+                      <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-1">
+                          <UserIcon class="w-3 h-3 text-blue-500 flex-shrink-0" />
+                          <span
+                            class="text-xs font-medium text-blue-700 dark:text-blue-300 truncate max-w-24"
+                          >
+                            {{ getEscalatedBy(item) }}
+                          </span>
+                        </div>
+                        <span
+                          class="text-xs text-gray-500"
+                          :title="getEscalationReason(item)"
+                        >
+                          {{ truncateText(getEscalationReason(item), 30) }}
+                        </span>
+                      </div>
+                    </td>
 
-          <div v-if="recentSubmissions.length === 0" class="text-center py-8">
-            <p class="text-gray-500 dark:text-gray-400">Nenhuma submissão encontrada</p>
+                    <!-- ID com indicador de novo -->
+                    <td
+                      class="px-3 py-2 whitespace-nowrap font-medium relative"
+                      :class="[
+                        isNewSubmission(item)
+                          ? 'text-green-700 dark:text-green-300'
+                          : 'text-gray-900 dark:text-dark-text-primary',
+                      ]"
+                    >
+                      <div class="flex items-center gap-1">
+                        {{ item.reference_number }}
+                        <!-- Indicador de nova solicitação do gestor -->
+                        <span
+                          v-if="isDirector && isNewManagerRequest(item)"
+                          class="inline-flex items-center justify-center w-3 h-3 text-[8px] font-bold text-white bg-blue-500 rounded-full animate-pulse"
+                          title="Nova solicitação do gestor"
+                        >
+                          !
+                        </span>
+                        <!-- Indicador de nova intervenção do director -->
+                        <span
+                          v-if="isManager && isNewDirectorIntervention(item)"
+                          class="inline-flex items-center justify-center w-3 h-3 text-[8px] font-bold text-white bg-purple-500 rounded-full animate-pulse"
+                          title="Nova intervenção do director"
+                        >
+                          !
+                        </span>
+                        <!-- Indicador de nova submissão -->
+                        <span
+                          v-if="isNewSubmission(item)"
+                          class="inline-flex items-center justify-center w-3 h-3 text-[8px] font-bold text-white bg-green-500 rounded-full animate-pulse"
+                          title="Nova submissão"
+                        >
+                          N
+                        </span>
+                      </div>
+                    </td>
+
+                    <!-- Título -->
+                    <td
+                      class="px-3 py-2 text-gray-900 dark:text-dark-text-primary max-w-32 truncate"
+                    >
+                      {{ item.title || item.description }}
+                    </td>
+
+                    <!-- Tipo -->
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <span :class="getTypeBadgeClass(item.type)">
+                        {{ getTypeLabel(item.type) }}
+                      </span>
+                    </td>
+
+                    <!-- Prioridade -->
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <span :class="getPriorityBadgeClass(item.priority)">
+                        {{ getPriorityLabel(item.priority) }}
+                      </span>
+                    </td>
+
+                    <!-- Estado -->
+                    <td class="px-3 py-2 whitespace-nowrap">
+                      <div class="flex flex-col gap-1">
+                        <span :class="getStatusBadgeClass(item.status)">
+                          {{ getStatusLabel(item.status) }}
+                        </span>
+                      </div>
+                    </td>
+
+                    <!-- Data -->
+                    <td
+                      class="px-3 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400"
+                    >
+                      {{ formatDate(item.created_at) }}
+                    </td>
+
+                    <!-- Ações -->
+                    <td class="px-3 py-2 whitespace-nowrap font-medium">
+                      <button
+                        @click="handleRowClick(item)"
+                        class="text-brand hover:text-orange-700 dark:text-orange-400 dark:hover:text-orange-300 text-xs px-3 py-1.5 bg-brand/10 hover:bg-brand/20 rounded transition-colors duration-200"
+                        :disabled="loading"
+                      >
+                        Detalhes
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <!-- Empty State para tabela -->
+              <div v-if="recentSubmissions.length === 0" class="text-center py-8">
+                <DocumentMagnifyingGlassIcon
+                  class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4"
+                />
+                <p class="text-gray-500 dark:text-gray-400">Nenhuma submissão encontrada</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -380,7 +548,7 @@
               <table
                 class="min-w-full divide-y divide-gray-300 dark:divide-gray-600 text-xs sm:text-sm"
               >
-                <thead class="bg-gray-50 dark:bg-dark-accent">
+                <thead class="table-header-sticky bg-gray-50 dark:bg-dark-accent">
                   <tr>
                     <!-- Coluna especial para Solicitações do Gestor -->
                     <th
@@ -728,6 +896,7 @@ const props = defineProps({
     }),
   },
   debug_info: { type: Object, default: () => ({}) },
+  user: { type: Object, default: () => ({}) },
 });
 
 // Debug mode
@@ -1940,6 +2109,20 @@ onMounted(() => {
 
 .dark .table-wrapper {
   border-color: #374151;
+}
+
+/* Header sticky para tabelas */
+.table-header-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+/* Container de scroll precisa ser relativo para sticky funcionar */
+.table-scroll-container {
+  position: relative;
+  max-height: 600px;
+  overflow-y: auto;
 }
 
 /* Container do cabeçalho fixo */

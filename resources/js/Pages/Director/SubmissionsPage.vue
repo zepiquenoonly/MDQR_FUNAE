@@ -2,25 +2,44 @@
 <template>
   <Layout :stats="safeStats">
     <div class="space-y-3 sm:space-y-6">
-      <!-- Título da página -->
-      <div class="mb-4 sm:mb-6">
-        <h1
-          class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-dark-text-primary"
-        >
-          <span v-if="isDirector">Gestão de Submissões - Visão do Director</span>
-          <span v-else-if="isManager">Submissões do Departamento</span>
-          <span v-else>Minhas Submissões</span>
-        </h1>
-        <p class="text-gray-600 dark:text-gray-400 text-sm sm:text-base mt-1 sm:mt-2">
-          <span v-if="isDirector">
-            Veja e gere todas as submissões, sejam sugestões, queixas e reclamações
-          </span>
-          <span v-else-if="isManager">
-            Gere reclamações, queixas e sugestões do seu departamento
-          </span>
-          <span v-else> Visualize suas submissões </span>
-        </p>
+      <!-- Banner Informativo -->
+      <div class="bg-gradient-to-r from-primary-50 to-orange-50 dark:from-primary-900/20 dark:to-orange-900/20 border border-primary-200 dark:border-primary-800 rounded-xl p-4 sm:p-6 mb-6">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/40 rounded-lg flex items-center justify-center">
+              <InformationCircleIcon class="w-6 h-6 text-primary-600 dark:text-primary-400" />
+            </div>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-primary-900 dark:text-primary-100 mb-2">
+              <span v-if="isDirector">Centro de Controle de Submissões</span>
+              <span v-else-if="isManager">Gestão Departamental</span>
+              <span v-else>Acompanhamento de Submissões</span>
+            </h3>
+            <p class="text-primary-700 dark:text-primary-300 text-sm leading-relaxed">
+              <span v-if="isDirector">
+                Monitore todas as atividades do sistema, valide solicitações críticas e tome decisões estratégicas para melhorar a eficiência organizacional.
+              </span>
+              <span v-else-if="isManager">
+                Gerencie as submissões do seu departamento, atribua técnicos e solicite intervenções quando necessário.
+              </span>
+              <span v-else>
+                Acompanhe o progresso das suas submissões e mantenha-se informado sobre todas as atualizações.
+              </span>
+            </p>
+            <div v-if="isDirector && escalatedCasesCount > 0" class="mt-3">
+              <span class="inline-flex items-center gap-2 px-3 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-xs font-medium rounded-full">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                {{ escalatedCasesCount }} solicitações aguardando validação
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      
 
       <!-- KPIs Grid -->
       <div

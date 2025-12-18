@@ -1,5 +1,7 @@
 <template>
   <Layout :stats="safeStats" :role="'manager'">
+    
+
     <!-- Renderizar ProjectsManager quando o panel for 'projectos' -->
     <ProjectsManager v-if="activePanel === 'projectos'" :can-edit="canEdit" />
 
