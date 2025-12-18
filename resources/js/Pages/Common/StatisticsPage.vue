@@ -53,7 +53,7 @@
             <option value="12months" selected>Últimos 12 Meses</option>
           </select>
 
-          <!-- Botão Exportar (FORA do modal) -->
+          <!-- Botão Exportar -->
           <button
             v-if="canExport"
             @click="showExportModal = true"
@@ -181,7 +181,7 @@
                 Total de Submissões
               </p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ general_stats.total_submissions.toLocaleString() }}
+                {{ general_stats.total_submissions?.toLocaleString() || 0 }}
               </p>
               <div class="flex items-center mt-1">
                 <span
@@ -197,7 +197,7 @@
                     class="w-4 h-4 inline mr-1"
                   />
                   <ArrowTrendingDownIcon v-else class="w-4 h-4 inline mr-1" />
-                  {{ Math.abs(general_stats.growth_rate) }}%
+                  {{ Math.abs(general_stats.growth_rate || 0) }}%
                 </span>
                 <span class="text-xs text-gray-500 dark:text-gray-400 ml-2"
                   >vs período anterior</span
@@ -218,10 +218,10 @@
                 Taxa de Resolução
               </p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ general_stats.resolution_rate }}%
+                {{ general_stats.resolution_rate || 0 }}%
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {{ general_stats.total_resolved.toLocaleString() }} resolvidas
+                {{ general_stats.total_resolved?.toLocaleString() || 0 }} resolvidas
               </p>
             </div>
           </div>
@@ -238,7 +238,7 @@
                 Tempo Médio
               </p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ general_stats.avg_resolution_time }}h
+                {{ general_stats.avg_resolution_time || 0 }}h
               </p>
               <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Até resolução</p>
             </div>
@@ -258,18 +258,17 @@
                 Pendentes
               </p>
               <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ general_stats.pending_submissions.toLocaleString() }}
+                {{ general_stats.pending_submissions?.toLocaleString() || 0 }}
               </p>
               <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 <span class="inline-block w-2 h-2 bg-yellow-500 rounded-full mr-1"></span>
-                {{ general_stats.submissions_today }} hoje
+                {{ general_stats.submissions_today || 0 }} hoje
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Grid de Gráficos e Estatísticas -->
       <!-- Grid de Gráficos -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <!-- Gráfico de Submissões por Dia -->
@@ -390,150 +389,405 @@
         </div>
       </div>
 
-      <!-- Estatísticas de Funcionários -->
+      <!-- Estatísticas de Funcionários - Versão Compacta -->
       <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6 mb-6">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary">
-            Estatísticas de Funcionários
-          </h2>
-          <span class="text-sm text-gray-500 dark:text-gray-400">
-            {{ employee_stats.total_employees }} funcionários no total
-          </span>
+        <!-- Cabeçalho com indicadores principais -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
+          <div>
+            <h2 class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary">
+              Gestor e Técnicos
+            </h2>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {{ employee_stats.total_employees || 0 }} funcionários •
+              {{ employee_stats.online_employees || 0 }} online
+            </p>
+          </div>
+
+          <!-- Status rápido -->
+          <div class="flex flex-wrap gap-3">
+            <div
+              class="flex items-center px-3 py-1.5 bg-green-50 dark:bg-green-900/20 rounded-lg"
+            >
+              <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+              <span class="text-sm font-medium text-green-700 dark:text-green-300">
+                {{
+                  (employee_stats.technicians?.active || 0) +
+                  (employee_stats.managers?.active || 0)
+                }}
+                ativos
+              </span>
+            </div>
+            <div
+              class="flex items-center px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+            >
+              <div class="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
+              <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
+                +{{ employee_stats.new_employees || 0 }} novos (30d)
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <!-- Total por Role -->
-          <div class="space-y-3">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Distribuição por Função
-            </h3>
-            <div
-              v-for="(count, role) in employee_stats.by_role"
-              :key="role"
-              class="flex items-center justify-between text-sm"
-            >
-              <span class="text-gray-600 dark:text-gray-400">{{ role }}</span>
-              <span class="font-medium text-gray-900 dark:text-white">{{ count }}</span>
-            </div>
-          </div>
-
-          <!-- Técnicos -->
-          <div class="space-y-3">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">Técnicos</h3>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Total</span>
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                  employee_stats.technicians.total
-                }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Ativos</span>
-                <span class="text-sm font-medium text-green-600 dark:text-green-400">{{
-                  employee_stats.technicians.active
-                }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Inativos</span>
-                <span class="text-sm font-medium text-red-600 dark:text-red-400">{{
-                  employee_stats.technicians.inactive
-                }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400"
-                  >Taxa de Disponibilidade</span
-                >
-                <span class="text-sm font-medium text-gray-900 dark:text-white"
-                  >{{ employee_stats.technicians.availability_rate }}%</span
-                >
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400"
-                  >Média de Tarefas</span
-                >
-                <span class="text-sm font-medium text-gray-900 dark:text-white">{{
-                  employee_stats.avg_tasks_per_technician
-                }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Crescimento -->
-          <div class="space-y-3">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Crescimento
-            </h3>
-            <div class="space-y-2">
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400"
-                  >Novos (30 dias)</span
-                >
-                <span class="text-sm font-medium text-green-600 dark:text-green-400">{{
-                  employee_stats.new_employees
-                }}</span>
-              </div>
-              <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Online agora</span>
-                <span class="text-sm font-medium text-blue-600 dark:text-blue-400">{{
-                  employee_stats.online_employees
-                }}</span>
-              </div>
+        <!-- Grid principal mais compacto -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+          <!-- Card: Distribuição por Função -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Distribuição por Função
+              </h3>
+              <span class="text-xs text-gray-500 dark:text-gray-400">
+                {{ employee_stats.total_employees || 0 }} total
+              </span>
             </div>
 
-            <div class="pt-2">
-              <h4 class="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
-                Crescimento (últimos 6 meses)
-              </h4>
-              <div class="space-y-1">
-                <div
-                  v-for="month in employee_stats.employee_growth.slice(-6)"
-                  :key="month.month"
-                  class="flex items-center justify-between text-xs"
-                >
-                  <span class="text-gray-500 dark:text-gray-400">{{ month.month }}</span>
-                  <div class="flex items-center gap-2">
-                    <span class="text-green-600 dark:text-green-400 font-medium"
-                      >+{{ month.new_employees }}</span
-                    >
-                    <span class="text-gray-900 dark:text-gray-300">{{
-                      month.total_employees
-                    }}</span>
+            <!-- Gráfico de rosca compacto -->
+            <div class="relative h-32 mb-4">
+              <!-- SVG para gráfico de rosca -->
+              <svg class="w-full h-full" viewBox="0 0 100 100">
+                <!-- Fundo -->
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#e5e7eb"
+                  :stroke-width="isDarkMode ? '10' : '8'"
+                  stroke-dasharray="251.2"
+                  stroke-dashoffset="0"
+                />
+
+                <!-- Gestores -->
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#8b5cf6"
+                  stroke-width="10"
+                  stroke-dasharray="251.2"
+                  :stroke-dashoffset="
+                    251.2 -
+                    (getRolePercentage('Gestor', employee_stats.by_role?.Gestor || 0) /
+                      100) *
+                      251.2
+                  "
+                  stroke-linecap="round"
+                  transform="rotate(-90 50 50)"
+                />
+
+                <!-- Técnicos -->
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="40"
+                  fill="none"
+                  stroke="#3b82f6"
+                  stroke-width="10"
+                  stroke-dasharray="251.2"
+                  :stroke-dashoffset="
+                    251.2 -
+                    (getRolePercentage('Técnico', employee_stats.by_role?.Técnico || 0) /
+                      100) *
+                      251.2 -
+                    (getRolePercentage('Gestor', employee_stats.by_role?.Gestor || 0) /
+                      100) *
+                      251.2
+                  "
+                  stroke-linecap="round"
+                  transform="rotate(-90 50 50)"
+                />
+              </svg>
+
+              <!-- Centro do gráfico -->
+              <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center">
+                  <div class="text-2xl font-bold text-gray-800 dark:text-white">
+                    {{ employee_stats.total_employees || 0 }}
                   </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">Total</div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- Top Performers -->
-          <div class="space-y-3">
-            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Top Performers
-            </h3>
+            <!-- Legenda -->
             <div class="space-y-2">
               <div
-                v-for="(performer, index) in top_performers.slice(0, 5)"
-                :key="performer.id"
-                class="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50"
+                v-for="(count, role) in employee_stats.by_role"
+                :key="role"
+                class="flex items-center justify-between text-sm"
               >
                 <div class="flex items-center">
                   <div
-                    class="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2"
-                  >
-                    <span class="text-xs font-medium text-gray-700 dark:text-gray-300">
-                      {{ index + 1 }}
-                    </span>
+                    :class="[
+                      'w-3 h-3 rounded-full mr-2',
+                      role === 'Gestor' ? 'bg-purple-500' : 'bg-blue-500',
+                    ]"
+                  ></div>
+                  <span class="text-gray-600 dark:text-gray-300">{{ role }}</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="font-medium text-gray-800 dark:text-white mr-2">
+                    {{ count }}
+                  </span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400">
+                    ({{ getRolePercentage(role, count) }}%)
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Estatísticas de Disponibilidade -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+            <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">
+              Disponibilidade
+            </h3>
+
+            <!-- Gestores -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 bg-purple-500 rounded-full mr-2"></div>
+                  <span class="text-sm text-gray-600 dark:text-gray-300">Gestores</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-800 dark:text-white mr-2">
+                    {{ employee_stats.managers?.active || 0 }}/{{
+                      employee_stats.managers?.total || 0
+                    }}
+                  </span>
+                  <span class="text-xs font-medium text-purple-600 dark:text-purple-400">
+                    {{ employee_stats.managers?.availability_rate || 0 }}%
+                  </span>
+                </div>
+              </div>
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  class="bg-purple-500 h-2 rounded-full transition-all duration-300"
+                  :style="{
+                    width: (employee_stats.managers?.availability_rate || 0) + '%',
+                  }"
+                ></div>
+              </div>
+              <div
+                class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1"
+              >
+                <span>{{ employee_stats.managers?.active || 0 }} ativos</span>
+                <span>{{ employee_stats.managers?.inactive || 0 }} inativos</span>
+              </div>
+            </div>
+
+            <!-- Técnicos -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center">
+                  <div class="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                  <span class="text-sm text-gray-600 dark:text-gray-300">Técnicos</span>
+                </div>
+                <div class="flex items-center">
+                  <span class="text-sm font-medium text-gray-800 dark:text-white mr-2">
+                    {{ employee_stats.technicians?.active || 0 }}/{{
+                      employee_stats.technicians?.total || 0
+                    }}
+                  </span>
+                  <span class="text-xs font-medium text-blue-600 dark:text-blue-400">
+                    {{ employee_stats.technicians?.availability_rate || 0 }}%
+                  </span>
+                </div>
+              </div>
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  class="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  :style="{
+                    width: (employee_stats.technicians?.availability_rate || 0) + '%',
+                  }"
+                ></div>
+              </div>
+              <div
+                class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1"
+              >
+                <span>{{ employee_stats.technicians?.active || 0 }} ativos</span>
+                <span>{{ employee_stats.technicians?.inactive || 0 }} inativos</span>
+              </div>
+            </div>
+
+            <!-- Status geral -->
+            <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex items-center justify-between">
+                <span class="text-xs text-gray-500 dark:text-gray-400"
+                  >Status geral:</span
+                >
+                <span
+                  :class="[
+                    'text-xs font-medium px-2 py-1 rounded',
+                    getOverallStatus() === 'Excelente'
+                      ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
+                      : getOverallStatus() === 'Bom'
+                      ? 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                      : getOverallStatus() === 'Regular'
+                      ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                      : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+                  ]"
+                >
+                  {{ getOverallStatus() }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: Produtividade e Crescimento -->
+          <div class="bg-gray-50 dark:bg-gray-800/50 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Produtividade & Crescimento
+              </h3>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                Média: {{ employee_stats.avg_tasks_per_technician || 0 }} tarefas
+              </div>
+            </div>
+
+            <!-- Média de tarefas -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-gray-500 dark:text-gray-400"
+                  >Média por técnico</span
+                >
+                <span class="text-sm font-medium text-gray-800 dark:text-white">
+                  {{ employee_stats.avg_tasks_per_technician || 0 }}
+                </span>
+              </div>
+              <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                <div
+                  class="bg-green-500 h-2 rounded-full transition-all duration-300"
+                  :style="{
+                    width:
+                      Math.min((employee_stats.avg_tasks_per_technician || 0) * 10, 100) +
+                      '%',
+                  }"
+                ></div>
+              </div>
+              <div
+                class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1"
+              >
+                <span>Baixa</span>
+                <span>Alta</span>
+              </div>
+            </div>
+
+            <!-- Crescimento recente -->
+            <div class="mb-4">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs text-gray-500 dark:text-gray-400"
+                  >Novos (último mês)</span
+                >
+                <div class="flex items-center">
+                  <ArrowTrendingUpIcon class="w-3 h-3 text-green-500 mr-1" />
+                  <span class="text-sm font-medium text-green-600 dark:text-green-400">
+                    +{{ employee_stats.new_employees || 0 }}
+                  </span>
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <div
+                  class="bg-purple-50 dark:bg-purple-900/20 p-2 rounded-lg text-center"
+                >
+                  <div class="text-lg font-bold text-purple-600 dark:text-purple-400">
+                    {{ employee_stats.new_managers || 0 }}
                   </div>
-                  <div>
-                    <p class="text-sm font-medium text-gray-900 dark:text-white">
-                      {{ performer.name }}
-                    </p>
-                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                      {{ performer.resolved_count }} resolvidas
-                    </p>
+                  <div class="text-[10px] text-gray-500 dark:text-gray-400">Gestores</div>
+                </div>
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-2 rounded-lg text-center">
+                  <div class="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {{
+                      Math.max(
+                        (employee_stats.new_employees || 0) -
+                          (employee_stats.new_managers || 0),
+                        0
+                      )
+                    }}
+                  </div>
+                  <div class="text-[10px] text-gray-500 dark:text-gray-400">Técnicos</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tendência de crescimento -->
+            <div class="pt-3 border-t border-gray-200 dark:border-gray-700">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs text-gray-500 dark:text-gray-400"
+                  >Tendência (6 meses)</span
+                >
+                <span class="text-xs font-medium text-green-600 dark:text-green-400">
+                  +{{ getTotalNewEmployees() }} novos
+                </span>
+              </div>
+              <div class="flex items-end h-8 space-x-1">
+                <div
+                  v-for="(month, index) in employee_stats.employee_growth?.slice(-6) ||
+                  []"
+                  :key="index"
+                  class="flex-1 flex flex-col items-center"
+                >
+                  <div
+                    class="w-full bg-gradient-to-t from-blue-500 to-blue-400 dark:from-blue-600 dark:to-blue-500 rounded-t"
+                    :style="{ height: getBarHeight(month.total_employees) * 0.8 + '%' }"
+                  ></div>
+                  <div class="text-[8px] text-gray-500 dark:text-gray-400 mt-1">
+                    {{ month.month?.slice(0, 3) || "???" }}
                   </div>
                 </div>
-                <div class="w-2 h-2 rounded-full bg-green-500"></div>
               </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Seção de métricas rápidas -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Disponibilidade Total
+            </div>
+            <div class="text-lg font-semibold text-gray-800 dark:text-white">
+              {{ getOverallAvailability() }}%
+            </div>
+            <div class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+              Gestores: {{ employee_stats.managers?.availability_rate || 0 }}% • Técnicos:
+              {{ employee_stats.technicians?.availability_rate || 0 }}%
+            </div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Online agora</div>
+            <div class="text-lg font-semibold text-green-600 dark:text-green-400">
+              {{ employee_stats.online_employees || 0 }}
+            </div>
+            <div class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+              {{ getOnlinePercentage() }}% da equipe
+            </div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Novos últimos 30 dias
+            </div>
+            <div class="text-lg font-semibold text-blue-600 dark:text-blue-400">
+              +{{ employee_stats.new_employees || 0 }}
+            </div>
+            <div class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+              {{ getGrowthRate() }}% crescimento
+            </div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-lg">
+            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">
+              Média de tarefas
+            </div>
+            <div class="text-lg font-semibold text-purple-600 dark:text-purple-400">
+              {{ employee_stats.avg_tasks_per_technician || 0 }}
+            </div>
+            <div class="text-[10px] text-gray-500 dark:text-gray-400 mt-1">
+              {{ getProductivityStatus(employee_stats.avg_tasks_per_technician || 0) }}
             </div>
           </div>
         </div>
@@ -698,7 +952,8 @@
             </thead>
             <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
               <tr
-                v-for="tech in performance_stats.technician_performance.slice(0, 5)"
+                v-for="tech in performance_stats.technician_performance?.slice(0, 5) ||
+                []"
                 :key="tech.id"
                 class="text-sm hover:bg-gray-50 dark:hover:bg-gray-800/50"
               >
@@ -770,7 +1025,6 @@ import {
   CheckCircleIcon,
   ClockIcon,
   ExclamationTriangleIcon,
-  ChartBarIcon,
   MapPinIcon,
   MapIcon,
   UserIcon,
@@ -806,13 +1060,39 @@ const isDarkMode = computed(() => {
   return document.documentElement.classList.contains("dark");
 });
 
+// Computed properties para acessar os dados
+const general_stats = computed(() => localData.value.general_stats || {});
+const chart_data = computed(() => localData.value.chart_data || {});
+const geographic_distribution = computed(
+  () => localData.value.geographic_distribution || []
+);
+const time_series_data = computed(() => localData.value.time_series_data || []);
+const performance_stats = computed(() => localData.value.performance_stats || {});
+const top_performers = computed(() => localData.value.top_performers || []);
+const employee_stats = computed(
+  () =>
+    localData.value.employee_stats || {
+      by_role: { Gestor: 0, Técnico: 0 },
+      total_employees: 0,
+      managers: { total: 0, active: 0, inactive: 0, availability_rate: 0 },
+      technicians: { total: 0, active: 0, inactive: 0, availability_rate: 0 },
+      avg_tasks_per_technician: 0,
+      new_employees: 0,
+      new_managers: 0,
+      online_employees: 0,
+      employee_growth: [],
+    }
+);
+const start_date = computed(() => localData.value.start_date);
+const end_date = computed(() => localData.value.end_date);
+
 // Função para carregar estatísticas via AJAX
 const loadStatistics = async () => {
   loading.value = true;
 
   try {
     router.get(
-      "/director/statistics",
+      "/director/estatisticas",
       { period: period.value },
       {
         preserveState: true,
@@ -852,7 +1132,7 @@ const handleExport = async (format) => {
       format: format,
     });
 
-    const url = `director/statistics/export?${params.toString()}`;
+    const url = `/director/estatisticas/export?${params.toString()}`;
 
     // Método 1: Download direto (recomendado para arquivos)
     window.location.href = url;
@@ -921,16 +1201,115 @@ const getTrendLabel = (ratio) => {
   return "Baixo";
 };
 
-// Computed properties para acessar os dados
-const general_stats = computed(() => localData.value.general_stats || {});
-const chart_data = computed(() => localData.value.chart_data || {});
-const geographic_distribution = computed(
-  () => localData.value.geographic_distribution || []
-);
-const time_series_data = computed(() => localData.value.time_series_data || []);
-const performance_stats = computed(() => localData.value.performance_stats || {});
-const top_performers = computed(() => localData.value.top_performers || []);
-const employee_stats = computed(() => localData.value.employee_stats || {});
-const start_date = computed(() => localData.value.start_date);
-const end_date = computed(() => localData.value.end_date);
+const getRolePercentage = (role, count) => {
+  const total = Object.values(employee_stats.value.by_role || {}).reduce(
+    (a, b) => a + b,
+    0
+  );
+  return total > 0 ? Math.round((count / total) * 100) : 0;
+};
+
+const getAvailabilityStatus = (rate) => {
+  if (rate >= 80) return "Excelente";
+  if (rate >= 60) return "Bom";
+  if (rate >= 40) return "Regular";
+  return "Crítico";
+};
+
+const getProductivityStatus = (avgTasks) => {
+  if (avgTasks >= 10) return "Produtividade alta";
+  if (avgTasks >= 5) return "Produtividade média";
+  if (avgTasks >= 2) return "Produtividade baixa";
+  return "Produtividade muito baixa";
+};
+
+const getTotalNewEmployees = () => {
+  if (!employee_stats.value.employee_growth) return 0;
+  return employee_stats.value.employee_growth.reduce(
+    (total, month) => total + (month.new_employees || 0),
+    0
+  );
+};
+
+const getBarHeight = (totalEmployees) => {
+  if (
+    !employee_stats.value.employee_growth ||
+    employee_stats.value.employee_growth.length === 0
+  ) {
+    return 0;
+  }
+
+  const maxEmployees = Math.max(
+    ...employee_stats.value.employee_growth.map((m) => m.total_employees || 0)
+  );
+
+  return maxEmployees > 0 ? Math.min((totalEmployees / maxEmployees) * 100, 100) : 0;
+};
+
+const getNewEmployeeHeight = (month) => {
+  if (!month.new_employees || month.total_employees === 0) return 0;
+  return (month.new_employees / month.total_employees) * 100;
+};
+
+const getOverallStatus = () => {
+  const managersRate = employee_stats.value.managers?.availability_rate || 0;
+  const techniciansRate = employee_stats.value.technicians?.availability_rate || 0;
+  const avgAvailability = (managersRate + techniciansRate) / 2;
+  if (avgAvailability >= 85) return "Excelente";
+  if (avgAvailability >= 70) return "Bom";
+  if (avgAvailability >= 50) return "Regular";
+  return "Crítico";
+};
+
+const getOverallAvailability = () => {
+  const managers = employee_stats.value.managers || {};
+  const technicians = employee_stats.value.technicians || {};
+  const totalActive = (managers.active || 0) + (technicians.active || 0);
+  const totalEmployees = (managers.total || 0) + (technicians.total || 0);
+  return totalEmployees > 0 ? Math.round((totalActive / totalEmployees) * 100) : 0;
+};
+
+const getOnlinePercentage = () => {
+  const managers = employee_stats.value.managers || {};
+  const technicians = employee_stats.value.technicians || {};
+  const totalEmployees = (managers.total || 0) + (technicians.total || 0);
+  return totalEmployees > 0
+    ? Math.round(((employee_stats.value.online_employees || 0) / totalEmployees) * 100)
+    : 0;
+};
+
+const getGrowthRate = () => {
+  if (
+    !employee_stats.value.employee_growth ||
+    employee_stats.value.employee_growth.length < 2
+  )
+    return 0;
+
+  const lastMonth =
+    employee_stats.value.employee_growth[employee_stats.value.employee_growth.length - 1];
+  const prevMonth =
+    employee_stats.value.employee_growth[employee_stats.value.employee_growth.length - 2];
+
+  if (!prevMonth?.total_employees || prevMonth.total_employees === 0) return 0;
+
+  const growth =
+    ((lastMonth.total_employees - prevMonth.total_employees) /
+      prevMonth.total_employees) *
+    100;
+  return Math.round(growth);
+};
+
+const getGrowthPercentage = (month) => {
+  if (
+    !employee_stats.value.employee_growth ||
+    employee_stats.value.employee_growth.length === 0
+  ) {
+    return 0;
+  }
+
+  const maxValue = Math.max(
+    ...employee_stats.value.employee_growth.map((m) => m.total_employees || 0)
+  );
+  return maxValue > 0 ? Math.round(((month.total_employees || 0) / maxValue) * 100) : 0;
+};
 </script>

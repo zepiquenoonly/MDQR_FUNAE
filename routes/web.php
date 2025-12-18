@@ -191,6 +191,7 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('director.projects.destroy');
         });
 
+        Route::get('/estatisticas', [StatisticsController::class, 'index'])->name('statistics.index');
 
     });
 
@@ -502,7 +503,7 @@ Route::middleware('auth')->group(function () {
     ->middleware(['auth', 'verified']);
 
     Route::get('/technicians/{technician}', [ManagerDashboardController::class, 'showTechnician'])->name('manager.technicians.show');
-    Route::get('/director/estatisticas', [StatisticsController::class, 'index'])->name('statistics.index');
+    
     Route::post('/api/technician/comments/{grievance}/add', [App\Http\Controllers\TechnicianGrievanceController::class, 'addComment']);
 
     // Gestão de reclamações pelo gestor
