@@ -1,4 +1,4 @@
-s<template>
+<template>
     <Layout role="admin" :user="user">
         <div class="space-y-6 sm:space-y-8 px-3 sm:px-0">
             <!-- Welcome Message - Glassmorphism Hero -->
