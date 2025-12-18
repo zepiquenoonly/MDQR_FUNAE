@@ -129,7 +129,7 @@ cd ~/domains/seu-dominio.com/public_html
 # Modo manutenção
 php artisan down
 
-# Atualizar código
+# Actualizar código
 git pull origin main
 
 # Dependências

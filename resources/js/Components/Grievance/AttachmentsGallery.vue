@@ -1,5 +1,4 @@
 <script setup>
-import { ref, computed } from "vue";
 import {
   DocumentIcon,
   PhotoIcon,
@@ -8,20 +7,22 @@ import {
   TableCellsIcon,
   PaperClipIcon,
   MusicalNoteIcon,
-  XMarkIcon,
   ArrowDownTrayIcon,
-  EyeIcon,
-  ExclamationTriangleIcon,
 } from "@heroicons/vue/24/outline";
+import { ref, reactive, onUnmounted, onMounted, onBeforeUnmount, computed } from "vue";
 
 const props = defineProps({
   attachments: {
     type: Array,
     default: () => [],
   },
-  baseUrl: {
+  title: {
     type: String,
-    default: window.location.origin, // URL base do ambiente local
+    default: "Anexos e Evidências",
+  },
+  emptyMessage: {
+    type: String,
+    default: "Nenhum anexo disponível",
   },
 });
 
@@ -43,8 +44,12 @@ const getFileIcon = (mimeType) => {
   if (mimeType.startsWith("video/")) return FilmIcon;
   if (mimeType.startsWith("audio/")) return MusicalNoteIcon;
   if (mimeType === "application/pdf") return DocumentIcon;
-  if (mimeType.includes("word")) return DocumentTextIcon;
-  if (mimeType.includes("excel") || mimeType.includes("spreadsheet"))
+  if (mimeType.includes("word") || mimeType.includes("document")) return DocumentTextIcon;
+  if (
+    mimeType.includes("excel") ||
+    mimeType.includes("spreadsheet") ||
+    mimeType.includes("csv")
+  )
     return TableCellsIcon;
   return PaperClipIcon;
 };
@@ -248,256 +253,305 @@ const totalFiles = computed(() => {
 
 <template>
   <div class="space-y-4">
-    <div class="flex justify-between items-center">
-      <h3 class="text-lg font-semibold text-gray-900">Anexos e Evidências</h3>
-      <div v-if="attachments.length > 0" class="text-sm text-gray-500">
-        <span>{{ totalFiles }} arquivo{{ totalFiles !== 1 ? "s" : "" }}</span>
-        <span class="mx-2">•</span>
-        <span>{{ formatFileSize(totalSize) }}</span>
-      </div>
-    </div>
-
-    <!-- Mensagem de erro -->
-    <div
-      v-if="errorMessage"
-      class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2"
+    <h3
+      v-if="title"
+      class="text-lg font-semibold text-gray-900 dark:text-dark-text-primary"
     >
-      <ExclamationTriangleIcon class="w-5 h-5" />
-      <span>{{ errorMessage }}</span>
-    </div>
+      {{ title }}
+    </h3>
 
     <div
       v-if="attachments.length === 0"
-      class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+      class="text-center py-8 text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-dark-accent rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600"
     >
-      <DocumentIcon class="w-12 h-12 mx-auto mb-2 text-gray-400" />
-      <p>Nenhum anexo disponível</p>
+      <DocumentIcon class="w-12 h-12 mx-auto mb-2 text-gray-400 dark:text-gray-500" />
+      <p>{{ emptyMessage }}</p>
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div
         v-for="attachment in attachments"
         :key="attachment.id"
-        class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all group"
+        class="flex items-center gap-3 p-4 bg-white dark:bg-dark-secondary border border-gray-200 dark:border-gray-700 rounded-lg hover:border-brand dark:hover:border-orange-500 hover:shadow-md transition-all group"
       >
         <div class="flex-shrink-0">
           <component
             :is="getFileIcon(attachment.mime_type)"
-            class="w-8 h-8 text-gray-400"
+            class="w-8 h-8 text-gray-400 dark:text-gray-500 group-hover:text-brand dark:group-hover:text-orange-500 transition-colors"
           />
         </div>
 
         <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 mb-1">
-            <button
-              @click="openPreview(attachment)"
-              :class="[
-                'text-sm font-medium truncate text-left',
-                canPreview(attachment.mime_type)
-                  ? 'text-blue-600 hover:text-blue-800 cursor-pointer hover:underline'
-                  : 'text-gray-700 cursor-default',
-              ]"
-              :title="attachment.original_filename || 'Arquivo sem nome'"
-            >
-              {{ attachment.original_filename || `arquivo-${attachment.id}` }}
-            </button>
-            <span
-              v-if="getFileExtension(attachment.original_filename)"
-              class="text-xs text-gray-400 px-2 py-1 bg-gray-100 rounded"
-            >
-              .{{ getFileExtension(attachment.original_filename) }}
-            </span>
-          </div>
-          <p class="text-xs text-gray-500">
+          <a
+            :href="attachment.url"
+            target="_blank"
+            class="text-sm font-medium text-gray-900 dark:text-dark-text-primary hover:text-brand dark:hover:text-orange-500 block truncate transition-colors"
+            :title="attachment.original_filename || attachment.name"
+          >
+            {{ attachment.original_filename || attachment.name }}
+          </a>
+          <p class="text-xs text-gray-500 dark:text-gray-400">
             {{ formatFileSize(attachment.size) }}
-            <span class="mx-2">•</span>
-            {{ attachment.mime_type || "Tipo desconhecido" }}
-          </p>
-          <p v-if="attachment.uploaded_at" class="text-xs text-gray-400 mt-1">
-            {{ formatDate(attachment.uploaded_at) }}
+            <span v-if="attachment.uploaded_at">
+              •
+              {{
+                new Date(attachment.uploaded_at).toLocaleDateString("pt-PT", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
+              }}</span
+            >
           </p>
         </div>
 
-        <div
-          class="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
-        >
-          <button
-            v-if="canPreview(attachment.mime_type)"
-            @click="openPreview(attachment)"
-            class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50 transition-colors"
-            title="Visualizar"
-          >
-            <EyeIcon class="w-5 h-5" />
-          </button>
-
-          <button
-            @click="downloadFile(attachment)"
-            class="text-green-600 hover:text-green-800 p-2 rounded hover:bg-green-50 transition-colors"
-            title="Download"
+        <div class="flex-shrink-0">
+          <a
+            :href="attachment.url"
+            target="_blank"
+            class="text-gray-400 hover:text-brand dark:text-gray-500 dark:hover:text-orange-500 p-2 rounded hover:bg-gray-50 dark:hover:bg-dark-accent transition-colors"
+            title="Baixar arquivo"
           >
             <ArrowDownTrayIcon class="w-5 h-5" />
-          </button>
+          </a>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Modal de Preview -->
+  <!-- Mensagem de erro -->
+  <div
+    v-if="errorMessage"
+    class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-center gap-2"
+  >
+    <ExclamationTriangleIcon class="w-5 h-5" />
+    <span>{{ errorMessage }}</span>
+  </div>
+
+  <div
+    v-if="attachments.length === 0"
+    class="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300"
+  >
+    <DocumentIcon class="w-12 h-12 mx-auto mb-2 text-gray-400" />
+    <p>Nenhum anexo disponível</p>
+  </div>
+
+  <div v-else class="grid grid-cols-1 md:grid-cols-2 gap-4">
     <div
-      v-if="showPreview && currentAttachment"
-      class="fixed inset-0 z-50 overflow-y-auto"
+      v-for="attachment in attachments"
+      :key="attachment.id"
+      class="flex items-center gap-3 p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-300 hover:shadow-md transition-all group"
     >
-      <div
-        class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        @click="closePreview"
-      ></div>
+      <div class="flex-shrink-0">
+        <component
+          :is="getFileIcon(attachment.mime_type)"
+          class="w-8 h-8 text-gray-400"
+        />
+      </div>
 
-      <div class="flex min-h-full items-center justify-center p-4">
-        <div
-          class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2 mb-1">
+          <button
+            @click="openPreview(attachment)"
+            :class="[
+              'text-sm font-medium truncate text-left',
+              canPreview(attachment.mime_type)
+                ? 'text-blue-600 hover:text-blue-800 cursor-pointer hover:underline'
+                : 'text-gray-700 cursor-default',
+            ]"
+            :title="attachment.original_filename || 'Arquivo sem nome'"
+          >
+            {{ attachment.original_filename || `arquivo-${attachment.id}` }}
+          </button>
+          <span
+            v-if="getFileExtension(attachment.original_filename)"
+            class="text-xs text-gray-400 px-2 py-1 bg-gray-100 rounded"
+          >
+            .{{ getFileExtension(attachment.original_filename) }}
+          </span>
+        </div>
+        <p class="text-xs text-gray-500">
+          {{ formatFileSize(attachment.size) }}
+          <span class="mx-2">•</span>
+          {{ attachment.mime_type || "Tipo desconhecido" }}
+        </p>
+        <p v-if="attachment.uploaded_at" class="text-xs text-gray-400 mt-1">
+          {{ formatDate(attachment.uploaded_at) }}
+        </p>
+      </div>
+
+      <div
+        class="flex-shrink-0 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <button
+          v-if="canPreview(attachment.mime_type)"
+          @click="openPreview(attachment)"
+          class="text-blue-600 hover:text-blue-800 p-2 rounded hover:bg-blue-50 transition-colors"
+          title="Visualizar"
         >
-          <!-- Cabeçalho do Modal -->
-          <div class="flex items-center justify-between p-4 border-b border-gray-200">
-            <div class="flex items-center gap-3">
-              <component
-                :is="getFileIcon(currentAttachment.mime_type)"
-                class="w-6 h-6 text-gray-400"
+          <EyeIcon class="w-5 h-5" />
+        </button>
+
+        <button
+          @click="downloadFile(attachment)"
+          class="text-green-600 hover:text-green-800 p-2 rounded hover:bg-green-50 transition-colors"
+          title="Download"
+        >
+          <ArrowDownTrayIcon class="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Preview -->
+  <div v-if="showPreview && currentAttachment" class="fixed inset-0 z-50 overflow-y-auto">
+    <div
+      class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+      @click="closePreview"
+    ></div>
+
+    <div class="flex min-h-full items-center justify-center p-4">
+      <div
+        class="relative bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+      >
+        <!-- Cabeçalho do Modal -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <div class="flex items-center gap-3">
+            <component
+              :is="getFileIcon(currentAttachment.mime_type)"
+              class="w-6 h-6 text-gray-400"
+            />
+            <div>
+              <h3 class="text-lg font-medium text-gray-900 truncate max-w-md">
+                {{
+                  currentAttachment.original_filename || `arquivo-${currentAttachment.id}`
+                }}
+              </h3>
+              <p class="text-sm text-gray-500">
+                {{ formatFileSize(currentAttachment.size) }}
+                <span class="mx-2">•</span>
+                {{ currentAttachment.mime_type }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button
+              @click="downloadFile(currentAttachment)"
+              class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              title="Download"
+            >
+              <ArrowDownTrayIcon class="w-5 h-5" />
+            </button>
+            <button
+              @click="closePreview"
+              class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <XMarkIcon class="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Conteúdo do Preview -->
+        <div class="p-4 overflow-auto max-h-[70vh]">
+          <div v-if="currentAttachment.fullUrl" class="flex items-center justify-center">
+            <!-- Preview de Imagem -->
+            <div v-if="isImage(currentAttachment.mime_type)" class="max-w-full">
+              <img
+                :src="currentAttachment.fullUrl"
+                :alt="currentAttachment.original_filename"
+                class="max-w-full h-auto max-h-[60vh] rounded-lg shadow-sm object-contain"
+                @error="errorMessage = 'Erro ao carregar imagem'"
               />
-              <div>
-                <h3 class="text-lg font-medium text-gray-900 truncate max-w-md">
-                  {{
-                    currentAttachment.original_filename ||
-                    `arquivo-${currentAttachment.id}`
-                  }}
-                </h3>
-                <p class="text-sm text-gray-500">
-                  {{ formatFileSize(currentAttachment.size) }}
-                  <span class="mx-2">•</span>
-                  {{ currentAttachment.mime_type }}
-                </p>
-              </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <!-- Preview de PDF -->
+            <div v-else-if="isPDF(currentAttachment.mime_type)" class="w-full">
+              <object
+                :data="currentAttachment.fullUrl + '#view=FitH'"
+                type="application/pdf"
+                class="w-full h-[60vh] border rounded-lg"
+                title="PDF Preview"
+              >
+                <div class="text-center py-12">
+                  <DocumentIcon class="w-12 h-12 mx-auto mb-4 text-gray-400" />
+                  <p class="text-gray-600">Não foi possível carregar o PDF.</p>
+                  <button
+                    @click="downloadFile(currentAttachment)"
+                    class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  >
+                    Baixar PDF
+                  </button>
+                </div>
+              </object>
+            </div>
+
+            <!-- Preview de Vídeo -->
+            <div v-else-if="isVideo(currentAttachment.mime_type)" class="w-full">
+              <video
+                :src="currentAttachment.fullUrl"
+                controls
+                class="w-full max-h-[60vh] rounded-lg"
+                @error="errorMessage = 'Erro ao carregar vídeo'"
+              >
+                Seu navegador não suporta a tag de vídeo.
+                <a :href="currentAttachment.fullUrl" class="text-blue-600 underline">
+                  Clique aqui para baixar o vídeo
+                </a>
+              </video>
+            </div>
+
+            <!-- Preview de Áudio -->
+            <div v-else-if="isAudio(currentAttachment.mime_type)" class="w-full">
+              <div class="bg-gray-50 p-8 rounded-lg">
+                <div class="flex items-center gap-4 mb-4">
+                  <MusicalNoteIcon class="w-12 h-12 text-gray-400" />
+                  <div>
+                    <h4 class="font-medium text-gray-900">
+                      {{ currentAttachment.original_filename }}
+                    </h4>
+                    <p class="text-sm text-gray-500">Arquivo de áudio</p>
+                  </div>
+                </div>
+                <audio
+                  :src="currentAttachment.fullUrl"
+                  controls
+                  class="w-full"
+                  @error="errorMessage = 'Erro ao carregar áudio'"
+                >
+                  Seu navegador não suporta o elemento de áudio.
+                </audio>
+              </div>
+            </div>
+          </div>
+          <div v-else class="text-center py-12">
+            <ExclamationTriangleIcon class="w-12 h-12 mx-auto mb-4 text-red-400" />
+            <p class="text-gray-600">URL do arquivo não disponível para preview.</p>
+          </div>
+        </div>
+
+        <!-- Rodapé do Modal -->
+        <div class="p-4 border-t border-gray-200 bg-gray-50">
+          <div class="flex justify-between items-center">
+            <div class="text-sm text-gray-500">
+              <p v-if="currentAttachment.uploaded_at">
+                Enviado em: {{ formatDateTime(currentAttachment.uploaded_at) }}
+              </p>
+            </div>
+            <div class="flex gap-2">
               <button
                 @click="downloadFile(currentAttachment)"
-                class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                title="Download"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
               >
-                <ArrowDownTrayIcon class="w-5 h-5" />
+                <ArrowDownTrayIcon class="w-4 h-4" />
+                Download
               </button>
               <button
                 @click="closePreview"
-                class="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <XMarkIcon class="w-5 h-5" />
+                Fechar
               </button>
-            </div>
-          </div>
-
-          <!-- Conteúdo do Preview -->
-          <div class="p-4 overflow-auto max-h-[70vh]">
-            <div
-              v-if="currentAttachment.fullUrl"
-              class="flex items-center justify-center"
-            >
-              <!-- Preview de Imagem -->
-              <div v-if="isImage(currentAttachment.mime_type)" class="max-w-full">
-                <img
-                  :src="currentAttachment.fullUrl"
-                  :alt="currentAttachment.original_filename"
-                  class="max-w-full h-auto max-h-[60vh] rounded-lg shadow-sm object-contain"
-                  @error="errorMessage = 'Erro ao carregar imagem'"
-                />
-              </div>
-
-              <!-- Preview de PDF -->
-              <div v-else-if="isPDF(currentAttachment.mime_type)" class="w-full">
-                <object
-                  :data="currentAttachment.fullUrl + '#view=FitH'"
-                  type="application/pdf"
-                  class="w-full h-[60vh] border rounded-lg"
-                  title="PDF Preview"
-                >
-                  <div class="text-center py-12">
-                    <DocumentIcon class="w-12 h-12 mx-auto mb-4 text-gray-400" />
-                    <p class="text-gray-600">Não foi possível carregar o PDF.</p>
-                    <button
-                      @click="downloadFile(currentAttachment)"
-                      class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Baixar PDF
-                    </button>
-                  </div>
-                </object>
-              </div>
-
-              <!-- Preview de Vídeo -->
-              <div v-else-if="isVideo(currentAttachment.mime_type)" class="w-full">
-                <video
-                  :src="currentAttachment.fullUrl"
-                  controls
-                  class="w-full max-h-[60vh] rounded-lg"
-                  @error="errorMessage = 'Erro ao carregar vídeo'"
-                >
-                  Seu navegador não suporta a tag de vídeo.
-                  <a :href="currentAttachment.fullUrl" class="text-blue-600 underline">
-                    Clique aqui para baixar o vídeo
-                  </a>
-                </video>
-              </div>
-
-              <!-- Preview de Áudio -->
-              <div v-else-if="isAudio(currentAttachment.mime_type)" class="w-full">
-                <div class="bg-gray-50 p-8 rounded-lg">
-                  <div class="flex items-center gap-4 mb-4">
-                    <MusicalNoteIcon class="w-12 h-12 text-gray-400" />
-                    <div>
-                      <h4 class="font-medium text-gray-900">
-                        {{ currentAttachment.original_filename }}
-                      </h4>
-                      <p class="text-sm text-gray-500">Arquivo de áudio</p>
-                    </div>
-                  </div>
-                  <audio
-                    :src="currentAttachment.fullUrl"
-                    controls
-                    class="w-full"
-                    @error="errorMessage = 'Erro ao carregar áudio'"
-                  >
-                    Seu navegador não suporta o elemento de áudio.
-                  </audio>
-                </div>
-              </div>
-            </div>
-            <div v-else class="text-center py-12">
-              <ExclamationTriangleIcon class="w-12 h-12 mx-auto mb-4 text-red-400" />
-              <p class="text-gray-600">URL do arquivo não disponível para preview.</p>
-            </div>
-          </div>
-
-          <!-- Rodapé do Modal -->
-          <div class="p-4 border-t border-gray-200 bg-gray-50">
-            <div class="flex justify-between items-center">
-              <div class="text-sm text-gray-500">
-                <p v-if="currentAttachment.uploaded_at">
-                  Enviado em: {{ formatDateTime(currentAttachment.uploaded_at) }}
-                </p>
-              </div>
-              <div class="flex gap-2">
-                <button
-                  @click="downloadFile(currentAttachment)"
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-                >
-                  <ArrowDownTrayIcon class="w-4 h-4" />
-                  Download
-                </button>
-                <button
-                  @click="closePreview"
-                  class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Fechar
-                </button>
-              </div>
             </div>
           </div>
         </div>

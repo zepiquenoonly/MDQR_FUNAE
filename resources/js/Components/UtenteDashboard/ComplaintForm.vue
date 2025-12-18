@@ -1,6 +1,6 @@
 <template>
     <div v-if="visible">
-        <div v-if="!props.embedded" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"></div>
+        <div v-if="!props.embedded && !showSuccessModal && !showErrorModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 transition-opacity" @click="$emit('close')"></div>
         <!-- Toast Notification -->
         <transition name="slide-fade">
             <div v-if="toast.show" :class="[
@@ -57,10 +57,10 @@
             <div v-if="showSuccessModal" :class="props.embedded ? 'relative z-10' : 'fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[60]'">
                 <div :class="props.embedded ? 'bg-white rounded-2xl shadow p-6 max-w-full mx-0 text-left' : 'bg-white rounded-2xl shadow-2xl p-8 max-w-md mx-4 text-center transform relative'">
                     <!-- Botão X no canto superior direito -->
-                    <button @click="closeSuccessAndForm"
+                    <!-- <button @click="closeSuccessAndForm"
                         class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors p-2 rounded-full hover:bg-gray-100">
                         <XMarkIcon class="w-6 h-6" />
-                    </button>
+                    </button> -->
 
                     <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
                         <CheckCircleIcon class="w-12 h-12 text-green-500" />
@@ -82,7 +82,7 @@
 
         <!-- Main Form Modal -->
         <transition name="zoom">
-            <div v-if="!showSuccessModal && !showErrorModal" :class="props.embedded ? 'bg-white rounded-2xl shadow w-full max-h-[80vh] flex flex-col overflow-hidden' : 'bg-white rounded-2xl shadow-2xl w-full max-w-[900px] max-h-[90vh] flex flex-col overflow-hidden'">
+            <div v-if="!showSuccessModal && !showErrorModal" :class="props.embedded ? 'bg-white rounded-2xl shadow w-full max-h-[80vh] flex flex-col overflow-hidden' : 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[51] w-[calc(100%-2rem)] max-w-[900px] max-h-[90vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden'">
 
             <!-- Header -->
             <div class="p-6 flex justify-between items-center bg-gradient-to-r from-orange-500 to-orange-600 relative">
@@ -208,24 +208,32 @@
                         <!-- Mensagem de Anonimato -->
                         <transition name="fade-slide">
                             <div v-if="formData.is_anonymous" class="bg-orange-50 border border-orange-200 rounded-xl p-6">
-                                <div class="flex items-start gap-4">
+                                <div class="flex items-start gap-4" :class="{ 'mb-4': !authUser }">
                                     <div class="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0">
                                         <ShieldCheckIcon class="w-6 h-6 text-orange-600" />
                                     </div>
                                     <div>
                                         <h4 class="font-semibold text-orange-900 mb-1">Submissão Anónima</h4>
                                         <p class="text-sm text-orange-700">
-                                            A sua identidade será protegida. Não será necessário fornecer dados pessoais.
+                                            A sua identidade será protegida. {{ authUser ? 'Seus dados de conta não serão associados a esta submissão.' : 'Não será necessário fornecer dados pessoais.' }}
                                             No entanto, não poderemos contactá-lo directamente sobre o progresso da sua submissão.
                                         </p>
                                     </div>
                                 </div>
+                                <!-- Opção apenas para usuários NÃO logados -->
+                                <div v-if="!authUser" class="flex items-center gap-2 mt-2 ml-16">
+                                    <input type="checkbox" id="showOptionalContact" v-model="showOptionalContact" 
+                                        class="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500">
+                                    <label for="showOptionalContact" class="text-sm font-medium text-gray-700 cursor-pointer select-none">
+                                        Desejo fornecer meus dados de contacto (Opcional)
+                                    </label>
+                                </div>
                             </div>
                         </transition>
 
-                        <!-- Formulário de Dados Pessoais (visível sempre — campos opcionais para anónimo) -->
+                        <!-- Formulário de Dados Pessoais (apenas para usuários NÃO logados) -->
                         <transition name="fade-slide">
-                            <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
+                            <div v-if="!authUser && (!formData.is_anonymous || showOptionalContact)" class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-5">
                                 <div class="flex items-center gap-3 pb-4 border-b border-gray-100">
                                     <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
                                         <UserIcon class="w-5 h-5 text-blue-600" />
@@ -278,7 +286,7 @@
                                     </div>
 
                                     <!-- Telefone -->
-                                    <div class="space-y-2 md:col-span-2">
+                                    <div class="space-y-2">
                                         <label class="block text-sm font-semibold text-gray-700">
                                             Telefone <span class="text-gray-400 font-normal">(opcional)</span>
                                         </label>
@@ -288,6 +296,57 @@
                                                 class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                                                 placeholder="+258 84 XXX XXXX" />
                                         </div>
+                                    </div>
+
+                                    <!-- Gênero -->
+                                    <div class="space-y-2">
+                                        <label class="block text-sm font-semibold text-gray-700">
+                                            Gênero<span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="relative">
+                                            <div class="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 flex items-center justify-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                                </svg>
+                                            </div>
+                                            <select v-model="formData.gender" @change="errors.gender = ''"
+                                                :class="[
+                                                    'w-full pl-10 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 bg-white appearance-none transition-all',
+                                                    errors.gender ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                                ]">
+                                                <option value="">-- Selecione --</option>
+                                                <option value="Masculino">Masculino</option>
+                                                <option value="Feminino">Feminino</option>
+                                                <option value="Outro">Outro</option>
+                                            </select>
+                                             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                                                <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                            <p v-if="errors.gender" class="flex items-center text-xs text-red-500 mt-1">
+                                                <ExclamationCircleIcon class="w-4 h-4 mr-1" />
+                                                {{ errors.gender }}
+                                            </p>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </transition>
+
+                        <!-- Informação para usuários logados -->
+                        <transition name="fade-slide">
+                            <div v-if="authUser && !formData.is_anonymous" class="bg-blue-50 border border-blue-200 rounded-xl p-6">
+                                <div class="flex items-start gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+                                        <UserIcon class="w-6 h-6 text-blue-600" />
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-blue-900 mb-1">Submissão Identificada</h4>
+                                        <p class="text-sm text-blue-700">
+                                            Seus dados pessoais serão utilizados a partir da sua conta: <span class="font-semibold">{{ authUser.name }}</span> ({{ authUser.email }}).
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -366,6 +425,97 @@
                                 <ExclamationCircleIcon class="w-4 h-4 mr-1" />
                                 {{ errors.type }}
                             </p>
+                        </div>
+
+                        <!-- Localização -->
+                        <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                                <span class="bg-orange-100 text-orange-600 p-1 rounded-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                                    </svg>
+                                </span>
+                                Localização da Ocorrência
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <!-- Província -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Província <span class="text-red-500">*</span>
+                                    </label>
+                                    <select v-model="formData.province" @change="errors.province = ''"
+                                        :class="[
+                                            'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 bg-white transition-all',
+                                            errors.province ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                        ]">
+                                        <option value="">-- Selecione --</option>
+                                        <option v-for="prov in provinces" :key="prov" :value="prov">{{ prov }}</option>
+                                    </select>
+                                    <p v-if="errors.province" class="text-xs text-red-500 mt-1">{{ errors.province }}</p>
+                                </div>
+
+                                <!-- Distrito / Distrito Municipal -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        {{ isMaputoCity ? 'Distrito Municipal' : 'Distrito' }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <select v-if="isMaputoCity" v-model="formData.municipal_district" @change="errors.municipal_district = ''"
+                                        :disabled="!formData.province"
+                                        :class="[
+                                            'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 bg-white disabled:bg-gray-100 disabled:text-gray-400 transition-all',
+                                             errors.municipal_district ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                        ]">
+                                        <option value="">-- Selecione --</option>
+                                        <option v-for="dist in availableDistricts" :key="dist" :value="dist">{{ dist }}</option>
+                                    </select>
+                                    <select v-else v-model="formData.district" @change="errors.district = ''"
+                                        :disabled="!formData.province"
+                                        :class="[
+                                            'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 bg-white disabled:bg-gray-100 disabled:text-gray-400 transition-all',
+                                             errors.district ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                        ]">
+                                        <option value="">-- Selecione --</option>
+                                        <option v-for="dist in availableDistricts" :key="dist" :value="dist">{{ dist }}</option>
+                                    </select>
+                                    <p v-if="isMaputoCity ? errors.municipal_district : errors.district" class="text-xs text-red-500 mt-1">
+                                        {{ isMaputoCity ? errors.municipal_district : errors.district }}
+                                    </p>
+                                </div>
+
+                                <!-- Posto Administrativo -->
+                                <div v-if="availableAdminPosts.length > 0">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Posto Administrativo <span class="text-red-500">*</span>
+                                    </label>
+                                    <select v-model="formData.administrative_post" @change="errors.administrative_post = ''"
+                                        :class="[
+                                            'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 bg-white transition-all',
+                                             errors.administrative_post ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                        ]">
+                                        <option value="">-- Selecione --</option>
+                                        <option v-for="post in availableAdminPosts" :key="post" :value="post">{{ post }}</option>
+                                    </select>
+                                    <p v-if="errors.administrative_post" class="text-xs text-red-500 mt-1">{{ errors.administrative_post }}</p>
+                                </div>
+
+                                <!-- Localidade -->
+                                <div v-if="availableLocalities.length > 0">
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">
+                                        Localidade <span class="text-red-500">*</span>
+                                    </label>
+                                    <select v-model="formData.locality" @change="errors.locality = ''"
+                                        :class="[
+                                            'w-full px-4 py-2.5 border rounded-lg focus:outline-none focus:ring-2 bg-white transition-all',
+                                             errors.locality ? 'border-red-500 focus:ring-red-500 bg-red-50' : 'border-gray-300 focus:ring-orange-500'
+                                        ]">
+                                        <option value="">-- Selecione --</option>
+                                        <option v-for="local in availableLocalities" :key="local" :value="local">{{ local }}</option>
+                                    </select>
+                                    <p v-if="errors.locality" class="text-xs text-red-500 mt-1">{{ errors.locality }}</p>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Projeto Relacionado -->
@@ -605,6 +755,7 @@
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { usePage } from '@inertiajs/vue3'
 import {
     XMarkIcon,
     DocumentTextIcon,
@@ -636,6 +787,10 @@ import {
     XCircleIcon
 } from '@heroicons/vue/24/outline'
 
+// Acessar usuário autenticado
+const page = usePage()
+const authUser = computed(() => page.props.auth?.user || null)
+
 const props = defineProps({
     isAnonymous: {
         type: Boolean,
@@ -663,11 +818,109 @@ const formData = ref({
     description: '',
     province: '',
     district: '',
+    municipal_district: '',
+    administrative_post: '',
+    locality: '',
     location_details: '',
     is_anonymous: props.isAnonymous,
     contact_name: '',
     contact_email: '',
-    contact_phone: ''
+    contact_phone: '',
+    gender: '',
+    user_id: authUser.value?.id || null
+})
+
+const showOptionalContact = ref(false)
+
+// Reset optional contact and clear fields when switching to anonymous
+watch(() => formData.value.is_anonymous, (newVal) => {
+    if (newVal) {
+        showOptionalContact.value = false
+        // Clear fields immediately
+        formData.value.contact_name = ''
+        formData.value.contact_email = ''
+        formData.value.contact_phone = ''
+        formData.value.gender = ''
+    }
+})
+
+// Clear fields if optional contact is unchecked while in anonymous mode
+watch(showOptionalContact, (newVal) => {
+    if (!newVal && formData.value.is_anonymous) {
+        formData.value.contact_name = ''
+        formData.value.contact_email = ''
+        formData.value.contact_phone = ''
+        formData.value.gender = ''
+    }
+})
+
+const locationsData = ref({})
+const fetchLocations = async () => {
+    try {
+        const response = await fetch('/api/locations', {
+            headers: { 'Accept': 'application/json' }
+        })
+        if (response.ok) {
+            locationsData.value = await response.json()
+        }
+    } catch (error) {
+        console.error('Erro ao carregar locais:', error)
+    }
+}
+const provinces = computed(() => Object.keys(locationsData.value))
+
+const provinceData = computed(() => {
+    return formData.value.province ? locationsData.value[formData.value.province] : null
+})
+
+const isMaputoCity = computed(() => formData.value.province === 'Maputo Cidade')
+
+const availableDistricts = computed(() => {
+    if (!provinceData.value) return []
+    // Se for Maputo Cidade, usa municipal_districts, senão districts
+    if (conferenceStructure(provinceData.value)) {
+        return isMaputoCity.value ? provinceData.value.municipal_districts : provinceData.value.districts
+    }
+    return Array.isArray(provinceData.value) ? provinceData.value : []
+})
+
+const conferenceStructure = (data) => {
+    return data && (data.districts || data.municipal_districts)
+}
+
+const availableAdminPosts = computed(() => {
+    if (!provinceData.value || !provinceData.value.administrative_posts) return []
+    const districtKey = isMaputoCity.value ? formData.value.municipal_district : formData.value.district
+    if (!districtKey) return []
+    
+    return provinceData.value.administrative_posts[districtKey] || []
+})
+
+const availableLocalities = computed(() => {
+    if (!provinceData.value || !provinceData.value.localities) return []
+    const postKey = formData.value.administrative_post
+    if (!postKey) return []
+
+    return provinceData.value.localities[postKey] || []
+})
+
+import { watch } from 'vue'
+
+// Reset fields when upstream changes
+watch(() => formData.value.province, () => {
+    formData.value.district = ''
+    formData.value.municipal_district = ''
+    formData.value.administrative_post = ''
+    formData.value.locality = ''
+})
+
+watch(() => [formData.value.district, formData.value.municipal_district], () => {
+    formData.value.administrative_post = ''
+    formData.value.locality = ''
+})
+
+watch(() => formData.value.administrative_post, () => {
+    formData.value.locality = ''
 })
 const projects = ref([])
 const fetchProjects = async () => {
@@ -689,6 +942,7 @@ const fetchProjects = async () => {
 // Fetch projects on component mount
 onMounted(() => {
     fetchProjects()
+    fetchLocations()
 })
 const files = ref([])
 const errors = ref({})
@@ -749,35 +1003,6 @@ const toastIcon = computed(() => {
         default: return InformationCircleIcon
     }
 })
-
-// // Fetch projects
-// const fetchProjects = async () => {
-//     try {
-//         const response = await fetch('/api/grievances/projects', {
-//             headers: {
-//                 'Accept': 'application/json',
-//                 'X-Requested-With': 'XMLHttpRequest'
-//             }
-//         })
-//         if (response.ok) {
-//             projects.value = await response.json()
-//         }
-//     } catch (error) {
-//         console.error('Erro ao carregar projetos:', error)
-//     }
-// })
-
-// // Toast helper
-// const showToast = (type, title, message, duration = 4000) => {
-//     toast.value = { show: true, type, title, message }
-//     setTimeout(() => {
-//         toast.value.show = false
-//     }, duration)
-// }
-
-// onMounted(() => {
-//     fetchProjects()
-// })
 
 // Toast helper
 const showToast = (type, title, message, duration = 4000) => {
@@ -903,8 +1128,8 @@ const validateStep = () => {
     errors.value = {}
 
     if (currentStep.value === 1) {
-        // Validar dados pessoais apenas se NÃO for anónimo
-        if (!formData.value.is_anonymous) {
+        // Para usuários NÃO logados: validar dados pessoais se identificado OU se optou por fornecer dados em anónimo
+        if (!authUser.value && (!formData.value.is_anonymous || showOptionalContact.value)) {
             if (!formData.value.contact_name || formData.value.contact_name.trim().length < 3) {
                 errors.value.contact_name = 'Nome é obrigatório (mínimo 3 caracteres)'
             }
@@ -913,7 +1138,11 @@ const validateStep = () => {
             } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.value.contact_email)) {
                 errors.value.contact_email = 'Email inválido'
             }
+            if (!formData.value.gender) {
+                errors.value.gender = 'O Gênero é obrigatório'
+            }
         }
+        // Para usuários logados: não precisa validar dados pessoais (vêm da sessão)
     }
 
     if (currentStep.value === 2) {
@@ -932,6 +1161,35 @@ const validateStep = () => {
                 errors.value.description = 'A descrição não pode exceder 1500 caracteres'
             }
         }
+
+        // Validação de Localização (Obrigatória)
+        if (!formData.value.province) {
+            errors.value.province = 'A província é obrigatória'
+        }
+        
+        // Se selecionou província, validar distrito
+        if (formData.value.province) {
+            if (isMaputoCity.value) {
+                if (!formData.value.municipal_district) {
+                    errors.value.municipal_district = 'O distrito municipal é obrigatório'
+                }
+            } else {
+                 if (!formData.value.district) {
+                    errors.value.district = 'O distrito é obrigatório'
+                }
+            }
+        }
+
+        // Se temos distritos/postos, validar
+        // Nota: Apenas obrigar se existirem opções. Se a lista estiver vazia, pode não ser obrigatório ou não aplicável.
+        // Mas o requisito diz "pelo menos, e depois escolher a outra"
+        if (availableAdminPosts.value.length > 0 && !formData.value.administrative_post) {
+             errors.value.administrative_post = 'O posto administrativo é obrigatório'
+        }
+
+        if (availableLocalities.value.length > 0 && !formData.value.locality) {
+             errors.value.locality = 'A localidade é obrigatória'
+        }
     }
 
     if (Object.keys(errors.value).length > 0) {
@@ -946,6 +1204,7 @@ const closeSuccessAndForm = () => {
     showSuccessModal.value = false
     emit('success', submissionResult.value)
     emit('close')
+    resetForm()
 }
 
 const closeErrorModal = () => {
@@ -997,6 +1256,8 @@ const handleSubmit = async () => {
         const formDataToSend = new FormData()
 
         // Adicionar dados do formulário
+        // IMPORTANTE: user_id é sempre enviado se o usuário estiver autenticado,
+        // mesmo em submissões anônimas, para rastreamento no dashboard do utente
         Object.keys(formData.value).forEach(key => {
             let value = formData.value[key]
             if (value !== null && value !== '' && value !== undefined) {
@@ -1043,11 +1304,7 @@ const handleSubmit = async () => {
         if (response.ok && data.success) {
             submissionResult.value = data
 
-            // Resetar o formulário
-            resetForm()
-
-            // Fechar o modal do formulário e abrir o modal de sucesso
-            emit('close')
+            // Mostrar modal de sucesso
             showSuccessModal.value = true
 
         } else {

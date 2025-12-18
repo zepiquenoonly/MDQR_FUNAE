@@ -1,6 +1,6 @@
 <template>
-  <AppLayout :title="pageTitle">
-    <div class="max-w-full mx-auto">
+  <AppLayout :title="`Submissão #${submission?.reference_number || 'Carregando...'}`">
+    <div class="space-y-4 sm:space-y-6">
       <!-- Estado de carregamento -->
       <div v-if="!complaint" class="text-center py-12">
         <div
@@ -17,12 +17,6 @@
         <div class="mb-8">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <Link
-                :href="backUrl"
-                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <ArrowLeftIcon class="h-5 w-5" />
-              </Link>
               <div>
                 <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
                   Submissão #{{ complaint.reference_number || "N/A" }}
@@ -61,7 +55,19 @@
                   </span>
                 </div>
               </div>
+              <StatusBadge
+                :status="submission.status"
+                :label="getStatusLabel(submission.status)"
+                size="lg"
+              />
             </div>
+
+            <button
+              @click="goBack"
+              class="text-sm text-brand hover:text-orange-700 font-medium flex items-center p-2 cursor-pointer"
+            >
+              ← Voltar ao Painel
+            </button>
           </div>
         </div>
       </div>
@@ -155,6 +161,7 @@
                 <p class="text-sm text-brand dark:text-purple-400 font-medium">
                   Data da Solicitação:
                 </p>
+
                 <div
                   class="flex items-center gap-2 p-3 bg-white dark:bg-dark-secondary rounded-lg border"
                 >
@@ -175,6 +182,7 @@
                 >
                   <div class="flex items-start gap-2">
                     <ChatBubbleLeftIcon class="h-5 w-5 text-gray-500 mt-0.5" />
+
                     <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                       {{
                         escalationDetails.escalation_reason ||
@@ -374,7 +382,6 @@
               </div>
             </div>
           </div>
-
           <!-- NOTA: REMOVIDA A SEÇÃO DE "Comentários e Intervenções" DAQUI -->
 
           <!-- Anexos -->
@@ -598,7 +605,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch, nextTick } from "vue";
-import { Link } from "@inertiajs/vue3";
+import { Link, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import CommentModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/CommentModal.vue";
 import ValidateSubmissionModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/ValidateSubmissionModal.vue";
@@ -806,6 +813,13 @@ const timelineData = computed(() => {
 
   return [];
 });
+
+const goBack = () => {
+  router.visit(window.history.state?.back || "/dashboard", {
+    preserveScroll: true,
+    preserveState: true,
+  });
+};
 
 // Detalhes do escalamento
 const escalationDetails = computed(() => {

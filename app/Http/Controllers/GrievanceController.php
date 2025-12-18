@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Attachment;
 use App\Models\Grievance;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -98,6 +99,9 @@ class GrievanceController extends Controller
                     'reference_number' => $grievance->reference_number,
                     'province' => $grievance->province,
                     'district' => $grievance->district,
+                    'municipal_district' => $grievance->municipal_district,
+                    'administrative_post' => $grievance->administrative_post,
+                    'locality' => $grievance->locality,
                     'location_details' => $grievance->location_details,
                     'attachments' => $attachments,
                     'assigned_user' => $grievance->assignedUser ? [
@@ -133,21 +137,28 @@ class GrievanceController extends Controller
      */
     public function store(Request $request)
     {
+        // Resolve authenticated user from request (Sanctum/API) or session (web)
+        $authenticatedUser = $request->user() ?? auth()->user();
+        $isAuthenticated = (bool) $authenticatedUser;
+
         try {
             // Validação dos dados
             $validated = $request->validate([
                 'project_id' => 'required|exists:projects,id',
                 'type' => 'required|in:complaint,grievance,suggestion',
-                // Description can be nullable; ensure it's either null or a string
-                'description' => 'nullable|string|max:1500',
-                'province' => 'nullable|string',
+                'province' => 'required|string',
                 'district' => 'nullable|string',
+                'municipal_district' => 'nullable|string',
+                'administrative_post' => 'nullable|string',
+                'locality' => 'nullable|string',
                 'location_details' => 'nullable|string',
                 'is_anonymous' => 'sometimes|boolean',
-                // Contact fields optional; validate when present
                 'contact_name' => 'sometimes|nullable|string|max:255',
                 'contact_email' => 'sometimes|nullable|email|max:255',
+                'description' => 'nullable|string|min:50|max:1500',
                 'contact_phone' => 'nullable|string|max:20',
+                'gender' => 'nullable|string|in:Masculino,Feminino,Outro',
+                'user_id' => 'nullable|exists:users,id',
                 'attachments' => 'nullable|array|max:5',
                 'attachments.*' => 'file|mimes:jpeg,jpg,png,pdf,doc,docx,txt,csv,xls,xlsx,mp3,wav,ogg,webm,m4a,aac|max:10240',
                 'audio_attachment' => 'nullable|file|mimes:webm,mp3,wav,ogg,m4a,aac|max:10240',
@@ -156,79 +167,64 @@ class GrievanceController extends Controller
             DB::beginTransaction();
 
             // Preparar dados da reclamação
+            $isAnonymous = $validated['is_anonymous'] ?? false;
+
             $grievanceData = [
                 'project_id' => $validated['project_id'] ?? null,
                 'type' => $validated['type'],
-                'description' => $validated['description'] ?? null,
+                'description' => $validated['description'] ?? 'Sem descrição fornecida.',
                 'category' => $validated['category'] ?? null,
                 'subcategory' => $validated['subcategory'] ?? null,
                 'province' => $validated['province'] ?? null,
                 'district' => $validated['district'] ?? null,
+                'municipal_district' => $validated['municipal_district'] ?? null,
+                'administrative_post' => $validated['administrative_post'] ?? null,
+                'locality' => $validated['locality'] ?? null,
                 'location_details' => $validated['location_details'] ?? null,
-                'is_anonymous' => $validated['is_anonymous'] ?? false,
+                'is_anonymous' => $isAnonymous,
                 'status' => 'submitted',
                 'priority' => 'medium',
                 'submitted_at' => now(),
             ];
 
-            // Se for reclamação identificada e o usuário estender autenticado
-            if (!$validated['is_anonymous'] && auth()->check()) {
-                $grievanceData['user_id'] = auth()->id();
+            // Se usuário está logado: usar dados da sessão (mesmo se anônimo)
+            if ($isAuthenticated) {
+                $grievanceData['user_id'] = $authenticatedUser->id;
+
+                // Se identificado, associar dados pessoais
+                if (!$isAnonymous) {
+                    $grievanceData['contact_name'] = $authenticatedUser->name;
+                    $grievanceData['contact_email'] = $authenticatedUser->email;
+                    $grievanceData['contact_phone'] = $authenticatedUser->phone ?? null;
+                    $grievanceData['gender'] = $authenticatedUser->gender ?? null;
+                    $grievanceData['province'] = $authenticatedUser->province ?? null;
+                    $grievanceData['district'] = $authenticatedUser->district ?? null;
+                }
             } else {
-                // Se for anônima, armazenar informações de contato
+                // Se usuário NÃO está logado: usar dados fornecidos no formulário
+                $grievanceData['user_id'] = null;
                 $grievanceData['contact_name'] = $validated['contact_name'] ?? null;
                 $grievanceData['contact_email'] = $validated['contact_email'] ?? null;
                 $grievanceData['contact_phone'] = $validated['contact_phone'] ?? null;
+                $grievanceData['gender'] = $validated['gender'] ?? null;
             }
 
             // Criar a reclamação
             $grievance = Grievance::create($grievanceData);
 
-            // Processar anexos se existirem
-            Log::info('Iniciando processamento de anexos', [
-                'has_attachments' => $request->hasFile('attachments'),
-                'has_audio' => $request->hasFile('audio_attachment'),
-                'attachments_count' => $request->hasFile('attachments') ? count($request->file('attachments')) : 0
-            ]);
-
             // Processar anexos de ficheiros
             if ($request->hasFile('attachments')) {
                 $attachments = $request->file('attachments');
-                Log::info('Processando anexos regulares', ['count' => count($attachments)]);
 
                 foreach ($attachments as $index => $file) {
-                    Log::info('Processando anexo', [
-                        'index' => $index,
-                        'filename' => $file->getClientOriginalName(),
-                        'size' => $file->getSize(),
-                        'mime' => $file->getMimeType()
-                    ]);
-
                     $result = $this->storeAttachment($grievance, $file);
-                    if (!$result) {
-                        Log::error('Falha ao armazenar anexo', [
-                            'index' => $index,
-                            'filename' => $file->getClientOriginalName()
-                        ]);
-                    }
                 }
             }
 
             // Processar anexo de áudio
             if ($request->hasFile('audio_attachment')) {
                 $audioFile = $request->file('audio_attachment');
-                Log::info('Processando anexo de áudio', [
-                    'filename' => $audioFile->getClientOriginalName(),
-                    'size' => $audioFile->getSize(),
-                    'mime' => $audioFile->getMimeType()
-                ]);
-
                 $result = $this->storeAttachment($grievance, $audioFile, 'audio');
-                if (!$result) {
-                    Log::error('Falha ao armazenar anexo de áudio', [
-                        'filename' => $audioFile->getClientOriginalName()
-                    ]);
-                }
             }
 
             DB::commit();
@@ -260,7 +256,7 @@ class GrievanceController extends Controller
 
             Log::error('Erro ao submeter submissão: ' . $e->getMessage(), [
                 'exception' => $e,
-                'user_id' => auth()->id(),
+                'user_id' => auth()->user()->id(),
                 'error_type' => get_class($e),
             ]);
 
@@ -555,16 +551,54 @@ class GrievanceController extends Controller
     public function getLocations()
     {
         $locations = [
-            'Maputo' => ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
-            'Gaza' => ['Chókwè', 'Chibuto', 'Xai-Xai', 'Manjacaze', 'Bilene', 'Chicualacuala', 'Chigubo', 'Guijá', 'Mabalane', 'Massangena', 'Massingir'],
-            'Inhambane' => ['Inhambane', 'Maxixe', 'Vilankulo', 'Massinga', 'Zavala', 'Inharrime', 'Jangamo', 'Homoine', 'Morrumbene', 'Govuro', 'Funhalouro', 'Panda', 'Mabote'],
-            'Sofala' => ['Beira', 'Dondo', 'Nhamatanda', 'Búzi', 'Gorongosa', 'Muanza', 'Chemba', 'Chibabava', 'Machanga', 'Marromeu', 'Cheringoma'],
-            'Manica' => ['Chimoio', 'Gondola', 'Manica', 'Báruè', 'Sussundenga', 'Macossa', 'Guro', 'Tambara', 'Vanduzi', 'Machaze', 'Mossurize'],
-            'Tete' => ['Tete', 'Moatize', 'Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde', 'Chiuta', 'Dôa', 'Macanga', 'Marávia', 'Moatize', 'Mutarara', 'Tsangano', 'Zumbu', 'Magoe'],
-            'Zambézia' => ['Quelimane', 'Mocuba', 'Alto Molócuè', 'Gurúè', 'Milange', 'Ile', 'Namarrói', 'Pebane', 'Maganja da Costa', 'Nicoadala', 'Inhassunge', 'Chinde', 'Morrumbala', 'Lugela', 'Mopeia', 'Namacurra'],
-            'Nampula' => ['Nampula', 'Nacala', 'Ilha de Moçambique', 'Angoche', 'Monapo', 'Memba', 'Mossuril', 'Mogincual', 'Mogovolas', 'Meconta', 'Muecate', 'Murrupula', 'Nampula', 'Ribaué', 'Malema', 'Mecubúri', 'Eráti', 'Lalaua', 'Larde', 'Liúpo', 'Moma', 'Nacarôa'],
-            'Cabo Delgado' => ['Pemba', 'Mocímboa da Praia', 'Palma', 'Mueda', 'Montepuez', 'Chiúre', 'Ancuabe', 'Balama', 'Macomia', 'Meluco', 'Metuge', 'Namuno', 'Nangade', 'Quissanga'],
-            'Niassa' => ['Lichinga', 'Cuamba', 'Mandimba', 'Marrupa', 'Majune', 'Mavago', 'Mecanhelas', 'Meculane', 'Metarica', 'Muembe', 'N\'gauma', 'Nipepe', 'Sanga'],
+            'Maputo Cidade' => [
+                'districts' => ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
+                'municipal_districts' => ['KaMpfumu', 'Nlhamankulu', 'KaMaxaquene', 'KaMavota', 'KaMubukwana', 'KaTembe', 'Kanyaka'],
+                 'administrative_posts' => [
+                     'KaMpfumu' => ['Alto Maé', 'Malhangalene', 'Polana Cimento'],
+                     'Nlhamankulu' => ['Chamanculo', 'Xipamanine'],
+                     'KaMaxaquene' => ['Maxaquene', 'Polana Caniço'],
+                     'KaMavota' => ['Mavota', 'Costa do Sol', 'Albasine'],
+                     'KaMubukwana' => ['Zimpeto', 'Magoanine', 'Jardim'],
+                     'KaTembe' => ['Katembe', 'Incassane', 'Guachene'],
+                     'Kanyaka' => ['Inguane', 'Ribene', 'Quewene'],
+                ],
+                'localities' => [
+                    'Alto Maé' => ['Alto Maé A', 'Alto Maé B'],
+                    'Chamanculo' => ['Chamanculo A', 'Chamanculo B', 'Chamanculo C', 'Chamanculo D'],
+                ]
+            ],
+            'Maputo Província' => [
+                'districts' => ['Boane', 'Magude', 'Manhiça', 'Marracuene', 'Matola', 'Matutuíne', 'Moamba', 'Namaacha']
+            ],
+            'Gaza' => [
+                'districts' => ['Chókwè', 'Chibuto', 'Xai-Xai', 'Manjacaze', 'Bilene', 'Chicualacuala', 'Chigubo', 'Guijá', 'Mabalane', 'Massangena', 'Massingir'],
+                'administrative_posts' => ['Chókwè' => ['Macarretane', 'Lionde', 'Xilembene'], 'Bilene' => ['Praia de Bilene', 'Macia']],
+            ],
+            'Inhambane' => [
+                'districts' => ['Inhambane', 'Maxixe', 'Vilankulo', 'Massinga', 'Zavala', 'Inharrime', 'Jangamo', 'Homoine', 'Morrumbene', 'Govuro', 'Funhalouro', 'Panda', 'Mabote']
+            ],
+            'Sofala' => [
+                'districts' => ['Beira', 'Dondo', 'Nhamatanda', 'Búzi', 'Gorongosa', 'Muanza', 'Chemba', 'Chibabava', 'Machanga', 'Marromeu', 'Cheringoma']
+            ],
+            'Manica' => [
+                'districts' => ['Chimoio', 'Gondola', 'Manica', 'Báruè', 'Sussundenga', 'Macossa', 'Guro', 'Tambara', 'Vanduzi', 'Machaze', 'Mossurize']
+            ],
+            'Tete' => [
+                'districts' => ['Tete', 'Moatize', 'Angónia', 'Cahora-Bassa', 'Changara', 'Chifunde', 'Chiuta', 'Dôa', 'Macanga', 'Marávia', 'Moatize', 'Mutarara', 'Tsangano', 'Zumbu', 'Magoe']
+            ],
+            'Zambézia' => [
+                'districts' => ['Quelimane', 'Mocuba', 'Alto Molócuè', 'Gurúè', 'Milange', 'Ile', 'Namarrói', 'Pebane', 'Maganja da Costa', 'Nicoadala', 'Inhassunge', 'Chinde', 'Morrumbala', 'Lugela', 'Mopeia', 'Namacurra']
+            ],
+            'Nampula' => [
+                'districts' => ['Nampula', 'Nacala', 'Ilha de Moçambique', 'Angoche', 'Monapo', 'Memba', 'Mossuril', 'Mogincual', 'Mogovolas', 'Meconta', 'Muecate', 'Murrupula', 'Nampula', 'Ribaué', 'Malema', 'Mecubúri', 'Eráti', 'Lalaua', 'Larde', 'Liúpo', 'Moma', 'Nacarôa']
+            ],
+            'Cabo Delgado' => [
+                'districts' => ['Pemba', 'Mocímboa da Praia', 'Palma', 'Mueda', 'Montepuez', 'Chiúre', 'Ancuabe', 'Balama', 'Macomia', 'Meluco', 'Metuge', 'Namuno', 'Nangade', 'Quissanga']
+            ],
+            'Niassa' => [
+                'districts' => ['Lichinga', 'Cuamba', 'Mandimba', 'Marrupa', 'Majune', 'Mavago', 'Mecanhelas', 'Meculane', 'Metarica', 'Muembe', 'N\'gauma', 'Nipepe', 'Sanga']
+            ],
         ];
 
         return response()->json($locations);

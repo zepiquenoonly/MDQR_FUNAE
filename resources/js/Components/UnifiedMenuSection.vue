@@ -6,67 +6,56 @@
       Navegação
     </div>
 
-    <!-- Dashboard -->
+    <!-- Dashboards -->
     <MenuItem
-      :active="$page.url === dashboardRoute"
+      v-if="role === 'admin'"
+      :active="$page.url.startsWith('/admin/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
-      :href="dashboardRoute"
+      href="/admin/dashboard"
     />
-
-    <!-- Projectos - Mostrar apenas se tiver permissão -->
     <MenuItem
-      v-if="permissions.canManageProjects"
-      :active="$page.url.startsWith(projectsRoute)"
-      :icon="BriefcaseIcon"
-      :text="'Projectos'"
-      :href="projectsRoute"
+      v-if="role === 'director'"
+      :active="$page.url.startsWith('/director/dashboard')"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/director/dashboard"
+    />
+    <MenuItem
+      v-if="role === 'manager'"
+      :active="$page.url.startsWith('/gestor/dashboard')"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/gestor/dashboard"
+    />
+    <MenuItem
+      v-if="role === 'pca'"
+      :active="$page.url.startsWith('/pca/dashboard')"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/pca/dashboard"
+    />
+    <MenuItem
+      v-if="role === 'technician'"
+      :active="$page.url.startsWith('/tecnico/dashboard')"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/tecnico/dashboard"
+    />
+    <MenuItem
+      v-if="role === 'utente'"
+      :active="$page.url.startsWith('/utente/dashboard')"
+      :icon="HomeIcon"
+      :text="'Dashboard'"
+      href="/utente/dashboard"
     />
 
-    <!-- Role-specific sections -->
-    <template v-if="role === 'technician' || role === 'utente'">
-      <!-- MDQR Section -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-      >
-        MDQR
-      </div>
-
-      <!-- Submeter Reclamação/Queixa/Sugestão -->
-      <MenuDropdown
-        :icon="DocumentPlusIcon"
-        :text="'Nova Submissão'"
-        :items="[
-          {
-            id: 'complaints',
-            text: 'Reclamação',
-            icon: ExclamationCircleIcon,
-            href: '/reclamacoes/nova?type=complaint',
-          },
-          {
-            id: 'grievances',
-            text: 'Queixa',
-            icon: ExclamationTriangleIcon,
-            href: '/reclamacoes/nova?type=grievance',
-          },
-          {
-            id: 'suggestions',
-            text: 'Sugestão',
-            icon: LightBulbIcon,
-            href: '/reclamacoes/nova?type=suggestion',
-          },
-        ]"
-        @item-clicked="navigateToRoute"
-      />
-
-      <!-- Acompanhamento -->
-      <MenuItem
-        :active="$page.url.startsWith('/reclamacoes/acompanhar')"
-        :icon="MagnifyingGlassIcon"
-        :text="'Acompanhamento'"
-        :href="'/reclamacoes/acompanhar'"
-      />
-    </template>
+    <MenuItem
+      v-if="role === 'utente'"
+      :icon="MagnifyingGlassIcon"
+      :text="'Acompanhar submissão'"
+      href="/track"
+    />
 
     <template v-if="role === 'manager'">
       <!-- Técnicos -->
@@ -74,22 +63,23 @@
         :active="$page.url.startsWith('/gestor/technicians')"
         :icon="UserGroupIcon"
         :text="'Técnicos'"
-        :href="'/gestor/technicians'"
+        href="/gestor/technicians"
+      />
+
+      <MenuItem
+        v-if="permissions.canManageProjects"
+        :active="$page.url.startsWith(projectsRoute)"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        :href="projectsRoute"
       />
 
       <!-- Estatísticas -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-        v-if="permissions.canViewStatistics"
-      >
-        Relatórios
-      </div>
       <MenuItem
-        v-if="permissions.canViewStatistics"
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        :href="'/gestor/estatisticas'"
+        href="/gestor/estatisticas"
       />
     </template>
 
@@ -102,7 +92,15 @@
         :href="'/director/complaints-overview'"
       />
 
-      <!-- Indicadores -->
+      <MenuItem
+        v-if="permissions.canManageProjects"
+        :active="$page.url.startsWith(projectsRoute)"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        :href="projectsRoute"
+      />
+
+      <!-- Estatísticas -->
       <MenuItem
         :active="$page.url.startsWith('/director/indicators')"
         :icon="ChartBarIcon"
@@ -132,28 +130,46 @@
 
     <template v-if="role === 'pca'">
       <!-- Estatísticas -->
-      <div
-        class="px-5 py-3 text-xs text-gray-600 font-semibold uppercase tracking-wide mt-3"
-        v-if="permissions.canViewStatistics"
-      >
-        Relatórios
-      </div>
-      <MenuItem
-        v-if="permissions.canViewStatistics"
-        :active="$page.url.startsWith('/pca/statistics')"
+      <!-- <MenuItem
+        :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        :href="'/pca/statistics'"
-      />
+        href="/gestor/estatisticas"
+      /> -->
+    </template>
 
-      <!-- Gestão de Usuários -->
+    <template v-if="role === 'admin'">
+      <!-- Usuários -->
       <MenuItem
-        v-if="permissions.canManageUsers"
-        :active="$page.url.startsWith('/pca/users')"
+        :active="$page.url === '/admin/users'"
         :icon="UsersIcon"
         :text="'Usuários'"
-        :href="'/pca/users'"
+        @click="() => navigateToAdminUsers()"
       />
+
+      <!-- Departamentos -->
+      <MenuItem
+        :active="$page.url === '/admin/departments'"
+        :icon="BuildingOfficeIcon"
+        :text="'Departamentos'"
+        @click="() => navigateToAdminDepartments()"
+      />
+
+      <!-- Projectos -->
+      <MenuItem
+        :active="$page.url === '/admin/projects'"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        @click="() => navigateToAdminProjects()"
+      />
+
+      <!-- Estatísticas -->
+      <!-- <MenuItem
+        :active="$page.url.startsWith('/gestor/estatisticas')"
+        :icon="ChartBarIcon"
+        :text="'Estatísticas'"
+        href="/gestor/estatisticas"
+      /> -->
     </template>
 
     <!-- Conta / Perfil -->
@@ -196,6 +212,7 @@ import {
   ChartBarIcon,
   ClipboardDocumentListIcon,
   UsersIcon,
+  BuildingOfficeIcon,
 } from "@heroicons/vue/24/outline";
 import { router, usePage } from "@inertiajs/vue3";
 import { useAuth } from "@/Composables/useAuth";
@@ -250,7 +267,18 @@ const navigateToRoute = (item) => {
   }
 };
 
-// Logout
+const navigateToAdminUsers = () => {
+  router.visit("/admin/users");
+};
+
+const navigateToAdminDepartments = () => {
+  router.visit("/admin/departments");
+};
+
+const navigateToAdminProjects = () => {
+  router.visit("/admin/projects");
+};
+
 const handleLogout = () => {
   router.post(
     "/logout",

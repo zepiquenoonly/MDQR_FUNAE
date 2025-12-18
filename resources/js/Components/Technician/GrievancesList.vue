@@ -1,27 +1,44 @@
 <template>
-    <div
-        class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6">
-        <!-- Header compacto -->
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4 sm:mb-6">
-            <div>
-                <h3 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary">Reclamações Atribuídas</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Clique para gerenciar detalhes</p>
+    <div class="bg-gradient-to-br from-gray-50 to-gray-100/80 backdrop-blur-xl rounded-3xl shadow-2xl border border-gray-200/50 shadow-lg shadow-primary-500/5 p-6 sm:p-8">
+        <!-- Header - Glassmorphism -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 sm:mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-primary-500/20 to-orange-600/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30 shadow-lg shadow-primary-500/10">
+                    <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Reclamações Atribuídas</h3>
+                    <p class="text-sm text-gray-600">Clique para gerenciar detalhes</p>
+                </div>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">
-                Total: <span class="font-semibold text-gray-900 dark:text-dark-text-primary">{{ grievances.length }}</span>
-            </p>
+            <div class="bg-white/50 backdrop-blur-sm px-4 py-2 rounded-2xl border border-white/40 shadow-lg">
+                <p class="text-sm text-gray-600">
+                    Total: <span class="font-bold text-gray-900">{{ grievances.length }}</span>
+                </p>
+            </div>
         </div>
 
-        <!-- Filtros -->
-        <div class="space-y-3 mb-4 sm:mb-6">
-            <h4 class="font-semibold text-gray-800 dark:text-dark-text-primary text-sm">Filtrar Por:</h4>
-            <div class="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
-                <div class="flex flex-col">
-                    <label for="priority" class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+        <!-- Filters - Glassmorphism Cards -->
+        <div class="space-y-6 mb-6 sm:mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-orange-500/20 to-amber-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                    <svg class="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
+                    </svg>
+                </div>
+                <h4 class="font-bold text-gray-800 text-base">Filtrar Por:</h4>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <!-- Priority Filter -->
+                <div class="bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/40 shadow-lg shadow-orange-500/5 hover:shadow-xl hover:shadow-orange-500/10 transition-all duration-300 hover:-translate-y-0.5">
+                    <label for="priority" class="block text-sm font-semibold text-gray-700 mb-2">
                         Prioridade
                     </label>
                     <select id="priority" v-model="localFilters.priority"
-                        class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 appearance-none bg-white dark:bg-dark-accent cursor-pointer dark:text-dark-text-primary"
+                        class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-white/50 rounded-xl text-sm focus:border-orange-400 focus:ring-2 focus:ring-orange-200/50 transition-all duration-200 appearance-none cursor-pointer"
                         @change="handleFilterChange">
                         <option value="">Todos</option>
                         <option value="high">Alta</option>
@@ -30,12 +47,13 @@
                     </select>
                 </div>
 
-                <div class="flex flex-col">
-                    <label for="status" class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                <!-- Status Filter -->
+                <div class="bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/40 shadow-lg shadow-blue-500/5 hover:shadow-xl hover:shadow-blue-500/10 transition-all duration-300 hover:-translate-y-0.5">
+                    <label for="status" class="block text-sm font-semibold text-gray-700 mb-2">
                         Estado
                     </label>
                     <select id="status" v-model="localFilters.status"
-                        class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary"
+                        class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-white/50 rounded-xl text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-200/50 transition-all duration-200 appearance-none cursor-pointer"
                         @change="handleFilterChange">
                         <option value="">Todos</option>
                         <option value="open">Aberto</option>
@@ -45,12 +63,13 @@
                     </select>
                 </div>
 
-                <div class="flex flex-col col-span-2 sm:col-span-1">
-                    <label for="search" class="mb-1 text-xs font-medium text-gray-700 dark:text-gray-300">
+                <!-- Search Filter -->
+                <div class="bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/40 shadow-lg shadow-purple-500/5 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 hover:-translate-y-0.5">
+                    <label for="search" class="block text-sm font-semibold text-gray-700 mb-2">
                         Pesquisar
                     </label>
                     <input id="search" v-model="localFilters.search" type="text" placeholder="Ref., categoria..."
-                        class="px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-xs focus:border-orange-500 focus:ring-1 focus:ring-orange-200 transition-all duration-200 dark:bg-dark-accent dark:text-dark-text-primary"
+                        class="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-white/50 rounded-xl text-sm focus:border-purple-400 focus:ring-2 focus:ring-purple-200/50 transition-all duration-200"
                         @keyup.enter="handleFilterChange" />
                 </div>
             </div>
@@ -64,7 +83,7 @@
                     v-for="grievance in grievances"
                     :key="grievance.id"
                     :href="grievanceDetailUrl(grievance.id)"
-                    class="block rounded-xl border bg-white dark:bg-dark-accent p-3 sm:p-4 text-left shadow-sm transition hover:border-brand hover:shadow-md hover:bg-orange-50 dark:hover:bg-orange-900/5 border-gray-200 dark:border-gray-600">
+                    class="block bg-gradient-to-br from-white to-gray-50/80 backdrop-blur-md rounded-2xl p-4 sm:p-5 text-left shadow-lg border border-gray-200/60 hover:shadow-xl hover:shadow-primary-500/15 transition-all duration-300 hover:-translate-y-1 hover:border-primary-300/60 group">
                     <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
                         <div class="flex items-center gap-2">
                             <p class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">{{ grievance.reference_number }}</p>
@@ -86,10 +105,13 @@
                 </Link>
             </div>
 
-            <!-- Empty State -->
-            <div v-if="grievances.length === 0" class="text-center py-8">
-                <DocumentMagnifyingGlassIcon class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
-                <p class="text-gray-500 dark:text-gray-400 text-sm">Nenhuma reclamação encontrada</p>
+            <!-- Empty State - Glassmorphism -->
+            <div v-if="grievances.length === 0" class="text-center py-12">
+                <div class="bg-white/50 backdrop-blur-md w-20 h-20 rounded-3xl flex items-center justify-center border border-white/40 shadow-lg shadow-gray-500/5 mx-auto mb-6">
+                    <DocumentMagnifyingGlassIcon class="w-10 h-10 text-gray-400" />
+                </div>
+                <p class="text-gray-500 text-base font-medium">Nenhuma reclamação encontrada</p>
+                <p class="text-gray-400 text-sm mt-1">Tente ajustar os filtros de pesquisa</p>
             </div>
         </div>
     </div>
@@ -114,10 +136,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:filters', 'select-grievance'])
 
-const localFilters = ref({ ...props.filters })
+const localFilters = ref({
+    status: props.filters.status || '',
+    priority: props.filters.priority || '',
+    search: props.filters.search || '',
+})
 
 watch(() => props.filters, (newFilters) => {
-    localFilters.value = { ...newFilters }
+    localFilters.value = {
+        status: newFilters.status || '',
+        priority: newFilters.priority || '',
+        search: newFilters.search || '',
+    }
 }, { deep: true })
 
 const handleFilterChange = () => {

@@ -6,6 +6,7 @@ use App\Models\Grievance;
 use App\Models\GrievanceUpdate;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Department;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -218,7 +219,8 @@ class PerformanceTestSeeder extends Seeder
         for ($i = 0; $i < $this->totalUtentes; $i += $batchSize) {
             $currentBatch = min($batchSize, $this->totalUtentes - $i);
             
-            $batch = User::factory($currentBatch)->create();
+            // Utentes NÃO devem ter department_id
+            $batch = User::factory($currentBatch)->create(['department_id' => null]);
             
             foreach ($batch as $user) {
                 $user->assignRole($role);
@@ -242,10 +244,21 @@ class PerformanceTestSeeder extends Seeder
         $this->output("🔧 Criando {$this->totalTecnicos} técnicos e associando a projetos...");
 
         $tecnicos = collect();
+        $departments = Department::pluck('id');
+        
+        // Técnicos DEVEM ter department_id
+        if ($departments->isEmpty()) {
+            $this->output("⚠️ Nenhum departamento encontrado. Técnicos não serão criados sem departamentos.", 'error');
+            return collect();
+        }
+
         $batch = User::factory($this->totalTecnicos)->create();
 
         foreach ($batch as $user) {
             $user->assignRole($role);
+            
+            // Assign Department (obrigatório para técnicos)
+            $user->update(['department_id' => $departments->random()]);
 
             // Associar técnico a 1-3 projetos aleatórios
             $numProjects = fake()->numberBetween(1, 3);
@@ -277,10 +290,22 @@ class PerformanceTestSeeder extends Seeder
         $this->output("👔 Criando {$this->totalGestores} gestores...");
 
         $gestores = collect();
+        $departments = Department::pluck('id');
+        
+        // Gestores DEVEM ter department_id
+        if ($departments->isEmpty()) {
+            $this->output("⚠️ Nenhum departamento encontrado. Gestores não serão criados sem departamentos.", 'error');
+            return collect();
+        }
+        
         $batch = User::factory($this->totalGestores)->create();
         
         foreach ($batch as $user) {
             $user->assignRole($role);
+            
+            // Assign Department (obrigatório para gestores)
+            $user->update(['department_id' => $departments->random()]);
+            
             $gestores->push($user);
         }
 

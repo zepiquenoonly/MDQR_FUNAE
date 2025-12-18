@@ -45,6 +45,12 @@ Route::get('/grievances-home', function () {
 Route::get('/track', [GrievanceTrackingController::class, 'index'])->name('grievance.track');
 Route::middleware('api')->post('/track', [GrievanceTrackingController::class, 'track'])->name('grievance.track.search');
 
+// Public web route for grievance creation (allow logged-in and guest submissions). Keep name for compatibility.
+Route::post('/api/grievances', [GrievanceController::class, 'store'])->name('api.grievances.store');
+
+// Locations API
+Route::get('/api/locations', [GrievanceController::class, 'getLocations'])->name('api.locations');
+
 // Visualização pública de anexos (com restrições)
 Route::get('/attachments/{attachment}/view', [GrievanceController::class, 'viewAttachmentPublic'])
     ->name('attachments.view');
@@ -55,10 +61,10 @@ Route::get('/test-track', function () {
 })->name('test.track');
 
 // Rotas de criação e acompanhamento de reclamações
-Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
-Route::get('/reclamacoes/acompanhar', function () {
-    return inertia('Grievances/Track');
-})->name('grievances.track');
+// Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
+// Route::get('/reclamacoes/acompanhar', function () {
+//     return inertia('Grievances/Track');
+// })->name('grievances.track');
 
 // Rotas para convidados (não autenticados)
 Route::middleware('guest')->group(function () {
@@ -102,7 +108,7 @@ Route::middleware('auth')->group(function () {
     Route::prefix('director')->name('director.')->group(function () {
         // Dashboard principal
         Route::get('/dashboard', [DirectorDashboardController::class, 'dashboard'])->name('dashboard');
-        
+
         Route::get('/dashboard/api', [DirectorDashboardController::class, 'dashboardApi'])->name('dashboard.api');
         Route::get('/projects', [ProjectController::class, 'webIndex'])->name('director.projects');
         
@@ -131,23 +137,27 @@ Route::middleware('auth')->group(function () {
         Route::post('/complaints/{id}/comment', [DirectorComplaintsController::class, 'addComment'])->name('complaints.comment');
         //Route::post('/complaints/{id}/reject', [DirectorComplaintsController::class, 'rejectCase'])->name('complaints.reject');
         Route::post('/complaints/{id}/analyze', [DirectorComplaintsController::class, 'analyzeCase'])->name('complaints.analyze');
-        
+
         // Gestão de funcionários (equipe)
         Route::get('/managers', [ManagerDashboardController::class, 'index'])->name('managers.index');
         Route::get('/team/{id}', [DirectorTeamController::class, 'show'])->name('team.show');
         Route::get('/team/{id}/edit', [DirectorTeamController::class, 'edit'])->name('team.edit');
         Route::post('/team', [DirectorTeamController::class, 'store'])->name('team.store');
         Route::patch('/team/{id}', [DirectorTeamController::class, 'update'])->name('team.update');
-        
+
         // Indicadores
         Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
-        
+
         // Rota para atualizar status de reclamação
         Route::patch('/complaints/{id}/update', [DirectorComplaintsController::class, 'update'])->name('complaints.update');
-        
+
+
+        // Rota para atribuir reclamação
+        Route::post('/complaints/{id}/assign', [DirectorComplaintsController::class, 'assign'])->name('complaints.assign');
+
         // Rota para toggle status de funcionário
         Route::patch('/team/{id}/toggle-status', [DirectorTeamController::class, 'toggleStatus'])->name('team.toggle-status');
-        
+
         // Rota para remover funcionário
         Route::delete('/team/{id}', [DirectorTeamController::class, 'destroy'])->name('team.destroy');
         
@@ -508,27 +518,41 @@ Route::middleware('auth')->group(function () {
     });
 
     // Rotas de perfil
-    Route::prefix('profile')->name('profile.')->group(function () {
-        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
-        Route::get('/info', [ProfileController::class, 'edit'])->name('info');
-        Route::get('/security', [ProfileController::class, 'edit'])->name('security');
-        Route::get('/notifications', [ProfileController::class, 'edit'])->name('notifications');
-        Route::get('/preferences', [ProfileController::class, 'edit'])->name('preferences');
+    // Route::prefix('profile')->name('profile.')->group(function () {
+    //     Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+    //     Route::get('/info', [ProfileController::class, 'edit'])->name('info');
+    //     Route::get('/security', [ProfileController::class, 'edit'])->name('security');
+    //     Route::get('/notifications', [ProfileController::class, 'edit'])->name('notifications');
+    //     Route::get('/preferences', [ProfileController::class, 'edit'])->name('preferences');
 
-        Route::patch('/info', [ProfileController::class, 'update'])->name('update');
-        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('update.password');
-        Route::delete('/account', [ProfileController::class, 'destroy'])->name('destroy');
+    //     Route::post('/infoUpdate', [ProfileController::class, 'update'])->name('update');
+    //     Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('update.password');
+    //     Route::delete('/account', [ProfileController::class, 'destroy'])->name('destroy');
 
-        Route::post('/avatar', [ProfileController::class, 'uploadAvatar'])->name('avatar.upload');
-        Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.delete');
-        Route::get('/avatar', [ProfileController::class, 'getAvatar'])->name('avatar.get');
+    //     Route::post('/avatar', [ProfileController::class, 'uploadAvatar'])->name('avatar.upload');
+    //     Route::delete('/avatar', [ProfileController::class, 'deleteAvatar'])->name('avatar.delete');
+    //     Route::get('/avatar', [ProfileController::class, 'getAvatar'])->name('avatar.get');
+    // });
+
+        // Rotas do Perfil
+    Route::prefix('profile')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::get('/info', [ProfileController::class, 'edit'])->name('profile.info');
+        Route::get('/security', [ProfileController::class, 'edit'])->name('profile.security');
+        Route::get('/notifications', [ProfileController::class, 'edit'])->name('profile.notifications');
+        Route::get('/preferences', [ProfileController::class, 'edit'])->name('profile.preferences');
+
+        Route::patch('/info', [ProfileController::class, 'update'])->name('profile.update');
+        Route::patch('/password', [ProfileController::class, 'updatePassword'])->name('profile.update.password');
+        Route::delete('/account', [ProfileController::class, 'destroy'])->name('profile.destroy');
     });
 
     // Download de anexos
     Route::get('/attachments/{attachment}/download', [GrievanceController::class, 'downloadAttachment'])
         ->name('attachments.download');
 
-    Route::prefix('api/projects')->group(function () {
+
+    /*Route::prefix('api/projects')->group(function () {
         Route::get('/', [ProjectController::class, 'index'])->name('api.projects.index');
         Route::get('/{project}', [ProjectController::class, 'showJson'])->name('api.projects.show');
         Route::post('/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
@@ -544,20 +568,34 @@ Route::middleware('auth')->group(function () {
         Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show');
         Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
         Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
-    });
+    });*/
+Route::prefix('api/projects')->group(function () {
+    Route::get('/', [ProjectController::class, 'index'])->name('api.projects.index');
+    Route::get('/{project}', [ProjectController::class, 'showJson'])->name('api.projects.show'); // Use showJson
+    Route::post('/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
+    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('api.projects.destroy');
+});
 
-    // Rotas do GrievanceController (acessíveis a usuários autenticados)
+
+    // API de projetos
+Route::prefix('manager/projects')->group(function () {
+    Route::get('/', [ProjectController::class, 'indexPage'])->name('projects');
+    Route::post('/', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show'); // Para Inertia
+    Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
+    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+});
+
+
+    // Rotas do GrievanceController (index/show require auth)
     Route::get('/grievances', [GrievanceController::class, 'index'])->name('grievances.index');
-    Route::post('/grievances', [GrievanceController::class, 'store'])->name('grievances.store');
     Route::get('/grievances/{grievance}', [GrievanceController::class, 'show'])->name('grievances.show');
     Route::get('/grievances/track', [GrievanceController::class, 'track'])->name('grievances.track.api');
-    
-    // Rotas API para operações CRUD de projetos
-    Route::get('/api/projects', [ProjectController::class, 'index']);
-    Route::post('/api/projects', [ProjectController::class, 'store']);
-    Route::get('/api/projects/{project}', [ProjectController::class, 'show']);
-    Route::put('/api/projects/{project}', [ProjectController::class, 'update']);
-    Route::delete('/api/projects/{project}', [ProjectController::class, 'destroy']);
+
+    // API de localizações e categorias
+    Route::get('/api/categories', [GrievanceController::class, 'getCategories'])->name('api.categories');
+
+    Route::get('/api/projects-list', [GrievanceController::class, 'getProjects'])->name('api.projects.list');
 });
 
 // API de localizações e categorias (públicas)
@@ -567,20 +605,21 @@ Route::get('/api/projects-list', [GrievanceController::class, 'getProjects'])->n
 
 // Rotas de reclamações (acessíveis sem autenticação)
 Route::get('/reclamacoes/nova', [GrievanceController::class, 'create'])->name('grievances.create');
-Route::get('/reclamacoes/acompanhar', function () { 
+
+Route::get('/reclamacoes/acompanhar', function () {
     return inertia('Grievances/Track');
 })->name('grievances.track');
 
 // Admin routes
 Route::middleware(['auth', 'can:manage-users'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminDashboardController::class, 'dashboard'])->name('dashboard');
-    
+
     // Users CRUD
     Route::resource('users', \App\Http\Controllers\UserController::class);
-    
+
     // Departments CRUD
     Route::resource('departments', \App\Http\Controllers\DepartmentController::class);
-    
+
     // Projects CRUD
     Route::get('projects', [\App\Http\Controllers\AdminDashboardController::class, 'indexProjects'])->name('projects.index');
     Route::get('projects/create', [\App\Http\Controllers\AdminDashboardController::class, 'createProject'])->name('projects.create');

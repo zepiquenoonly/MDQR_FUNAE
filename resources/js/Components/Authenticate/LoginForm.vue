@@ -6,7 +6,7 @@
         <div class="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-orange-500/10 to-primary-500/5 rounded-full blur-3xl"></div>
 
         <!-- Animated background SVG -->
-        <div class="absolute top-8 left-8 opacity-5 pointer-events-none animate-pulse">
+        <div class="absolute top-8 left-8 opacity-5 pointer-events-none">
             <img src='/background.min.svg' class='w-32 h-32'/>
         </div>
 

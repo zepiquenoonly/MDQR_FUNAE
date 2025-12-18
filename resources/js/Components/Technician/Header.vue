@@ -11,7 +11,7 @@
         class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-orange-600 transition-colors flex items-center gap-2"
       >
         <ArrowPathIcon class="w-4 h-4" />
-        Atualizar
+        Actualizar
       </button>
     </div>
   </div>

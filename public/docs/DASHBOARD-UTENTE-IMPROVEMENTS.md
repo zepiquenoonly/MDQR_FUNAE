@@ -208,7 +208,7 @@ Dashboard → Ver Detalhes da Reclamação →
   - Visualizar status atual
   - Ver timeline de atualizações
   - Download de anexos
-  - Atualizar status (botão refresh)
+  - Actualizar status (botão refresh)
 ```
 
 ### 4. Notificações

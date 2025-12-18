@@ -23,8 +23,8 @@ class TechnicianDashboardController extends Controller
         $priority = $request->input('priority');
 
         $filters = [
-            'status' => $status !== null && $status !== '' ? $status : null,
-            'priority' => $priority !== null && $priority !== '' ? $priority : null,
+            'status' => $status !== null && $status !== '' ? $status : '',
+            'priority' => $priority !== null && $priority !== '' ? $priority : '',
             'search' => $request->input('search'),
         ];
 
@@ -97,7 +97,7 @@ class TechnicianDashboardController extends Controller
                 'mime_type' => $attachment->mime_type,
                 'size' => $attachment->size,
                 'uploaded_at' => optional($attachment->uploaded_at)->toIso8601String(),
-                'url' => route('attachments.download', $attachment),
+                'url' => $attachment->url,
             ];
         });
 

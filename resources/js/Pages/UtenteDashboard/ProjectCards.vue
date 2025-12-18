@@ -75,7 +75,7 @@ import { router } from '@inertiajs/vue3'
 const props = defineProps({
   type: {
     type: String,
-    default: 'andamento'
+    default: '1'
   },
   showAllProjects: {
     type: Boolean,

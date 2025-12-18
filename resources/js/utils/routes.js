@@ -11,12 +11,36 @@ const routes = {
   'user.dashboard': '/utente/dashboard',
   'home': '/',
   'technician.grievances.show': '/technician/grievances/{grievance}',
+  'technician.grievances.start': '/technician/grievances/{grievance}/start',
+  'technician.grievances.updates.store': '/technician/grievances/{grievance}/updates',
+  'technician.grievances.request-completion': '/technician/grievances/{grievance}/request-completion',
   'profile.edit': '/profile',
   'logout': '/logout',
   'track': '/track',
   'grievance.track.search': '/track',
   'login': '/login',
-  'register': '/register'
+  'register': '/register',
+
+  // Complaints Routes
+  'complaints.update-priority': '/complaints/{grievance}/update-priority',
+  'complaints.reassign': '/complaints/{grievance}/reassign',
+  'complaints.complete': '/complaints/{grievance}/complete',
+  'complaints.comment': '/complaints/{grievance}/comment',
+  'complaints.send-to-director': '/complaints/{grievance}/send-to-director',
+  'complaints.escalate': '/complaints/{grievance}/send-to-director', // Alias for backward compatibility
+  'complaints.reject-completion': '/complaints/{grievance}/reject-completion',
+  'complaints.reject-submission': '/complaints/{grievance}/reject-submission',
+  'complaints.approve-completion': '/complaints/{grievance}/approve-completion',
+  'complaints.revoke-escalation': '/complaints/{grievance}/revoke-escalation',
+  'complaints.save-manager-comment': '/complaints/{grievance}/save-manager-comment',
+  'complaints.bulk-assign': '/complaints/bulk-assign',
+  'complaints.export': '/complaints/export',
+
+  // Admin Routes
+  'admin.departments.index': '/admin/departments',
+  'admin.projects.index': '/admin/projects',
+  'admin.users.index': '/admin/users',
+  'admin.settings': '/profile',
 }
 
 // Mapeamento de roles para rotas de dashboard

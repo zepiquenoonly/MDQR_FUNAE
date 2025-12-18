@@ -443,7 +443,7 @@ const selectComplaint = (complaint) => {
 };
 
 const updateFilters = (newFilters) => {
-  // Atualizar apenas os filtros básicos
+  // Actualizar apenas os filtros básicos
   const basicFilters = { ...newFilters };
   delete basicFilters.department;
   delete basicFilters.manager;

@@ -669,25 +669,25 @@
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Paginação -->
-        <div
-          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
-        >
-          <p class="text-xs text-gray-700 dark:text-gray-300">
-            Mostrando <span class="font-medium">{{ currentTabData.length }}</span> de
-            {{ filteredComplaints.length }} resultados
-          </p>
-          <div class="flex gap-2 self-end">
-            <button
-              @click="handleBulkAssign"
-              class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200"
-              v-if="isManager && activeTab !== 'director_interventions'"
-              :disabled="loading"
-            >
-              Atribuição Auto.
-            </button>
+          <!-- Paginação -->
+          <div
+            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-gray-200 dark:border-gray-700"
+          >
+            <p class="text-xs text-gray-700 dark:text-gray-300">
+              Mostrando <span class="font-medium">{{ currentTabData.length }}</span> de
+              {{ filteredComplaints.length }} resultados
+            </p>
+            <div class="flex gap-2 self-end">
+              <button
+                @click="handleBulkAssign"
+                class="px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded text-gray-700 dark:text-gray-300 text-xs font-medium hover:bg-gray-50 dark:hover:bg-dark-accent transition-all duration-200"
+                v-if="isManager && activeTab !== 'director_interventions'"
+                :disabled="loading"
+              >
+                Atribuição Auto.
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1442,7 +1442,6 @@ const markSubmissionAsSeen = async (item) => {
 // ComplaintsList.vue - método handleRowClick ATUALIZADO
 const handleRowClick = async (item) => {
   if (loading.value) return;
-
   console.log("=== DEBUG CLICK ===");
   console.log("props.role:", props.role);
   console.log("isDirector.value:", isDirector.value);
@@ -1450,7 +1449,6 @@ const handleRowClick = async (item) => {
   console.log("Item reference:", item.reference_number);
 
   selectedComplaintId.value = item.id;
-
   // Marcar como visto
   const itemId = item.id || item.reference_number;
   seenSubmissions.value.add(itemId);
@@ -1534,7 +1532,6 @@ const handleRowClick = async (item) => {
     // Para utente ou outros
     url = `/complaints/${item.reference_number || item.id}`;
   }
-
   console.log(`Navegando para: ${url}`);
   router.get(url);
 };
@@ -1548,7 +1545,6 @@ const handleExport = () => {
 
   // Filtrar dados para exportação
   const dataToExport = currentTabData.value;
-
   // Implementar lógica de exportação
   console.log(`Exportando ${dataToExport.length} registros de ${label}...`);
   alert(`Exportando ${dataToExport.length} registros de ${label}...`);
@@ -1556,7 +1552,6 @@ const handleExport = () => {
 
 const handleBulkAssign = () => {
   if (loading.value) return;
-
   // Filtrar apenas submissões que não estão resolved/rejected
   const assignableItems = currentTabData.value.filter(
     (item) => item.status !== "resolved" && item.status !== "rejected"
@@ -1856,7 +1851,7 @@ watch(
   () => props.filters,
   (newFilters) => {
     if (newFilters) {
-      // Atualizar filtros locais baseados nos filtros recebidos
+      // Actualizar filtros locais baseados nos filtros recebidos
       if (newFilters.category) localFilters.value.category = newFilters.category;
       if (newFilters.type) localFilters.value.type = newFilters.type;
       if (newFilters.priority) localFilters.value.priority = newFilters.priority;
@@ -1935,9 +1930,102 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.table-scroll-container {
-  max-height: 500px;
+/* Container principal da tabela */
+.table-wrapper {
+  position: relative;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.dark .table-wrapper {
+  border-color: #374151;
+}
+
+/* Container do cabeçalho fixo */
+.table-header-wrapper {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.dark .table-header-wrapper {
+  background-color: #1e293b;
+  border-bottom-color: #374151;
+}
+
+/* Container do corpo da tabela com scroll */
+.table-body-scroll-container {
+  max-height: 400px;
   overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Tabela - configuração geral */
+.complaints-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Cabeçalho da tabela */
+.complaints-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+/* Larguras específicas para cada coluna */
+.complaints-table th:nth-child(1),
+.complaints-table td:nth-child(1) {
+  width: 10%;
+  min-width: 80px;
+}
+
+.complaints-table th:nth-child(2),
+.complaints-table td:nth-child(2) {
+  width: 12%;
+  min-width: 100px;
+}
+
+.complaints-table th:nth-child(3),
+.complaints-table td:nth-child(3) {
+  width: 12%;
+  min-width: 100px;
+}
+
+.complaints-table th:nth-child(4),
+.complaints-table td:nth-child(4) {
+  width: 15%;
+  min-width: 120px;
+}
+
+.complaints-table th:nth-child(5),
+.complaints-table td:nth-child(5) {
+  width: 10%;
+  min-width: 90px;
+}
+
+.complaints-table th:nth-child(6),
+.complaints-table td:nth-child(6) {
+  width: 20%;
+  min-width: 150px;
+}
+
+.complaints-table th:nth-child(7),
+.complaints-table td:nth-child(7) {
+  width: 12%;
+  min-width: 100px;
+}
+
+/* Ajuste para as células */
+.complaints-table th,
+.complaints-table td {
+  padding: 0.5rem 0.75rem;
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 /* Destaque para intervenções do director */
@@ -2013,37 +2101,44 @@ tr:has(.text-green-700) {
 }
 
 /* Scrollbar personalizada */
-.table-scroll-container::-webkit-scrollbar {
+.table-body-scroll-container::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
 }
 
-.table-scroll-container::-webkit-scrollbar-track {
+.table-body-scroll-container::-webkit-scrollbar-track {
   background: #f1f1f1;
   border-radius: 4px;
 }
 
-.table-scroll-container::-webkit-scrollbar-thumb {
+.table-body-scroll-container::-webkit-scrollbar-thumb {
   background: #888;
   border-radius: 4px;
 }
 
-.table-scroll-container::-webkit-scrollbar-thumb:hover {
+.table-body-scroll-container::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
 /* Estilos para modo escuro */
-@media (prefers-color-scheme: dark) {
-  .table-scroll-container::-webkit-scrollbar-track {
-    background: #2d3748;
-  }
+.dark .table-body-scroll-container::-webkit-scrollbar-track {
+  background: #2d3748;
+}
 
-  .table-scroll-container::-webkit-scrollbar-thumb {
-    background: #4a5568;
-  }
+.dark .table-body-scroll-container::-webkit-scrollbar-thumb {
+  background: #4a5568;
+}
 
-  .table-scroll-container::-webkit-scrollbar-thumb:hover {
-    background: #718096;
-  }
+.dark .table-body-scroll-container::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Estilos para os selects */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
 }
 </style>

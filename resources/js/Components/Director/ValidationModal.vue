@@ -15,7 +15,7 @@
       </TransitionChild>
 
       <div class="fixed inset-0 overflow-y-auto">
-        <div class="flex min-h-full items-center justify-center p-4 text-center">
+        <div class="flex items-center justify-center min-h-full p-4 text-center">
           <TransitionChild
             as="template"
             enter="duration-300 ease-out"
@@ -26,7 +26,7 @@
             leave-to="opacity-0 scale-95"
           >
             <DialogPanel
-              class="w-full max-w-2xl transform overflow-hidden rounded-2xl bg-white dark:bg-dark-primary p-6 text-left align-middle shadow-xl transition-all"
+              class="w-full max-w-2xl p-6 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl dark:bg-dark-primary"
             >
               <DialogTitle
                 as="h3"
@@ -48,13 +48,17 @@
               <!-- Mensagens de erro do Inertia -->
               <div
                 v-if="form.hasErrors"
+<<<<<<< HEAD
                 class="mt-4 mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg"
+=======
+                class="p-3 mb-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-700"
+>>>>>>> kev-dev
               >
                 <div class="flex items-center gap-2 text-red-700 dark:text-red-300">
-                  <ExclamationCircleIcon class="h-5 w-5" />
+                  <ExclamationCircleIcon class="w-5 h-5" />
                   <span class="font-medium">Corrija os seguintes erros:</span>
                 </div>
-                <ul class="mt-2 text-sm text-red-600 dark:text-red-400 space-y-1">
+                <ul class="mt-2 space-y-1 text-sm text-red-600 dark:text-red-400">
                   <li v-for="(error, field) in form.errors" :key="field">
                     • {{ error }}
                   </li>
@@ -89,11 +93,11 @@
                   <!-- Status da validação -->
                   <div>
                     <label
-                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+                      class="block mb-3 text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Decisão do Director <span class="text-red-500">*</span>
                     </label>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
                       <label
                         class="flex items-center p-4 border rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800"
                         :class="
@@ -106,7 +110,7 @@
                           v-model="form.status"
                           type="radio"
                           value="approved"
-                          class="mr-3 h-5 w-5 text-green-600 focus:ring-green-500"
+                          class="w-5 h-5 mr-3 text-green-600 focus:ring-green-500"
                         />
                         <div>
                           <div class="font-medium text-gray-900 dark:text-white">
@@ -130,7 +134,7 @@
                           v-model="form.status"
                           type="radio"
                           value="rejected"
-                          class="mr-3 h-5 w-5 text-red-600 focus:ring-red-500"
+                          class="w-5 h-5 mr-3 text-red-600 focus:ring-red-500"
                         />
                         <div>
                           <div class="font-medium text-gray-900 dark:text-white">
@@ -154,7 +158,7 @@
                           v-model="form.status"
                           type="radio"
                           value="needs_revision"
-                          class="mr-3 h-5 w-5 text-yellow-600 focus:ring-yellow-500"
+                          class="w-5 h-5 mr-3 text-yellow-600 focus:ring-yellow-500"
                         />
                         <div>
                           <div class="font-medium text-gray-900 dark:text-white">
@@ -177,7 +181,7 @@
                   <!-- Comentário obrigatório -->
                   <div>
                     <label
-                      class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                      class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Comentário <span class="text-red-500">*</span>
                       <span class="text-xs text-gray-500 dark:text-gray-400">
@@ -191,12 +195,17 @@
                     <textarea
                       v-model="form.comment"
                       rows="4"
+<<<<<<< HEAD
                       :placeholder="
                         isEditMode
                           ? 'Edite seu comentário para o gestor...'
                           : 'Descreva detalhadamente o motivo da sua decisão...'
                       "
                       class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-secondary focus:ring-2 focus:ring-brand focus:border-transparent"
+=======
+                      placeholder="Descreva detalhadamente o motivo da sua decisão..."
+                      class="w-full px-4 py-3 bg-white border rounded-lg dark:bg-dark-secondary focus:ring-2 focus:ring-brand focus:border-transparent"
+>>>>>>> kev-dev
                       :class="
                         form.errors.comment
                           ? 'border-red-300 dark:border-red-600'
@@ -211,24 +220,30 @@
                       >
                         {{ form.errors.comment }}
                       </p>
-                      <div class="text-sm text-gray-500 dark:text-gray-400 ml-auto">
+                      <div class="ml-auto text-sm text-gray-500 dark:text-gray-400">
                         {{ form.comment.length }}/2000 caracteres
                       </div>
                     </div>
                   </div>
 
+<<<<<<< HEAD
                   <!-- Notificações (não em modo de edição) -->
                   <div
                     v-if="!isEditMode"
                     class="border-t border-gray-200 dark:border-gray-700 pt-4"
                   >
                     <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+=======
+                  <!-- Notificações -->
+                  <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <h4 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+>>>>>>> kev-dev
                       Notificar
                     </h4>
                     <div class="space-y-3">
                       <label class="flex items-center justify-between">
                         <div class="flex items-center">
-                          <UserCircleIcon class="h-5 w-5 text-gray-400 mr-2" />
+                          <UserCircleIcon class="w-5 h-5 mr-2 text-gray-400" />
                           <span class="text-sm text-gray-700 dark:text-gray-300">
                             Gestor de Reclamações
                           </span>
@@ -236,13 +251,13 @@
                         <input
                           v-model="form.notify_manager"
                           type="checkbox"
-                          class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          class="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
                       </label>
 
                       <label class="flex items-center justify-between">
                         <div class="flex items-center">
-                          <WrenchIcon class="h-5 w-5 text-gray-400 mr-2" />
+                          <WrenchIcon class="w-5 h-5 mr-2 text-gray-400" />
                           <span class="text-sm text-gray-700 dark:text-gray-300">
                             Técnico Atribuído
                             <span
@@ -256,7 +271,7 @@
                         <input
                           v-model="form.notify_technician"
                           type="checkbox"
-                          class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          class="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
                       </label>
 
@@ -265,7 +280,7 @@
                         class="flex items-center justify-between"
                       >
                         <div class="flex items-center">
-                          <UserIcon class="h-5 w-5 text-gray-400 mr-2" />
+                          <UserIcon class="w-5 h-5 mr-2 text-gray-400" />
                           <span class="text-sm text-gray-700 dark:text-gray-300">
                             Utente (Submetedor)
                           </span>
@@ -273,7 +288,7 @@
                         <input
                           v-model="form.notify_user"
                           type="checkbox"
-                          class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          class="text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
                       </label>
                     </div>
@@ -302,12 +317,12 @@
                 </div>
               </div>
 
-              <div class="mt-8 flex justify-end gap-3">
+              <div class="flex justify-end gap-3 mt-8">
                 <button
                   type="button"
                   @click="closeModal"
                   :disabled="isSubmitting"
-                  class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="px-4 py-2 text-sm font-medium text-gray-700 transition-colors bg-gray-100 rounded-lg dark:text-gray-300 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancelar
                 </button>
@@ -324,7 +339,7 @@
                 >
                   <template v-if="isSubmitting">
                     <svg
-                      class="animate-spin h-4 w-4 text-white"
+                      class="w-4 h-4 text-white animate-spin"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
@@ -345,10 +360,15 @@
                     {{ isEditMode ? "Atualizando..." : "Enviando..." }}
                   </template>
                   <template v-else>
+<<<<<<< HEAD
                     <CheckBadgeIcon class="h-5 w-5" />
                     {{
                       isEditMode ? "Atualizar Resposta" : getStatusButtonText(form.status)
                     }}
+=======
+                    <CheckBadgeIcon class="w-5 h-5" />
+                    {{ getStatusButtonText(form.status) }}
+>>>>>>> kev-dev
                   </template>
                 </button>
               </div>
@@ -361,6 +381,7 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
 import { ref, watch, computed, onMounted } from "vue";
 import {
   Dialog,
@@ -377,6 +398,30 @@ import {
   ExclamationCircleIcon,
   InformationCircleIcon,
 } from "@heroicons/vue/24/outline";
+=======
+import { ref, watch } from "vue";
+
+
+// Importações comentadas pois não são usadas diretamente no código
+// import {
+//   Dialog,
+//   DialogPanel,
+//   DialogTitle,
+//   TransitionChild,
+//   TransitionRoot,
+// } from "@headlessui/vue";
+
+
+// Ícones importados do Heroicons Vu
+// import {
+//   CheckBadgeIcon,
+//   UserCircleIcon,
+//   WrenchIcon,
+//   UserIcon,
+//   ExclamationCircleIcon,
+// } from "@heroicons/vue/24/outline";
+
+>>>>>>> kev-dev
 import { useForm } from "@inertiajs/vue3";
 
 const props = defineProps({

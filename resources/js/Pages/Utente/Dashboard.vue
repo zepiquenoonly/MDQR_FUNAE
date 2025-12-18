@@ -12,34 +12,39 @@
         <!-- Renderizar conteúdo baseado na view ativa -->
         <div v-else>
             <!-- Default Dashboard Content -->
-            <div v-if="activePanel === 'dashboard'" class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
-                <!-- Welcome Message with Glass Effect -->
-                <div class="relative overflow-hidden rounded-2xl p-6 sm:p-8 lg:p-10 shadow-2xl border border-orange-400/30 group transition-all duration-500 hover:shadow-3xl">
-                    <!-- Animated Gradient Background -->
-                    <div class="absolute inset-0 bg-gradient-to-r from-primary-500 via-orange-500 to-orange-600"></div>
-                    <!-- Glass Layer -->
-                    <div class="absolute inset-0 backdrop-blur-sm bg-white/10"></div>
-                    <!-- Content -->
-                    <div class="relative z-10">
-                        <h1 class="text-xl sm:text-2xl lg:text-3xl xl:text-4xl font-bold mb-2 text-white drop-shadow-lg">
-                            Bem-vindo(a), {{ user.name }}!
-                        </h1>
-                        <p class="text-orange-50 text-sm sm:text-base lg:text-lg font-medium drop-shadow">Acompanhe suas reclamações e submissões em tempo real</p>
+            <div v-if="activePanel === 'dashboard'" class="space-y-6 sm:space-y-8 px-3 sm:px-0">
+                <!-- Welcome Message - Glassmorphism Hero -->
+                <div class="relative overflow-hidden rounded-3xl">
+                    <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+
+                    <!-- Floating Elements -->
+                    <div class="absolute top-6 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+                    <div class="absolute bottom-6 right-10 w-32 h-32 bg-purple-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+                    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-indigo-200/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+                    <div class="relative p-8 sm:p-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl shadow-black/10">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-white drop-shadow-2xl">
+                                    Bem-vindo(a), <span class="bg-gradient-to-r from-purple-200 to-indigo-200 bg-clip-text text-transparent">{{ user.name }}</span>!
+                                </h1>
+                                <div class="w-24 h-1 bg-gradient-to-r from-purple-300 to-indigo-300 rounded-full mb-4"></div>
+                            </div>
+                        </div>
+                        <p class="text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl drop-shadow-lg">
+                            Acompanhe suas reclamações e submissões em tempo real
+                        </p>
                     </div>
-                    <!-- Decorative Elements -->
-                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-125 transition-transform duration-700"></div>
-                    <div class="absolute -left-10 -top-10 w-32 h-32 bg-orange-300/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
-                    <!-- Floating particles -->
-                    <div class="absolute top-1/4 right-1/4 w-2 h-2 bg-white/30 rounded-full animate-pulse"></div>
-                    <div class="absolute top-3/4 right-1/3 w-2 h-2 bg-white/20 rounded-full animate-pulse"></div>
-                    <div class="absolute top-1/2 right-1/2 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
                 </div>
 
-                <!-- Notifications Widget -->
-                <NotificationWidget />
-
                 <!-- Quick Actions -->
-                <QuickActions />
+                <QuickActions @create-complaint="showComplaintForm = true" @view-submissions="showSubmissionsModal = true" />
 
                 <!-- Stats Grid -->
                 <StatsGrid />
@@ -62,9 +67,10 @@
                 </div>
 
                 <!-- Table Component -->
-                <TableComponent 
-                    title="Minhas Submissões Recentes" 
+                <TableComponent
+                    title="Minhas Submissões"
                     :rows="recentSubmissions"
+                    @view-details="handleViewSubmissionDetails"
                 />
             </div>
 
@@ -74,19 +80,49 @@
             </div>
 
             <!-- MDQR Views -->
-            <div v-if="activePanel === 'mdqr'" class="p-3 sm:p-4 md:p-6">
-                <Suggestions 
-                    v-if="activeDropdown === 'sugestoes'" 
+            <div v-if="activePanel === 'mdqr'" class="p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
+                <!-- Welcome Message - Glassmorphism Hero -->
+                <div class="relative overflow-hidden rounded-3xl mb-8">
+                    <div class="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+
+                    <!-- Floating Elements -->
+                    <div class="absolute top-6 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+                    <div class="absolute bottom-6 right-10 w-32 h-32 bg-purple-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+                    <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-indigo-200/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+                    <div class="relative p-8 sm:p-10">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl shadow-black/10">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-white drop-shadow-2xl">
+                                    <span class="bg-gradient-to-r from-violet-200 to-indigo-200 bg-clip-text text-transparent">MDQR</span>
+                                </h1>
+                                <div class="w-24 h-1 bg-gradient-to-r from-violet-300 to-indigo-300 rounded-full mb-4"></div>
+                            </div>
+                        </div>
+                        <p class="text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl drop-shadow-lg">
+                            Gestão de Manifestações, Denúncias, Queixas e Reclamações
+                        </p>
+                    </div>
+                </div>
+
+                <Suggestions
+                    v-if="activeDropdown === 'sugestoes'"
                     :suggestions="suggestions"
                     :suggestions-stats="suggestionsStats"
                 />
-                <Claims 
-                    v-else-if="activeDropdown === 'queixas'" 
+                <Claims
+                    v-else-if="activeDropdown === 'queixas'"
                     :claims="claims"
                     :claims-stats="claimsStats"
                 />
-                <Complaints 
-                    v-else-if="activeDropdown === 'reclamacoes'" 
+                <Complaints
+                    v-else-if="activeDropdown === 'reclamacoes'"
                     :complaints="complaints"
                     :complaints-stats="complaintsStats"
                 />
@@ -103,12 +139,15 @@
                 </div>
             </div>
         </div>
+        <ComplaintForm :visible="showComplaintForm" @close="showComplaintForm = false" @success="handleComplaintSuccess" />
+        <SubmissionsModal :visible="showSubmissionsModal" @close="showSubmissionsModal = false" :submissions="recentSubmissions" />
+        <GrievanceDetails v-if="selectedGrievance" :grievance="selectedGrievance" @close="selectedGrievance = null" />
     </Layout>
 </template>
 
 <script setup>
 import { ref, watch, computed } from 'vue'
-import { usePage } from '@inertiajs/vue3'
+import { usePage, router } from '@inertiajs/vue3'
 import { useDashboard } from '@/Composables/useDashboard'
 import { usePageProps } from '@/Composables/usePageProps'
 import Layout from '@/Layouts/UnifiedLayout.vue'
@@ -123,6 +162,9 @@ import Claims from '@/Components/UtenteDashboard/Claims.vue'
 import Complaints from '@/Components/UtenteDashboard/Complaints.vue'
 import ChartBarComponent from '@/Components/UtenteDashboard/ChartBarComponent.vue'
 import TableComponent from '@/Components/UtenteDashboard/TableComponent.vue'
+import ComplaintForm from '@/Components/UtenteDashboard/ComplaintForm.vue'
+import SubmissionsModal from '@/Components/UtenteDashboard/SubmissionsModal.vue'
+import GrievanceDetails from '@/Components/UtenteDashboard/GrievanceDetails.vue'
 
 const props = defineProps({
     user: {
@@ -190,7 +232,7 @@ const { statsByType } = usePageProps()
 const chartDataByType = computed(() => {
     const data = props.chartDataByType || page.props.chartDataByType || {}
     const total = (data.complaints || 0) + (data.grievances || 0) + (data.suggestions || 0)
-    
+
     if (total === 0) {
         return [
             { label: 'Reclamações', value: 0, percentage: 0, color: 'bg-gradient-to-r from-primary-500 to-orange-600' },
@@ -198,25 +240,25 @@ const chartDataByType = computed(() => {
             { label: 'Sugestões', value: 0, percentage: 0, color: 'bg-gradient-to-r from-green-500 to-emerald-600' }
         ]
     }
-    
+
     return [
-        { 
-            label: 'Reclamações', 
-            value: data.complaints || 0, 
+        {
+            label: 'Reclamações',
+            value: data.complaints || 0,
             percentage: Math.round(((data.complaints || 0) / total) * 100),
-            color: 'bg-gradient-to-r from-primary-500 to-orange-600' 
+            color: 'bg-gradient-to-r from-primary-500 to-orange-600'
         },
-        { 
-            label: 'Queixas', 
-            value: data.grievances || 0, 
+        {
+            label: 'Queixas',
+            value: data.grievances || 0,
             percentage: Math.round(((data.grievances || 0) / total) * 100),
-            color: 'bg-gradient-to-r from-blue-500 to-indigo-600' 
+            color: 'bg-gradient-to-r from-blue-500 to-indigo-600'
         },
-        { 
-            label: 'Sugestões', 
-            value: data.suggestions || 0, 
+        {
+            label: 'Sugestões',
+            value: data.suggestions || 0,
             percentage: Math.round(((data.suggestions || 0) / total) * 100),
-            color: 'bg-gradient-to-r from-green-500 to-emerald-600' 
+            color: 'bg-gradient-to-r from-green-500 to-emerald-600'
         }
     ]
 })
@@ -224,7 +266,7 @@ const chartDataByType = computed(() => {
 const chartDataByStatus = computed(() => {
     const data = props.chartDataByStatus || page.props.chartDataByStatus || {}
     const total = (data.resolved || 0) + (data.in_progress || 0) + (data.pending || 0)
-    
+
     if (total === 0) {
         return [
             { label: 'Resolvidas', value: 0, percentage: 0, color: 'bg-gradient-to-r from-green-500 to-emerald-600' },
@@ -232,25 +274,25 @@ const chartDataByStatus = computed(() => {
             { label: 'Pendentes', value: 0, percentage: 0, color: 'bg-gradient-to-r from-gray-400 to-gray-600' }
         ]
     }
-    
+
     return [
-        { 
-            label: 'Resolvidas', 
-            value: data.resolved || 0, 
+        {
+            label: 'Resolvidas',
+            value: data.resolved || 0,
             percentage: Math.round(((data.resolved || 0) / total) * 100),
-            color: 'bg-gradient-to-r from-green-500 to-emerald-600' 
+            color: 'bg-gradient-to-r from-green-500 to-emerald-600'
         },
-        { 
-            label: 'Em Análise', 
-            value: data.in_progress || 0, 
+        {
+            label: 'Em Análise',
+            value: data.in_progress || 0,
             percentage: Math.round(((data.in_progress || 0) / total) * 100),
-            color: 'bg-gradient-to-r from-yellow-500 to-amber-600' 
+            color: 'bg-gradient-to-r from-yellow-500 to-amber-600'
         },
-        { 
-            label: 'Pendentes', 
-            value: data.pending || 0, 
+        {
+            label: 'Pendentes',
+            value: data.pending || 0,
             percentage: Math.round(((data.pending || 0) / total) * 100),
-            color: 'bg-gradient-to-r from-gray-400 to-gray-600' 
+            color: 'bg-gradient-to-r from-gray-400 to-gray-600'
         }
     ]
 })
@@ -261,6 +303,7 @@ const recentSubmissions = computed(() => {
 
 const { activePanel, setActivePanel, activeDropdown } = useDashboard()
 const selectedProjectId = ref(null)
+const selectedGrievance = ref(null)
 
 // Watch para mudanças no activePanel - IMPORTANTE: Fechar ProjectDetails quando o painel mudar
 watch(activePanel, (newPanel) => {
@@ -293,9 +336,21 @@ const handleViewProjectDetails = (projectId) => {
     selectedProjectId.value = projectId
 }
 
-// Função para lidar com o botão "voltar" do ProjectDetails
 const handleBackFromProjectDetails = () => {
     console.log('Voltando dos detalhes do projeto')
     selectedProjectId.value = null
+}
+
+const handleViewSubmissionDetails = (submission) => {
+    console.log('Visualizar detalhes da submissão:', submission)
+    selectedGrievance.value = submission
+}
+
+const showComplaintForm = ref(false)
+const showSubmissionsModal = ref(false)
+
+const handleComplaintSuccess = () => {
+    showComplaintForm.value = false
+    router.reload({ only: ['recentSubmissions', 'stats', 'chartDataByType', 'chartDataByStatus'] })
 }
 </script>

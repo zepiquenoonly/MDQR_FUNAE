@@ -295,13 +295,19 @@ class TechnicianGrievanceController extends Controller
     {
         $originalFilename = $file->getClientOriginalName();
         $filename = Str::random(40) . '.' . $file->getClientOriginalExtension();
-        $path = $file->storeAs(
-            'grievances/' . $grievance->id . '/attachments',
-            $filename,
-            'private'
-        );
 
-        $fileHash = hash_file('sha256', $file->getRealPath());
+        $publicPath = 'uploads/grievances/' . $grievance->id . '/attachments';
+        $fullPath = public_path($publicPath);
+
+        if (!file_exists($fullPath)) {
+            mkdir($fullPath, 0755, true);
+        }
+
+        $file->move($fullPath, $filename);
+        $path = '/' . $publicPath . '/' . $filename;
+
+        // Hash after move to ensure we hash the stored file
+        $fileHash = hash_file('sha256', $fullPath . '/' . $filename);
 
         return Attachment::create([
             'grievance_id' => $grievance->id,

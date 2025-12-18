@@ -743,69 +743,69 @@ export const useGrievanceDetail = props => {
         }
     }
 
- const rejectSubmission = async formData => {
-    loading.reject = true
+    const rejectSubmission = async formData => {
+        loading.reject = true
 
-    try {
-        let url = ''
+        try {
+            let url = ''
 
-        // URLs diretas baseadas no papel do usuário
-        if (isManager.value) {
-            url = `/gestor/complaints/${complaint.value.id}/reject-submission`
-        } else if (isDirector.value) {
-            url = `/director/complaints/${complaint.value.id}/reject-submission`
-        } else {
-            throw new Error('Usuário não autorizado para rejeitar submissões')
-        }
-
-        const data = {
-            reason: formData.reason_label || formData.reason, // Priorizar label para usuário
-            reason_value: formData.reason, // Manter o valor para lógica interna
-            comment: formData.comment,
-            internal_comment: formData.comment, // Para o backend
-            rejection_type: formData.reason, // Usar o value para compatibilidade
-            notify_user: true, // Sempre notificar para rejeição
-            notify_technician: true,
-            status: 'rejected',
-            _method: 'POST'
-        }
-
-        console.log('Enviando dados de rejeição:', data)
-
-        // USAR ROUTER.POST PARA CONSISTÊNCIA
-        await router.post(url, data, {
-            preserveScroll: true,
-            onSuccess: page => {
-                complaint.value.status = 'rejected'
-                complaint.value.rejection_reason =
-                    formData.reason_label || formData.reason
-                complaint.value.rejection_comment = formData.comment
-                complaint.value.rejected_at = new Date().toISOString()
-
-                showRejectModal.value = false
-                showToast('Submissão rejeitada com sucesso!', 'success')
-
-                setTimeout(() => {
-                    refreshComplaintData()
-                }, 1000)
-            },
-            onError: errors => {
-                const errorMessage =
-                    errors?.message ||
-                    errors?.error ||
-                    'Erro ao rejeitar submissão'
-                showToast(errorMessage, 'error')
+            // URLs diretas baseadas no papel do usuário
+            if (isManager.value) {
+                url = `/gestor/complaints/${complaint.value.id}/reject-submission`
+            } else if (isDirector.value) {
+                url = `/director/complaints/${complaint.value.id}/reject-submission`
+            } else {
+                throw new Error(
+                    'Usuário não autorizado para rejeitar submissões'
+                )
             }
-        })
-    } catch (error) {
-        console.error('Erro na rejeição:', error)
-        showToast('Erro ao processar rejeição: ' + error.message, 'error')
-    } finally {
-        loading.reject = false
+
+            const data = {
+                reason: formData.reason_label || formData.reason, // Priorizar label para usuário
+                reason_value: formData.reason, // Manter o valor para lógica interna
+                comment: formData.comment,
+                internal_comment: formData.comment, // Para o backend
+                rejection_type: formData.reason, // Usar o value para compatibilidade
+                notify_user: true, // Sempre notificar para rejeição
+                notify_technician: true,
+                status: 'rejected',
+                _method: 'POST'
+            }
+
+            console.log('Enviando dados de rejeição:', data)
+
+            // USAR ROUTER.POST PARA CONSISTÊNCIA
+            await router.post(url, data, {
+                preserveScroll: true,
+                onSuccess: page => {
+                    complaint.value.status = 'rejected'
+                    complaint.value.rejection_reason =
+                        formData.reason_label || formData.reason
+                    complaint.value.rejection_comment = formData.comment
+                    complaint.value.rejected_at = new Date().toISOString()
+
+                    showRejectModal.value = false
+                    showToast('Submissão rejeitada com sucesso!', 'success')
+
+                    setTimeout(() => {
+                        refreshComplaintData()
+                    }, 1000)
+                },
+                onError: errors => {
+                    const errorMessage =
+                        errors?.message ||
+                        errors?.error ||
+                        'Erro ao rejeitar submissão'
+                    showToast(errorMessage, 'error')
+                }
+            })
+        } catch (error) {
+            console.error('Erro na rejeição:', error)
+            showToast('Erro ao processar rejeição: ' + error.message, 'error')
+        } finally {
+            loading.reject = false
+        }
     }
-}
-
-
 
     const reopenSubmission = async formData => {
         loading.reopen = true
@@ -1035,234 +1035,238 @@ export const useGrievanceDetail = props => {
         }
     }
 
-   const reassignTechnician = async technicianId => {
-    loading.reassign = true
-    try {
-        const basePath = isDirector.value ? '/director' : '/gestor'
-        const url = `${basePath}/${complaint.value.id}/reassign`
+    const reassignTechnician = async technicianId => {
+        loading.reassign = true
+        try {
+            const basePath = isDirector.value ? '/director' : '/gestor'
+            const url = `${basePath}/${complaint.value.id}/reassign`
 
-        await router.patch(
-            url,
-            { technician_id: technicianId },
-            {
-                preserveScroll: true,
-                onSuccess: response => {
-                    complaint.value.status = 'assigned'
-                    complaint.value.assigned_to = technicianId
+            await router.patch(
+                url,
+                { technician_id: technicianId },
+                {
+                    preserveScroll: true,
+                    onSuccess: response => {
+                        complaint.value.status = 'assigned'
+                        complaint.value.assigned_to = technicianId
 
-                    const technician = technicians.value.find(
-                        t => t.id === technicianId
-                    )
-                    if (technician) {
-                        complaint.value.technician = technician
+                        const technician = technicians.value.find(
+                            t => t.id === technicianId
+                        )
+                        if (technician) {
+                            complaint.value.technician = technician
+                        }
+
+                        showReassignModal.value = false
+                        showToast('Técnico reatribuído com sucesso!', 'success')
+
+                        // RESET DO LOADING APÓS SUCESSO
+                        loading.reassign = false
+
+                        setTimeout(() => refreshComplaintData(), 500)
+                    },
+                    onError: errors => {
+                        showToast('Erro ao atribuir técnico', 'error')
+                        loading.reassign = false
                     }
-
-                    showReassignModal.value = false
-                    showToast('Técnico reatribuído com sucesso!', 'success')
-
-                    // RESET DO LOADING APÓS SUCESSO
-                    loading.reassign = false
-
-                    setTimeout(() => refreshComplaintData(), 500)
-                },
-                onError: errors => {
-                    showToast('Erro ao atribuir técnico', 'error')
-                    loading.reassign = false
                 }
-            }
-        )
-    } catch (error) {
-        showToast('Erro de conexão ao atribuir técnico', 'error')
-        loading.reassign = false
+            )
+        } catch (error) {
+            showToast('Erro de conexão ao atribuir técnico', 'error')
+            loading.reassign = false
+        }
     }
-}
 
+    const sendComment = async commentData => {
+        loading.comment = true
+        console.log('=== DEBUG sendComment ===')
+        console.log('Comment data:', commentData)
+        console.log('User role:', role.value)
+        console.log('Complaint ID:', complaint.value?.id)
 
-   const sendComment = async commentData => {
-    loading.comment = true
-    console.log('=== DEBUG sendComment ===')
-    console.log('Comment data:', commentData)
-    console.log('User role:', role.value)
-    console.log('Complaint ID:', complaint.value?.id)
+        try {
+            // Determinar a URL baseada no role
+            let baseUrl = ''
 
-    try {
-        // Determinar a URL baseada no role
-        let baseUrl = ''
+            if (isDirector.value) {
+                baseUrl = '/apiComments/director'
+            } else if (isManager.value) {
+                baseUrl = '/apiComments'
+            } else if (isTechnician.value) {
+                baseUrl = '/apiComments/technician'
+            } else {
+                throw new Error('Usuário não autorizado para comentar')
+            }
 
-        if (isDirector.value) {
-            baseUrl = '/apiComments/director'
-        } else if (isManager.value) {
-            baseUrl = '/apiComments'
-        } else if (isTechnician.value) {
-            baseUrl = '/apiComments/technician'
-        } else {
-            throw new Error('Usuário não autorizado para comentar')
-        }
+            const url = `${baseUrl}/comments/${complaint.value.id}/add`
+            console.log('URL de envio:', url)
 
-        const url = `${baseUrl}/comments/${complaint.value.id}/add`
-        console.log('URL de envio:', url)
+            // Criar FormData
+            const formData = new FormData()
+            formData.append('comment', commentData.comment || '')
 
-        // Criar FormData
-        const formData = new FormData()
-        formData.append('comment', commentData.comment || '')
+            // Adicionar comment_type apenas se fornecido
+            if (commentData.comment_type) {
+                formData.append('comment_type', commentData.comment_type)
+            }
 
-        // Adicionar comment_type apenas se fornecido
-        if (commentData.comment_type) {
-            formData.append('comment_type', commentData.comment_type)
-        }
+            // Processar anexos se existirem
+            if (
+                commentData.attachments &&
+                Array.isArray(commentData.attachments)
+            ) {
+                commentData.attachments.forEach((file, index) => {
+                    if (file instanceof File) {
+                        formData.append(`attachments[${index}]`, file)
+                    }
+                })
+            }
 
-        // Processar anexos se existirem
-        if (commentData.attachments && Array.isArray(commentData.attachments)) {
-            commentData.attachments.forEach((file, index) => {
-                if (file instanceof File) {
-                    formData.append(`attachments[${index}]`, file)
-                }
+            // Mostrar dados do FormData no console
+            console.log('FormData entries:')
+            for (let pair of formData.entries()) {
+                console.log(pair[0] + ':', pair[1])
+            }
+
+            // Enviar requisição
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    Accept: 'application/json',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content')
+                },
+                body: formData
             })
-        }
 
-        // Mostrar dados do FormData no console
-        console.log('FormData entries:')
-        for (let pair of formData.entries()) {
-            console.log(pair[0] + ':', pair[1])
-        }
+            console.log('Response status:', response.status)
+            console.log('Response headers:', response.headers)
 
-        // Enviar requisição
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                Accept: 'application/json',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute('content')
-            },
-            body: formData
-        })
-
-        console.log('Response status:', response.status)
-        console.log('Response headers:', response.headers)
-
-        const result = await response.json()
-        console.log('Server response:', result)
-
-        if (!response.ok) {
-            throw new Error(
-                result.message || `HTTP error! status: ${response.status}`
-            )
-        }
-
-        if (result.success) {
-            showToast(
-                result.message || 'Comentário enviado com sucesso!',
-                'success'
-            )
-
-            console.log('Comment returned from server:', result.comment)
-
-            // Atualizar o contador de comentários localmente
-            if (complaint.value) {
-                complaint.value.comments_count =
-                    (complaint.value.comments_count || 0) + 1
-            }
-
-            // Retornar o comentário formatado
-            return {
-                id: result.comment?.id || Date.now(),
-                content: result.comment?.content || result.comment?.comment,
-                comment: result.comment?.comment || result.comment?.content,
-                type: result.comment?.type || 'internal',
-                action_type: result.comment?.action_type || 'comment',
-                created_at:
-                    result.comment?.created_at || new Date().toISOString(),
-                user: result.comment?.user || {
-                    id: authUser.value?.id,
-                    name: authUser.value?.name,
-                    role: role.value
-                },
-                attachments: result.comment?.attachments || [],
-                metadata: result.comment?.metadata || {}
-            }
-        } else {
-            throw new Error(result.message || 'Erro ao enviar comentário')
-        }
-    } catch (error) {
-        console.error('Error in sendComment:', error)
-        showToast(
-            error.message || 'Erro ao enviar comentário. Verifique a conexão.',
-            'error'
-        )
-        throw error
-    } finally {
-        loading.comment = false
-        console.log('=== END sendComment ===')
-    }
-}
-
-// Adicione também esta função para buscar comentários
-const fetchComments = async () => {
-    console.log('=== DEBUG fetchComments ===')
-    console.log('User role:', role.value)
-    console.log('Is Director:', isDirector.value)
-    console.log('Is Manager:', isManager.value)
-    console.log('Is Technician:', isTechnician.value)
-
-    try {
-        let url = ''
-
-        // Determinar URL baseada no role
-        if (isDirector.value) {
-            url = `/apiComments/director/comments/${complaint.value.id}`
-        } else if (isManager.value) {
-            url = `/apiComments/comments/${complaint.value.id}`
-        } else if (isTechnician.value) {
-            url = `/apiComments/technician/comments/${complaint.value.id}`
-        } else {
-            console.log('Usuário sem role válido para buscar comentários')
-            return []
-        }
-
-        console.log('URL para fetch comments:', url)
-
-        const response = await fetch(url, {
-            headers: {
-                Accept: 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRF-TOKEN': document
-                    .querySelector('meta[name="csrf-token"]')
-                    .getAttribute('content')
-            }
-        })
-
-        console.log('Response status:', response.status)
-        console.log('Response URL:', response.url)
-
-        if (response.ok) {
             const result = await response.json()
             console.log('Server response:', result)
 
+            if (!response.ok) {
+                throw new Error(
+                    result.message || `HTTP error! status: ${response.status}`
+                )
+            }
+
             if (result.success) {
-                console.log('Comments fetched:', result.comments?.length || 0)
-                return result.comments || []
+                showToast(
+                    result.message || 'Comentário enviado com sucesso!',
+                    'success'
+                )
+
+                console.log('Comment returned from server:', result.comment)
+
+                // Atualizar o contador de comentários localmente
+                if (complaint.value) {
+                    complaint.value.comments_count =
+                        (complaint.value.comments_count || 0) + 1
+                }
+
+                // Retornar o comentário formatado
+                return {
+                    id: result.comment?.id || Date.now(),
+                    content: result.comment?.content || result.comment?.comment,
+                    comment: result.comment?.comment || result.comment?.content,
+                    type: result.comment?.type || 'internal',
+                    action_type: result.comment?.action_type || 'comment',
+                    created_at:
+                        result.comment?.created_at || new Date().toISOString(),
+                    user: result.comment?.user || {
+                        id: authUser.value?.id,
+                        name: authUser.value?.name,
+                        role: role.value
+                    },
+                    attachments: result.comment?.attachments || [],
+                    metadata: result.comment?.metadata || {}
+                }
             } else {
-                console.error('Error in response:', result.message)
+                throw new Error(result.message || 'Erro ao enviar comentário')
+            }
+        } catch (error) {
+            console.error('Error in sendComment:', error)
+            showToast(
+                error.message ||
+                    'Erro ao enviar comentário. Verifique a conexão.',
+                'error'
+            )
+            throw error
+        } finally {
+            loading.comment = false
+            console.log('=== END sendComment ===')
+        }
+    }
+
+    // Adicione também esta função para buscar comentários
+    const fetchComments = async () => {
+        console.log('=== DEBUG fetchComments ===')
+        console.log('User role:', role.value)
+        console.log('Is Director:', isDirector.value)
+        console.log('Is Manager:', isManager.value)
+        console.log('Is Technician:', isTechnician.value)
+
+        try {
+            let url = ''
+
+            // Determinar URL baseada no role
+            if (isDirector.value) {
+                url = `/apiComments/director/comments/${complaint.value.id}`
+            } else if (isManager.value) {
+                url = `/apiComments/comments/${complaint.value.id}`
+            } else if (isTechnician.value) {
+                url = `/apiComments/technician/comments/${complaint.value.id}`
+            } else {
+                console.log('Usuário sem role válido para buscar comentários')
                 return []
             }
-        } else if (response.status === 404) {
-            console.error(
-                'Rota não encontrada (404). Verifique se a rota GET existe para este role.'
-            )
-            return []
-        } else {
-            console.error('HTTP error:', response.status)
+
+            console.log('URL para fetch comments:', url)
+
+            const response = await fetch(url, {
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content')
+                }
+            })
+
+            console.log('Response status:', response.status)
+            console.log('Response URL:', response.url)
+
+            if (response.ok) {
+                const result = await response.json()
+                console.log('Server response:', result)
+
+                if (result.success) {
+                    console.log(
+                        'Comments fetched:',
+                        result.comments?.length || 0
+                    )
+                    return result.comments || []
+                } else {
+                    console.error('Error in response:', result.message)
+                    return []
+                }
+            } else if (response.status === 404) {
+                console.error(
+                    'Rota não encontrada (404). Verifique se a rota GET existe para este role.'
+                )
+                return []
+            } else {
+                console.error('HTTP error:', response.status)
+                return []
+            }
+        } catch (error) {
+            console.error('Error in fetchComments:', error)
             return []
         }
-    } catch (error) {
-        console.error('Error in fetchComments:', error)
-        return []
     }
-}
-
-
 
     const sendToDirector = async commentData => {
         showSendToDirectorModal.value = false

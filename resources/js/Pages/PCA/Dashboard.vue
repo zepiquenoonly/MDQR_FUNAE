@@ -1,16 +1,37 @@
 <template>
     <Layout :role="'pca'">
-        <div class="p-4 lg:p-6 space-y-6">
-            <!-- Header Section -->
-            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-                <div>
-                    <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white">
-                        Dashboard PCA
-                    </h1>
-                    <p class="text-gray-600 dark:text-gray-400 mt-1">
+        <div class="space-y-6 sm:space-y-8 px-3 sm:px-0">
+            <!-- Welcome Message - Glassmorphism Hero -->
+            <div class="relative overflow-hidden rounded-3xl mb-8">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+                <!-- Floating Elements -->
+                <div class="absolute top-6 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+                <div class="absolute bottom-6 right-10 w-32 h-32 bg-purple-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+                <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-indigo-200/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+                <div class="relative p-8 sm:p-10">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl shadow-black/10">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-white drop-shadow-2xl">
+                                Bem-vindo(a), <span class="bg-gradient-to-r from-purple-200 to-indigo-200 bg-clip-text text-transparent">{{ $page.props.auth?.user?.name }}</span>!
+                            </h1>
+                            <div class="w-24 h-1 bg-gradient-to-r from-purple-300 to-indigo-300 rounded-full mb-4"></div>
+                        </div>
+                    </div>
+                    <p class="text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl drop-shadow-lg">
                         Painel de Controlo e Estatísticas Globais
                     </p>
                 </div>
+            </div>
+
+            <!-- Header Section -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
 
                 <!-- Filters -->
                 <div class="flex flex-wrap gap-3">

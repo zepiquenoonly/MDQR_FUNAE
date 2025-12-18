@@ -1124,6 +1124,7 @@ public function checkDirectorInterventions()
         $user = User::find($validated['technician_id']);
         
         if (!$user) {    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Usuário não encontrado.'

@@ -1,13 +1,35 @@
 <template>
     <Layout :stats="safeStats" :role="'technician'">
-        <div class="space-y-3 sm:space-y-6 px-3 sm:px-0">
-            <!-- Header com bem-vindo -->
-            <div>
-                <header class="flex flex-col gap-1 sm:gap-2">
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Bem-vindo(a), {{ props.user?.name }}</p>
-                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">Painel do Técnico</h1>
-                    <p class="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Acompanhe as reclamações atribuídas, registe intervenções e solicite a conclusão ao gestor.</p>
-                </header>
+        <div class="space-y-6 sm:space-y-8 px-3 sm:px-0">
+            <!-- Welcome Message - Glassmorphism Hero -->
+            <div class="relative overflow-hidden rounded-3xl">
+                <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+
+                <!-- Floating Elements -->
+                <div class="absolute top-6 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+                <div class="absolute bottom-6 right-10 w-32 h-32 bg-orange-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+                <div class="absolute top-1/2 left-1/4 w-16 h-16 bg-amber-200/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+                <div class="relative p-8 sm:p-10">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-16 h-16 bg-white/10 backdrop-blur-xl rounded-2xl flex items-center justify-center border border-white/20 shadow-2xl shadow-black/10">
+                            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 text-white drop-shadow-2xl">
+                                Bem-vindo(a), <span class="bg-gradient-to-r from-orange-200 to-amber-200 bg-clip-text text-transparent">{{ props.user?.name }}</span>!
+                            </h1>
+                            <div class="w-24 h-1 bg-gradient-to-r from-orange-300 to-amber-300 rounded-full mb-4"></div>
+                        </div>
+                    </div>
+                    <p class="text-white/90 text-base sm:text-lg lg:text-xl leading-relaxed max-w-4xl drop-shadow-lg">
+                        Painel do Técnico - Acompanhe as reclamações atribuídas, registe intervenções e solicite a conclusão ao gestor
+                    </p>
+                </div>
             </div>
 
             <!-- KPIs Grid - Melhorado para mobile -->
@@ -82,8 +104,8 @@ const props = defineProps({
     filters: {
         type: Object,
         default: () => ({
-            status: null,
-            priority: null,
+            status: '',
+            priority: '',
             search: '',
         }),
     },

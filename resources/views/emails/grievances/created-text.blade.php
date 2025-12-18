@@ -9,7 +9,7 @@ Número de Referência: {{ $grievance->reference_number }}
 
 Categoria: {{ $grievance->category }}
 Data de Submissão: {{ $grievance->submitted_at->format('d/m/Y H:i') }}
-Estado Atual: {{ $grievance->status_label }}
+Estado Actual: {{ $grievance->status_label }}
 
 Guarde este número de referência para poder acompanhar o progresso da sua reclamação.
 

@@ -79,6 +79,9 @@ class DepartmentSeeder extends Seeder
                 'description' => $deptData['description'],
                 'manager_id' => $deptData['director']->id,
             ]);
+
+            // Actualizar o department_id do Director para corresponder ao departamento criado
+            $deptData['director']->update(['department_id' => $department->id]);
             
             $createdDepartments[] = $department;
             echo "✅ Departamento criado: {$department->name} (Director: {$deptData['director']->name})\n";
