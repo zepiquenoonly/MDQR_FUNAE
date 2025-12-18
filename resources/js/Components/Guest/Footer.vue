@@ -42,17 +42,26 @@
         <h3 class="text-lg font-semibold mb-4 text-left">SERVIÇOS</h3>
         <ul class="space-y-3">
           <li>
-            <a href="#" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="#"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Sugestão
             </a>
           </li>
           <li>
-            <a href="#" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="#"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Reclamação
             </a>
           </li>
           <li>
-            <a href="#" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="#"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Queixa
             </a>
           </li>
@@ -64,22 +73,34 @@
         <h3 class="text-lg font-semibold mb-4 text-left">LINKS ÚTEIS</h3>
         <ul class="space-y-3">
           <li>
-            <a href="/" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="/"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Início
             </a>
           </li>
           <li>
-            <a href="/login" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="/login"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Login
             </a>
           </li>
           <li>
-            <a href="/register" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="/register"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Registar-se
             </a>
           </li>
           <li>
-            <a href="/track" class="block text-left text-white/80 hover:text-white transition-colors text-sm">
+            <a
+              href="/track"
+              class="block text-left text-white/80 hover:text-white transition-colors text-sm"
+            >
               Acompanhar Reclamação
             </a>
           </li>
@@ -90,15 +111,21 @@
       <div class="col-span-1 md:col-span-1 text-left">
         <h3 class="text-lg font-semibold mb-4 text-left">CONTACTOS</h3>
         <div class="space-y-4">
-          <div class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors">
+          <div
+            class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors"
+          >
             <HomeIcon class="h-5 w-5 flex-shrink-0" />
             <span class="text-sm">Maputo, Moçambique</span>
           </div>
-          <div class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors">
+          <div
+            class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors"
+          >
             <EnvelopeIcon class="h-5 w-5 flex-shrink-0" />
             <span class="text-sm">info@funae.co.mz</span>
           </div>
-          <div class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors">
+          <div
+            class="flex items-center justify-start gap-3 text-white/80 hover:text-white transition-colors"
+          >
             <PhoneIcon class="h-5 w-5 flex-shrink-0" />
             <span class="text-sm">+258 21 123 456</span>
           </div>
@@ -113,8 +140,12 @@
           © 2025 FUNAE. Todos os direitos reservados.
         </p>
         <div class="flex space-x-6 items-center">
-          <a href="#" class="text-white/70 hover:text-white transition-colors text-sm">Termos de Serviço</a>
-          <a href="#" class="text-white/70 hover:text-white transition-colors text-sm">Política de Privacidade</a>
+          <a href="#" class="text-white/70 hover:text-white transition-colors text-sm"
+            >Termos de Serviço</a
+          >
+          <a href="#" class="text-white/70 hover:text-white transition-colors text-sm"
+            >Política de Privacidade</a
+          >
         </div>
       </div>
     </div>

@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Project;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log; 
 use Inertia\Inertia;
 
 class ProjectController extends Controller
@@ -16,7 +19,7 @@ class ProjectController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('can:manage-projects')->except(['index', 'show']);
+        $this->middleware('can:manage-projects')->except(['index', 'show', 'webIndex']);
     }
 
     /**
@@ -59,15 +62,88 @@ class ProjectController extends Controller
         }
     }
 
+     public function webIndex(Request $request)
+    {
+        // DEBUG detalhado
+        $user = Auth::user();
+        
+        Log::info('ProjectController::webIndex - Acesso tentado', [
+            'user_id' => $user->id,
+            'user_email' => $user->email,
+            'user_name' => $user->name,
+            'user_roles' => $user->getRoleNames()->toArray(),
+            'url' => $request->fullUrl(),
+            'path' => $request->path(),
+            'is_gestor' => $user->hasRole('Gestor'),
+            'is_manager' => $user->hasRole('Manager'),
+            'is_director' => $user->hasRole('Director'),
+            'is_admin' => $user->hasRole('admin'),
+        ]);
+        
+        // Verificar se o usuário tem permissão
+        // Permitir múltiplos nomes de roles para compatibilidade
+        $allowedRoles = ['Gestor', 'Manager', 'Director', 'admin', 'PCA'];
+        
+        if (!$user->hasAnyRole($allowedRoles)) {
+            Log::warning('Acesso negado para user_id: ' . $user->id, [
+                'roles' => $user->getRoleNames()->toArray(),
+                'allowed_roles' => $allowedRoles
+            ]);
+            
+            // Mensagem mais descritiva
+            $userRoles = implode(', ', $user->getRoleNames()->toArray());
+            abort(403, "Acesso não autorizado. Seu perfil ({$userRoles}) não tem permissão para acessar projetos. 
+                   Permissões necessárias: Gestor, Manager, Director, Admin ou PCA.");
+        }
+        
+        Log::info('Acesso permitido para user_id: ' . $user->id);
+        
+        // Obter projetos
+         $projects = Project::query()
+        ->with(['objectives', 'finance', 'deadline'])
+        ->orderBy('created_at', 'desc')
+        ->paginate(10);
+    
+    // Estatísticas CORRIGIDAS - usar as mesmas categorias
+    $stats = [
+        'total' => Project::count(),
+        'finished' => Project::where('category', 'finalizados')->count(),
+        'progress' => Project::where('category', 'andamento')->count(),
+        'suspended' => Project::where('category', 'parados')->count(),
+    ];
+    
+    // DEBUG: Verifique os dados
+    \Log::info('Estatísticas enviadas:', $stats);
+    \Log::info('Total de projetos:', ['count' => $projects->count()]);
+    
+    return Inertia::render('Common/ProjectsPage', [
+        'projects' => $projects,
+        'stats' => $stats,
+        'canEdit' => $user->hasAnyRole(['Gestor', 'Director', 'admin']),
+    ]);
+}
+
     /**
      * Display the specified resource.
      */
-    public function show(Project $project)
+   public function show(Project $project)
     {
-        // Retornar dados do projecto (para API ou modal)
-        return response()->json([
-            'success' => true,
-            'project' => $project
+        // Carregar relacionamentos necessários
+        $project->load(['objectives', 'finance', 'deadline']);
+        
+        // Verificar permissões (se necessário)
+        $user = auth()->user();
+        $allowedRoles = ['Gestor', 'Manager', 'Director', 'admin', 'PCA'];
+        
+        if (!$user->hasAnyRole($allowedRoles)) {
+            abort(403, 'Acesso não autorizado');
+        }
+        
+        // Retornar via Inertia para navegação web
+        return Inertia::render('Common/ProjectDetails', [
+            'project' => $project,
+            'canEdit' => $user->hasAnyRole(['admin', 'Director', 'Gestor']),
+            'canDelete' => $user->hasAnyRole(['admin']),
         ]);
     }
 

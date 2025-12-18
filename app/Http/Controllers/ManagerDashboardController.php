@@ -162,7 +162,6 @@ class ManagerDashboardController extends Controller
             'high_priority' => (clone $statsQuery)->where('priority', 'high')->count() ?: 0,
             'pending_completion_requests' => (clone $statsQuery)->where('status', 'pending_approval')->count() ?: 0,
         ];
-
         // Técnicos disponíveis
         $indexTechnicians = User::role('Técnico')
             ->select('id', 'name', 'email')

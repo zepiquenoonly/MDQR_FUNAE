@@ -78,6 +78,10 @@ class GrievanceTrackingController extends Controller
                 'assigned_at' => $grievance->assigned_at,
                 'resolved_at' => $grievance->resolved_at,
                 'resolution_notes' => $grievance->resolution_notes,
+                'is_rejected' => $grievance->status === 'rejected',
+                'rejection_reason' => $grievance->rejection_reason,
+                'rejected_at' => $grievance->rejected_at,
+                'rejection_details' => $grievance->metadata['rejection_details'] ?? null,
                 'assigned_user' => $grievance->assignedUser ? [
                     'name' => $grievance->assignedUser->name,
                 ] : null,
@@ -99,14 +103,32 @@ class GrievanceTrackingController extends Controller
                         'path' => $attachment->path,
                     ];
                 }),
-                'updates' => $grievance->publicUpdates->map(function ($update) {
-                    return [
-                        'id' => $update->id,
-                        'action_type' => $update->action_type,
-                        'action_label' => $update->action_label,
-                        'description' => $update->formatted_description,
-                        'comment' => $update->comment,
-                        'user' => $update->user ? [
+
+                'rejection_updates' => $grievance->publicUpdates
+            ->whereIn('action_type', ['submission_rejected', 'rejection_reason'])
+            ->map(function ($update) {
+                return [
+                    'id' => $update->id,
+                    'action_type' => $update->action_type,
+                    'description' => $update->formatted_description,
+                    'comment' => $update->comment,
+                    'user' => $update->user ? [
+                        'name' => $update->user->name,
+                    ] : null,
+                    'created_at' => $update->created_at,
+                    'metadata' => $update->metadata ?? [],
+                ];
+            })
+            ->values(),
+
+                    'updates' => $grievance->publicUpdates->map(function ($update) {
+                        return [
+                            'id' => $update->id,
+                            'action_type' => $update->action_type,
+                            'action_label' => $this->getActionLabel($update->action_type),
+                            'description' => $update->formatted_description,
+                            'comment' => $update->comment,
+                            'user' => $update->user ? [
                             'name' => $update->user->name,
                         ] : null,
                         'created_at' => $update->created_at,
@@ -115,6 +137,26 @@ class GrievanceTrackingController extends Controller
             ],
         ]);
     }
+
+    private function getActionLabel($actionType)
+{
+    $labels = [
+        'created' => 'Criada',
+        'status_changed' => 'Estado Alterado',
+        'assigned' => 'Atribuída',
+        'reassigned' => 'Reatribuída',
+        'comment_added' => 'Comentário Adicionado',
+        'priority_changed' => 'Prioridade Alterada',
+        'attachment_added' => 'Anexo Adicionado',
+        'resolved' => 'Resolvida',
+        'submission_rejected' => 'Submissão Rejeitada',
+        'rejection_reason' => 'Motivo da Rejeição',
+        'reopened' => 'Reaberta',
+        'escalated_to_director' => 'Enviada ao Director',
+    ];
+    
+    return $labels[$actionType] ?? ucfirst(str_replace('_', ' ', $actionType));
+}
 
     /**
      * Get priority label in Portuguese

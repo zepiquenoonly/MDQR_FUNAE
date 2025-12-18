@@ -1,234 +1,215 @@
 <template>
   <Layout :role="'utente'">
-    <div class="max-w-4xl mx-auto">
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <div class="mb-6">
-          <h1 class="text-2xl font-bold text-gray-900">
-            Detalhes da Submissão #{{ grievance.reference_number }}
-          </h1>
+    <div class="min-h-screen bg-gradient-to-br from-orange-50 via-primary-50 to-amber-50">
+      <!-- Hero Section -->
+      <div class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
+
+        <!-- Floating Elements -->
+        <div class="absolute top-20 left-10 w-32 h-32 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-48 h-48 bg-orange-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/3 w-24 h-24 bg-amber-300/15 rounded-full blur-lg animate-pulse delay-500"></div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div class="text-center">
+            <div class="inline-flex items-center justify-center p-4 bg-white/10 backdrop-blur-xl rounded-2xl mb-6 border border-white/20 shadow-2xl shadow-black/10">
+              <DocumentTextIcon class="w-12 h-12 text-white drop-shadow-lg" />
+            </div>
+            <h1 class="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight drop-shadow-2xl">
+              Detalhes da <span class="bg-gradient-to-r from-orange-200 to-amber-200 bg-clip-text text-transparent">Submissão</span>
+            </h1>
+            <div class="inline-block px-6 py-3 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg">
+              <p class="text-white font-mono text-lg font-semibold drop-shadow-lg">
+                {{ grievance.reference_number }}
+              </p>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <div class="space-y-6">
-          <!-- Status e Informações Básicas -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Status Card -->
-            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <h3 class="mb-4 text-lg font-semibold text-gray-800">Status Actual</h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Estado:</span>
-                  <span :class="getStatusBadgeClass(grievance.status)" class="px-3 py-1 text-sm font-semibold rounded-full">
-                    {{ grievance.status_label }}
-                  </span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Prioridade:</span>
-                  <span :class="getPriorityBadgeClass(grievance.priority)" class="px-3 py-1 text-sm font-semibold rounded-full">
-                    {{ grievance.priority_label }}
-                  </span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Tipo:</span>
-                  <span class="text-sm text-gray-800">{{ grievance.type_label || grievance.category }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Data de Submissão:</span>
-                  <span class="text-sm text-gray-800">{{ formatDate(grievance.submitted_at || grievance.created_at) }}</span>
-                </div>
-                <div v-if="grievance.assigned_at" class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Atribuído em:</span>
-                  <span class="text-sm text-gray-800">{{ formatDate(grievance.assigned_at) }}</span>
-                </div>
-                <div v-if="grievance.resolved_at" class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Resolvido em:</span>
-                  <span class="text-sm text-gray-800">{{ formatDate(grievance.resolved_at) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Informações do Requerente -->
-            <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-              <h3 class="mb-4 text-lg font-semibold text-gray-800">Informações do Requerente</h3>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Nome:</span>
-                  <span class="text-sm text-gray-800">{{ grievance.contact_name || user.name }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Email:</span>
-                  <span class="text-sm text-gray-800">{{ grievance.contact_email || user.email }}</span>
-                </div>
-                <div v-if="grievance.contact_phone" class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Telefone:</span>
-                  <span class="text-sm text-gray-800">{{ grievance.contact_phone }}</span>
-                </div>
-                <div v-if="grievance.gender" class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Género:</span>
-                  <span class="text-sm text-gray-800">{{ getGenderLabel(grievance.gender) }}</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-600">Tipo de Submissão:</span>
-                  <span :class="grievance.is_anonymous ? 'text-orange-600' : 'text-green-600'" class="text-sm font-medium">
-                    {{ grievance.is_anonymous ? 'Anónima' : 'Identificada' }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Descrição da Reclamação -->
-          <div class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Descrição da Reclamação</h3>
-            <p class="text-gray-700 whitespace-pre-wrap">{{ grievance.description }}</p>
-          </div>
-
-          <!-- Localização -->
-          <div v-if="grievance.province || grievance.district || grievance.locality" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Localização</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div v-if="grievance.province" class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Província:</span>
-                <span class="text-sm text-gray-800">{{ grievance.province }}</span>
-              </div>
-              <div v-if="grievance.district" class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Distrito:</span>
-                <span class="text-sm text-gray-800">{{ grievance.district }}</span>
-              </div>
-              <div v-if="grievance.municipal_district" class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Posto Administrativo:</span>
-                <span class="text-sm text-gray-800">{{ grievance.municipal_district }}</span>
-              </div>
-              <div v-if="grievance.locality" class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Localidade:</span>
-                <span class="text-sm text-gray-800">{{ grievance.locality }}</span>
-              </div>
-            </div>
-            <div v-if="grievance.location_details" class="mt-4">
-              <span class="text-sm text-gray-600">Detalhes da Localização:</span>
-              <p class="text-sm text-gray-800 mt-1">{{ grievance.location_details }}</p>
-            </div>
-          </div>
-
-          <!-- Projeto Relacionado -->
-          <div v-if="grievance.project" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Projeto Relacionado</h3>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-600">Nome do Projeto:</span>
-              <span class="text-sm text-blue-600 font-medium">{{ grievance.project.name }}</span>
-            </div>
-          </div>
-
-          <!-- Responsável pela Atribuição -->
-          <div v-if="grievance.assigned_to" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Responsável pela Atribuição</h3>
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Técnico Responsável:</span>
-                <span class="text-sm text-gray-800">{{ grievance.assigned_to.name }}</span>
-              </div>
-              <div class="flex items-center justify-between">
-                <span class="text-sm text-gray-600">Email:</span>
-                <span class="text-sm text-gray-800">{{ grievance.assigned_to.email }}</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Anexos -->
-          <div v-if="grievance.attachments && grievance.attachments.length > 0" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Anexos ({{ grievance.attachments.length }})</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div v-for="attachment in grievance.attachments" :key="attachment.id" class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div class="flex items-start space-x-3">
-                  <!-- Preview para imagens -->
-                  <div v-if="isImage(attachment.mime_type)" class="flex-shrink-0">
-                    <img :src="attachment.url" :alt="attachment.original_filename"
-                         class="w-16 h-16 object-cover rounded-lg border border-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
-                         @click="openImageModal(attachment)" />
+      <!-- Main Content -->
+      <div class="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-20 z-10">
+        <div class="space-y-8 animate-fade-in">
+          <!-- Main Grievance Card - fundo BRANCO SÓLIDO -->
+          <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 relative overflow-hidden group">
+            <!-- Header -->
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
+              <div class="flex-1">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-14 h-14 bg-gradient-to-br from-brand to-brand-dark rounded-xl flex items-center justify-center shadow-lg shadow-brand/20">
+                    <DocumentTextIcon class="w-7 h-7 text-white" />
                   </div>
-                  <!-- Ícone para outros tipos de arquivo -->
-                  <div v-else class="flex-shrink-0">
-                    <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <DocumentIcon class="w-8 h-8 text-gray-500" />
-                    </div>
-                  </div>
-
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-gray-900 truncate">{{ attachment.original_filename }}</p>
-                    <p class="text-xs text-gray-500 mt-1">
-                      {{ formatFileSize(attachment.file_size) }} • {{ getFileTypeLabel(attachment.mime_type) }}
-                    </p>
-                    <p v-if="attachment.uploaded_at" class="text-xs text-gray-400 mt-1">
-                      Enviado em {{ formatDate(attachment.uploaded_at) }}
-                    </p>
-                    <div class="mt-3 flex space-x-2">
-                      <a :href="attachment.url" target="_blank"
-                         class="inline-flex items-center px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 transition-colors">
-                        <ArrowDownTrayIcon class="w-3 h-3 mr-1" />
-                        Download
-                      </a>
-                      <button v-if="isImage(attachment.mime_type)" @click="openImageModal(attachment)"
-                              class="inline-flex items-center px-3 py-1 text-xs font-medium text-green-600 bg-green-50 rounded-md hover:bg-green-100 transition-colors">
-                        <EyeIcon class="w-3 h-3 mr-1" />
-                        Visualizar
-                      </button>
+                  <div>
+                    <h2 class="text-2xl font-bold font-mono text-gray-900">
+                      {{ grievance.reference_number }}
+                    </h2>
+                    <div class="flex flex-wrap items-center gap-4 mt-2">
+                      <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-100 rounded-full text-sm text-gray-700">
+                        <ClockIcon class="w-4 h-4 text-brand" />
+                        {{ new Date(grievance.submitted_at).toLocaleDateString('pt-PT', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        }) }}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
+              <StatusBadge :status="grievance.status" :label="grievance.status_label" size="lg" />
             </div>
-          </div>
 
-          <!-- Atualizações -->
-          <div v-if="grievance.updates && grievance.updates.length > 0" class="p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
-            <h3 class="mb-4 text-lg font-semibold text-gray-800">Histórico de Atualizações</h3>
-            <div class="space-y-4">
-              <div v-for="update in grievance.updates" :key="update.id" class="border-l-4 border-blue-500 pl-4 py-2">
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-sm font-semibold text-gray-800">{{ update.action_label }}</span>
-                  <span class="text-xs text-gray-500">{{ formatDate(update.created_at) }}</span>
+            <!-- Stats Grid - Glassmorphism Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 relative z-10">
+              <!-- Type Card -->
+              <div v-if="grievance.type" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-purple-300/50 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-purple-500/5 hover:bg-white/80">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-purple-500/20 to-pink-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                    <DocumentTextIcon class="w-6 h-6 text-purple-600" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Tipo</p>
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ grievance.type_label || grievance.type }}
+                    </p>
+                  </div>
                 </div>
-                <p v-if="update.description" class="text-sm text-gray-700">{{ update.description }}</p>
-                <p v-if="update.comment" class="mt-1 text-sm italic text-gray-600">"{{ update.comment }}"</p>
-                <p v-if="update.user" class="mt-1 text-xs text-gray-500">Por: {{ update.user.name }}</p>
+              </div>
+
+              <!-- Priority Card -->
+              <div v-if="grievance.priority" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-red-300/50 hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-red-500/5 hover:bg-white/80">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-red-500/20 to-orange-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                    <ExclamationTriangleIcon class="w-6 h-6 text-red-600" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Prioridade</p>
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ grievance.priority_label || grievance.priority }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Location Card -->
+              <div v-if="grievance.province" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-cyan-300/50 hover:shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-cyan-500/5 hover:bg-white/80">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-cyan-500/20 to-blue-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                    <MapIcon class="w-6 h-6 text-cyan-600" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Localização</p>
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ grievance.province }}
+                      <span v-if="grievance.district" class="text-gray-600"> • {{ grievance.district }}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Technician Card -->
+              <div v-if="grievance.assigned_user" class="bg-white/70 backdrop-blur-md p-5 rounded-2xl border border-white/40 hover:border-emerald-300/50 hover:shadow-xl hover:shadow-emerald-500/10 transition-all duration-300 group/card hover:-translate-y-1 shadow-lg shadow-emerald-500/5 hover:bg-white/80">
+                <div class="flex items-center gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-emerald-500/20 to-green-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
+                    <UserIcon class="w-6 h-6 text-emerald-600" />
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium text-gray-600 uppercase tracking-wider">Técnico Responsável</p>
+                    <p class="text-sm font-semibold text-gray-900">
+                      {{ grievance.assigned_user.name }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Content Sections -->
+            <div class="space-y-8">
+              <!-- Description -->
+              <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-3">
+                  <div class="w-10 h-10 bg-gradient-to-br from-brand/10 to-brand-dark/10 rounded-lg flex items-center justify-center">
+                    <DocumentTextIcon class="w-5 h-5 text-brand" />
+                  </div>
+                  Descrição da Reclamação
+                </h3>
+                <div class="prose prose-gray max-w-none text-gray-700 bg-white rounded-lg p-6 border border-gray-200"
+                    v-html="grievance.description"></div>
+              </div>
+
+              <!-- Project Information Section (if exists) -->
+              <div v-if="grievance.project" class="mb-8">
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-200">
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg flex-shrink-0">
+                      <BuildingOfficeIcon class="w-6 h-6 text-white" />
+                    </div>
+                    <div class="flex-1">
+                      <h3 class="text-lg font-semibold text-gray-900 mb-2">Projeto Relacionado</h3>
+                      <p class="text-xl font-bold text-blue-900 mb-3">{{ grievance.project.name }}</p>
+                      <p v-if="grievance.project.description" class="text-gray-700 mb-4 leading-relaxed bg-white/60 rounded-lg p-4 border border-blue-100">
+                        {{ grievance.project.description }}
+                      </p>
+                      <div v-if="grievance.project.province || grievance.project.district" class="flex flex-wrap items-center gap-3">
+                        <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-white rounded-full text-sm text-gray-700 border border-blue-200">
+                          <MapPinIcon class="w-4 h-4 text-blue-600" />
+                          {{ grievance.project.province }}
+                          <span v-if="grievance.project.district" class="text-gray-500">• {{ grievance.project.district }}</span>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Two Column Layout - Glassmorphism Cards -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Timeline -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-primary-500/5 hover:bg-white/80 transition-all duration-300">
+                  <UpdatesTimeline :updates="grievance.updates" />
+                </div>
+
+                <!-- Attachments -->
+                <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-orange-500/5 hover:bg-white/80 transition-all duration-300">
+                  <AttachmentsGallery :attachments="grievance.attachments" />
+                </div>
+              </div>
+
+              <!-- Resolution Notes -->
+              <div v-if="grievance.resolution_notes && grievance.status === 'resolved'"
+                  class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
+                <div class="flex items-start gap-4">
+                  <div class="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-lg flex-shrink-0">
+                    <CheckCircleIcon class="w-6 h-6 text-white" />
+                  </div>
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Notas de Resolução</h3>
+                    <p class="text-gray-700 leading-relaxed bg-white rounded-lg p-5 border border-green-200">
+                      {{ grievance.resolution_notes }}
+                    </p>
+                    <div v-if="grievance.resolved_by"
+                        class="flex items-center gap-3 mt-4 pt-4 border-t border-green-200">
+                      <UserIcon class="w-5 h-5 text-green-600" />
+                      <span class="text-sm text-gray-600">
+                        Resolvida por: <strong class="text-gray-900">{{ grievance.resolved_by.name }}</strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <!-- Resolução -->
-          <div v-if="grievance.resolution_notes && (grievance.status === 'resolved' || grievance.status === 'closed')" class="p-6 border-green-200 rounded-lg shadow-sm bg-green-50">
-            <h3 class="mb-3 text-lg font-semibold text-green-800">Resolução</h3>
-            <p class="text-gray-700 whitespace-pre-wrap">{{ grievance.resolution_notes }}</p>
-            <div class="mt-4 space-y-2">
-              <div v-if="grievance.resolved_by" class="flex items-center text-sm text-gray-600">
-                <CheckCircleIcon class="w-4 h-4 mr-2 text-green-600" />
-                <span>Resolvido por: <strong>{{ grievance.resolved_by.name }}</strong> ({{ grievance.resolved_by.email }})</span>
-              </div>
-              <div v-if="grievance.resolved_at" class="flex items-center text-sm text-gray-600">
-                <ClockIcon class="w-4 h-4 mr-2 text-green-600" />
-                <span>Data da resolução: <strong>{{ formatDate(grievance.resolved_at) }}</strong></span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mt-8 flex justify-end">
-          <a href="/utente/dashboard" class="px-6 py-2 font-semibold text-gray-700 transition-colors bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-            Voltar ao Dashboard
-          </a>
-        </div>
-
-        <!-- Modal de Visualização de Imagem -->
-        <div v-if="imageModal.open" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-75" @click="closeImageModal">
-          <div class="relative max-w-4xl max-h-full">
-            <img :src="imageModal.attachment.url" :alt="imageModal.attachment.original_filename"
-                 class="max-w-full max-h-full object-contain rounded-lg" />
-            <button @click="closeImageModal" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-colors">
-              <XMarkIcon class="w-6 h-6" />
-            </button>
-            <div class="absolute bottom-4 left-4 right-4 bg-black bg-opacity-50 rounded-lg p-4 text-white">
-              <p class="font-medium">{{ imageModal.attachment.original_filename }}</p>
-              <p class="text-sm opacity-75">{{ formatFileSize(imageModal.attachment.file_size) }}</p>
-            </div>
+          <!-- Action Button -->
+          <div class="flex justify-center pt-8">
+            <a href="/utente/dashboard"
+              class="group relative px-8 py-4 bg-white text-gray-700 font-semibold rounded-xl hover:shadow-2xl border border-gray-200 transition-all duration-300 flex items-center gap-3 shadow-lg hover:shadow-gray-200/50 transform hover:-translate-y-1 overflow-hidden">
+              <div class="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+              <ArrowPathIcon class="w-5 h-5 relative z-10" />
+              <span class="relative z-10">Voltar ao Dashboard</span>
+              <ChevronRightIcon class="w-5 h-5 relative z-10 opacity-0 group-hover:opacity-100 translate-x-[-10px] group-hover:translate-x-0 transition-all duration-300" />
+            </a>
           </div>
         </div>
       </div>
@@ -246,8 +227,17 @@ import {
   ClockIcon,
   EyeIcon,
   DocumentIcon,
-  XMarkIcon
+  XMarkIcon,
+  DocumentTextIcon,
+  BuildingOfficeIcon,
+  MapPinIcon,
+  UserIcon,
+  ArrowPathIcon,
+  ChevronRightIcon
 } from '@heroicons/vue/24/outline'
+import StatusBadge from '@/Components/Grievance/StatusBadge.vue'
+import UpdatesTimeline from '@/Components/Grievance/UpdatesTimeline.vue'
+import AttachmentsGallery from '@/Components/Grievance/AttachmentsGallery.vue'
 
 const props = defineProps({
   user: Object,
@@ -339,3 +329,45 @@ const closeImageModal = () => {
   }
 }
 </script>
+
+<style scoped>
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.75rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.prose p {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+  color: #374151;
+}
+
+.prose ul,
+.prose ol {
+  margin: 1.25rem 0;
+  padding-left: 1.75rem;
+}
+
+.prose li {
+  margin-bottom: 0.75rem;
+  color: #4b5563;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+</style>

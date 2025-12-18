@@ -53,15 +53,118 @@
             <option value="12months" selected>Últimos 12 Meses</option>
           </select>
 
-          <!-- Botão Exportar -->
+          <!-- Botão Exportar (FORA do modal) -->
           <button
             v-if="canExport"
-            @click="exportStatistics"
-            class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium"
+            @click="showExportModal = true"
+            :disabled="loading"
+            class="inline-flex items-center px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ArrowDownTrayIcon class="w-5 h-5 mr-2" />
-            Exportar
+            {{ loading ? "Exportando..." : "Exportar" }}
           </button>
+        </div>
+      </div>
+
+      <!-- Modal de Exportação -->
+      <div
+        v-if="showExportModal"
+        class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50"
+      >
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+              Exportar Estatísticas
+            </h3>
+            <button
+              @click="showExportModal = false"
+              class="text-gray-400 hover:text-gray-500"
+            >
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <p class="text-gray-600 dark:text-gray-300 mb-6">
+            Selecione o formato para exportação:
+          </p>
+
+          <div class="space-y-3">
+            <button
+              @click="handleExport('excel')"
+              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <span class="text-green-600 dark:text-green-300 font-bold">XLS</span>
+                </div>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900 dark:text-white">Excel (.xlsx)</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Ideal para análise e edição
+                  </p>
+                </div>
+              </div>
+              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
+            </button>
+
+            <button
+              @click="handleExport('csv')"
+              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <span class="text-blue-600 dark:text-blue-300 font-bold">CSV</span>
+                </div>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900 dark:text-white">CSV (.csv)</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Formato simples e compatível
+                  </p>
+                </div>
+              </div>
+              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
+            </button>
+
+            <button
+              @click="handleExport('pdf')"
+              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <span class="text-red-600 dark:text-red-300 font-bold">PDF</span>
+                </div>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900 dark:text-white">PDF (.pdf)</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Para impressão e compartilhamento
+                  </p>
+                </div>
+              </div>
+              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
+            </button>
+          </div>
+
+          <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+            <p>
+              Período selecionado:
+              <span class="font-medium"
+                >{{ formatDate(start_date) }} - {{ formatDate(end_date) }}</span
+              >
+            </p>
+          </div>
         </div>
       </div>
 
@@ -655,7 +758,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from "vue";
-import { Link, router } from "@inertiajs/vue3"; // Importe router do Inertia
+import { Link, router } from "@inertiajs/vue3";
 import UnifiedLayout from "@/Layouts/UnifiedLayout.vue";
 import LineChart from "@/Components/Statistics/LineChart.vue";
 import BarChart from "@/Components/Statistics/BarChart.vue";
@@ -696,6 +799,7 @@ const props = defineProps({
 const period = ref(props.period);
 const loading = ref(false);
 const localData = ref({ ...props });
+const showExportModal = ref(false);
 
 // Computed para verificar modo escuro
 const isDarkMode = computed(() => {
@@ -707,7 +811,6 @@ const loadStatistics = async () => {
   loading.value = true;
 
   try {
-    // Use o router do Inertia para fazer uma requisição GET com os parâmetros
     router.get(
       "/statistics",
       { period: period.value },
@@ -715,7 +818,6 @@ const loadStatistics = async () => {
         preserveState: true,
         preserveScroll: true,
         onSuccess: (page) => {
-          // Atualize os dados locais com os novos dados
           localData.value = {
             ...localData.value,
             ...page.props,
@@ -734,84 +836,67 @@ const loadStatistics = async () => {
   }
 };
 
-// Alternativa: Use fetch API diretamente
-const loadStatisticsAlternative = async () => {
+// Função para alterar período
+const changePeriod = () => {
+  loadStatistics();
+};
+
+const handleExport = async (format) => {
+  showExportModal.value = false;
   loading.value = true;
 
   try {
-    const response = await fetch(`/api/stats?period=${period.value}`, {
-      headers: {
-        Accept: "application/json",
-        "X-Requested-With": "XMLHttpRequest",
-      },
+    // Construir URL para download
+    const params = new URLSearchParams({
+      period: period.value,
+      format: format,
     });
 
-    if (response.ok) {
-      const data = await response.json();
-      // Atualize os dados locais
-      localData.value = {
-        ...localData.value,
-        ...data,
-      };
-    } else {
-      console.error("Erro na resposta:", response.status);
-    }
+    const url = `/statistics/export?${params.toString()}`;
+
+    // Método 1: Download direto (recomendado para arquivos)
+    window.location.href = url;
+
+    // Mensagem de sucesso após um delay
+    setTimeout(() => {
+      showSuccessToast(`Estatísticas exportadas em formato ${format.toUpperCase()}!`);
+      loading.value = false;
+    }, 1000);
   } catch (error) {
-    console.error("Erro na requisição:", error);
-  } finally {
+    console.error("Erro na exportação:", error);
     loading.value = false;
+    showErrorToast("Erro ao exportar estatísticas: " + error.message);
   }
 };
 
-// Função para exportar
-const exportStatistics = async () => {
-  try {
-    const response = await fetch("/statistics/export", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]')?.content || "",
-      },
-      body: JSON.stringify({ period: period.value }),
-    });
+// Funções de toast (simplificadas)
+const showSuccessToast = (message) => {
+  // Você pode integrar com uma biblioteca de notificações
+  console.log("✅", message);
+  // Exemplo com alerta simples
+  alert(message);
+};
 
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `estatisticas-${period.value}-${
-        new Date().toISOString().split("T")[0]
-      }.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } else {
-      alert("Erro ao exportar estatísticas");
-    }
-  } catch (error) {
-    console.error("Erro:", error);
-    alert("Erro ao exportar estatísticas");
-  }
+const showErrorToast = (message) => {
+  console.error("❌", message);
+  alert("Erro: " + message);
 };
 
 // Observar mudanças no modo escuro para atualizar gráficos
 watch(isDarkMode, () => {
-  // Recarregar dados para atualizar cores dos gráficos
   loadStatistics();
 });
 
 // Inicializar quando o componente é montado
 onMounted(() => {
-  // Verificar se temos dados iniciais
   if (!props.chart_data || Object.keys(props.chart_data).length === 0) {
     loadStatistics();
   }
 });
 
-// Helper functions (mantenha as existentes)
+// Helper functions
 const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
   return new Date(dateString).toLocaleDateString("pt-PT");
 };
 

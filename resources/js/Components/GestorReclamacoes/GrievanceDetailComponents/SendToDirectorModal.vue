@@ -460,7 +460,7 @@ const updateCharacterCount = () => {
 };
 
 const isFormValid = computed(() => {
-  return form.reason && form.comment.trim().length >= 100 && countWords() >= 15;
+  return form.reason && form.comment.trim().length >= 10 && countWords() >= 10;
 });
 
 const validateForm = () => {
@@ -479,9 +479,9 @@ const validateForm = () => {
     return false;
   }
 
-  if (form.comment.length < 100) {
+  if (form.comment.length < 10) {
     errors.comment =
-      "O comentário deve conter pelo menos 100 caracteres para fornecer contexto adequado e informações suficientes para a análise directorial. Atualmente possui " +
+      "O comentário deve conter pelo menos 10 caracteres para fornecer contexto adequado e informações suficientes para a análise directorial. Atualmente possui " +
       form.comment.length +
       " caracteres.";
     return false;
@@ -495,9 +495,9 @@ const validateForm = () => {
     return false;
   }
 
-  if (countWords() < 15) {
+  if (countWords() < 10) {
     errors.comment =
-      "O comentário deve conter pelo menos 15 palavras para ser significativo e informativo. Atualmente contém " +
+      "O comentário deve conter pelo menos 10 palavras para ser significativo e informativo. Atualmente contém " +
       countWords() +
       " palavras.";
     return false;

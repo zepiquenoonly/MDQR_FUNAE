@@ -1,6 +1,6 @@
 <!-- TechnicianPage.vue -->
 <template>
-  <UnifiedLayout :user="user" :role="role" :stats="stats">
+  <UnifiedLayout :stats="stats">
     <div class="space-y-6">
       <!-- Header -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -95,6 +95,7 @@
 import { ref, computed } from "vue";
 import UnifiedLayout from "@/Layouts/UnifiedLayout.vue";
 import TechnicianTable from "@/Components/Technician/TechnicianTable.vue";
+import { useAuth } from "@/Composables/useAuth";
 import {
   UserGroupIcon,
   CheckCircleIcon,
@@ -102,10 +103,11 @@ import {
   ChartBarIcon,
 } from "@heroicons/vue/24/outline";
 
-// Props do Inertia - os dados já vêm do controller
+// Usar useAuth para verificar permissões
+const { role, permissions, checkRole } = useAuth();
+
+// Props apenas com dados necessários
 const props = defineProps({
-  user: Object,
-  role: String,
   technicians: {
     type: [Object, Array],
     default: () => ({}),
@@ -114,7 +116,6 @@ const props = defineProps({
   filters: Object,
   top_technicians: Array,
   provinces: Array,
-  canEdit: Boolean,
 });
 
 // Computed properties
@@ -122,11 +123,10 @@ const totalTechnicians = computed(() => {
   return props.stats?.total_technicians || 0;
 });
 
-const loading = ref(false); // Não está carregando via HTTP
+// Verificar permissões de edição baseado no role
+const canEdit = computed(() => {
+  return checkRole("manager") || checkRole("admin") || checkRole("director");
+});
 
-// Debug: Verifique os dados recebidos
-console.log("TechnicianPage - Dados recebidos do Inertia:");
-console.log("technicians:", props.technicians);
-console.log("stats:", props.stats);
-console.log("user:", props.user);
+const loading = ref(false);
 </script>

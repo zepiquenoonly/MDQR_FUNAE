@@ -89,7 +89,7 @@ import { ref, reactive, computed, onMounted } from "vue";
 import Layout from "@/Layouts/UnifiedLayout.vue";
 import PriorityModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/PriorityModal.vue";
 import ReassignModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/ReassignModal.vue";
-import CommentModal from "@/Components/GestorReclamacoes/CommentModal.vue";
+import CommentModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/CommentModal.vue";
 import SendToDirectorModal from "@/Components/GestorReclamacoes/GrievanceDetailComponents/SendToDirectorModal.vue";
 import GrievanceDirectorComments from "@/Components/GestorReclamacoes/GrievanceDetailComponents/GrievanceDirectorComments.vue";
 import GrievanceBreadcrumb from "@/Components/GestorReclamacoes/GrievanceDetailComponents/GrievanceBreadcrumb.vue";

@@ -1,4 +1,4 @@
-<!-- ValidationModal.vue - CORRIGIDO -->
+[file name]: ValidationModal.vue - COM SUPORTE A EDIÇÃO [file content begin]
 <template>
   <TransitionRoot appear :show="isOpen" as="template">
     <Dialog as="div" @close="closeModal" class="relative z-50">
@@ -32,13 +32,27 @@
                 as="h3"
                 class="text-lg font-bold text-gray-900 dark:text-white"
               >
-                Validar Submissão
+                {{ isEditMode ? "Editar Resposta do Director" : "Validar Submissão" }}
               </DialogTitle>
+
+              <div class="mt-2">
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{
+                    isEditMode
+                      ? "Edite sua resposta ao gestor para esta submissão"
+                      : "Forneça uma resposta ao gestor para esta submissão"
+                  }}
+                </p>
+              </div>
 
               <!-- Mensagens de erro do Inertia -->
               <div
                 v-if="form.hasErrors"
+<<<<<<< HEAD
+                class="mt-4 mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg"
+=======
                 class="p-3 mb-4 border border-red-200 rounded-lg bg-red-50 dark:bg-red-900/20 dark:border-red-700"
+>>>>>>> kev-dev
               >
                 <div class="flex items-center gap-2 text-red-700 dark:text-red-300">
                   <ExclamationCircleIcon class="w-5 h-5" />
@@ -51,8 +65,31 @@
                 </ul>
               </div>
 
-              <div class="mt-4">
+              <div class="mt-6">
                 <div class="space-y-6">
+                  <!-- Informação da submissão -->
+                  <div class="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                          Submissão #{{ submission.reference_number }}
+                        </p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Recebida do gestor:
+                          {{
+                            formatDate(submission.escalated_at || submission.created_at)
+                          }}
+                        </p>
+                      </div>
+                      <span
+                        v-if="submission.escalation_reason"
+                        class="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300 rounded-full"
+                      >
+                        {{ submission.escalation_reason }}
+                      </span>
+                    </div>
+                  </div>
+
                   <!-- Status da validação -->
                   <div>
                     <label
@@ -147,15 +184,28 @@
                       class="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
                     >
                       Comentário <span class="text-red-500">*</span>
-                      <span class="text-xs text-gray-500 dark:text-gray-400"
-                        >(Obrigatório para justificar a decisão)</span
-                      >
+                      <span class="text-xs text-gray-500 dark:text-gray-400">
+                        {{
+                          isEditMode
+                            ? "(Edite o comentário existente)"
+                            : "(Obrigatório para justificar a decisão)"
+                        }}
+                      </span>
                     </label>
                     <textarea
                       v-model="form.comment"
                       rows="4"
+<<<<<<< HEAD
+                      :placeholder="
+                        isEditMode
+                          ? 'Edite seu comentário para o gestor...'
+                          : 'Descreva detalhadamente o motivo da sua decisão...'
+                      "
+                      class="w-full px-4 py-3 border rounded-lg bg-white dark:bg-dark-secondary focus:ring-2 focus:ring-brand focus:border-transparent"
+=======
                       placeholder="Descreva detalhadamente o motivo da sua decisão..."
                       class="w-full px-4 py-3 bg-white border rounded-lg dark:bg-dark-secondary focus:ring-2 focus:ring-brand focus:border-transparent"
+>>>>>>> kev-dev
                       :class="
                         form.errors.comment
                           ? 'border-red-300 dark:border-red-600'
@@ -176,9 +226,18 @@
                     </div>
                   </div>
 
+<<<<<<< HEAD
+                  <!-- Notificações (não em modo de edição) -->
+                  <div
+                    v-if="!isEditMode"
+                    class="border-t border-gray-200 dark:border-gray-700 pt-4"
+                  >
+                    <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+=======
                   <!-- Notificações -->
                   <div class="pt-4 border-t border-gray-200 dark:border-gray-700">
                     <h4 class="mb-3 text-sm font-medium text-gray-700 dark:text-gray-300">
+>>>>>>> kev-dev
                       Notificar
                     </h4>
                     <div class="space-y-3">
@@ -234,6 +293,27 @@
                       </label>
                     </div>
                   </div>
+
+                  <!-- Mensagem para modo de edição -->
+                  <div
+                    v-if="isEditMode"
+                    class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700"
+                  >
+                    <div class="flex items-start gap-3">
+                      <InformationCircleIcon
+                        class="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5"
+                      />
+                      <div>
+                        <p class="text-sm font-medium text-blue-800 dark:text-blue-300">
+                          Modo de Edição
+                        </p>
+                        <p class="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                          Você está editando sua resposta existente. A nova versão
+                          substituirá a anterior.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -277,11 +357,18 @@
                         d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                       ></path>
                     </svg>
-                    Enviando...
+                    {{ isEditMode ? "Atualizando..." : "Enviando..." }}
                   </template>
                   <template v-else>
+<<<<<<< HEAD
+                    <CheckBadgeIcon class="h-5 w-5" />
+                    {{
+                      isEditMode ? "Atualizar Resposta" : getStatusButtonText(form.status)
+                    }}
+=======
                     <CheckBadgeIcon class="w-5 h-5" />
                     {{ getStatusButtonText(form.status) }}
+>>>>>>> kev-dev
                   </template>
                 </button>
               </div>
@@ -294,6 +381,24 @@
 </template>
 
 <script setup>
+<<<<<<< HEAD
+import { ref, watch, computed, onMounted } from "vue";
+import {
+  Dialog,
+  DialogPanel,
+  DialogTitle,
+  TransitionChild,
+  TransitionRoot,
+} from "@headlessui/vue";
+import {
+  CheckBadgeIcon,
+  UserCircleIcon,
+  WrenchIcon,
+  UserIcon,
+  ExclamationCircleIcon,
+  InformationCircleIcon,
+} from "@heroicons/vue/24/outline";
+=======
 import { ref, watch } from "vue";
 
 
@@ -316,14 +421,20 @@ import { ref, watch } from "vue";
 //   ExclamationCircleIcon,
 // } from "@heroicons/vue/24/outline";
 
+>>>>>>> kev-dev
 import { useForm } from "@inertiajs/vue3";
 
 const props = defineProps({
   isOpen: Boolean,
   submission: Object,
+  editData: {
+    // NOVO: Dados para edição
+    type: Object,
+    default: null,
+  },
 });
 
-const emit = defineEmits(["close", "validate"]);
+const emit = defineEmits(["close", "validate", "update"]); // ATUALIZADO: Adicionado "update"
 
 // Use useForm para gerenciar o formulário
 const form = useForm({
@@ -332,14 +443,93 @@ const form = useForm({
   notify_manager: true,
   notify_technician: true,
   notify_user: false,
+  is_edit: false, // NOVO: Flag para modo de edição
+  validation_id: null, // NOVO: ID da validação a ser editada
 });
 
 const isSubmitting = ref(false);
+const isEditMode = ref(false); // NOVO: Estado para modo de edição
+
+// Computed property para verificar se há dados de edição
+const hasEditData = computed(() => {
+  return props.editData && props.editData.id && props.submission?.director_validation;
+});
+
+// Inicializar com dados de edição, se houver
+onMounted(() => {
+  if (hasEditData.value) {
+    initializeEditMode();
+  }
+});
+
+// Observar mudanças nos dados de edição
+watch(
+  () => props.editData,
+  (newData) => {
+    if (newData && newData.id) {
+      initializeEditMode();
+    } else {
+      resetToCreateMode();
+    }
+  },
+  { immediate: true }
+);
+
+// Observar abertura/fechamento do modal
+watch(
+  () => props.isOpen,
+  (isOpen) => {
+    if (isOpen) {
+      form.clearErrors();
+      if (hasEditData.value) {
+        initializeEditMode();
+      }
+    } else {
+      // Não resetamos completamente para manter dados durante edição
+      isSubmitting.value = false;
+    }
+  }
+);
+
+// Função para inicializar modo de edição
+const initializeEditMode = () => {
+  if (!props.submission?.director_validation) return;
+
+  const validation = props.submission.director_validation;
+  isEditMode.value = true;
+
+  // Preencher formulário com dados existentes
+  form.status = validation.status;
+  form.comment = validation.comment || validation.comments || "";
+  form.notify_manager = true; // Sempre notificar ao editar
+  form.notify_technician = true;
+  form.notify_user = validation.status === "approved" ? true : false;
+  form.is_edit = true;
+  form.validation_id = validation.id;
+
+  // Em modo de edição, desabilitar notificações específicas
+  // Ou podemos manter as configurações originais
+};
+
+// Função para resetar para modo de criação
+const resetToCreateMode = () => {
+  isEditMode.value = false;
+  form.reset();
+  form.is_edit = false;
+  form.validation_id = null;
+  form.notify_manager = true;
+  form.notify_technician = true;
+  form.notify_user = false;
+  form.clearErrors();
+};
 
 const closeModal = () => {
   if (!isSubmitting.value) {
     emit("close");
-    resetForm();
+    // Aguardar um pouco antes de resetar para permitir transição
+    setTimeout(() => {
+      resetToCreateMode();
+    }, 300);
   }
 };
 
@@ -351,40 +541,81 @@ const submitValidation = async () => {
   isSubmitting.value = true;
 
   try {
-    await form.post(`/director/complaints/${props.submission.id}/validate`, {
-      preserveScroll: true,
-      preserveState: true,
-      onSuccess: () => {
-        // Resetar formulário
-        form.reset();
-
-        // Limpar erros
-        form.clearErrors();
-
-        // Fechar modal
-        emit("close");
-
-        // Emitir evento de sucesso
-        emit("validate", form.data());
-      },
-      onError: (errors) => {
-        console.error("Erros de validação:", errors);
-        // Os erros já são mostrados automaticamente pelo Inertia
-      },
-      onFinish: () => {
-        isSubmitting.value = false;
-      },
-    });
+    if (isEditMode.value && form.validation_id) {
+      // Modo de edição: PUT para atualizar
+      await form.put(
+        `/director/complaints/${props.submission.id}/validation/${form.validation_id}/update`,
+        {
+          preserveScroll: true,
+          preserveState: true,
+          onSuccess: () => {
+            handleSuccess("Resposta atualizada com sucesso!", "update");
+          },
+          onError: (errors) => {
+            console.error("Erros ao atualizar validação:", errors);
+          },
+          onFinish: () => {
+            isSubmitting.value = false;
+          },
+        }
+      );
+    } else {
+      // Modo de criação: POST para nova validação
+      await form.post(`/director/complaints/${props.submission.id}/validate`, {
+        preserveScroll: true,
+        preserveState: true,
+        onSuccess: () => {
+          handleSuccess("Validação enviada com sucesso!", "validate");
+        },
+        onError: (errors) => {
+          console.error("Erros de validação:", errors);
+        },
+        onFinish: () => {
+          isSubmitting.value = false;
+        },
+      });
+    }
   } catch (error) {
     console.error("Erro ao enviar validação:", error);
     isSubmitting.value = false;
   }
 };
 
-const resetForm = () => {
+const handleSuccess = (message, eventType) => {
+  // Resetar formulário
   form.reset();
   form.clearErrors();
-  isSubmitting.value = false;
+
+  // Fechar modal
+  emit("close");
+
+  // Emitir evento apropriado
+  if (eventType === "update") {
+    emit("update", { ...form.data(), message });
+  } else {
+    emit("validate", { ...form.data(), message });
+  }
+
+  // Resetar modo
+  setTimeout(() => {
+    resetToCreateMode();
+  }, 300);
+};
+
+const formatDate = (dateString) => {
+  if (!dateString) return "N/A";
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("pt-PT", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (error) {
+    return "Data inválida";
+  }
 };
 
 const getStatusButtonClass = (status) => {
@@ -404,24 +635,4 @@ const getStatusButtonText = (status) => {
   };
   return texts[status] || "Validar";
 };
-
-// Verificar se o usuário pode validar
-const userCanValidate = () => {
-  return (
-    props.submission?.escalated === true ||
-    props.submission?.metadata?.is_escalated_to_director === true
-  );
-};
-
-// Limpar erros quando o modal for aberto/fechado
-watch(
-  () => props.isOpen,
-  (isOpen) => {
-    if (isOpen) {
-      form.clearErrors();
-    } else {
-      resetForm();
-    }
-  }
-);
 </script>

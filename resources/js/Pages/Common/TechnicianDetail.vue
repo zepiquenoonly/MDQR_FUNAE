@@ -1,5 +1,5 @@
 <template>
-  <UnifiedLayout :user="user" :role="role">
+  <UnifiedLayout>
     <div class="min-h-screen bg-gray-50 dark:bg-dark-primary p-4 sm:p-6">
       <!-- Breadcrumb - use URLs diretas -->
       <nav class="mb-6">
@@ -546,7 +546,10 @@
 
 <script setup>
 import { Link } from "@inertiajs/vue3";
+import { computed } from "vue";
 import UnifiedLayout from "@/Layouts/UnifiedLayout.vue";
+import { useAuth, usePermissions } from "@/Composables/useAuth";
+
 import {
   ArrowLeftIcon,
   ArrowPathIcon,
@@ -556,9 +559,9 @@ import {
   ChartBarIcon,
 } from "@heroicons/vue/24/outline";
 
+const { role, checkRole } = useAuth();
+
 const props = defineProps({
-  user: Object,
-  role: String,
   technician: Object,
   stats: Object,
   recent_tasks: Array,
@@ -566,7 +569,10 @@ const props = defineProps({
   tasks_by_status: Array,
   tasks_by_priority: Array,
   resolution_by_month: Array,
-  canEdit: Boolean,
+});
+
+const canEdit = computed(() => {
+  return checkRole("manager") || checkRole("admin") || checkRole("director");
 });
 
 const getInitials = (name) => {

@@ -325,5 +325,96 @@ class TechnicianGrievanceController extends Controller
             'uploaded_at' => now(),
         ]);
     }
+
+ 
+/**
+ * Método simples de chat/comentários para técnicos
+ */
+public function addComment(Request $request, Grievance $grievance)
+{
+    $this->ensureOwnership($request->user(), $grievance);
+
+    try {
+        $validated = $request->validate([
+            'comment' => ['required', 'string', 'min:2', 'max:2000'],
+            'is_public' => ['sometimes', 'boolean'],
+            'attachments' => ['nullable', 'array', 'max:5'],
+            'attachments.*' => ['file', 'mimes:jpeg,jpg,png,pdf,doc,docx,txt', 'max:10240'],
+        ]);
+
+        DB::beginTransaction();
+
+        // Criar o comentário
+        $update = GrievanceUpdate::log(
+            grievanceId: $grievance->id,
+            actionType: 'technician_comment',
+            userId: $request->user()->id,
+            description: 'Comentário do técnico',
+            comment: $validated['comment'],
+            isPublic: $validated['is_public'] ?? true,
+            metadata: [
+                'comment_type' => 'technician',
+                'timestamp' => now()->toISOString(),
+            ]
+        );
+
+        $attachments = [];
+        // Processar anexos se existirem
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $attachment = $this->storeAttachment($grievance, $file);
+                $attachments[] = [
+                    'id' => $attachment->id,
+                    'name' => $attachment->original_filename,
+                    'url' => route('attachments.download', $attachment->id),
+                ];
+
+                // Registrar anexo como update separado
+                GrievanceUpdate::log(
+                    grievanceId: $grievance->id,
+                    actionType: 'attachment_added',
+                    userId: $request->user()->id,
+                    description: 'Anexo adicionado pelo técnico',
+                    metadata: [
+                        'attachment_id' => $attachment->id,
+                        'filename' => $attachment->original_filename,
+                        'comment_id' => $update->id,
+                    ],
+                    isPublic: $validated['is_public'] ?? true
+                );
+            }
+        }
+
+        DB::commit();
+
+        // Retornar resposta
+        return response()->json([
+            'success' => true,
+            'message' => 'Comentário enviado com sucesso',
+            'data' => [
+                'comment' => [
+                    'id' => $update->id,
+                    'content' => $update->comment,
+                    'created_at' => $update->created_at->toISOString(),
+                    'user' => [
+                        'id' => $request->user()->id,
+                        'name' => $request->user()->name,
+                        'role' => 'Técnico',
+                    ],
+                    'is_public' => $update->is_public,
+                ],
+                'attachments' => $attachments,
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao enviar comentário: ' . $e->getMessage(),
+        ], 500);
+    }
+}
 }
  

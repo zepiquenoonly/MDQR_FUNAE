@@ -1,3 +1,4 @@
+<!-- UnifiedMenuSection.vue -->
 <template>
   <nav class="py-4">
     <!-- Navigation Label -->
@@ -6,44 +7,51 @@
     </div>
 
     <!-- Dashboards -->
-    <MenuItem v-if="role === 'admin'"
+    <MenuItem
+      v-if="role === 'admin'"
       :active="$page.url.startsWith('/admin/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/admin/dashboard"
     />
-    <MenuItem v-if="role === 'director'"
+    <MenuItem
+      v-if="role === 'director'"
       :active="$page.url.startsWith('/director/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/director/dashboard"
     />
-    <MenuItem v-if="role === 'manager'"
+    <MenuItem
+      v-if="role === 'manager'"
       :active="$page.url.startsWith('/gestor/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/gestor/dashboard"
     />
-    <MenuItem v-if="role === 'pca'"
+    <MenuItem
+      v-if="role === 'pca'"
       :active="$page.url.startsWith('/pca/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/pca/dashboard"
     />
-    <MenuItem v-if="role === 'technician'"
+    <MenuItem
+      v-if="role === 'technician'"
       :active="$page.url.startsWith('/tecnico/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/tecnico/dashboard"
     />
-    <MenuItem v-if="role === 'utente'"
+    <MenuItem
+      v-if="role === 'utente'"
       :active="$page.url.startsWith('/utente/dashboard')"
       :icon="HomeIcon"
       :text="'Dashboard'"
       href="/utente/dashboard"
     />
 
-    <MenuItem v-if="role === 'utente'"
+    <MenuItem
+      v-if="role === 'utente'"
       :icon="MagnifyingGlassIcon"
       :text="'Acompanhar submissão'"
       href="/track"
@@ -56,6 +64,14 @@
         :icon="UserGroupIcon"
         :text="'Técnicos'"
         href="/gestor/technicians"
+      />
+
+      <MenuItem
+        v-if="permissions.canManageProjects"
+        :active="$page.url.startsWith(projectsRoute)"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        :href="projectsRoute"
       />
 
       <!-- Estatísticas -->
@@ -73,17 +89,43 @@
         :active="$page.url.startsWith('/director/complaints-overview')"
         :icon="ClipboardDocumentListIcon"
         :text="'Submissões'"
-        href="/director/complaints-overview"
+        :href="'/director/complaints-overview'"
+      />
+
+      <MenuItem
+        v-if="permissions.canManageProjects"
+        :active="$page.url.startsWith(projectsRoute)"
+        :icon="BriefcaseIcon"
+        :text="'Projectos'"
+        :href="projectsRoute"
       />
 
       <!-- Estatísticas -->
       <MenuItem
-        :active="$page.url.startsWith('/gestor/estatisticas')"
+        :active="$page.url.startsWith('/director/indicators')"
         :icon="ChartBarIcon"
-        :text="'Estatísticas'"
-        href="/director/indicators"
+        :text="'Indicadores'"
+        :href="'/director/indicators'"
       />
 
+      <div
+        class="px-5 py-4 text-xs text-black font-semibold uppercase tracking-wide mt-4"
+        v-if="permissions.canManageUsers"
+      >
+        Gestão do Departamento
+      </div>
+
+      <!-- Funcionários -->
+      <MenuItem
+        v-if="permissions.canManageUsers"
+        :active="
+          $page.url.startsWith('/director/team') ||
+          $page.url.startsWith('/director/managers')
+        "
+        :icon="UserGroupIcon"
+        :text="'Funcionários'"
+        :href="'/director/managers'"
+      />
     </template>
 
     <template v-if="role === 'pca'">
@@ -128,7 +170,6 @@
         :text="'Estatísticas'"
         href="/gestor/estatisticas"
       /> -->
-
     </template>
 
     <!-- Conta / Perfil -->
@@ -143,7 +184,7 @@
       :active="$page.url.startsWith('/profile')"
       :icon="UserCircleIcon"
       :text="'Meu Perfil'"
-      @click="() => navigateToProfile()"
+      :href="'/profile'"
     />
 
     <!-- Logout -->
@@ -173,29 +214,57 @@ import {
   UsersIcon,
   BuildingOfficeIcon,
 } from "@heroicons/vue/24/outline";
-import { router } from "@inertiajs/vue3";
+import { router, usePage } from "@inertiajs/vue3";
+import { useAuth } from "@/Composables/useAuth";
 import MenuItem from "@/Components/UtenteDashboard/MenuItem.vue";
 import MenuDropdown from "@/Components/UtenteDashboard/MenuDropdown.vue";
+import { computed } from "vue";
 
-const props = defineProps({
-  role: {
-    type: String,
-    default: "technician",
-  },
+const page = usePage();
+const csrfToken = computed(() => {
+  const metaTag = document.querySelector('meta[name="csrf-token"]');
+  return metaTag ? metaTag.getAttribute("content") : null;
 });
 
-const emit = defineEmits(["item-clicked"]);
+// Usar useAuth para obter informações do usuário
+const { role, roleLabel, permissions, isAuthenticated, user } = useAuth();
 
-const emitItem = (item) => {
-  emit("item-clicked", item);
-};
+// Computed properties para rotas
+const dashboardRoute = computed(() => {
+  switch (role.value) {
+    case "director":
+      return "/director/dashboard";
+    case "manager":
+      return "/gestor/dashboard";
+    case "pca":
+      return "/pca/dashboard";
+    case "technician":
+      return "/technician/dashboard";
+    case "utente":
+      return "/utente/dashboard";
+    default:
+      return "/dashboard";
+  }
+});
 
-const navigateToProfile = () => {
-  router.visit("/profile");
-};
+const projectsRoute = computed(() => {
+  switch (role.value) {
+    case "director":
+      return "/director/projects";
+    case "manager":
+      return "/gestor/projects";
+    case "pca":
+      return "/pca/projects";
+    default:
+      return null;
+  }
+});
 
-const navigateToTracking = () => {
-  router.visit("/track");
+// Função para navegar a partir de itens do dropdown
+const navigateToRoute = (item) => {
+  if (item.href) {
+    router.visit(item.href);
+  }
 };
 
 const navigateToAdminUsers = () => {
@@ -211,6 +280,26 @@ const navigateToAdminProjects = () => {
 };
 
 const handleLogout = () => {
-  router.post("/logout");
+  router.post(
+    "/logout",
+    {},
+    {
+      headers: {
+        "X-CSRF-TOKEN": csrfToken.value,
+      },
+    }
+  );
 };
+
+// Debug info
+if (import.meta.env.DEV) {
+  console.log("🔍 UnifiedMenuSection montado", {
+    role: role.value,
+    roleLabel: roleLabel.value,
+    permissions: permissions.value,
+    isAuthenticated: isAuthenticated.value,
+    dashboardRoute: dashboardRoute.value,
+    projectsRoute: projectsRoute.value,
+  });
+}
 </script>

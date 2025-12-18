@@ -262,6 +262,7 @@ import { router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import EmployeeModal from "@/Components/Director/EmployeeModal.vue";
 import ConfirmationModal from "@/Components/Director/ConfirmationModal.vue";
+import { useAuth, usePermissions } from "@/Composables/useAuth";
 import {
   UserPlusIcon,
   UsersIcon,
@@ -272,9 +273,12 @@ import {
   EyeIcon,
 } from "@heroicons/vue/24/outline";
 
+const { role, isDirector, isAdmin, checkRole } = useAuth();
+const { can } = usePermissions();
+
 const props = defineProps({
   employees: {
-    type: Object, // Mude de Array para Object
+    type: Object,
     default: () => ({
       data: [],
       links: [],
@@ -289,6 +293,10 @@ const props = defineProps({
     type: Object,
     default: () => ({}),
   },
+});
+
+const canAddEmployee = computed(() => {
+  return can("canManageUsers") || checkRole("director") || checkRole("admin");
 });
 
 const search = ref("");

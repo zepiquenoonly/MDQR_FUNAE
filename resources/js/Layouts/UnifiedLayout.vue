@@ -1,18 +1,15 @@
+<!-- UnifiedLayout.vue - Apenas a parte relevante -->
 <template>
   <div
     class="relative flex min-h-screen overflow-hidden"
     style="background: url('/background.min.svg') center/cover fixed no-repeat; zoom: 90%"
   >
-    <!-- Sidebar Desktop - sempre visível -->
+    <!-- Sidebar Desktop -->
     <div class="fixed top-0 left-0 z-30 hidden w-64 h-full sm:block">
-      <Sidebar
-        @change-view="$emit('change-view', $event)"
-        :role="detectedRole"
-        :loading="loading"
-      />
+      <Sidebar @change-view="$emit('change-view', $event)" :loading="loading" />
     </div>
 
-    <!-- Sidebar Mobile - overlay -->
+    <!-- Sidebar Mobile -->
     <div v-if="sidebarOpen && isMobile" class="fixed inset-0 z-50 sm:hidden">
       <!-- Overlay escuro -->
       <div
@@ -25,7 +22,6 @@
           :is-mobile="true"
           @toggle-sidebar="closeSidebar"
           @change-view="handleMobileMenuClick"
-          :role="detectedRole"
           :loading="loading"
         />
       </div>
@@ -50,7 +46,7 @@
       </div>
 
       <!-- Page Content -->
-      <main class="flex-1 overflow-auto">
+      <main class="flex-1 p-6 overflow-auto">
         <slot />
       </main>
     </div>
@@ -61,23 +57,16 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
-import { router, usePage } from "@inertiajs/vue3";
+import { ref, onMounted, onUnmounted } from "vue";
+import { router } from "@inertiajs/vue3";
 import Sidebar from "@/Components/UnifiedSidebar.vue";
 import Header from "@/Components/UnifiedHeader.vue";
 import NotificationContainer from "@/Components/NotificationContainer.vue";
 import { useAuth } from "@/Composables/useAuth";
-import { useDashboard } from "@/Composables/useDashboard"; // Adicionado
+import { useDashboard } from "@/Composables/useDashboard";
 
+// Remover props user e role
 const props = defineProps({
-  user: {
-    type: Object,
-    default: null,
-  },
-  role: {
-    type: String,
-    default: null,
-  },
   stats: {
     type: Object,
     default: () => ({}),
@@ -86,21 +75,32 @@ const props = defineProps({
 
 const emit = defineEmits(["change-view"]);
 
-// Usar usePage para acessar props globais
-const page = usePage();
-
-// Usar composable de autenticação de forma consistente
-const { user: safeUser, role: detectedRole } = useAuth({
-  user: props.user || page.props.auth?.user, // Priorizar o user do Inertia
-  role: props.role,
+// Usar composable de autenticação
+const { user: safeUser, role: detectedRole, roleLabel, permissions } = useAuth({
+  // Opcional: ativar debug durante desenvolvimento
+  debug: import.meta.env.DEV,
 });
 
-// Usar dashboard para sincronização
-const { syncWithUrl } = useDashboard(); // Adicionado
+// Para debug
+if (import.meta.env.DEV) {
+  onMounted(() => {
+    console.log("🔄 UnifiedLayout montado");
+    console.log("👤 Usuário:", safeUser.value);
+    console.log("🎭 Role:", detectedRole.value);
+    console.log("🏷️ Role Label:", roleLabel.value);
+    console.log("🔑 Permissões:", permissions.value);
+  });
+}
+
+const { syncWithUrl } = useDashboard();
 
 const sidebarOpen = ref(false);
 const loading = ref(false);
 const isMobile = ref(false);
+
+const openSidebar = () => {
+  sidebarOpen.value = true;
+};
 
 const closeSidebar = () => {
   sidebarOpen.value = false;
@@ -122,18 +122,15 @@ router.on("finish", () => {
 
 const checkMobile = () => {
   isMobile.value = window.innerWidth < 640;
-  // Fechar sidebar automaticamente se mudar para desktop
   if (!isMobile.value) {
     sidebarOpen.value = false;
   }
 };
 
-// Sincronizar menu com URL na montagem
 onMounted(() => {
   checkMobile();
   window.addEventListener("resize", checkMobile);
 
-  // Sincronizar menu com URL atual
   setTimeout(() => {
     syncWithUrl();
   }, 100);
