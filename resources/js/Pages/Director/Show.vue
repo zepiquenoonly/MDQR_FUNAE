@@ -1,6 +1,6 @@
 <template>
   <AppLayout :title="`Submissão #${submission?.reference_number || 'Carregando...'}`">
-    <div class="max-w-full mx-auto">
+    <div class="space-y-4 sm:space-y-6">
       <!-- Estado de carregamento -->
       <div v-if="!submission" class="text-center py-12">
         <div
@@ -13,105 +13,89 @@
 
       <!-- Conteúdo principal -->
       <div v-else>
-        <!-- Cabeçalho -->
-        <div class="mb-8">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <Link
-                :href="
-                  userRole === 'Director' ? '/director/complaints-overview' : '/dashboard'
-                "
-                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-              >
-                <ArrowLeftIcon class="h-5 w-5" />
-              </Link>
-              <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-                  Submissão #{{ submission.reference_number || "N/A" }}
+        <!-- Breadcrumb & Header -->
+        <div class="flex flex-col gap-3 sm:gap-4">
+          <Link href="/director/complaints-overview" class="text-sm text-brand hover:text-orange-700 font-medium flex items-center p-2">
+            ← Voltar ao Painel
+          </Link>
+          <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+              <div class="flex-1">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary">
+                  {{ submission.reference_number }}
                 </h1>
-                <div class="flex items-center gap-2 mt-2">
-                  <span :class="getTypeBadgeClass(submission.type)">
-                    {{ getTypeLabel(submission.type) }}
-                  </span>
-                  <span :class="getPriorityBadgeClass(submission.priority)">
-                    {{ getPriorityLabel(submission.priority) }}
-                  </span>
-                  <span :class="getStatusBadgeClass(submission.status)">
-                    {{ getStatusLabel(submission.status) }}
-                  </span>
-                  <!-- Badge para casos escalados -->
-                  <span
-                    v-if="isEscalatedToDirector"
-                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
-                  >
-                    <PaperAirplaneIcon class="h-4 w-4 mr-1" />
-                    Solicitado ao Director
-                  </span>
-                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  {{ submission.title }}
+                </p>
               </div>
+              <StatusBadge :status="submission.status" :label="getStatusLabel(submission.status)" size="lg" />
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <span :class="getPriorityBadgeClass(submission.priority)" class="rounded-full px-3 py-1 text-sm font-semibold">
+                {{ getPriorityLabel(submission.priority) }}
+              </span>
+              <span class="rounded-full bg-blue-100 dark:bg-blue-900/20 px-3 py-1 text-sm text-blue-700 dark:text-blue-300 font-medium">
+                {{ submission.category || "N/A" }}
+              </span>
+              <span v-if="submission.district" class="rounded-full bg-gray-100 dark:bg-gray-700 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 inline-flex items-center gap-2">
+                <MapPinIcon class="h-4 w-4 text-gray-600" />
+                {{ submission.district }}
+              </span>
             </div>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <!-- Conteúdo principal -->
-          <div class="lg:col-span-2 space-y-6">
-            <!-- Detalhes -->
-            <div class="glass p-6 rounded-xl">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
-                Descrição
+        <!-- Main Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+          <!-- Left Column - 2/3 -->
+          <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+            <!-- Description Card -->
+            <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-purple-100 dark:bg-purple-900/20 text-xs">
+                  <DocumentTextIcon class="h-4 w-4 text-purple-600" />
+                </span>
+                Descrição da Submissão
               </h2>
-              <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
-                {{ submission.description || "Sem descrição disponível" }}
-              </p>
-
-              <div
-                class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 grid grid-cols-2 gap-4"
-              >
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Submetido por</p>
-                  <p class="font-medium">
+              <div class="prose prose-sm dark:prose-invert max-w-none bg-gray-50 dark:bg-dark-accent rounded-lg p-4"
+                v-html="submission.description || 'Sem descrição disponível'" />
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="text-sm">
+                  <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">Submetido por</p>
+                  <p class="text-gray-900 dark:text-dark-text-primary font-semibold">
                     {{ submission.user?.name || submission.contact_name || "Anónimo" }}
                   </p>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Email</p>
-                  <p class="font-medium">
-                    {{ submission.user?.email || submission.contact_email || "N/A" }}
-                  </p>
+                <div class="text-sm">
+                  <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">Data</p>
+                  <p class="text-gray-900 dark:text-dark-text-primary font-semibold">{{ formatDate(submission.created_at) }}</p>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Data</p>
-                  <p class="font-medium">{{ formatDate(submission.created_at) }}</p>
-                </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Categoria</p>
-                  <p class="font-medium">{{ submission.category || "N/A" }}</p>
+                <div class="text-sm">
+                  <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">Categoria</p>
+                  <p class="text-gray-900 dark:text-dark-text-primary font-semibold">{{ submission.category || "N/A" }}</p>
                 </div>
               </div>
             </div>
 
-            <!-- SECÇÃO DE INFORMAÇÕES DO ESCALAMENTO -->
+            <!-- Escalation Details Card -->
             <div
               v-if="isEscalatedToDirector && escalationDetails"
-              class="mt-6 p-4 dark:border-purple-700 bg-white shadow-sm border border-gray-100 dark:bg-purple-900/20 rounded-lg"
+              class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700"
             >
-              <div class="flex items-center gap-2 mb-4">
-                <PaperAirplaneIcon class="h-6 w-6 text-brand dark:text-purple-400" />
-                <h3 class="text-lg font-bold text-brand dark:text-purple-300">
-                  Solicitação do Gestor
-                </h3>
-              </div>
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-purple-100 dark:bg-purple-900/20 text-xs">
+                  <PaperAirplaneIcon class="h-4 w-4 text-purple-600" />
+                </span>
+                Solicitação do Gestor
+              </h2>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <!-- Quem escalou -->
                 <div class="space-y-1">
-                  <p class="text-sm text-brand dark:text-purple-400 font-medium">
+                  <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-medium">
                     Solicitado por:
                   </p>
-                  <div
-                    class="flex items-center gap-2 p-3 bg-white dark:bg-dark-secondary rounded-lg border"
-                  >
+                  <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-dark-accent rounded-lg border">
                     <UserCircleIcon class="h-5 w-5 text-gray-500" />
                     <div>
                       <span class="font-medium text-gray-800 dark:text-gray-200">
@@ -129,12 +113,10 @@
 
                 <!-- Data do escalamento -->
                 <div class="space-y-1">
-                  <p class="text-sm text-brand dark:text-purple-400 font-medium">
+                  <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-medium">
                     Data da Solicitação:
                   </p>
-                  <div
-                    class="flex items-center gap-2 p-3 bg-white dark:bg-dark-secondary rounded-lg border"
-                  >
+                  <div class="flex items-center gap-2 p-3 bg-gray-50 dark:bg-dark-accent rounded-lg border">
                     <CalendarIcon class="h-5 w-5 text-gray-500" />
                     <span class="font-medium text-gray-800 dark:text-gray-200">
                       {{ formatDateTime(escalationDetails.escalated_at) }}
@@ -144,12 +126,10 @@
 
                 <!-- Motivo do escalamento -->
                 <div class="space-y-1 md:col-span-2">
-                  <p class="text-sm text-brand dark:text-purple-400 font-medium">
+                  <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-medium">
                     Motivo da Solicitação:
                   </p>
-                  <div
-                    class="p-4 bg-white dark:bg-dark-secondary rounded-lg border border-gray-200 dark:border-gray-700"
-                  >
+                  <div class="p-4 bg-gray-50 dark:bg-dark-accent rounded-lg border border-gray-200 dark:border-gray-700">
                     <div class="flex items-start gap-2">
                       <ChatBubbleLeftIcon class="h-5 w-5 text-gray-500 mt-0.5" />
                       <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
@@ -168,12 +148,10 @@
                   v-if="escalationDetails.escalation_comment || escalationDetails.comment"
                   class="space-y-1 md:col-span-2"
                 >
-                  <p class="text-sm text-brand dark:text-purple-400 font-medium">
+                  <p class="text-sm text-gray-600 dark:text-gray-400 uppercase font-medium">
                     Comentário do Gestor:
                   </p>
-                  <div
-                    class="p-4 bg-white dark:bg-dark-secondary rounded-lg border border-gray-200 dark:border-gray-700"
-                  >
+                  <div class="p-4 bg-gray-50 dark:bg-dark-accent rounded-lg border border-gray-200 dark:border-gray-700">
                     <p class="text-gray-700 dark:text-gray-300 whitespace-pre-line">
                       {{
                         escalationDetails.escalation_comment || escalationDetails.comment
@@ -181,50 +159,57 @@
                     </p>
                   </div>
                 </div>
-                <div class="md:col-span-2 flex justify-between items-center mt-4">
-                  <!-- Botão no canto direito -->
-                  <div class="md:col-span-2 flex justify-between items-center mt-4">
-                    <!-- Botão Validar - apenas para Director -->
-                    <button
-                      v-if="
-                        (submission.priority === 'critical' || isEscalatedToDirector) &&
-                        userRole === 'Director'
-                      "
-                      @click="openValidationModalHandler"
-                      class="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-yellow-600 transition-colors"
-                    >
-                      <CheckBadgeIcon class="h-5 w-5" />
-                      Validar
-                    </button>
 
-                    <!-- Botão para Gestor ou outros roles verem status -->
-                    <div
-                      v-else-if="
-                        (submission.priority === 'critical' || isEscalatedToDirector) &&
-                        userRole !== 'Director'
-                      "
-                      class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg"
+                <!-- Validation Actions -->
+                <div class="md:col-span-2 flex justify-between items-center mt-4">
+                  <!-- Botão Validar - apenas para Director -->
+                  <button
+                    v-if="
+                      (submission.priority === 'critical' || isEscalatedToDirector) &&
+                      userRole === 'Director'
+                    "
+                    @click="openValidationModalHandler"
+                    class="flex items-center gap-2 px-4 py-2 bg-brand text-white rounded-lg hover:bg-yellow-600 transition-colors"
+                  >
+                    <CheckBadgeIcon class="h-5 w-5" />
+                    Validar
+                  </button>
+
+                  <!-- Botão para Gestor ou outros roles verem status -->
+                  <div
+                    v-else-if="
+                      (submission.priority === 'critical' || isEscalatedToDirector) &&
+                      userRole !== 'Director'
+                    "
+                    class="flex items-center gap-2 px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg"
+                  >
+                    <CheckBadgeIcon class="h-5 w-5" />
+                    <span v-if="userRole === 'Gestor'"
+                      >Aguardando Validação do Director</span
                     >
-                      <CheckBadgeIcon class="h-5 w-5" />
-                      <span v-if="userRole === 'Gestor'"
-                        >Aguardando Validação do Director</span
-                      >
-                      <span v-else>Aguardando Validação</span>
-                    </div>
+                    <span v-else>Aguardando Validação</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Anexos -->
-            <div class="glass p-6 rounded-xl">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Anexos</h2>
+            <!-- Attachments Card -->
+            <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-green-100 dark:bg-green-900/20 text-xs">
+                  <PaperClipIcon class="h-4 w-4 text-green-600" />
+                </span>
+                Anexos
+              </h2>
               <GrievanceAttachments :complaint="submission" />
             </div>
 
-            <!-- Comentários -->
-            <div v-if="comments?.length" class="glass p-6 rounded-xl">
-              <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+            <!-- Comments Card -->
+            <div v-if="comments?.length" class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-blue-100 dark:bg-blue-900/20 text-xs">
+                  <ChatBubbleLeftIcon class="h-4 w-4 text-blue-600" />
+                </span>
                 Comentários e Validações
               </h2>
               <div class="space-y-4">
@@ -319,80 +304,97 @@
             </div>
           </div>
 
-          <!-- Sidebar -->
-          <div class="space-y-6">
-            <!-- Informações -->
-            <div class="glass p-6 rounded-xl">
-              <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">
+          <!-- Right Column - 1/3 -->
+          <div class="space-y-4 sm:space-y-6">
+            <!-- Submission Info Card -->
+            <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-gray-100 dark:bg-gray-900/20 text-xs">
+                  <UserCircleIcon class="h-4 w-4 text-gray-600" />
+                </span>
                 Informações da Submissão
-              </h3>
+              </h2>
               <div class="space-y-3">
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Projecto</p>
-                  <p class="font-medium">{{ submission.project?.name || "N/A" }}</p>
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-accent rounded-lg">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Projecto</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
+                    {{ submission.project?.name || "N/A" }}
+                  </span>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Atribuído a</p>
-                  <p class="font-medium">
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-accent rounded-lg">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Atribuído a</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
                     {{ submission.assigned_to?.name || "Não atribuído" }}
-                  </p>
+                  </span>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Localização</p>
-                  <p class="font-medium">
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-accent rounded-lg">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Localização</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
                     {{ submission.province || "N/A" }}, {{ submission.district || "N/A" }}
-                  </p>
-                  <p
-                    v-if="submission.location_details"
-                    class="text-xs text-gray-500 mt-1"
-                  >
-                    {{ submission.location_details }}
-                  </p>
+                  </span>
                 </div>
-                <div>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">Telefone</p>
-                  <p class="font-medium">{{ submission.contact_phone || "N/A" }}</p>
+                <div v-if="submission.location_details" class="text-xs text-gray-500 dark:text-gray-400 ml-3">
+                  {{ submission.location_details }}
+                </div>
+                <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-accent rounded-lg">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">Telefone</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
+                    {{ submission.contact_phone || "N/A" }}
+                  </span>
                 </div>
 
-                <!-- Informações do escalamento -->
+                <!-- Escalation Info -->
                 <div
                   v-if="isEscalatedToDirector"
                   class="pt-4 border-t border-gray-200 dark:border-gray-700"
                 >
-                  <h4 class="text-sm font-medium text-brand dark:text-brand mb-2">
+                  <h4 class="text-sm font-medium text-gray-900 dark:text-dark-text-primary mb-3 flex items-center gap-2">
+                    <PaperAirplaneIcon class="h-4 w-4 text-purple-600" />
                     Informações da Solicitação
                   </h4>
-                  <div class="space-y-2 text-sm">
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">Status:</span>
-                      <span class="font-medium dark:text-orange-400">
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/10 rounded">
+                      <span class="text-xs text-gray-600 dark:text-gray-400">Status:</span>
+                      <span class="text-xs font-medium text-purple-700 dark:text-purple-300">
                         Solicitação Recebida
                       </span>
                     </div>
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">Por:</span>
-                      <span class="font-medium">{{
-                        escalationDetails.escalated_by?.name || "Gestor"
-                      }}</span>
+                    <div class="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/10 rounded">
+                      <span class="text-xs text-gray-600 dark:text-gray-400">Por:</span>
+                      <span class="text-xs font-medium text-purple-700 dark:text-purple-300">
+                        {{ escalationDetails.escalated_by?.name || "Gestor" }}
+                      </span>
                     </div>
-                    <div class="flex justify-between">
-                      <span class="text-gray-600 dark:text-gray-400">Data:</span>
-                      <span class="font-medium">{{
-                        formatShortDate(escalationDetails.escalated_at)
-                      }}</span>
+                    <div class="flex items-center justify-between p-2 bg-purple-50 dark:bg-purple-900/10 rounded">
+                      <span class="text-xs text-gray-600 dark:text-gray-400">Data:</span>
+                      <span class="text-xs font-medium text-purple-700 dark:text-purple-300">
+                        {{ formatShortDate(escalationDetails.escalated_at) }}
+                      </span>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Atualizações -->
-            <div class="glass p-6 rounded-xl">
+            <!-- Timeline Card -->
+            <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-indigo-100 dark:bg-indigo-900/20 text-xs">
+                  <ClockIcon class="h-4 w-4 text-indigo-600" />
+                </span>
+                Atualizações
+              </h2>
               <GrievanceTimeline :complaint="submission" :timelineData="timelineData" />
             </div>
 
-            <!-- Ações -->
-            <div class="glass p-6 rounded-xl">
+            <!-- Actions Card -->
+            <div class="bg-white dark:bg-dark-secondary rounded-xl p-4 sm:p-6 shadow-sm border border-gray-200 dark:border-gray-700">
+              <h2 class="text-lg font-bold text-gray-900 dark:text-dark-text-primary mb-4 flex items-center gap-2">
+                <span class="flex items-center justify-center h-5 w-5 rounded-full bg-orange-100 dark:bg-orange-900/20 text-xs">
+                  <CheckBadgeIcon class="h-4 w-4 text-orange-600" />
+                </span>
+                Ações
+              </h2>
               <GrievanceActions
                 :complaint="submission"
                 :technicians="technicians"
@@ -470,6 +472,9 @@ import {
   UserCircleIcon,
   CalendarIcon,
   ChatBubbleLeftIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  PaperClipIcon,
 } from "@heroicons/vue/24/outline";
 
 const props = defineProps({
