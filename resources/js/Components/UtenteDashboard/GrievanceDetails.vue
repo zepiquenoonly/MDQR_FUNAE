@@ -1,31 +1,28 @@
 <template>
-    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-[1200px] h-[90vh] flex flex-col border border-white/30 shadow-primary-500/10">
-            <!-- Header -->
-            <div class="relative overflow-hidden rounded-t-3xl">
-                <div class="absolute inset-0 bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-
-                <!-- Floating Elements -->
-                <div class="absolute top-4 left-10 w-16 h-16 bg-white/10 rounded-full blur-xl animate-pulse"></div>
-                <div class="absolute bottom-4 right-10 w-24 h-24 bg-orange-300/20 rounded-full blur-2xl animate-pulse delay-1000"></div>
-
-                <div class="relative flex items-center justify-between p-6">
-                    <div class="flex-1 text-center">
-                        <div class="inline-flex items-center justify-center p-3 bg-white/10 backdrop-blur-xl rounded-2xl mb-3 border border-white/20 shadow-2xl shadow-black/10">
-                            <DocumentTextIcon class="w-8 h-8 text-white drop-shadow-lg" />
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/60 backdrop-blur-sm">
+        <div class="bg-white/95 backdrop-blur-xl rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-[95vw] sm:max-w-[1200px] lg:max-w-[1400px] h-[95vh] sm:h-[90vh] flex flex-col border border-white/30 shadow-primary-500/10">
+            <!-- Compact Header -->
+            <div class="relative bg-gradient-to-br from-primary-600 via-orange-600 to-amber-700 rounded-t-2xl sm:rounded-t-3xl px-4 py-3 sm:px-6 sm:py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-white/10 backdrop-blur-xl rounded-lg flex items-center justify-center border border-white/20">
+                            <DocumentTextIcon class="w-4 h-4 text-white" />
                         </div>
-                        <h2 class="text-2xl font-bold text-white drop-shadow-2xl">
-                            Detalhes da <span class="bg-gradient-to-r from-orange-200 to-amber-200 bg-clip-text text-transparent">Submissão</span>
-                        </h2>
-                        <div class="inline-block px-4 py-2 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 shadow-lg mt-2">
-                            <p class="text-white font-mono text-sm font-semibold drop-shadow-lg">
+                        <div>
+                            <h2 class="text-lg sm:text-xl font-bold text-white">
+                                Detalhes da Submissão
+                            </h2>
+                            <p class="text-white/90 font-mono text-xs sm:text-sm">
                                 {{ grievance.reference_number || grievance.id }}
                             </p>
                         </div>
                     </div>
-                    <button @click="$emit('close')" class="text-white transition-colors hover:text-gray-200 hover:bg-white/10 rounded-full p-2 backdrop-blur-sm">
-                        <XMarkIcon class="w-6 h-6" />
+                    <button @click="$emit('close')"
+                            @keydown.enter="$emit('close')"
+                            @keydown.space.prevent="$emit('close')"
+                            class="text-white transition-colors hover:text-gray-200 hover:bg-white/10 rounded-full p-1.5 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-white/50"
+                            aria-label="Fechar modal">
+                        <XMarkIcon class="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                 </div>
             </div>
@@ -50,7 +47,7 @@
                     </div>
                 </div>
 
-                <div class="p-8 space-y-8 animate-fade-in">
+                <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
                     <!-- Main Grievance Card - fundo BRANCO SÓLIDO -->
                     <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 relative overflow-hidden group">
                         <!-- Header -->
@@ -357,16 +354,26 @@
                 </div>
             </div>
 
-            <!-- Footer - Glassmorphism -->
-            <div class="relative overflow-hidden rounded-b-3xl">
-                <div class="absolute inset-0 bg-gradient-to-r from-gray-50 via-white to-gray-50"></div>
-                <div class="absolute inset-0 bg-gradient-to-t from-white/20 via-transparent to-transparent"></div>
-                <div class="relative flex justify-end p-6">
+            <!-- Compact Footer -->
+            <div class="bg-gray-50 rounded-b-2xl sm:rounded-b-3xl px-4 py-3 sm:px-6 sm:py-4">
+                <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <button @click="printGrievance"
+                                class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors"
+                                title="Imprimir">
+                            <ArrowDownTrayIcon class="w-4 h-4" />
+                        </button>
+                        <button @click="shareGrievance"
+                                class="p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-200 rounded-lg transition-colors"
+                                title="Partilhar">
+                            <ArrowPathIcon class="w-4 h-4" />
+                        </button>
+                    </div>
                     <button @click="$emit('close')"
-                        class="group relative px-8 py-3 bg-white/80 backdrop-blur-md text-gray-700 font-semibold rounded-2xl hover:bg-white border border-white/40 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-3 hover:-translate-y-0.5">
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-gray-100/50 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 rounded-2xl"></div>
-                        <XMarkIcon class="w-5 h-5 relative z-10" />
-                        <span class="relative z-10">Fechar</span>
+                            @keydown.enter="$emit('close')"
+                            @keydown.space.prevent="$emit('close')"
+                            class="px-4 py-2 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/50">
+                        Fechar
                     </button>
                 </div>
             </div>
@@ -390,7 +397,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import {
     XMarkIcon,
     ExclamationCircleIcon,
@@ -422,6 +429,22 @@ const refreshing = ref(false)
 const imageModal = ref({
     open: false,
     attachment: null
+})
+
+// Keyboard navigation
+const handleKeydown = (event) => {
+    if (event.key === 'Escape') {
+        emit('close')
+    }
+}
+
+onMounted(() => {
+    document.addEventListener('keydown', handleKeydown)
+    loadDetails()
+})
+
+onUnmounted(() => {
+    document.removeEventListener('keydown', handleKeydown)
 })
 
 const loadDetails = async () => {
