@@ -49,106 +49,39 @@
         </div>
       </div>
 
-      <!-- Métricas Principais -->
+      <!-- KPIs Grid -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Cartão de Métricas -->
-        <div class="glass p-6 rounded-xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Reclamações Pendentes
-            </h3>
-            <div class="p-3 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg">
-              <ClockIcon class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            {{ metrics.pending_complaints || 0 }}
-          </p>
-          <div class="mt-4">
-            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <ArrowTrendingUpIcon
-                v-if="metrics.pending_change >= 0"
-                class="h-4 w-4 mr-1"
-              />
-              <ArrowTrendingDownIcon v-else class="h-4 w-4 mr-1" />
-              <span
-                :class="metrics.pending_change >= 0 ? 'text-green-600' : 'text-red-600'"
-              >
-                {{ metrics.pending_change >= 0 ? "+" : ""
-                }}{{ metrics.pending_change || 0 }}% desde ontem
-              </span>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          title="Reclamações Pendentes"
+          :value="metrics.pending_complaints || 0"
+          :description="`Mudança: ${metrics.pending_change >= 0 ? '+' : ''}${metrics.pending_change || 0}% desde ontem`"
+          icon="ClockIcon"
+          :trend="metrics.pending_change >= 0 ? 'up' : 'down'"
+        />
 
-        <div class="glass p-6 rounded-xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Reclamações Críticas
-            </h3>
-            <div class="p-3 bg-red-100 dark:bg-red-900/30 rounded-lg">
-              <ExclamationTriangleIcon class="h-6 w-6 text-red-600 dark:text-red-400" />
-            </div>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            {{ metrics.critical_complaints || 0 }}
-          </p>
-          <div class="mt-4">
-            <div class="text-sm text-gray-600 dark:text-gray-400">
-              {{ metrics.critical_unvalidated || 0 }} precisam de validação
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          title="Reclamações Críticas"
+          :value="metrics.critical_complaints || 0"
+          :description="`${metrics.critical_unvalidated || 0} precisam de validação`"
+          icon="ExclamationTriangleIcon"
+          trend="up"
+        />
 
-        <div class="glass p-6 rounded-xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Taxa de Resolução
-            </h3>
-            <div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-              <CheckCircleIcon class="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            {{ metrics.resolution_rate || 0 }}%
-          </p>
-          <div class="mt-4">
-            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <span>Tempo médio: {{ metrics.average_resolution_time || 0 }} dias</span>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          title="Taxa de Resolução"
+          :value="`${metrics.resolution_rate || 0}%`"
+          :description="`Tempo médio: ${metrics.average_resolution_time || 0} dias`"
+          icon="CheckCircleIcon"
+          trend="up"
+        />
 
-        <div class="glass p-6 rounded-xl">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Satisfação
-            </h3>
-            <div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-              <FaceSmileIcon class="h-6 w-6 text-blue-600 dark:text-blue-400" />
-            </div>
-          </div>
-          <p class="text-3xl font-bold text-gray-900 dark:text-white">
-            {{ metrics.satisfaction_rate || 0 }}%
-          </p>
-          <div class="mt-4">
-            <div class="flex items-center text-sm text-gray-600 dark:text-gray-400">
-              <ArrowTrendingUpIcon
-                v-if="metrics.satisfaction_change >= 0"
-                class="h-4 w-4 mr-1"
-              />
-              <ArrowTrendingDownIcon v-else class="h-4 w-4 mr-1" />
-              <span
-                :class="
-                  metrics.satisfaction_change >= 0 ? 'text-green-600' : 'text-red-600'
-                "
-              >
-                {{ metrics.satisfaction_change >= 0 ? "+" : ""
-                }}{{ metrics.satisfaction_change || 0 }} pontos
-              </span>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          title="Satisfação"
+          :value="`${metrics.satisfaction_rate || 0}%`"
+          :description="`Mudança: ${metrics.satisfaction_change >= 0 ? '+' : ''}${metrics.satisfaction_change || 0} pontos`"
+          icon="FaceSmileIcon"
+          :trend="metrics.satisfaction_change >= 0 ? 'up' : 'down'"
+        />
       </div>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
@@ -548,6 +481,7 @@ import { ref, computed } from "vue";
 import { usePage, Link, router } from "@inertiajs/vue3";
 import AppLayout from "@/Layouts/UnifiedLayout.vue";
 import DistributionChart from "@/Components/Indicators/Charts/DistributionChart.vue";
+import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
 import { useAuth, usePermissions } from "@/Composables/useAuth";
 import {
   ClockIcon,
