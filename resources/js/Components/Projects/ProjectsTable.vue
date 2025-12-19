@@ -117,7 +117,7 @@
             <td class="py-2 px-1 sm:px-2 md:px-4">
               <Link
                 v-if="isValidProject(project)"
-                :href="`/manager/projects/${project.id}`"
+                :href="getProjectUrl(project)"
                 class="inline-block bg-brand hover:bg-orange-600 text-white px-2 py-1 sm:px-3 sm:py-1.5 rounded text-xs font-semibold flex items-center gap-1 w-full justify-center whitespace-nowrap transition-colors"
               >
                 <EyeIcon class="w-2.5 h-2.5 sm:w-3 sm:h-3" />
@@ -201,6 +201,20 @@ const props = defineProps({
     default: "",
   },
 });
+
+const getProjectUrl = (project) => {
+  if (!project?.id) return "#";
+
+  // Baseado na rota atual, determine o prefixo
+  if (props.currentRoute?.includes("director")) {
+    return `/director/projects/${project.id}`;
+  } else if (props.currentRoute?.includes("gestor")) {
+    return `/gestor/projects/${project.id}`;
+  } else {
+    // Fallback
+    return `/gestor/projects/${project.id}`;
+  }
+};
 
 // Funções helper para segurança de dados
 const isValidProject = (project) => {

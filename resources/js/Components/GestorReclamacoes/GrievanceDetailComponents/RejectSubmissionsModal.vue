@@ -126,7 +126,7 @@
                   <div
                     class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
                   ></div>
-                  <span>Processando...</span>
+                  <span>A processar...</span>
                 </template>
                 <template v-else>
                   <XCircleIcon class="h-4 w-4" />

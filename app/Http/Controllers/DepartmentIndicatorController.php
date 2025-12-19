@@ -154,7 +154,7 @@ public function directorDashboard(Request $request): Response
     $user = $request->user();
     
     // Verificar se é Director
-    if (!$user->hasRole('Director')) {
+    if (!$user->hasRole(['Gestor', 'PCA', 'Director'])) {
         abort(403, 'Acesso não autorizado.');
     }
 
@@ -279,6 +279,94 @@ public function directorDashboard(Request $request): Response
 }
 
 
+private function getEmployeeStats(): array
+{
+    // Total de funcionários por role (usando Spatie Permission)
+    $byRole = [
+        'Gestor' => User::role('Gestor')->count(),
+        'Director' => User::role('Director')->count(),
+        'PCA' => User::role('PCA')->count(),
+        'Técnico' => User::role('Técnico')->count(),
+        'Utente' => User::role('Utente')->count(),
+    ];
+
+    // Técnicos ativos vs inativos
+    $technicians = User::role('Técnico')->get();
+    $activeTechnicians = $technicians->where('is_available', true)->count();
+    $inactiveTechnicians = $technicians->where('is_available', false)->count();
+
+    // Média de tarefas por técnico (baseado nas reclamações atribuídas)
+    $totalTasksAssigned = Grievance::whereNotNull('assigned_to')
+        ->whereHas('assignedTo', function ($query) {
+            $query->role('Técnico');
+        })
+        ->count();
+    
+    $avgTasksPerTechnician = $activeTechnicians > 0 
+        ? round($totalTasksAssigned / $activeTechnicians, 1)
+        : 0;
+
+    // Novos funcionários (últimos 30 dias) - apenas Técnicos
+    $newTechnicians = User::role('Técnico')
+        ->where('created_at', '>=', now()->subDays(30))
+        ->count();
+
+    // Funcionários ativos (apenas Técnicos)
+    $onlineTechnicians = User::role('Técnico')
+        ->where('is_available', true)
+        ->where('updated_at', '>=', now()->subHours(2))
+        ->count();
+
+    return [
+        'by_role' => $byRole,
+        'total_employees' => array_sum($byRole),
+        'technicians' => [
+            'total' => $technicians->count(),
+            'active' => $activeTechnicians,
+            'inactive' => $inactiveTechnicians,
+            'availability_rate' => $technicians->count() > 0 
+                ? round(($activeTechnicians / $technicians->count()) * 100, 2)
+                : 0,
+        ],
+        'avg_tasks_per_technician' => $avgTasksPerTechnician,
+        'new_employees' => $newTechnicians,
+        'online_employees' => $onlineTechnicians,
+        'employee_growth' => $this->getEmployeeGrowth(),
+    ];
+}
+
+
+private function getEmployeeGrowth(): array
+{
+    $growth = [];
+    $now = now();
+    
+    for ($i = 5; $i >= 0; $i--) {
+        $month = $now->copy()->subMonths($i);
+        $startDate = $month->copy()->startOfMonth();
+        $endDate = $month->copy()->endOfMonth();
+        
+        // Apenas novos técnicos
+        $newTechnicians = User::role('Técnico')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->count();
+        
+        // Total de técnicos até o final do mês
+        $totalTechnicians = User::role('Técnico')
+            ->where('created_at', '<=', $endDate)
+            ->count();
+        
+        $growth[] = [
+            'month' => $month->format('M/Y'),
+            'new_employees' => $newTechnicians,
+            'total_employees' => $totalTechnicians,
+        ];
+    }
+    
+    return $growth;
+}
+
+
 private function getDirectorGrievanceStatistics(Carbon $startDate, Carbon $endDate): array
 {
     return $this->getGrievanceStatistics($startDate, $endDate);
@@ -308,35 +396,8 @@ private function getDirectorResolutionTimeline(Carbon $startDate, Carbon $endDat
 
 private function getDepartmentPerformance(Carbon $startDate, Carbon $endDate): array
 {
-    // Aqui você pode implementar a lógica para comparar departamentos
-    // Por enquanto, retorna um array vazio ou dados de exemplo
+    return [];
     
-    return [
-        [
-            'department' => 'Departamento A',
-            'total_complaints' => 150,
-            'resolved' => 120,
-            'resolution_rate' => 80.0,
-            'avg_resolution_time' => 3.5,
-            'satisfaction_rate' => 85.5
-        ],
-        [
-            'department' => 'Departamento B',
-            'total_complaints' => 200,
-            'resolved' => 160,
-            'resolution_rate' => 80.0,
-            'avg_resolution_time' => 4.2,
-            'satisfaction_rate' => 82.0
-        ],
-        [
-            'department' => 'Departamento C',
-            'total_complaints' => 120,
-            'resolved' => 100,
-            'resolution_rate' => 83.3,
-            'avg_resolution_time' => 2.8,
-            'satisfaction_rate' => 88.5
-        ]
-    ];
 }
     /**
      * Generate report
@@ -938,6 +999,97 @@ private function exportToExcel($indicatorIds, $startDate, $endDate)
 }
 
 
+private function getPerformanceStats(Carbon $startDate, Carbon $endDate): array
+{
+    // Taxa de resolução por mês
+    $monthlyResolutionRates = [];
+    $current = $startDate->copy();
+    
+    while ($current <= $endDate) {
+        $monthStart = $current->copy()->startOfMonth();
+        $monthEnd = $current->copy()->endOfMonth();
+        
+        $monthSubmissions = Grievance::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+        $monthResolved = Grievance::whereBetween('resolved_at', [$monthStart, $monthEnd])
+            ->where('status', 'resolved')
+            ->count();
+        
+        $monthlyResolutionRates[] = [
+            'month' => $current->format('M/Y'),
+            'submissions' => $monthSubmissions,
+            'resolved' => $monthResolved,
+            'rate' => $monthSubmissions > 0 ? round(($monthResolved / $monthSubmissions) * 100, 2) : 0,
+        ];
+        
+        $current->addMonth();
+    }
+
+    // Desempenho por técnico - FILTRANDO APENAS TÉCNICOS
+    $technicianPerformance = User::role('Técnico')
+        ->where('is_available', true)
+        ->withCount([
+            'assignedGrievances as total_tasks' => function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            },
+            'assignedGrievances as completed_tasks' => function ($query) use ($startDate, $endDate) {
+                $query->where('status', 'resolved')
+                    ->whereBetween('resolved_at', [$startDate, $endDate]);
+            },
+            'assignedGrievances as pending_tasks' => function ($query) {
+                $query->whereIn('status', ['assigned', 'in_progress']);
+            }
+        ])
+        ->get()
+        ->map(function ($technician) use ($startDate, $endDate) {
+            $avgResolutionTime = Grievance::where('assigned_to', $technician->id)
+                ->where('status', 'resolved')
+                ->whereBetween('resolved_at', [$startDate, $endDate])
+                ->whereNotNull('resolved_at')
+                ->whereNotNull('assigned_at')
+                ->avg(DB::raw('TIMESTAMPDIFF(HOUR, assigned_at, resolved_at)')) ?? 0;
+            
+            return [
+                'id' => $technician->id,
+                'name' => $technician->name,
+                'total_tasks' => $technician->total_tasks,
+                'completed_tasks' => $technician->completed_tasks,
+                'pending_tasks' => $technician->pending_tasks,
+                'completion_rate' => $technician->total_tasks > 0 
+                    ? round(($technician->completed_tasks / $technician->total_tasks) * 100, 2)
+                    : 0,
+                'avg_resolution_time' => round($avgResolutionTime, 1),
+            ];
+        })
+        ->sortByDesc('completion_rate')
+        ->values()
+        ->take(10)
+        ->toArray();
+
+    // Taxa de satisfação real (se tiver avaliações)
+    $totalRatings = DB::table('grievances')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->whereNotNull('rating')
+        ->count();
+    
+    $averageRating = DB::table('grievances')
+        ->whereBetween('created_at', [$startDate, $endDate])
+        ->whereNotNull('rating')
+        ->avg('rating') ?? 0;
+    
+    $satisfactionRate = $averageRating > 0 ? ($averageRating / 5) * 100 : 0;
+
+    return [
+        'monthly_resolution_rates' => $monthlyResolutionRates,
+        'technician_performance' => $technicianPerformance,
+        'satisfaction_rate' => round($satisfactionRate, 1),
+        'total_ratings' => $totalRatings,
+        'average_rating' => round($averageRating, 1),
+        'first_response_time' => $this->getAverageFirstResponseTime($startDate, $endDate),
+        'escalation_rate' => $this->getEscalationRate($startDate, $endDate),
+    ];
+}
+
+
     private function generatePdfHtml($indicators, $startDate, $endDate)
 {
     $start = Carbon::parse($startDate)->format('d/m/Y');
@@ -1218,16 +1370,55 @@ private function exportToExcel($indicatorIds, $startDate, $endDate)
     /**
      * Helper methods
      */
-    private function calculateIndicatorValue($indicator, $date)
-    {
-        // Simples cálculo baseado nas reclamações
-        return match($indicator->calculation_formula) {
-            'resolution_rate' => $this->calculateResolutionRate($date),
-            'avg_resolution_time' => $this->calculateAvgResolutionTime($date),
-            'total_complaints' => $this->calculateTotalComplaints($date),
-            default => rand(70, 95) // Valor temporário para testes
-        };
-    }
+   private function calculateIndicatorValue($indicator, $date)
+{
+    // Use cálculos reais baseados nos dados do sistema
+    return match($indicator->calculation_formula) {
+        'resolution_rate' => $this->calculateResolutionRate($date),
+        'avg_resolution_time' => $this->calculateAvgResolutionTime($date),
+        'total_complaints' => $this->calculateTotalComplaints($date),
+        'technician_performance' => $this->calculateTechnicianPerformance($date),
+        'satisfaction_rate' => $this->calculateSatisfactionRate($date),
+        default => 0 // Não retorne valores randômicos
+    };
+}
+
+// Adicione estas novas funções de cálculo
+private function calculateTechnicianPerformance($date)
+{
+    $startDate = Carbon::parse($date)->subMonth();
+    
+    $avgCompletionRate = DB::table('users')
+        ->join('grievances', 'grievances.assigned_to', '=', 'users.id')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->where('roles.name', 'Técnico')
+        ->whereBetween('grievances.created_at', [$startDate, $date])
+        ->selectRaw('
+            AVG(
+                CASE 
+                    WHEN grievances.status = "resolved" THEN 100
+                    ELSE 0
+                END
+            ) as avg_performance
+        ')
+        ->first()
+        ->avg_performance ?? 0;
+    
+    return $avgCompletionRate;
+}
+
+private function calculateSatisfactionRate($date)
+{
+    $startDate = Carbon::parse($date)->subMonth();
+    
+    $avgRating = DB::table('grievances')
+        ->whereBetween('created_at', [$startDate, $date])
+        ->whereNotNull('rating')
+        ->avg('rating') ?? 0;
+    
+    return ($avgRating / 5) * 100;
+}
 
     private function calculateResolutionRate($date)
     {
@@ -1332,37 +1523,40 @@ private function exportToExcel($indicatorIds, $startDate, $endDate)
     }
 
     private function getTechnicianPerformance(Carbon $startDate, Carbon $endDate): array
-    {
-        return DB::table('grievances')
-            ->join('users', 'grievances.assigned_to', '=', 'users.id')
-            ->select(
-                'users.id',
-                'users.name',
-                DB::raw('COUNT(grievances.id) as total_cases'),
-                DB::raw('SUM(CASE WHEN grievances.status = "resolved" THEN 1 ELSE 0 END) as resolved_cases'),
-                DB::raw('AVG(DATEDIFF(grievances.resolved_at, grievances.created_at)) as avg_resolution_time')
-            )
-            ->whereBetween('grievances.created_at', [$startDate, $endDate])
-            ->whereNotNull('grievances.assigned_to')
-            ->groupBy('users.id', 'users.name')
-            ->orderByDesc('total_cases')
-            ->limit(10)
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'id' => $item->id,
-                    'name' => $item->name,
-                    'total_cases' => $item->total_cases,
-                    'resolved_cases' => $item->resolved_cases,
-                    'resolution_rate' => $item->total_cases > 0 
-                        ? ($item->resolved_cases / $item->total_cases) * 100 
-                        : 0,
-                    'avg_resolution_time' => round($item->avg_resolution_time ?? 0, 1)
-                ];
-            })
-            ->toArray();
-    }
-
+{
+    // Filtrar apenas usuários com role "Técnico"
+    return DB::table('grievances')
+        ->join('users', 'grievances.assigned_to', '=', 'users.id')
+        ->join('model_has_roles', 'users.id', '=', 'model_has_roles.model_id')
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->select(
+            'users.id',
+            'users.name',
+            DB::raw('COUNT(grievances.id) as total_cases'),
+            DB::raw('SUM(CASE WHEN grievances.status = "resolved" THEN 1 ELSE 0 END) as resolved_cases'),
+            DB::raw('AVG(DATEDIFF(grievances.resolved_at, grievances.created_at)) as avg_resolution_time')
+        )
+        ->whereBetween('grievances.created_at', [$startDate, $endDate])
+        ->whereNotNull('grievances.assigned_to')
+        ->where('roles.name', 'Técnico') // Filtra apenas Técnicos
+        ->groupBy('users.id', 'users.name')
+        ->orderByDesc('total_cases')
+        ->limit(10)
+        ->get()
+        ->map(function ($item) {
+            return [
+                'id' => $item->id,
+                'name' => $item->name,
+                'total_cases' => $item->total_cases,
+                'resolved_cases' => $item->resolved_cases,
+                'resolution_rate' => $item->total_cases > 0 
+                    ? ($item->resolved_cases / $item->total_cases) * 100 
+                    : 0,
+                'avg_resolution_time' => round($item->avg_resolution_time ?? 0, 1)
+            ];
+        })
+        ->toArray();
+}
     private function getCategoryDistribution(Carbon $startDate, Carbon $endDate): array
     {
         return Grievance::whereBetween('created_at', [$startDate, $endDate])
@@ -1419,6 +1613,34 @@ private function exportToExcel($indicatorIds, $startDate, $endDate)
 
         return array_values($dates);
     }
+
+
+
+    private function getTopPerformers(Carbon $startDate, Carbon $endDate): array
+{
+    return User::role('Técnico')
+        ->where('is_available', true)
+        ->withCount([
+            'assignedGrievances as resolved_count' => function ($query) use ($startDate, $endDate) {
+                $query->where('status', 'resolved')
+                    ->whereBetween('resolved_at', [$startDate, $endDate]);
+            }
+        ])
+        ->orderByDesc('resolved_count')
+        ->limit(5)
+        ->get()
+        ->map(function ($technician) {
+            return [
+                'id' => $technician->id,
+                'name' => $technician->name,
+                'resolved_count' => $technician->resolved_count,
+                'avatar' => $technician->avatar_url ?? null,
+            ];
+        })
+        ->toArray();
+}
+
+
 
     private function formatValue($value, $unit): string
     {

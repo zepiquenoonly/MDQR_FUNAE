@@ -152,7 +152,7 @@
               <div
                 class="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
               ></div>
-              Processando...
+              A processar...
             </template>
             <template v-else>
               <CheckIcon class="h-4 w-4 mr-2" />

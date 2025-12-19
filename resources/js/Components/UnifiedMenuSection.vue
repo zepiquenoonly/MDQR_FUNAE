@@ -79,7 +79,7 @@
         :active="$page.url.startsWith('/gestor/estatisticas')"
         :icon="ChartBarIcon"
         :text="'Estatísticas'"
-        href="/gestor/estatisticas"
+        :href="'/gestor/indicators'"
       />
     </template>
 
@@ -105,7 +105,7 @@
         :active="$page.url.startsWith('/director/indicators')"
         :icon="ChartBarIcon"
         :text="'Indicadores'"
-        :href="'/director/indicators'"
+        :href="'/director/estatisticas'"
       />
 
       <div
@@ -280,15 +280,7 @@ const navigateToAdminProjects = () => {
 };
 
 const handleLogout = () => {
-  router.post(
-    "/logout",
-    {},
-    {
-      headers: {
-        "X-CSRF-TOKEN": csrfToken.value,
-      },
-    }
-  );
+  router.post("/logout");
 };
 
 // Debug info

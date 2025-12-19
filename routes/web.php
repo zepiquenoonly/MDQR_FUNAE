@@ -145,8 +145,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/team', [DirectorTeamController::class, 'store'])->name('team.store');
         Route::patch('/team/{id}', [DirectorTeamController::class, 'update'])->name('team.update');
 
-        // Indicadores
-        Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
 
         // Rota para atualizar status de reclamação
         Route::patch('/complaints/{id}/update', [DirectorComplaintsController::class, 'update'])->name('complaints.update');
@@ -184,6 +182,17 @@ Route::middleware('auth')->group(function () {
         Route::post('/complaints/{grievance}/reject-approval', [DirectorComplaintsController::class, 'rejectApproval'])->name('director.complaints.reject-approval');
         Route::post('/{grievance}/validate', [DirectorComplaintsController::class, 'validateCase'])->name('director.complaints.validate');
         Route::post('/complaints/{grievance}/reject-submission', [DirectorComplaintsController::class, 'rejectSubmission'])->name('director.complaints.reject-submission');
+
+        Route::prefix('/projects')->group(function () {
+            Route::get('/', [ProjectController::class, 'webIndex'])->name('director.projects.index');
+            Route::post('/', [ProjectController::class, 'store'])->name('director.projects.store');
+            Route::get('/{project}', [ProjectController::class, 'show'])->name('director.projects.show');
+            Route::put('/{project}', [ProjectController::class, 'update'])->name('director.projects.update');
+            Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('director.projects.destroy');
+        });
+
+        Route::get('/estatisticas', [StatisticsController::class, 'index'])->name('statistics.index');
+
     });
 
     Route::get('/statistics/export', [ManagerGrievanceController::class, 'exportStatistics'])->name('statistics.export.get');
@@ -206,7 +215,7 @@ Route::middleware('auth')->group(function () {
         // NOVA ROTA PARA MARCAR COMO VISTO (GESTOR)
         Route::post('/grievances/{id}/mark-as-seen', [ManagerGrievanceController::class, 'markAsSeen'])->name('grievances.mark-as-seen');
         
-        Route::get('/projects', [ProjectController::class, 'webIndex'])->name('manager.projects');
+        //Route::get('/projects', [ProjectController::class, 'webIndex'])->name('manager.projects');
         Route::patch('/{grievance}/reassign', [ManagerGrievanceController::class, 'reassign'])->name('reassign');
         Route::put('/technicians/{technician}/status', [ManagerDashboardController::class, 'updateTechnicianStatus'])->name('manager.technicians.status');
         Route::post('/technicians/assign-task', [ManagerDashboardController::class, 'assignTaskToTechnician'])->name('manager.technicians.assign-task');
@@ -229,6 +238,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/my-submissions-to-director', [ManagerGrievanceController::class, 'getMySubmissionsToDirectorApi']) ->name('my-submissions-to-director');
 
 
+         // Indicadores
+        Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
+
         // Director - API para Minhas Intervenções
         Route::get('/api/my-interventions', [DirectorComplaintsController::class, 'getMyInterventions'])
             ->name('api.my-interventions');
@@ -241,6 +253,14 @@ Route::middleware('auth')->group(function () {
         Route::post('/{grievance}/reject-approval', [ManagerGrievanceController::class, 'rejectApproval'])->name('manager.complaints.reject-approval');
         Route::patch('/{grievance}/reject-completion', [ManagerGrievanceController::class, 'rejectCompletion'])->name('manager.complaints.reject-completion');
         Route::patch('/{grievance}/complete', [ManagerGrievanceController::class, 'markComplete'])->name('manager.complaints.complete');
+
+        Route::prefix('/projects')->group(function () {
+            Route::get('/', [ProjectController::class, 'webIndex'])->name('gestor.projects.index');
+            Route::post('/', [ProjectController::class, 'store'])->name('gestor.projects.store');
+            Route::get('/{project}', [ProjectController::class, 'show'])->name('gestor.projects.show');
+            Route::put('/{project}', [ProjectController::class, 'update'])->name('gestor.projects.update');
+            Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('gestor.projects.destroy');
+        });
 
     });
 
@@ -483,7 +503,7 @@ Route::middleware('auth')->group(function () {
     ->middleware(['auth', 'verified']);
 
     Route::get('/technicians/{technician}', [ManagerDashboardController::class, 'showTechnician'])->name('manager.technicians.show');
-    Route::get('/gestor/estatisticas', [StatisticsController::class, 'index'])->name('statistics.index');
+    
     Route::post('/api/technician/comments/{grievance}/add', [App\Http\Controllers\TechnicianGrievanceController::class, 'addComment']);
 
     // Gestão de reclamações pelo gestor
@@ -569,23 +589,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
         Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
     });*/
-Route::prefix('api/projects')->group(function () {
-    Route::get('/', [ProjectController::class, 'index'])->name('api.projects.index');
-    Route::get('/{project}', [ProjectController::class, 'showJson'])->name('api.projects.show'); // Use showJson
-    Route::post('/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
-    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('api.projects.destroy');
-});
+    Route::prefix('api/projects')->group(function () {
+        Route::get('/', [ProjectController::class, 'index'])->name('api.projects.index');
+        Route::get('/{project}', [ProjectController::class, 'showJson'])->name('api.projects.show'); // Use showJson
+        Route::post('/{project}', [ProjectController::class, 'update'])->name('api.projects.update');
+        Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('api.projects.destroy');
+    });
 
 
     // API de projetos
-Route::prefix('manager/projects')->group(function () {
-    Route::get('/', [ProjectController::class, 'indexPage'])->name('projects');
-    Route::post('/', [ProjectController::class, 'store'])->name('projects.store');
-    Route::get('/{project}', [ProjectController::class, 'show'])->name('projects.show'); // Para Inertia
-    Route::put('/{project}', [ProjectController::class, 'update'])->name('projects.update');
-    Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
-});
-
 
     // Rotas do GrievanceController (index/show require auth)
     Route::get('/grievances', [GrievanceController::class, 'index'])->name('grievances.index');

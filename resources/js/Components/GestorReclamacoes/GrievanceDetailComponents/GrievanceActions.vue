@@ -5,7 +5,7 @@
     </h2>
 
     <div v-if="!complaint" class="text-center py-4 text-gray-500">
-      Carregando dados...
+      A carregar dados...
     </div>
 
     <div v-else class="space-y-2">
@@ -22,7 +22,7 @@
       >
         <template v-if="loading.comment">
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>Processando...</span>
+          <span>A processar...</span>
         </template>
         <template v-else>
           <ChatBubbleLeftIcon class="h-4 w-4" />
@@ -52,7 +52,7 @@
         >
           <template v-if="loading.priority">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>Processando...</span>
+            <span>A processar...</span>
           </template>
           <template v-else>
             <FlagIcon class="h-4 w-4" />
@@ -74,7 +74,7 @@
         >
           <template v-if="loading.reassign">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand"></div>
-            <span>Processando...</span>
+            <span>A processar...</span>
           </template>
           <template v-else>
             <UserGroupIcon class="h-4 w-4" />
@@ -96,7 +96,7 @@
         >
           <template v-if="loading.sendToDirector">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>Processando...</span>
+            <span>A processar...</span>
           </template>
           <template v-else>
             <PaperAirplaneIcon class="h-4 w-4" />
@@ -118,7 +118,7 @@
         >
           <template v-if="loading.markComplete || loading.submitValidation">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>A Processar...</span>
+            <span>A processar...</span>
           </template>
           <template v-else>
             <CheckCircleIcon class="h-4 w-4" />
@@ -140,7 +140,7 @@
         >
           <template v-if="loading.reject">
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>Processando...</span>
+            <span>A processar...</span>
           </template>
           <template v-else>
             <XCircleIcon class="h-4 w-4" />
