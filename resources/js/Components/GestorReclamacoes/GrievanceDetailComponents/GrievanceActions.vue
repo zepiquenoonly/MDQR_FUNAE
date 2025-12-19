@@ -13,27 +13,70 @@
         @click="handleCommentClick"
         :disabled="isCommentButtonDisabled"
         :class="[
-          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 relative mb-3',
+          'group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 transition-all duration-500 hover:-translate-y-1',
           !isCommentButtonDisabled
-            ? 'bg-blue-600 text-white hover:bg-blue-700'
-            : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+            ? 'bg-gradient-to-r from-slate-50 via-gray-50 to-slate-100 dark:from-slate-800 dark:via-gray-800 dark:to-slate-700 ring-gray-200/50 dark:ring-gray-700/50 hover:shadow-xl hover:shadow-brand/10 dark:hover:shadow-brand/20 hover:ring-brand/30 dark:hover:ring-brand/40'
+            : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed ring-gray-200/50 dark:ring-gray-700/50',
         ]"
         :title="commentButtonTitle"
       >
-        <template v-if="loading.comment">
-          <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          <span>A processar...</span>
-        </template>
-        <template v-else>
-          <ChatBubbleLeftIcon class="h-4 w-4" />
-          <span>Comentários ({{ complaint.comments_count || 0 }})</span>
+        <!-- Background gradient animation -->
+        <div
+          v-if="!isCommentButtonDisabled"
+          class="absolute inset-0 bg-gradient-to-r from-brand/5 via-transparent to-brand/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+        ></div>
+
+        <!-- Animated border -->
+        <div
+          v-if="!isCommentButtonDisabled"
+          class="absolute inset-0 rounded-2xl bg-gradient-to-r from-brand via-orange-500 to-brand opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+        ></div>
+
+        <div class="relative flex items-center gap-4">
+          <!-- Icon container with enhanced styling -->
+          <div
+            v-if="!isCommentButtonDisabled"
+            class="relative flex-shrink-0"
+          >
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-orange-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-brand/30">
+              <ChatBubbleLeftIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+            </div>
+            <!-- Subtle pulse effect -->
+            <div class="absolute -inset-1 rounded-xl bg-brand/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+          </div>
+          <div v-else class="relative flex-shrink-0">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+              <ChatBubbleLeftIcon class="h-6 w-6 text-white" />
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-bold text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-brand">
+              Adicionar Comentário
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 group-hover:text-orange-600">
+              {{ complaint.comments_count || 0 }} comentários existentes
+            </p>
+          </div>
+
+          <!-- Arrow indicator -->
+          <div
+            v-if="!isCommentButtonDisabled"
+            class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+          >
+            <svg class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+
           <!-- Debug indicator -->
           <span
             v-if="isCommentButtonDisabled"
             class="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"
             title="Desativado: resolved ou rejected"
           ></span>
-        </template>
+        </div>
       </button>
 
       <!-- Botões condicionais -->
@@ -44,20 +87,62 @@
           @click="handlePriorityClick"
           :disabled="isButtonDisabled('priority')"
           :class="[
-            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
+            'group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 transition-all duration-500 hover:-translate-y-1',
             !isButtonDisabled('priority')
-              ? 'bg-brand text-white hover:bg-orange-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+              ? 'bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100 dark:from-amber-900/30 dark:via-orange-900/30 dark:to-amber-800/40 ring-amber-200/50 dark:ring-amber-700/50 hover:shadow-xl hover:shadow-amber-500/10 dark:hover:shadow-amber-500/20 hover:ring-amber-300/60 dark:hover:ring-amber-600/60'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed ring-gray-200/50 dark:ring-gray-700/50',
           ]"
         >
-          <template v-if="loading.priority">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>A processar...</span>
-          </template>
-          <template v-else>
-            <FlagIcon class="h-4 w-4" />
-            <span>Definir Prioridade</span>
-          </template>
+          <!-- Background gradient animation -->
+          <div
+            v-if="!isButtonDisabled('priority')"
+            class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          ></div>
+
+          <!-- Animated border -->
+          <div
+            v-if="!isButtonDisabled('priority')"
+            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+          ></div>
+
+          <div class="relative flex items-center gap-4">
+            <!-- Icon container -->
+            <div
+              v-if="!isButtonDisabled('priority')"
+              class="relative flex-shrink-0"
+            >
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-amber-500/30">
+                <FlagIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+              </div>
+              <!-- Pulse effect -->
+              <div class="absolute -inset-1 rounded-xl bg-amber-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+            </div>
+            <div v-else class="relative flex-shrink-0">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+                <FlagIcon class="h-6 w-6 text-white" />
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-bold text-amber-900 dark:text-amber-100 transition-colors duration-300 group-hover:text-amber-700 dark:group-hover:text-amber-200">
+                Definir Prioridade
+              </h3>
+              <p class="text-sm text-amber-700 dark:text-amber-400 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-300">
+                Ajustar nível de urgência
+              </p>
+            </div>
+
+            <!-- Arrow indicator -->
+            <div
+              v-if="!isButtonDisabled('priority')"
+              class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+            >
+              <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </button>
 
         <!-- Reatribuir Técnico -->
@@ -66,20 +151,62 @@
           @click="handleReassignClick"
           :disabled="isButtonDisabled('reassign')"
           :class="[
-            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 border',
+            'group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 transition-all duration-500 hover:-translate-y-1',
             !isButtonDisabled('reassign')
-              ? 'bg-white dark:bg-dark-accent text-gray-700 dark:text-gray-300 border-gray-300 dark:border-gray-600 hover:border-brand'
-              : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 border-gray-300 dark:border-gray-600 cursor-not-allowed',
+              ? 'bg-gradient-to-r from-cyan-50 via-blue-50 to-cyan-100 dark:from-cyan-900/30 dark:via-blue-900/30 dark:to-cyan-800/40 ring-cyan-200/50 dark:ring-cyan-700/50 hover:shadow-xl hover:shadow-cyan-500/10 dark:hover:shadow-cyan-500/20 hover:ring-cyan-300/60 dark:hover:ring-cyan-600/60'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed ring-gray-200/50 dark:ring-gray-700/50',
           ]"
         >
-          <template v-if="loading.reassign">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-brand"></div>
-            <span>A processar...</span>
-          </template>
-          <template v-else>
-            <UserGroupIcon class="h-4 w-4" />
-            <span>Reatribuir Técnico</span>
-          </template>
+          <!-- Background gradient animation -->
+          <div
+            v-if="!isButtonDisabled('reassign')"
+            class="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-transparent to-cyan-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          ></div>
+
+          <!-- Animated border -->
+          <div
+            v-if="!isButtonDisabled('reassign')"
+            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-500 to-cyan-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+          ></div>
+
+          <div class="relative flex items-center gap-4">
+            <!-- Icon container -->
+            <div
+              v-if="!isButtonDisabled('reassign')"
+              class="relative flex-shrink-0"
+            >
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-cyan-500/30">
+                <UserGroupIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+              </div>
+              <!-- Pulse effect -->
+              <div class="absolute -inset-1 rounded-xl bg-cyan-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+            </div>
+            <div v-else class="relative flex-shrink-0">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+                <UserGroupIcon class="h-6 w-6 text-white" />
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-bold text-cyan-900 dark:text-cyan-100 transition-colors duration-300 group-hover:text-cyan-700 dark:group-hover:text-cyan-200">
+                Reatribuir Técnico
+              </h3>
+              <p class="text-sm text-cyan-700 dark:text-cyan-400 transition-colors duration-300 group-hover:text-cyan-600 dark:group-hover:text-cyan-300">
+                Alterar responsável técnico
+              </p>
+            </div>
+
+            <!-- Arrow indicator -->
+            <div
+              v-if="!isButtonDisabled('reassign')"
+              class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+            >
+              <svg class="h-5 w-5 text-cyan-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </button>
 
         <!-- Enviar ao Director (apenas para Gestor quando não escalado) -->
@@ -88,20 +215,62 @@
           @click="handleSendToDirectorClick"
           :disabled="isButtonDisabled('sendToDirector')"
           :class="[
-            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 mb-3',
+            'group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 transition-all duration-500 hover:-translate-y-1 mb-3',
             !isButtonDisabled('sendToDirector')
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+              ? 'bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-100 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-emerald-800/40 ring-emerald-200/50 dark:ring-emerald-700/50 hover:shadow-xl hover:shadow-emerald-500/10 dark:hover:shadow-emerald-500/20 hover:ring-emerald-300/60 dark:hover:ring-emerald-600/60'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed ring-gray-200/50 dark:ring-gray-700/50',
           ]"
         >
-          <template v-if="loading.sendToDirector">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>A processar...</span>
-          </template>
-          <template v-else>
-            <PaperAirplaneIcon class="h-4 w-4" />
-            <span>Enviar ao Director</span>
-          </template>
+          <!-- Background gradient animation -->
+          <div
+            v-if="!isButtonDisabled('sendToDirector')"
+            class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-emerald-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          ></div>
+
+          <!-- Animated border -->
+          <div
+            v-if="!isButtonDisabled('sendToDirector')"
+            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+          ></div>
+
+          <div class="relative flex items-center gap-4">
+            <!-- Icon container -->
+            <div
+              v-if="!isButtonDisabled('sendToDirector')"
+              class="relative flex-shrink-0"
+            >
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-emerald-500/30">
+                <PaperAirplaneIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+              </div>
+              <!-- Pulse effect -->
+              <div class="absolute -inset-1 rounded-xl bg-emerald-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+            </div>
+            <div v-else class="relative flex-shrink-0">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+                <PaperAirplaneIcon class="h-6 w-6 text-white" />
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-bold text-emerald-900 dark:text-emerald-100 transition-colors duration-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-200">
+                Enviar ao Director
+              </h3>
+              <p class="text-sm text-emerald-700 dark:text-emerald-400 transition-colors duration-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-300">
+                Escalar para supervisão superior
+              </p>
+            </div>
+
+            <!-- Arrow indicator -->
+            <div
+              v-if="!isButtonDisabled('sendToDirector')"
+              class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+            >
+              <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </button>
 
         <!-- Botão de Validação -->
@@ -110,20 +279,65 @@
           @click="handleValidationClick"
           :disabled="isButtonDisabled('markComplete')"
           :class="[
-            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 mb-3',
+            'group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 transition-all duration-500 hover:-translate-y-1 mb-3',
             !isButtonDisabled('markComplete')
-              ? 'bg-green-600 text-white hover:bg-green-700'
-              : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed',
+              ? 'bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-100 dark:from-emerald-900/30 dark:via-green-900/30 dark:to-emerald-800/40 ring-emerald-200/50 dark:ring-emerald-700/50 hover:shadow-xl hover:shadow-emerald-500/10 dark:hover:shadow-emerald-500/20 hover:ring-emerald-300/60 dark:hover:ring-emerald-600/60'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed ring-gray-200/50 dark:ring-gray-700/50',
           ]"
         >
-          <template v-if="loading.markComplete || loading.submitValidation">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>A processar...</span>
-          </template>
-          <template v-else>
-            <CheckCircleIcon class="h-4 w-4" />
-            <span>{{ validationButtonText }}</span>
-          </template>
+          <!-- Background gradient animation -->
+          <div
+            v-if="!isButtonDisabled('markComplete')"
+            class="absolute inset-0 bg-gradient-to-r from-emerald-500/5 via-transparent to-emerald-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          ></div>
+
+          <!-- Animated border -->
+          <div
+            v-if="!isButtonDisabled('markComplete')"
+            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-emerald-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+          ></div>
+
+          <div class="relative flex items-center gap-4">
+            <!-- Icon container -->
+            <div
+              v-if="!isButtonDisabled('markComplete')"
+              class="relative flex-shrink-0"
+            >
+              <div v-if="loading.markComplete || loading.submitValidation" class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+                <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
+              </div>
+              <div v-else class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-emerald-500/30">
+                <CheckCircleIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+              </div>
+              <!-- Pulse effect -->
+              <div v-if="!isButtonDisabled('markComplete') && !(loading.markComplete || loading.submitValidation)" class="absolute -inset-1 rounded-xl bg-emerald-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+            </div>
+            <div v-else class="relative flex-shrink-0">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+                <CheckCircleIcon class="h-6 w-6 text-white" />
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-bold text-emerald-900 dark:text-emerald-100 transition-colors duration-300 group-hover:text-emerald-700 dark:group-hover:text-emerald-200">
+                {{ loading.markComplete || loading.submitValidation ? 'A Processar...' : validationButtonText }}
+              </h3>
+              <p class="text-sm text-emerald-700 dark:text-emerald-400 transition-colors duration-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-300">
+                {{ loading.markComplete || loading.submitValidation ? 'Validando solicitação...' : 'Aprovar e finalizar processo' }}
+              </p>
+            </div>
+
+            <!-- Arrow indicator -->
+            <div
+              v-if="!isButtonDisabled('markComplete') && !(loading.markComplete || loading.submitValidation)"
+              class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+            >
+              <svg class="h-5 w-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </button>
 
         <!-- Botão de Rejeição -->
@@ -132,20 +346,62 @@
           @click="handleRejectClick"
           :disabled="isButtonDisabled('reject')"
           :class="[
-            'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2',
+            'group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 transition-all duration-500 hover:-translate-y-1',
             !isButtonDisabled('reject')
-              ? 'bg-red-600 text-white hover:bg-red-700'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400',
+              ? 'bg-gradient-to-r from-red-50 via-rose-50 to-red-100 dark:from-red-900/30 dark:via-rose-900/30 dark:to-red-800/40 ring-red-200/50 dark:ring-red-700/50 hover:shadow-xl hover:shadow-red-500/10 dark:hover:shadow-red-500/20 hover:ring-red-300/60 dark:hover:ring-red-600/60'
+              : 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-not-allowed ring-gray-200/50 dark:ring-gray-700/50',
           ]"
         >
-          <template v-if="loading.reject">
-            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            <span>A processar...</span>
-          </template>
-          <template v-else>
-            <XCircleIcon class="h-4 w-4" />
-            <span>Rejeitar Submissão</span>
-          </template>
+          <!-- Background gradient animation -->
+          <div
+            v-if="!isButtonDisabled('reject')"
+            class="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-red-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          ></div>
+
+          <!-- Animated border -->
+          <div
+            v-if="!isButtonDisabled('reject')"
+            class="absolute inset-0 rounded-2xl bg-gradient-to-r from-red-500 via-rose-500 to-red-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+          ></div>
+
+          <div class="relative flex items-center gap-4">
+            <!-- Icon container -->
+            <div
+              v-if="!isButtonDisabled('reject')"
+              class="relative flex-shrink-0"
+            >
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-red-500 to-rose-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-red-500/30">
+                <XCircleIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+              </div>
+              <!-- Pulse effect -->
+              <div class="absolute -inset-1 rounded-xl bg-red-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+            </div>
+            <div v-else class="relative flex-shrink-0">
+              <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-400 dark:bg-gray-600 shadow-lg">
+                <XCircleIcon class="h-6 w-6 text-white" />
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="flex-1 min-w-0">
+              <h3 class="text-base font-bold text-red-900 dark:text-red-100 transition-colors duration-300 group-hover:text-red-700 dark:group-hover:text-red-200">
+                Rejeitar Submissão
+              </h3>
+              <p class="text-sm text-red-700 dark:text-red-400 transition-colors duration-300 group-hover:text-red-600 dark:group-hover:text-red-300">
+                Recusar e finalizar processo
+              </p>
+            </div>
+
+            <!-- Arrow indicator -->
+            <div
+              v-if="!isButtonDisabled('reject')"
+              class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+            >
+              <svg class="h-5 w-5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </div>
         </button>
       </template>
 
@@ -153,13 +409,41 @@
       <button
         v-if="isDirector && isEscalatedToDirector && !hasDirectorValidation"
         @click="handleValidationClick"
-        :class="[
-          'w-full px-4 py-3 rounded font-semibold transition-all shadow-sm text-sm flex items-center justify-center gap-2 mb-3',
-          'bg-purple-600 text-white hover:bg-purple-700',
-        ]"
+        class="group relative w-full overflow-hidden rounded-2xl p-5 text-left shadow-sm ring-1 bg-gradient-to-r from-slate-50 via-gray-50 to-slate-100 dark:from-slate-800 dark:via-gray-800 dark:to-slate-700 ring-gray-200/50 dark:ring-gray-700/50 hover:shadow-xl hover:shadow-purple-500/10 dark:hover:shadow-purple-500/20 hover:ring-purple-300/60 dark:hover:ring-purple-600/60 hover:-translate-y-1 transition-all duration-500 mb-3"
       >
-        <PaperAirplaneIcon class="h-4 w-4" />
-        <span>Responder à Solicitação do Gestor</span>
+        <!-- Background gradient animation -->
+        <div class="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-transparent to-purple-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+
+        <!-- Animated border -->
+        <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-purple-500 via-violet-500 to-purple-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"></div>
+
+        <div class="relative flex items-center gap-4">
+          <!-- Icon container with enhanced styling -->
+          <div class="relative flex-shrink-0">
+            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-violet-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-purple-500/30">
+              <PaperAirplaneIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+            </div>
+            <!-- Pulse effect -->
+            <div class="absolute -inset-1 rounded-xl bg-purple-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+            <h3 class="text-base font-bold text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-purple-600 dark:group-hover:text-purple-400">
+              Responder à Solicitação
+            </h3>
+            <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 group-hover:text-purple-500 dark:group-hover:text-purple-300">
+              Revisar e aprovar solicitação do gestor
+            </p>
+          </div>
+
+          <!-- Arrow indicator -->
+          <div class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
+            <svg class="h-5 w-5 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </div>
+        </div>
       </button>
     </div>
   </div>
