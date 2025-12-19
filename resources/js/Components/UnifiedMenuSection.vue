@@ -92,13 +92,13 @@
         :href="'/director/complaints-overview'"
       />
 
-      <MenuItem
+      <!-- <MenuItem
         v-if="permissions.canManageProjects"
         :active="$page.url.startsWith(projectsRoute)"
         :icon="BriefcaseIcon"
         :text="'Projectos'"
         :href="projectsRoute"
-      />
+      /> -->
 
       <!-- Estatísticas -->
       <MenuItem

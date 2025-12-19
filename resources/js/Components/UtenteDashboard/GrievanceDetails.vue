@@ -48,8 +48,8 @@
                 </div>
 
                 <div class="p-4 sm:p-6 space-y-4 sm:space-y-6 animate-fade-in">
-                    <!-- Main Grievance Card - fundo BRANCO SÓLIDO -->
-                    <div class="bg-white rounded-2xl shadow-2xl p-8 border border-gray-100 relative overflow-hidden group">
+                    <!-- Main Grievance Card -->
+                    <div class="bg-gray-50 rounded-2xl shadow-xl p-6 border border-gray-200 relative overflow-hidden group">
                         <!-- Header -->
                         <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6 mb-8">
                             <div class="flex-1">
@@ -74,7 +74,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div v-if="details" class="bg-white/70 backdrop-blur-md p-4 rounded-2xl border border-white/40 shadow-lg shadow-primary-500/5">
+                            <div v-if="details" class="bg-blue-50/80 backdrop-blur-md p-4 rounded-2xl border border-blue-200/50 shadow-lg shadow-primary-500/5">
                                 <div class="flex items-center gap-3">
                                     <div class="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-orange-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                         <CheckCircleIcon class="w-5 h-5 text-primary-600" />
@@ -153,27 +153,27 @@
                     </div>
 
                     <!-- Description Section - Glassmorphism -->
-                    <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-blue-500/5 hover:bg-white/80 transition-all duration-300">
+                    <div class="bg-blue-50/70 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-blue-200/30 shadow-lg shadow-blue-500/5 hover:bg-blue-50/90 transition-all duration-300">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-blue-500/20 to-indigo-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                 <DocumentTextIcon class="w-5 h-5 text-blue-600" />
                             </div>
                             <h3 class="text-lg font-semibold text-gray-800">Descrição</h3>
                         </div>
-                        <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/40">
+                        <div class="bg-white/90 backdrop-blur-sm rounded-2xl p-6 border border-white/40">
                             <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ details ? details.description : '' }}</p>
                         </div>
                     </div>
 
                     <!-- Project Related Section - Glassmorphism -->
-                    <div v-if="details && details.project" class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-indigo-500/5 hover:bg-white/80 transition-all duration-300">
+                    <div v-if="details && details.project" class="bg-indigo-50/70 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-indigo-200/30 shadow-lg shadow-indigo-500/5 hover:bg-indigo-50/90 transition-all duration-300">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-indigo-500/20 to-purple-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                 <DocumentTextIcon class="w-5 h-5 text-indigo-600" />
                             </div>
                             <h3 class="text-lg font-semibold text-gray-800">Projeto Relacionado</h3>
                         </div>
-                        <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/40">
+                        <div class="bg-gray-50/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600 font-medium">Nome do Projeto:</span>
                                 <span class="text-sm text-primary-600 font-semibold bg-primary-50 px-3 py-1 rounded-full">{{ details.project.name }}</span>
@@ -182,14 +182,14 @@
                     </div>
 
                     <!-- Responsible Assignment Section - Glassmorphism -->
-                    <div v-if="details && details.assigned_to" class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-teal-500/5 hover:bg-white/80 transition-all duration-300">
+                    <div v-if="details && details.assigned_to" class="bg-teal-50/70 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-teal-200/30 shadow-lg shadow-teal-500/5 hover:bg-teal-50/90 transition-all duration-300">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-teal-500/20 to-cyan-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                 <UserIcon class="w-5 h-5 text-teal-600" />
                             </div>
                             <h3 class="text-lg font-semibold text-gray-800">Responsável pela Atribuição</h3>
                         </div>
-                        <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/40 space-y-4">
+                        <div class="bg-gray-50/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50 space-y-4">
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-gray-600 font-medium">Técnico Responsável:</span>
                                 <span class="text-sm text-gray-800 font-semibold">{{ details.assigned_to.name }}</span>
@@ -202,14 +202,14 @@
                     </div>
 
                     <!-- Location Section - Glassmorphism -->
-                    <div v-if="details && (details.province || details.district || details.locality)" class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-slate-500/5 hover:bg-white/80 transition-all duration-300">
+                    <div v-if="details && (details.province || details.district || details.locality)" class="bg-slate-50/70 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-slate-200/30 shadow-lg shadow-slate-500/5 hover:bg-slate-50/90 transition-all duration-300">
                         <div class="flex items-center gap-3 mb-6">
                             <div class="w-10 h-10 bg-gradient-to-br from-slate-500/20 to-gray-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                 <MapPinIcon class="w-5 h-5 text-slate-600" />
                             </div>
                             <h3 class="text-lg font-semibold text-gray-800">Localização</h3>
                         </div>
-                        <div class="bg-white/50 backdrop-blur-sm rounded-2xl p-6 border border-white/40">
+                        <div class="bg-gray-50/80 backdrop-blur-sm rounded-2xl p-6 border border-gray-200/50">
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div v-if="details.province" class="flex items-center justify-between">
                                     <span class="text-sm text-gray-600 font-medium">Província:</span>
@@ -230,7 +230,7 @@
                             </div>
                             <div v-if="details.location_details" class="mt-6 pt-4 border-t border-gray-200">
                                 <span class="text-sm text-gray-600 font-medium">Detalhes da Localização:</span>
-                                <p class="text-sm text-gray-800 mt-2 bg-gray-50 p-3 rounded-lg">{{ details.location_details }}</p>
+                                <p class="text-sm text-gray-800 mt-2 bg-white p-3 rounded-lg">{{ details.location_details }}</p>
                             </div>
                         </div>
                     </div>
@@ -238,7 +238,7 @@
                     <!-- Two Column Layout - Glassmorphism Cards -->
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <!-- Timeline -->
-                        <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-primary-500/5 hover:bg-white/80 transition-all duration-300">
+                        <div class="bg-blue-50/70 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-blue-200/30 shadow-lg shadow-primary-500/5 hover:bg-blue-50/90 transition-all duration-300">
                             <div class="flex items-center justify-between mb-6">
                                 <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-3">
                                     <div class="w-10 h-10 bg-gradient-to-br from-primary-500/20 to-orange-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
@@ -274,7 +274,7 @@
                         </div>
 
                         <!-- Attachments -->
-                        <div class="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/30 shadow-lg shadow-orange-500/5 hover:bg-white/80 transition-all duration-300">
+                        <div class="bg-orange-50/70 backdrop-blur-xl rounded-3xl shadow-2xl p-6 border border-orange-200/30 shadow-lg shadow-orange-500/5 hover:bg-orange-50/90 transition-all duration-300">
                             <h3 class="text-lg font-semibold text-gray-800 mb-6 flex items-center gap-3">
                                 <div class="w-10 h-10 bg-gradient-to-br from-orange-500/20 to-amber-600/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
                                     <PaperClipIcon class="w-5 h-5 text-orange-600" />

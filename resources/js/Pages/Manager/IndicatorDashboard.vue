@@ -30,16 +30,7 @@
         </div>
       </div>
 
-      <!-- Header -->
-      <IndicatorsHeader
-        :time-range="timeRange"
-        :category-filter="categoryFilter"
-        :loading="loading"
-        @update-filters="updateFilters"
-        @update:timeRange="(val) => (timeRange = val)"
-        @update:categoryFilter="(val) => (categoryFilter = val)"
-        @open-report-generator="openReportGenerator"
-      />
+      
 
       <!-- Toast Component -->
       <Toast ref="toast" />
@@ -70,11 +61,6 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left Column - Indicators -->
         <div class="lg:col-span-2 space-y-6">
-          <TechnicianPerformanceTable
-            v-if="technicianPerformance.length > 0"
-            :technicians="technicianPerformance"
-          />
-
           <TechnicianPerformanceTable
             v-if="technicianPerformance.length > 0"
             :technicians="technicianPerformance"
