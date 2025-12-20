@@ -33,12 +33,17 @@
             <th
               class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 sm:w-20 text-center"
             >
-              Recl.
+              Reclamações
             </th>
             <th
               class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 sm:w-20 text-center"
             >
-              Sug.
+              Sugestões
+            </th>
+            <th
+              class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 sm:w-20 text-center"
+            >
+              Queixas
             </th>
             <th
               class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20 sm:w-28"
@@ -105,13 +110,31 @@
             <td
               class="py-2 px-1 sm:px-2 md:px-4 text-center text-xs sm:text-sm font-bold text-gray-700 dark:text-dark-text-primary"
             >
-              0
+              {{ getProjectReclamacoes(project) }}
             </td>
 
             <td
               class="py-2 px-1 sm:px-2 md:px-4 text-center text-xs sm:text-sm font-bold text-gray-700 dark:text-dark-text-primary"
             >
-              0
+              {{ getProjectSugestoes(project) }}
+            </td>
+
+            <td
+              class="py-2 px-1 sm:px-2 md:px-4 text-center text-xs sm:text-sm font-bold text-gray-700 dark:text-dark-text-primary"
+            >
+              <div class="flex flex-col items-center">
+                <!-- Total de Queixas -->
+                <span class="dark:text-red-400 font-bold">
+                  {{ getTotalQueixas(project) }}
+                </span>
+                <!-- Breakdown (opcional) -->
+                <div
+                  class="flex gap-1 text-xs text-gray-500 dark:text-gray-400"
+                  v-if="showQueixasBreakdown"
+                >
+                  <span>{{ getQueixasAbertas(project) }} aberta(s)</span>
+                </div>
+              </div>
             </td>
 
             <td class="py-2 px-1 sm:px-2 md:px-4">
@@ -200,6 +223,11 @@ const props = defineProps({
     type: String,
     default: "",
   },
+  // Nova prop para controlar se mostra breakdown das queixas
+  showQueixasBreakdown: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const getProjectUrl = (project) => {
@@ -245,6 +273,64 @@ const getProjectBairro = (project) => {
   return isValidProject(project) ? project.bairro || "N/A" : "N/A";
 };
 
+// Funções para obter dados de reclamações/sugestões
+const getProjectReclamacoes = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  // Dados podem vir de diferentes lugares:
+  // 1. Diretamente do projeto
+  // 2. De uma propriedade específica (ex: project.metrics)
+  // 3. De uma relação (ex: project.reclamacoes_count)
+
+  // Verifique qual estrutura o backend está enviando
+  console.log("Dados do projeto para reclamações:", project);
+
+  // Exemplo de possíveis estruturas:
+  // 1. project.reclamacoes_count
+  // 2. project.metrics?.reclamacoes
+  // 3. project.reclamacoes?.total
+
+  return (
+    project.reclamacoes_count ||
+    project.metrics?.reclamacoes ||
+    project.reclamacoes?.total ||
+    "0"
+  );
+};
+
+const getProjectSugestoes = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  return (
+    project.sugestoes_count ||
+    project.metrics?.sugestoes ||
+    project.sugestoes?.total ||
+    "0"
+  );
+};
+
+// Funções para Queixas (que podem incluir reclamações e/ou outras categorias)
+const getTotalQueixas = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  // Se o backend já envia total_queixas, use isso
+  if (project.total_queixas !== undefined) {
+    return project.total_queixas;
+  }
+
+  // Caso contrário, some reclamações e sugestões
+  const reclamacoes = parseInt(getProjectReclamacoes(project)) || 0;
+  const sugestoes = parseInt(getProjectSugestoes(project)) || 0;
+
+  return reclamacoes + sugestoes;
+};
+
+const getQueixasAbertas = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  return project.queixas_abertas || project.metrics?.queixas_abertas || "0";
+};
+
 // Garantir que sempre temos um array válido
 const safeProjects = computed(() => {
   console.log("Projects recebidos:", props.projects);
@@ -275,7 +361,7 @@ const getStatusClass = (category) => {
     case "parados":
       return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300";
     default:
-      return "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
+      return "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
   }
 };
 
@@ -345,6 +431,10 @@ const getStatusLabel = (category) => {
 @media (max-width: 640px) {
   .table-scroll-container {
     max-height: calc(100vh - 220px);
+  }
+
+  .min-w-[600px] {
+    min-width: 700px; /* Aumentado para acomodar nova coluna */
   }
 }
 

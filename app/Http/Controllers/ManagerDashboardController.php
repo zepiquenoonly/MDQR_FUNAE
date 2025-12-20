@@ -194,7 +194,13 @@ class ManagerDashboardController extends Controller
     /**
      * Display all technicians
      */
-   public function indexTechnicians(Request $request): Response
+   /**
+ * Display all technicians AND managers (for directors)
+ */
+/**
+ * Display all technicians AND managers (for directors)
+ */
+public function indexTechnicians(Request $request): Response
 {
     $user = $request->user();
     
@@ -208,15 +214,47 @@ class ManagerDashboardController extends Controller
     $search = $request->input('search', '');
     $province = $request->input('province', '');
     $status = $request->input('status', '');
+    $roleFilter = $request->input('role', '');
 
-    // Query base para técnicos - REMOVER last_login_at
-    $techniciansQuery = User::role('Técnico')
-        ->select('id', 'name', 'username', 'email', 'phone', 'province', 'district', 'neighborhood', 'street', 'is_available', 'created_at', 'updated_at')
-        ->latest();
+    \Log::info('Filtros recebidos no controller do gestor:', [
+        'role' => $roleFilter,
+        'search' => $search,
+        'province' => $province,
+        'status' => $status,
+        'all_params' => $request->all()
+    ]);
+
+    // Mapear os valores do frontend para os valores do banco de dados
+    $roleMap = [
+        'manager' => 'Gestor',
+        'technician' => 'Técnico',
+        'all' => 'all'
+    ];
+    
+    $roleValue = isset($roleMap[$roleFilter]) ? $roleMap[$roleFilter] : $roleFilter;
+
+    // Determinar quais roles incluir baseado no role do usuário atual
+    $rolesToInclude = ['Técnico']; // Por padrão, sempre incluir técnicos
+    
+    // Se o usuário atual for Director, incluir também Gestores
+    if ($user->hasRole('Director')) {
+        $rolesToInclude[] = 'Gestor';
+    }
+
+    // Query base - agora incluindo múltiplos roles
+    $usersQuery = User::whereHas('roles', function ($query) use ($rolesToInclude, $roleValue) {
+        if ($roleValue && $roleValue !== 'all') {
+            $query->where('name', $roleValue);
+        } else {
+            $query->whereIn('name', $rolesToInclude);
+        }
+    })
+    ->select('id', 'name', 'username', 'email', 'phone', 'province', 'district', 'neighborhood', 'street', 'is_available', 'created_at', 'updated_at')
+    ->latest();
 
     // Aplicar filtro de busca
     if ($search) {
-        $techniciansQuery->where(function ($query) use ($search) {
+        $usersQuery->where(function ($query) use ($search) {
             $query->where('name', 'like', "%{$search}%")
                 ->orWhere('email', 'like', "%{$search}%")
                 ->orWhere('username', 'like', "%{$search}%")
@@ -226,35 +264,53 @@ class ManagerDashboardController extends Controller
 
     // Aplicar filtro por província
     if ($province) {
-        $techniciansQuery->where('province', $province);
+        $usersQuery->where('province', $province);
     }
 
     // Aplicar filtro por status (ativo/inativo)
     if ($status === 'active') {
-        $techniciansQuery->where('is_available', true);
+        $usersQuery->where('is_available', true);
     } elseif ($status === 'inactive') {
-        $techniciansQuery->where('is_available', false);
+        $usersQuery->where('is_available', false);
     }
 
+    // Contagens totais para as tabs (com filtros aplicados)
+    $counts = $this->getUserCounts($user, $roleValue, $status);
+    
     // Paginação
-    $technicians = $techniciansQuery->paginate(15)->through(function ($technician) {
-        // Estatísticas do técnico
-        $stats = $this->getTechnicianStats($technician->id);
+    $users = $usersQuery->paginate(15)->through(function ($userItem) {
+        // Determinar o role do usuário
+        $roleName = $userItem->getRoleNames()->first() ?? 'Técnico';
+        $isTechnician = $roleName === 'Técnico';
+        
+        // Obter estatísticas apenas para técnicos
+        $stats = $isTechnician ? $this->getTechnicianStats($userItem->id) : [
+            'total_assigned' => 0,
+            'completed' => 0,
+            'pending' => 0,
+            'cancelled' => 0,
+            'in_progress' => 0,
+            'completion_rate' => 0,
+            'average_resolution_time' => 0,
+        ];
         
         return [
-            'id' => $technician->id,
-            'name' => $technician->name,
-            'username' => $technician->username,
-            'email' => $technician->email,
-            'phone' => $technician->phone ?? 'N/A',
-            'province' => $technician->province ?? 'N/A',
-            'district' => $technician->district ?? 'N/A',
-            'neighborhood' => $technician->neighborhood ?? 'N/A',
-            'street' => $technician->street ?? 'N/A',
-            'is_available' => (bool) ($technician->is_available ?? true),
-            'created_at' => $technician->created_at ? $technician->created_at->format('d/m/Y H:i') : 'N/A',
-            'updated_at' => $technician->updated_at ? $technician->updated_at->format('d/m/Y H:i') : 'N/A',
-            // REMOVER last_login pois não existe
+            'id' => $userItem->id,
+            'name' => $userItem->name,
+            'username' => $userItem->username,
+            'email' => $userItem->email,
+            'phone' => $userItem->phone ?? 'N/A',
+            'province' => $userItem->province ?? 'N/A',
+            'district' => $userItem->district ?? 'N/A',
+            'neighborhood' => $userItem->neighborhood ?? 'N/A',
+            'street' => $userItem->street ?? 'N/A',
+            'role' => $this->normalizeRole($roleName),
+            'role_label' => $roleName,
+            'is_technician' => $isTechnician,
+            'is_available' => (bool) ($userItem->is_available ?? true),
+            'created_at' => $userItem->created_at ? $userItem->created_at->format('d/m/Y H:i') : 'N/A',
+            'updated_at' => $userItem->updated_at ? $userItem->updated_at->format('d/m/Y H:i') : 'N/A',
+            // Estatísticas
             'tasks_assigned' => $stats['total_assigned'],
             'tasks_completed' => $stats['completed'],
             'tasks_pending' => $stats['pending'],
@@ -265,40 +321,58 @@ class ManagerDashboardController extends Controller
         ];
     });
 
-    // Estatísticas gerais
+    \Log::info('Resultados da query do gestor:', [
+        'total' => $users->total(),
+        'current_page' => $users->currentPage(),
+        'per_page' => $users->perPage(),
+        'data_count' => $users->count(),
+        'has_more_pages' => $users->hasMorePages(),
+    ]);
+
+    // Estatísticas gerais - separar por role
     $totalTechnicians = User::role('Técnico')->count();
-    $activeTechnicians = User::role('Técnico')->where('is_available', true)->count();
-    $inactiveTechnicians = User::role('Técnico')->where('is_available', false)->count();
+    $totalManagers = User::role('Gestor')->count();
     
-    // Técnicos com mais tarefas
-    $topTechnicians = User::role('Técnico')
-        ->withCount(['assignedGrievances' => function ($query) {
-            $query->whereIn('status', ['assigned', 'in_progress']);
-        }])
-        ->orderBy('assigned_grievances_count', 'desc')
-        ->limit(5)
-        ->get()
-        ->map(function ($technician) {
-            return [
-                'id' => $technician->id,
-                'name' => $technician->name,
-                'tasks_count' => $technician->assigned_grievances_count,
-            ];
-        });
+    $activeTechnicians = User::role('Técnico')->where('is_available', true)->count();
+    $activeManagers = User::role('Gestor')->where('is_available', true)->count();
+    
+    $inactiveTechnicians = User::role('Técnico')->where('is_available', false)->count();
+    $inactiveManagers = User::role('Gestor')->where('is_available', false)->count();
+    
+    // Para Director: total de todos
+    // Para Gestor: apenas técnicos
+    $totalUsers = $user->hasRole('Director') 
+        ? $totalTechnicians + $totalManagers 
+        : $totalTechnicians;
+    
+    $activeUsers = $user->hasRole('Director')
+        ? $activeTechnicians + $activeManagers
+        : $activeTechnicians;
+        
+    $inactiveUsers = $user->hasRole('Director')
+        ? $inactiveTechnicians + $inactiveManagers
+        : $inactiveTechnicians;
 
-    // Lista de províncias únicas para filtro
-    $provinces = User::role('Técnico')
-        ->select('province')
-        ->distinct()
-        ->whereNotNull('province')
-        ->orderBy('province')
-        ->pluck('province');
-
-    // Calcular média de tarefas por técnico
+    // Calcular média de tarefas por técnico (apenas para técnicos)
     $totalAssignedTasks = Grievance::whereNotNull('assigned_to')->count();
     $averageTasksPerTechnician = $totalTechnicians > 0 
         ? round($totalAssignedTasks / $totalTechnicians, 1)
         : 0;
+        
+    // Para gestores, usar estatísticas diferentes
+    $averageTasksPerUser = $user->hasRole('Director')
+        ? ($totalUsers > 0 ? round($totalAssignedTasks / $totalUsers, 1) : 0)
+        : $averageTasksPerTechnician;
+
+    // Lista de províncias únicas para filtro
+    $provinces = User::whereHas('roles', function ($query) use ($rolesToInclude) {
+        $query->whereIn('name', $rolesToInclude);
+    })
+    ->select('province')
+    ->distinct()
+    ->whereNotNull('province')
+    ->orderBy('province')
+    ->pluck('province');
 
     return Inertia::render('Common/TechnicianPage', [
         'user' => [
@@ -307,130 +381,376 @@ class ManagerDashboardController extends Controller
             'role' => $user->getRoleNames()->first(),
             'created_at' => $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A',
         ],
-        'technicians' => $technicians,
+        'current_user_role' => $this->normalizeRole($user->getRoleNames()->first()),
+        'technicians' => $users,
+        // Adicionar contagens totais para as tabs
+        'counts' => $counts,
         'filters' => [
             'search' => $search,
             'province' => $province,
             'status' => $status,
+            'role' => $roleFilter,
         ],
         'stats' => [
-            'total_technicians' => $totalTechnicians,
-            'active_technicians' => $activeTechnicians,
-            'inactive_technicians' => $inactiveTechnicians,
-            'average_tasks_per_technician' => $averageTasksPerTechnician,
+            'total_technicians' => $totalUsers,
+            'total_technicians_only' => $totalTechnicians,
+            'total_managers' => $totalManagers,
+            'active_technicians' => $activeUsers,
+            'active_technicians_only' => $activeTechnicians,
+            'active_managers' => $activeManagers,
+            'inactive_technicians' => $inactiveUsers,
+            'inactive_technicians_only' => $inactiveTechnicians,
+            'inactive_managers' => $inactiveManagers,
+            'average_tasks_per_technician' => $averageTasksPerUser,
             'total_assigned_tasks' => $totalAssignedTasks,
         ],
-        'top_technicians' => $topTechnicians,
         'provinces' => $provinces,
         'canEdit' => $user->hasRole('Gestor'),
     ]);
 }
 
+/**
+ * Obter contagens totais de usuários com filtros (para tabs)
+ */
+private function getUserCounts($currentUser, $roleValue, $status): array
+{
+    $rolesToInclude = ['Técnico'];
+    if ($currentUser->hasRole('Director')) {
+        $rolesToInclude[] = 'Gestor';
+    }
+
+    $query = User::whereHas('roles', function ($query) use ($rolesToInclude, $roleValue) {
+        if ($roleValue && $roleValue !== 'all') {
+            $query->where('name', $roleValue);
+        } else {
+            $query->whereIn('name', $rolesToInclude);
+        }
+    });
+
+    // Aplicar filtro de status (usando a nova coluna status)
+    if ($status === 'active') {
+        $query->where('status', 'active');
+    } elseif ($status === 'inactive') {
+        $query->where('status', 'inactive');
+    }
+
+    $total = $query->count();
+    
+    // Para técnicos
+    $techniciansQuery = clone $query;
+    $techniciansQuery->whereHas('roles', function ($q) {
+        $q->where('name', 'Técnico');
+    });
+    $technicians = $techniciansQuery->count();
+    
+    // Para gestores (apenas se for director)
+    $managers = 0;
+    if ($currentUser->hasRole('Director')) {
+        $managersQuery = clone $query;
+        $managersQuery->whereHas('roles', function ($q) {
+            $q->where('name', 'Gestor');
+        });
+        $managers = $managersQuery->count();
+    }
+    
+    // Ativos e inativos (baseado no status já aplicado)
+    $activeQuery = clone $query;
+    $inactiveQuery = clone $query;
+    
+    $active = $activeQuery->where('status', 'active')->count();
+    $inactive = $inactiveQuery->where('status', 'inactive')->count();
+
+    return [
+        'all' => $total,
+        'technicians' => $technicians,
+        'managers' => $managers,
+        'active' => $active,
+        'inactive' => $inactive,
+    ];
+}
     /**
      * Display technician details
      */
-   public function showTechnician(Request $request, User $technician): Response
+   /**
+ * Display technician OR manager details
+ */
+public function showTechnician(Request $request, User $user): Response
 {
-    $user = $request->user();
+    $currentUser = $request->user();
     
-    // Verificar se o usuário tem permissão e se o usuário é técnico
-   $hasPermission = $user->hasAnyRole(['Gestor', 'Director']);
+    // Verificar se o usuário tem permissão
+    $hasPermission = $currentUser->hasAnyRole(['Gestor', 'Director']);
     
     if (!$hasPermission) {
-        abort(403, 'Acesso não autorizado. Apenas gestores podem acessar esta página.');
+        abort(403, 'Acesso não autorizado. Apenas gestores e diretores podem acessar esta página.');
+    }
+    
+    // Verificar se o usuário a ser visualizado é Técnico OU Gestor
+    $isTechnician = $user->hasRole('Técnico');
+    $isManager = $user->hasRole('Gestor');
+    
+    if (!$isTechnician && !$isManager) {
+        abort(404, 'Usuário não encontrado ou não é membro da equipa.');
     }
 
-    // Estatísticas do técnico
-    $technicianStats = $this->getTechnicianStats($technician->id);
+    // Se o usuário atual é Gestor, só pode ver Técnicos
+    if ($currentUser->hasRole('Gestor') && $isManager) {
+        abort(403, 'Gestores não podem visualizar detalhes de outros gestores.');
+    }
 
-    // Tarefas recentes
-   $recentTasks = Grievance::where('assigned_to', $technician->id)
-    ->with(['user:id,name,email'])
-    ->orderBy('created_at', 'desc')
-    ->limit(10)
-    ->get()
-    ->map(function ($task) {
-        return [
-            'id' => $task->id,
-            'title' => $task->description,
-            'status' => $task->status,
-            'priority' => $task->priority,
-            'type' => $task->type,
-            'category' => $task->category,
-            'created_at' => $task->created_at->format('d/m/Y H:i'),
-            'submitted_at' => $task->submitted_at ? $task->submitted_at->format('d/m/Y H:i') : null,
-            'completed_at' => $task->resolved_at ? $task->resolved_at->format('d/m/Y H:i') : null, // USAR resolved_at
-            'user' => $task->user ? [
-                'name' => $task->user->name,
-                'email' => $task->user->email,
-            ] : null,
-        ];
-    });
+    // Estatísticas diferentes para técnicos e gestores
+    if ($isTechnician) {
+        $stats = $this->getTechnicianStats($user->id);
+    } else {
+        // Estatísticas específicas para gestores
+        $stats = $this->getManagerStats($user->id);
+    }
 
-    // Performance por mês
-    $performanceByMonth = $this->getTechnicianPerformanceByMonth($technician->id);
+    // Tarefas recentes (apenas para técnicos)
+    $recentTasks = $isTechnician 
+        ? Grievance::where('assigned_to', $user->id)
+            ->with(['user:id,name,email'])
+            ->orderBy('created_at', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($task) {
+                return [
+                    'id' => $task->id,
+                    'title' => $task->description,
+                    'status' => $task->status,
+                    'priority' => $task->priority,
+                    'type' => $task->type,
+                    'category' => $task->category,
+                    'created_at' => $task->created_at->format('d/m/Y H:i'),
+                    'submitted_at' => $task->submitted_at ? $task->submitted_at->format('d/m/Y H:i') : null,
+                    'completed_at' => $task->resolved_at ? $task->resolved_at->format('d/m/Y H:i') : null,
+                    'user' => $task->user ? [
+                        'name' => $task->user->name,
+                        'email' => $task->user->email,
+                    ] : null,
+                ];
+            })
+        : [];
 
-    // Tarefas por status (gráfico)
-    $tasksByStatus = [
-        ['status' => 'Concluídas', 'count' => $technicianStats['completed'], 'color' => 'bg-green-500'],
-        ['status' => 'Pendentes', 'count' => $technicianStats['pending'], 'color' => 'bg-yellow-500'],
-        ['status' => 'Canceladas', 'count' => $technicianStats['cancelled'], 'color' => 'bg-red-500'],
-        ['status' => 'Em Progresso', 'count' => $technicianStats['in_progress'], 'color' => 'bg-blue-500'],
-    ];
+    // Performance por mês (apenas para técnicos)
+    $performanceByMonth = $isTechnician 
+        ? $this->getTechnicianPerformanceByMonth($user->id)
+        : [];
 
-    // Tarefas por prioridade
-    $tasksByPriority = Grievance::where('assigned_to', $technician->id)
-        ->selectRaw('priority, COUNT(*) as count')
-        ->groupBy('priority')
-        ->get()
-        ->map(function ($item) {
-            return [
-                'priority' => $item->priority ?: 'Não especificada',
-                'count' => $item->count,
-            ];
-        });
+    // Tarefas por status (apenas para técnicos)
+    $tasksByStatus = $isTechnician 
+        ? [
+            ['status' => 'Concluídas', 'count' => $stats['completed'], 'color' => 'bg-green-500'],
+            ['status' => 'Pendentes', 'count' => $stats['pending'], 'color' => 'bg-yellow-500'],
+            ['status' => 'Canceladas', 'count' => $stats['cancelled'], 'color' => 'bg-red-500'],
+            ['status' => 'Em Progresso', 'count' => $stats['in_progress'], 'color' => 'bg-blue-500'],
+        ]
+        : [];
 
-    // Resolução por mês (últimos 6 meses)
-    $resolutionByMonth = $this->getResolutionByMonth($technician->id);
+    // Tarefas por prioridade (apenas para técnicos)
+    $tasksByPriority = $isTechnician 
+        ? Grievance::where('assigned_to', $user->id)
+            ->selectRaw('priority, COUNT(*) as count')
+            ->groupBy('priority')
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'priority' => $item->priority ?: 'Não especificada',
+                    'count' => $item->count,
+                ];
+            })
+        : [];
+
+    // Resolução por mês (apenas para técnicos)
+    $resolutionByMonth = $isTechnician 
+        ? $this->getResolutionByMonth($user->id)
+        : [];
+
+    // Se for gestor, buscar informações do departamento
+    $managerDepartment = null;
+    $managedTechnicians = [];
+    
+    if ($isManager) {
+        $managerDepartment = \App\Models\Department::where('manager_id', $user->id)->first();
+        
+        if ($managerDepartment) {
+            // Buscar técnicos gerenciados por este gestor
+            $managedTechnicians = User::role('Técnico')
+                ->whereHas('assignedGrievances', function ($query) use ($managerDepartment) {
+                    $query->whereHas('project', function ($q) use ($managerDepartment) {
+                        $q->where('department_id', $managerDepartment->id);
+                    });
+                })
+                ->select('id', 'name', 'email')
+                ->limit(5)
+                ->get()
+                ->map(function ($technician) {
+                    return [
+                        'id' => $technician->id,
+                        'name' => $technician->name,
+                        'email' => $technician->email,
+                    ];
+                });
+        }
+    }
 
     return Inertia::render('Common/TechnicianDetail', [
         'user' => [
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->getRoleNames()->first(),
-            'created_at' => $user->created_at ? $user->created_at->format('d/m/Y') : 'N/A',
+            'name' => $currentUser->name,
+            'email' => $currentUser->email,
+            'role' => $this->normalizeRole($currentUser->getRoleNames()->first()),
+            'created_at' => $currentUser->created_at ? $currentUser->created_at->format('d/m/Y') : 'N/A',
         ],
         'technician' => [
-            'id' => $technician->id,
-            'name' => $technician->name,
-            'username' => $technician->username,
-            'email' => $technician->email,
-            'phone' => $technician->phone ?? 'N/A',
-            'province' => $technician->province ?? 'N/A',
-            'district' => $technician->district ?? 'N/A',
-            'neighborhood' => $technician->neighborhood ?? 'N/A',
-            'street' => $technician->street ?? 'N/A',
-            'is_available' => (bool) ($technician->is_available ?? true),
-            'created_at' => $technician->created_at ? $technician->created_at->format('d/m/Y H:i') : 'N/A',
-            'updated_at' => $technician->updated_at ? $technician->updated_at->format('d/m/Y H:i') : 'N/A',
-            // REMOVER last_login pois não existe
+            'id' => $user->id,
+            'name' => $user->name,
+            'username' => $user->username,
+            'email' => $user->email,
+            'phone' => $user->phone ?? 'N/A',
+            'province' => $user->province ?? 'N/A',
+            'district' => $user->district ?? 'N/A',
+            'neighborhood' => $user->neighborhood ?? 'N/A',
+            'street' => $user->street ?? 'N/A',
+            'role' => $this->normalizeRole($user->getRoleNames()->first()),
+            'role_label' => $user->getRoleNames()->first(),
+            'is_technician' => $isTechnician,
+            'is_available' => (bool) ($user->is_available ?? true),
+            'created_at' => $user->created_at ? $user->created_at->format('d/m/Y H:i') : 'N/A',
+            'updated_at' => $user->updated_at ? $user->updated_at->format('d/m/Y H:i') : 'N/A',
         ],
-        'stats' => $technicianStats,
+        'manager_info' => $isManager ? [
+            'department' => $managerDepartment ? [
+                'id' => $managerDepartment->id,
+                'name' => $managerDepartment->name,
+                'description' => $managerDepartment->description,
+            ] : null,
+            'managed_technicians' => $managedTechnicians,
+        ] : null,
+        'stats' => $stats,
         'recent_tasks' => $recentTasks,
         'performance_by_month' => $performanceByMonth,
         'tasks_by_status' => $tasksByStatus,
         'tasks_by_priority' => $tasksByPriority,
         'resolution_by_month' => $resolutionByMonth,
-        'canEdit' => $user->hasRole('Gestor'),
+        'canEdit' => $currentUser->hasRole('Gestor'),
     ]);
 }
+
+
+private function getManagerStats($managerId): array
+{
+    // Buscar departamento do gestor
+    $department = \App\Models\Department::where('manager_id', $managerId)->first();
+    
+    if (!$department) {
+        return [
+            'total_assigned' => 0,
+            'pending' => 0,
+            'completed' => 0,
+            'cancelled' => 0,
+            'in_progress' => 0,
+            'completion_rate' => 0,
+            'average_resolution_time' => 0,
+            'total_reclamacoes_departamento' => 0,
+            'tecnicos_ativos' => 0,
+            'tecnicos_inativos' => 0,
+            'tempo_medio_resolucao_departamento' => 0,
+        ];
+    }
+    
+    // Total de reclamações no departamento
+    $totalReclamacoes = Grievance::whereHas('project', function ($query) use ($department) {
+        $query->where('department_id', $department->id);
+    })->count();
+    
+    // Reclamações pendentes no departamento
+    $pendingReclamacoes = Grievance::whereHas('project', function ($query) use ($department) {
+        $query->where('department_id', $department->id);
+    })->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress', 'pending_approval'])->count();
+    
+    // Reclamações concluídas no departamento
+    $completedReclamacoes = Grievance::whereHas('project', function ($query) use ($department) {
+        $query->where('department_id', $department->id);
+    })->whereIn('status', ['resolved', 'closed'])->count();
+    
+    // Reclamações canceladas no departamento
+    $cancelledReclamacoes = Grievance::whereHas('project', function ($query) use ($department) {
+        $query->where('department_id', $department->id);
+    })->where('status', 'rejected')->count();
+    
+    // Reclamações em progresso no departamento
+    $inProgressReclamacoes = Grievance::whereHas('project', function ($query) use ($department) {
+        $query->where('department_id', $department->id);
+    })->where('status', 'in_progress')->count();
+    
+    // Taxa de conclusão do departamento
+    $completionRate = $totalReclamacoes > 0 
+        ? round(($completedReclamacoes / $totalReclamacoes) * 100, 2)
+        : 0;
+    
+    // Técnicos ativos e inativos no departamento
+    $tecnicosAtivos = User::role('Técnico')
+        ->where('is_available', true)
+        ->whereHas('assignedGrievances', function ($query) use ($department) {
+            $query->whereHas('project', function ($q) use ($department) {
+                $q->where('department_id', $department->id);
+            });
+        })
+        ->count();
+    
+    $tecnicosInativos = User::role('Técnico')
+        ->where('is_available', false)
+        ->whereHas('assignedGrievances', function ($query) use ($department) {
+            $query->whereHas('project', function ($q) use ($department) {
+                $q->where('department_id', $department->id);
+            });
+        })
+        ->count();
+    
+    // Tempo médio de resolução do departamento
+    $completedTasks = Grievance::whereHas('project', function ($query) use ($department) {
+            $query->where('department_id', $department->id);
+        })
+        ->whereIn('status', ['resolved', 'closed'])
+        ->whereNotNull('resolved_at')
+        ->whereNotNull('submitted_at')
+        ->get();
+    
+    $averageResolutionTime = 0;
+    if ($completedTasks->count() > 0) {
+        $totalHours = 0;
+        foreach ($completedTasks as $task) {
+            if ($task->submitted_at && $task->resolved_at) {
+                $hours = $task->submitted_at->diffInHours($task->resolved_at);
+                $totalHours += $hours;
+            }
+        }
+        $averageResolutionTime = round($totalHours / $completedTasks->count(), 1);
+    }
+    
+    return [
+        'total_assigned' => $totalReclamacoes,
+        'pending' => $pendingReclamacoes,
+        'completed' => $completedReclamacoes,
+        'cancelled' => $cancelledReclamacoes,
+        'in_progress' => $inProgressReclamacoes,
+        'completion_rate' => $completionRate,
+        'average_resolution_time' => $averageResolutionTime,
+        'total_reclamacoes_departamento' => $totalReclamacoes,
+        'tecnicos_ativos' => $tecnicosAtivos,
+        'tecnicos_inativos' => $tecnicosInativos,
+        'tempo_medio_resolucao_departamento' => $averageResolutionTime,
+    ];
+}
+
+
     /**
      * Get technician statistics
      */
    /**
  * Get technician statistics
  */
-private function getTechnicianStats($technicianId): array
+public function getTechnicianStats($technicianId): array
 {
     $totalAssigned = Grievance::where('assigned_to', $technicianId)->count();
     

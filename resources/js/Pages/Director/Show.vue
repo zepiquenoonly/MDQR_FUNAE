@@ -33,7 +33,6 @@
                 >
                   {{ complaint.reference_number || "N/A" }}
                 </h1>
-
               </div>
               <StatusBadge
                 :status="submission.status"
@@ -76,8 +75,6 @@
             </div>
           </div>
         </div>
-
-
       </div>
 
       <!-- Main Grid -->
@@ -125,19 +122,25 @@
                 <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">
                   Data de Criação
                 </p>
-                <p class="text-gray-900 dark:text-dark-text-primary font-semibold">{{ formatDate(complaint.created_at) }}</p>
+                <p class="text-gray-900 dark:text-dark-text-primary font-semibold">
+                  {{ formatDate(complaint.created_at) }}
+                </p>
               </div>
               <div class="text-sm">
                 <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">
                   Categoria
                 </p>
-                <p class="text-gray-900 dark:text-dark-text-primary font-semibold">{{ complaint.category || "N/A" }}</p>
+                <p class="text-gray-900 dark:text-dark-text-primary font-semibold">
+                  {{ complaint.category || "N/A" }}
+                </p>
               </div>
               <div class="text-sm">
                 <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">
                   Telefone
                 </p>
-                <p class="text-gray-900 dark:text-dark-text-primary font-semibold">{{ complaint.contact_phone || "N/A" }}</p>
+                <p class="text-gray-900 dark:text-dark-text-primary font-semibold">
+                  {{ complaint.contact_phone || "N/A" }}
+                </p>
               </div>
               <div class="text-sm">
                 <p class="text-gray-600 dark:text-gray-400 text-xs uppercase font-medium">
@@ -169,16 +172,22 @@
               class="text-center py-12 text-gray-500 dark:text-gray-400"
             >
               <div class="flex flex-col items-center gap-3">
-                <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+                <div
+                  class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center"
+                >
                   <ClockIcon class="h-8 w-8 text-gray-400" />
                 </div>
                 <p class="text-sm font-medium">Nenhuma atualização registada ainda</p>
-                <p class="text-xs text-gray-400">As atualizações aparecerão aqui quando houver atividade</p>
+                <p class="text-xs text-gray-400">
+                  As atualizações aparecerão aqui quando houver atividade
+                </p>
               </div>
             </div>
             <div v-else class="relative">
               <!-- Timeline line -->
-              <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-blue-400 to-blue-300 dark:from-blue-600 dark:via-blue-500 dark:to-blue-400"></div>
+              <div
+                class="absolute left-6 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-blue-400 to-blue-300 dark:from-blue-600 dark:via-blue-500 dark:to-blue-400"
+              ></div>
 
               <div class="space-y-6 max-h-96 overflow-y-auto pr-2">
                 <div
@@ -212,7 +221,9 @@
                     >
                       <!-- Header -->
                       <div class="flex items-start justify-between mb-2">
-                        <h4 class="font-semibold text-gray-900 dark:text-white text-sm leading-tight">
+                        <h4
+                          class="font-semibold text-gray-900 dark:text-white text-sm leading-tight"
+                        >
                           {{ update.description }}
                         </h4>
                         <span
@@ -224,9 +235,13 @@
                       </div>
 
                       <!-- Meta info -->
-                      <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-3">
+                      <div
+                        class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 mb-3"
+                      >
                         <UserCircleIcon class="h-3 w-3" />
-                        <span class="font-medium">{{ update.user?.name || "Sistema" }}</span>
+                        <span class="font-medium">{{
+                          update.user?.name || "Sistema"
+                        }}</span>
                         <span class="text-gray-400">•</span>
                         <span>{{ formatDate(update.created_at) }}</span>
                         <span class="text-gray-400">•</span>
@@ -239,8 +254,12 @@
                         class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-600 p-3 rounded-r-lg mb-3 transition-all duration-300 hover:bg-blue-100 dark:hover:bg-blue-900/30"
                       >
                         <div class="flex items-start gap-2">
-                          <ChatBubbleLeftIcon class="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                          <p class="text-sm text-blue-800 dark:text-blue-200 italic leading-relaxed">
+                          <ChatBubbleLeftIcon
+                            class="h-4 w-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0"
+                          />
+                          <p
+                            class="text-sm text-blue-800 dark:text-blue-200 italic leading-relaxed"
+                          >
                             "{{ update.comment }}"
                           </p>
                         </div>
@@ -248,7 +267,9 @@
 
                       <!-- Attachments -->
                       <div v-if="update.attachments?.length" class="space-y-2">
-                        <div class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium">
+                        <div
+                          class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 font-medium"
+                        >
                           <PaperClipIcon class="h-3 w-3" />
                           <span>Anexos ({{ update.attachments.length }})</span>
                         </div>
@@ -261,7 +282,9 @@
                             class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 text-xs font-medium rounded-lg hover:bg-orange-200 dark:hover:bg-orange-900/50 transition-all duration-200 hover:shadow-sm transform hover:scale-105"
                           >
                             <PaperClipIcon class="h-3 w-3" />
-                            <span class="truncate max-w-32">{{ attach.original_filename }}</span>
+                            <span class="truncate max-w-32">{{
+                              attach.original_filename
+                            }}</span>
                           </a>
                         </div>
                       </div>
@@ -300,18 +323,27 @@
                 target="_blank"
                 class="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-dark-accent border border-gray-200 dark:border-gray-600 hover:border-brand dark:hover:border-orange-500 transition-all group"
               >
-                <DocumentTextIcon class="h-6 w-6 text-gray-400 group-hover:text-brand transition-colors duration-300" />
+                <DocumentTextIcon
+                  class="h-6 w-6 text-gray-400 group-hover:text-brand transition-colors duration-300"
+                />
                 <div class="flex-1 min-w-0">
                   <p
                     class="text-sm font-medium text-gray-900 dark:text-dark-text-primary group-hover:text-brand transition-colors duration-300"
                   >
-                    {{ attach.original_filename || attach.filename || attach.name || 'Arquivo sem nome' }}
+                    {{
+                      attach.original_filename ||
+                      attach.filename ||
+                      attach.name ||
+                      "Arquivo sem nome"
+                    }}
                   </p>
                   <p class="text-xs text-gray-500 dark:text-gray-400">
                     {{ formatFileSize(attach.size) }}
                   </p>
                 </div>
-                <ArrowDownTrayIcon class="h-5 w-5 text-gray-400 group-hover:text-brand transition-colors duration-300" />
+                <ArrowDownTrayIcon
+                  class="h-5 w-5 text-gray-400 group-hover:text-brand transition-colors duration-300"
+                />
               </a>
             </div>
           </div>
@@ -604,35 +636,61 @@
                 class="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-slate-50 via-gray-50 to-slate-100 dark:from-slate-800 dark:via-gray-800 dark:to-slate-700 p-5 text-left shadow-sm ring-1 ring-gray-200/50 dark:ring-gray-700/50 transition-all duration-500 hover:shadow-xl hover:shadow-brand/10 dark:hover:shadow-brand/20 hover:ring-brand/30 dark:hover:ring-brand/40 hover:-translate-y-1"
               >
                 <!-- Background gradient animation -->
-                <div class="absolute inset-0 bg-gradient-to-r from-brand/5 via-transparent to-brand/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-brand/5 via-transparent to-brand/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                ></div>
 
                 <!-- Animated border -->
-                <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-brand via-orange-500 to-brand opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"></div>
+                <div
+                  class="absolute inset-0 rounded-2xl bg-gradient-to-r from-brand via-orange-500 to-brand opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+                ></div>
 
                 <div class="relative flex items-center gap-4">
                   <!-- Icon container with enhanced styling -->
                   <div class="relative flex-shrink-0">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-orange-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-brand/30">
-                      <ChatBubbleLeftIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+                    <div
+                      class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-orange-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-brand/30"
+                    >
+                      <ChatBubbleLeftIcon
+                        class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110"
+                      />
                     </div>
                     <!-- Subtle pulse effect -->
-                    <div class="absolute -inset-1 rounded-xl bg-brand/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+                    <div
+                      class="absolute -inset-1 rounded-xl bg-brand/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"
+                    ></div>
                   </div>
 
                   <!-- Content -->
                   <div class="flex-1 min-w-0">
-                    <h3 class="text-base font-bold text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-brand">
+                    <h3
+                      class="text-base font-bold text-gray-900 dark:text-white transition-colors duration-300 group-hover:text-brand"
+                    >
                       Adicionar Comentário
                     </h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 group-hover:text-orange-600">
+                    <p
+                      class="text-sm text-gray-600 dark:text-gray-400 transition-colors duration-300 group-hover:text-orange-600"
+                    >
                       {{ localComments?.length || 0 }} comentários existentes
                     </p>
                   </div>
 
                   <!-- Arrow indicator -->
-                  <div class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
-                    <svg class="h-5 w-5 text-brand" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  <div
+                    class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+                  >
+                    <svg
+                      class="h-5 w-5 text-brand"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 5l7 7-7 7"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -647,35 +705,61 @@
                   class="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-100 dark:from-blue-900/30 dark:via-indigo-900/30 dark:to-blue-800/40 p-5 text-left shadow-sm ring-1 ring-blue-200/50 dark:ring-blue-700/50 transition-all duration-500 hover:shadow-xl hover:shadow-blue-500/10 dark:hover:shadow-blue-500/20 hover:ring-blue-300/60 dark:hover:ring-blue-600/60 hover:-translate-y-1"
                 >
                   <!-- Background gradient animation -->
-                  <div class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-blue-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-transparent to-blue-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  ></div>
 
                   <!-- Animated border -->
-                  <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"></div>
+                  <div
+                    class="absolute inset-0 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+                  ></div>
 
                   <div class="relative flex items-center gap-4">
                     <!-- Icon container -->
                     <div class="relative flex-shrink-0">
-                      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-500/30">
-                        <CheckBadgeIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+                      <div
+                        class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-blue-500/30"
+                      >
+                        <CheckBadgeIcon
+                          class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110"
+                        />
                       </div>
                       <!-- Pulse effect -->
-                      <div class="absolute -inset-1 rounded-xl bg-blue-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+                      <div
+                        class="absolute -inset-1 rounded-xl bg-blue-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"
+                      ></div>
                     </div>
 
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
-                      <h3 class="text-base font-bold text-blue-900 dark:text-blue-100 transition-colors duration-300 group-hover:text-blue-700 dark:group-hover:text-blue-200">
+                      <h3
+                        class="text-base font-bold text-blue-900 dark:text-blue-100 transition-colors duration-300 group-hover:text-blue-700 dark:group-hover:text-blue-200"
+                      >
                         Validar Solicitação
                       </h3>
-                      <p class="text-sm text-blue-700 dark:text-blue-400 transition-colors duration-300 group-hover:text-blue-600 dark:group-hover:text-blue-300">
+                      <p
+                        class="text-sm text-blue-700 dark:text-blue-400 transition-colors duration-300 group-hover:text-blue-600 dark:group-hover:text-blue-300"
+                      >
                         Responder ao gestor sobre este caso
                       </p>
                     </div>
 
                     <!-- Arrow indicator -->
-                    <div class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
-                      <svg class="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    <div
+                      class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+                    >
+                      <svg
+                        class="h-5 w-5 text-blue-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -688,35 +772,61 @@
                   class="group relative w-full overflow-hidden rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100 dark:from-amber-900/30 dark:via-orange-900/30 dark:to-amber-800/40 p-5 text-left shadow-sm ring-1 ring-amber-200/50 dark:ring-amber-700/50 transition-all duration-500 hover:shadow-xl hover:shadow-amber-500/10 dark:hover:shadow-amber-500/20 hover:ring-amber-300/60 dark:hover:ring-amber-600/60 hover:-translate-y-1"
                 >
                   <!-- Background gradient animation -->
-                  <div class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"></div>
+                  <div
+                    class="absolute inset-0 bg-gradient-to-r from-amber-500/5 via-transparent to-amber-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  ></div>
 
                   <!-- Animated border -->
-                  <div class="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"></div>
+                  <div
+                    class="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-500 opacity-0 transition-opacity duration-500 group-hover:opacity-20 blur-sm"
+                  ></div>
 
                   <div class="relative flex items-center gap-4">
                     <!-- Icon container -->
                     <div class="relative flex-shrink-0">
-                      <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-amber-500/30">
-                        <PencilSquareIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110" />
+                      <div
+                        class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl group-hover:shadow-amber-500/30"
+                      >
+                        <PencilSquareIcon
+                          class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-110"
+                        />
                       </div>
                       <!-- Pulse effect -->
-                      <div class="absolute -inset-1 rounded-xl bg-amber-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"></div>
+                      <div
+                        class="absolute -inset-1 rounded-xl bg-amber-500/20 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:animate-ping"
+                      ></div>
                     </div>
 
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
-                      <h3 class="text-base font-bold text-amber-900 dark:text-amber-100 transition-colors duration-300 group-hover:text-amber-700 dark:group-hover:text-amber-200">
+                      <h3
+                        class="text-base font-bold text-amber-900 dark:text-amber-100 transition-colors duration-300 group-hover:text-amber-700 dark:group-hover:text-amber-200"
+                      >
                         Editar Resposta
                       </h3>
-                      <p class="text-sm text-amber-700 dark:text-amber-400 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-300">
+                      <p
+                        class="text-sm text-amber-700 dark:text-amber-400 transition-colors duration-300 group-hover:text-amber-600 dark:group-hover:text-amber-300"
+                      >
                         Modificar validação existente
                       </p>
                     </div>
 
                     <!-- Arrow indicator -->
-                    <div class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1">
-                      <svg class="h-5 w-5 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    <div
+                      class="flex-shrink-0 opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1"
+                    >
+                      <svg
+                        class="h-5 w-5 text-amber-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </div>
                   </div>
@@ -755,19 +865,27 @@
                 class="group relative overflow-hidden rounded-2xl bg-gradient-to-r from-yellow-50 via-amber-50 to-yellow-100 dark:from-yellow-900/20 dark:via-amber-900/20 dark:to-yellow-800/30 p-5 shadow-sm ring-1 ring-yellow-200/50 dark:ring-yellow-700/50 transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/10 dark:hover:shadow-yellow-500/20 hover:ring-yellow-300/60 dark:hover:ring-yellow-600/60"
               >
                 <!-- Background animation -->
-                <div class="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-yellow-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"></div>
+                <div
+                  class="absolute inset-0 bg-gradient-to-r from-yellow-500/5 via-transparent to-yellow-500/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                ></div>
 
                 <div class="relative flex items-start gap-4">
                   <!-- Icon container -->
                   <div class="relative flex-shrink-0">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg transition-all duration-300 group-hover:scale-105">
-                      <ClockIcon class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-105" />
+                    <div
+                      class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500 to-amber-600 shadow-lg transition-all duration-300 group-hover:scale-105"
+                    >
+                      <ClockIcon
+                        class="h-6 w-6 text-white transition-transform duration-300 group-hover:scale-105"
+                      />
                     </div>
                   </div>
 
                   <!-- Content -->
                   <div class="flex-1 min-w-0">
-                    <h3 class="text-base font-bold text-yellow-900 dark:text-yellow-100 transition-colors duration-300 group-hover:text-yellow-800 dark:group-hover:text-yellow-200">
+                    <h3
+                      class="text-base font-bold text-yellow-900 dark:text-yellow-100 transition-colors duration-300 group-hover:text-yellow-800 dark:group-hover:text-yellow-200"
+                    >
                       <template v-if="isWaitingDirectorIntervention">
                         Aguardando Director
                       </template>
@@ -775,7 +893,9 @@
                         Caso Assumido
                       </template>
                     </h3>
-                    <p class="text-sm text-yellow-700 dark:text-yellow-400 mt-1 leading-relaxed transition-colors duration-300 group-hover:text-yellow-600 dark:group-hover:text-yellow-300">
+                    <p
+                      class="text-sm text-yellow-700 dark:text-yellow-400 mt-1 leading-relaxed transition-colors duration-300 group-hover:text-yellow-600 dark:group-hover:text-yellow-300"
+                    >
                       <template v-if="isWaitingDirectorIntervention">
                         As ações estão suspensas até resposta do Director sobre este caso
                       </template>
@@ -826,7 +946,9 @@
               </div>
               <div v-if="isEscalatedToDirector" class="flex items-center justify-between">
                 <span class="text-sm text-gray-600 dark:text-gray-400">Escalado</span>
-                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                <span
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400"
+                >
                   <PaperAirplaneIcon class="h-3 w-3 mr-1" />
                   Director
                 </span>
@@ -850,23 +972,33 @@
             </h2>
             <div class="space-y-3">
               <div>
-                <p class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1">
+                <p
+                  class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1"
+                >
                   Nome
                 </p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
+                <p
+                  class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary"
+                >
                   {{ complaint.user?.name || complaint.contact_name || "Anónimo" }}
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1">
+                <p
+                  class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1"
+                >
                   Email
                 </p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
+                <p
+                  class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary"
+                >
                   {{ complaint.user?.email || complaint.contact_email || "N/A" }}
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1">
+                <p
+                  class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1"
+                >
                   Telefone
                 </p>
                 <a
@@ -876,22 +1008,27 @@
                 >
                   {{ complaint.contact_phone }}
                 </a>
-                <p v-else class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
+                <p
+                  v-else
+                  class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary"
+                >
                   N/A
                 </p>
               </div>
               <div>
-                <p class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1">
+                <p
+                  class="text-xs text-gray-600 dark:text-gray-400 uppercase font-medium mb-1"
+                >
                   Localização
                 </p>
-                <p class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary">
+                <p
+                  class="text-sm font-semibold text-gray-900 dark:text-dark-text-primary"
+                >
                   {{ complaint.province || "N/A" }}, {{ complaint.district || "N/A" }}
                 </p>
               </div>
             </div>
           </div>
-
-
         </div>
       </div>
 
@@ -1433,32 +1570,36 @@ const getCommentTypeLabel = (comment) => {
 
 const getTimelineIcon = (update) => {
   // Determinar ícone baseado no tipo de ação
-  const actionType = update.action_type || update.type || '';
+  const actionType = update.action_type || update.type || "";
 
-  if (actionType.includes('escalated') || actionType.includes('director')) {
+  if (actionType.includes("escalated") || actionType.includes("director")) {
     return PaperAirplaneIcon;
   }
-  if (actionType.includes('assigned') || actionType.includes('technician')) {
+  if (actionType.includes("assigned") || actionType.includes("technician")) {
     return UserCircleIcon;
   }
-  if (actionType.includes('status') || actionType.includes('resolved') || actionType.includes('closed')) {
+  if (
+    actionType.includes("status") ||
+    actionType.includes("resolved") ||
+    actionType.includes("closed")
+  ) {
     return CheckCircleIcon;
   }
-  if (actionType.includes('comment') || actionType.includes('message')) {
+  if (actionType.includes("comment") || actionType.includes("message")) {
     return ChatBubbleLeftIcon;
   }
-  if (actionType.includes('attachment') || actionType.includes('file')) {
+  if (actionType.includes("attachment") || actionType.includes("file")) {
     return PaperClipIcon;
   }
-  if (actionType.includes('priority')) {
+  if (actionType.includes("priority")) {
     return ExclamationTriangleIcon;
   }
 
   // Fallback baseado no role do usuário
-  if (update.user?.role === 'Director') {
+  if (update.user?.role === "Director") {
     return CheckBadgeIcon;
   }
-  if (update.user?.role === 'Manager') {
+  if (update.user?.role === "Manager") {
     return UserIcon;
   }
 
@@ -1467,110 +1608,118 @@ const getTimelineIcon = (update) => {
 
 const getTimelineIconBg = (update) => {
   // Determinar cor do fundo baseada no tipo de ação
-  const actionType = update.action_type || update.type || '';
+  const actionType = update.action_type || update.type || "";
 
-  if (actionType.includes('escalated') || actionType.includes('director')) {
-    return 'bg-purple-500';
+  if (actionType.includes("escalated") || actionType.includes("director")) {
+    return "bg-purple-500";
   }
-  if (actionType.includes('assigned') || actionType.includes('technician')) {
-    return 'bg-blue-500';
+  if (actionType.includes("assigned") || actionType.includes("technician")) {
+    return "bg-blue-500";
   }
-  if (actionType.includes('status') || actionType.includes('resolved') || actionType.includes('closed')) {
-    return 'bg-green-500';
+  if (
+    actionType.includes("status") ||
+    actionType.includes("resolved") ||
+    actionType.includes("closed")
+  ) {
+    return "bg-green-500";
   }
-  if (actionType.includes('comment') || actionType.includes('message')) {
-    return 'bg-indigo-500';
+  if (actionType.includes("comment") || actionType.includes("message")) {
+    return "bg-indigo-500";
   }
-  if (actionType.includes('attachment') || actionType.includes('file')) {
-    return 'bg-orange-500';
+  if (actionType.includes("attachment") || actionType.includes("file")) {
+    return "bg-orange-500";
   }
-  if (actionType.includes('priority')) {
-    return 'bg-red-500';
+  if (actionType.includes("priority")) {
+    return "bg-red-500";
   }
 
   // Fallback baseado no role do usuário
-  if (update.user?.role === 'Director') {
-    return 'bg-emerald-500';
+  if (update.user?.role === "Director") {
+    return "bg-emerald-500";
   }
-  if (update.user?.role === 'Manager') {
-    return 'bg-cyan-500';
+  if (update.user?.role === "Manager") {
+    return "bg-cyan-500";
   }
 
-  return 'bg-gray-500';
+  return "bg-gray-500";
 };
 
 const getTimelineBadgeText = (update) => {
   // Determinar texto do badge baseado no tipo de ação
-  const actionType = update.action_type || update.type || '';
+  const actionType = update.action_type || update.type || "";
 
-  if (actionType.includes('escalated_to_director')) {
-    return 'Escalado';
+  if (actionType.includes("escalated_to_director")) {
+    return "Escalado";
   }
-  if (actionType.includes('assigned_to_technician')) {
-    return 'Atribuído';
+  if (actionType.includes("assigned_to_technician")) {
+    return "Atribuído";
   }
-  if (actionType.includes('status_changed')) {
-    return 'Status';
+  if (actionType.includes("status_changed")) {
+    return "Status";
   }
-  if (actionType.includes('comment_added')) {
-    return 'Comentário';
+  if (actionType.includes("comment_added")) {
+    return "Comentário";
   }
-  if (actionType.includes('attachment_added')) {
-    return 'Anexo';
+  if (actionType.includes("attachment_added")) {
+    return "Anexo";
   }
-  if (actionType.includes('priority_changed')) {
-    return 'Prioridade';
+  if (actionType.includes("priority_changed")) {
+    return "Prioridade";
   }
-  if (actionType.includes('director_validation')) {
-    return 'Director';
+  if (actionType.includes("director_validation")) {
+    return "Director";
   }
 
   // Fallback baseado no role do usuário
-  if (update.user?.role === 'Director') {
-    return 'Director';
+  if (update.user?.role === "Director") {
+    return "Director";
   }
-  if (update.user?.role === 'Manager') {
-    return 'Gestor';
+  if (update.user?.role === "Manager") {
+    return "Gestor";
   }
-  if (update.user?.role === 'Technician') {
-    return 'Técnico';
+  if (update.user?.role === "Technician") {
+    return "Técnico";
   }
 
-  return 'Sistema';
+  return "Sistema";
 };
 
 const getTimelineBadgeClass = (update) => {
   // Determinar classe do badge baseada no tipo de ação
-  const actionType = update.action_type || update.type || '';
+  const actionType = update.action_type || update.type || "";
 
-  if (actionType.includes('escalated') || actionType.includes('director')) {
-    return 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400';
+  if (actionType.includes("escalated") || actionType.includes("director")) {
+    return "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400";
   }
-  if (actionType.includes('assigned') || actionType.includes('technician')) {
-    return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+  if (actionType.includes("assigned") || actionType.includes("technician")) {
+    return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400";
   }
-  if (actionType.includes('status') || actionType.includes('resolved') || actionType.includes('closed')) {
-    return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+  if (
+    actionType.includes("status") ||
+    actionType.includes("resolved") ||
+    actionType.includes("closed")
+  ) {
+    return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400";
   }
-  if (actionType.includes('comment') || actionType.includes('message')) {
-    return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400';
+  if (actionType.includes("comment") || actionType.includes("message")) {
+    return "bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-400";
   }
-  if (actionType.includes('attachment') || actionType.includes('file')) {
-    return 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400';
+  if (actionType.includes("attachment") || actionType.includes("file")) {
+    return "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-400";
   }
-  if (actionType.includes('priority')) {
-    return 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400';
+  if (actionType.includes("priority")) {
+    return "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400";
   }
 
   // Fallback baseado no role do usuário
-  if (update.user?.role === 'Director') {
-    return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400';
+  if (update.user?.role === "Director") {
+    return "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400";
   }
-  if (update.user?.role === 'Manager') {
-    return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400';
+  if (update.user?.role === "Manager") {
+    return "bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-400";
   }
 
-  return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+  return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400";
 };
 
 // ========== FUNÇÕES DE VALIDAÇÃO ==========
@@ -1873,20 +2022,10 @@ const handleCommentAdded = (comment) => {
 };
 
 // Handler para fechar o modal de comentários
+// Em Show.vue, modifique a função
 const handleCloseCommentModal = () => {
-  console.log("Fechando modal de comentários");
+  // Apenas fechar o modal, o composable já cuida do resto
   closeModal("comment");
-
-  // Recarregar os dados da reclamação para garantir sincronização
-  setTimeout(() => {
-    refreshComplaintData();
-  }, 500);
-};
-
-// Função para marcar comentários como lidos
-const handleMarkCommentsRead = () => {
-  console.log("Marcando comentários como lidos");
-  showToast("Comentários marcados como lidos", "success");
 };
 
 const complaintAttachments = computed(() => {
@@ -1984,7 +2123,8 @@ defineExpose({
   0% {
     transform: scale(0.33);
   }
-  40%, 50% {
+  40%,
+  50% {
     opacity: 1;
   }
   100% {

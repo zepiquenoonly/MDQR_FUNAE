@@ -953,7 +953,6 @@ export const useGrievanceDetail = props => {
 
     const markCompleteAsDirector = async () => {
         loading.markComplete = true
-
         try {
             const url = `/director/${complaint.value.id}/mark-complete`
 

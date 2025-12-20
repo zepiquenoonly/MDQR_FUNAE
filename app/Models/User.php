@@ -18,6 +18,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $name
  * @property string $username
  * @property string $email
+ * @property string $status
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -28,6 +29,14 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
+
+    /**
+     * Status constants
+     */
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
+    const STATUS_SUSPENDED = 'suspended';
+    const STATUS_PENDING = 'pending';
 
     /**
      * The attributes that are mass assignable.
@@ -52,6 +61,7 @@ class User extends Authenticatable
         'workload_capacity',
         'current_workload',
         'is_available',
+        'status', // Adicionada coluna status
         'department_id',
     ];
 
@@ -78,7 +88,97 @@ class User extends Authenticatable
             'is_available' => 'boolean',
             'workload_capacity' => 'integer',
             'current_workload' => 'integer',
+            'status' => 'string',
         ];
+    }
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Definir status padrão quando criar um novo usuário
+        static::creating(function ($user) {
+            if (empty($user->status)) {
+                $user->status = self::STATUS_ACTIVE;
+            }
+            
+            // Sincronizar is_available com status
+            $user->is_available = $user->status === self::STATUS_ACTIVE;
+        });
+
+        // Sincronizar is_available sempre que status for atualizado
+        static::updating(function ($user) {
+            if ($user->isDirty('status')) {
+                $user->is_available = $user->status === self::STATUS_ACTIVE;
+            }
+        });
+    }
+
+    /**
+     * Scope para usuários ativos
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    /**
+     * Scope para usuários inativos
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('status', self::STATUS_INACTIVE);
+    }
+
+    /**
+     * Scope para usuários suspensos
+     */
+    public function scopeSuspended($query)
+    {
+        return $query->where('status', self::STATUS_SUSPENDED);
+    }
+
+    /**
+     * Scope para usuários pendentes
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * Check if user is inactive
+     */
+    public function isInactive(): bool
+    {
+        return $this->status === self::STATUS_INACTIVE;
+    }
+
+    /**
+     * Check if user is suspended
+     */
+    public function isSuspended(): bool
+    {
+        return $this->status === self::STATUS_SUSPENDED;
+    }
+
+    /**
+     * Check if user is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
     }
 
     /**

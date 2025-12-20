@@ -119,12 +119,12 @@
       <MenuItem
         v-if="permissions.canManageUsers"
         :active="
-          $page.url.startsWith('/director/team') ||
-          $page.url.startsWith('/director/managers')
+          $page.url.startsWith('/director/employees') ||
+          $page.url.startsWith('/director/employees')
         "
         :icon="UserGroupIcon"
         :text="'Funcionários'"
-        :href="'/director/managers'"
+        :href="'/director/employees'"
       />
     </template>
 

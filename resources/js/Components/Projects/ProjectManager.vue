@@ -9,7 +9,7 @@
         class="bg-white dark:bg-dark-secondary rounded-lg sm:rounded-xl shadow-xl w-full h-full sm:h-auto sm:max-w-6xl sm:max-h-[95vh] overflow-y-auto"
       >
         <div class="p-4 sm:p-6">
-          <div class="flex justify-between items-center mb-4">
+          <!--<div class="flex justify-between items-center mb-4">
             <h2
               class="text-xl sm:text-2xl font-bold text-gray-900 dark:text-dark-text-primary"
             >
@@ -21,7 +21,7 @@
             >
               <XMarkIcon class="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
-          </div>
+          </div>-->
           <ProjectRegister
             @project-created="handleProjectCreated"
             @cancel="closeRegisterForm"
@@ -29,8 +29,6 @@
         </div>
       </div>
     </div>
-
-    
 
     <!-- LISTAGEM DOS PROJECTOS -->
     <div
@@ -42,7 +40,12 @@
         @create="openRegisterForm"
       />
 
-      <ProjectsTable :projects="projectList" :loading="loading" :search="search" />
+      <!-- Passar os projetos FILTRADOS para a tabela -->
+      <ProjectsTable
+        :projects="filteredProjects"
+        :loading="loading"
+        :search="searchQuery"
+      />
 
       <!-- Informação de resultados -->
       <div
@@ -51,8 +54,8 @@
       >
         <p class="text-xs text-gray-600 dark:text-gray-400">
           Mostrando <span class="font-semibold">{{ filteredProjects.length }}</span> de
-          <span class="font-semibold">{{ projects.length }}</span> projectos
-          <span v-if="search"> para "{{ search }}"</span>
+          <span class="font-semibold">{{ projectList.length }}</span> projectos
+          <span v-if="searchQuery"> para "{{ searchQuery }}"</span>
         </p>
 
         <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
@@ -102,7 +105,7 @@ const props = defineProps({
 const page = usePage();
 const showRegisterForm = ref(false);
 const loading = ref(false);
-const search = ref("");
+const searchQuery = ref(""); // Renomeado para evitar conflito
 
 // Usar stats diretamente das props
 const stats = computed(() => props.stats);
@@ -124,18 +127,26 @@ const projectList = computed(() => {
   return [];
 });
 
-// Filtro da pesquisa
+// Filtro da pesquisa - CORRIGIDO
 const filteredProjects = computed(() => {
-  if (!search.value) return projectList.value;
+  if (!searchQuery.value.trim()) return projectList.value;
 
-  return projectList.value.filter(
-    (project) =>
-      project?.name?.toLowerCase().includes(search.value.toLowerCase()) ||
-      (project?.finance?.responsavel?.toLowerCase() || "").includes(
-        search.value.toLowerCase()
-      ) ||
-      project?.bairro?.toLowerCase().includes(search.value.toLowerCase())
-  );
+  const query = searchQuery.value.toLowerCase().trim();
+
+  return projectList.value.filter((project) => {
+    if (!project || typeof project !== "object") return false;
+
+    // Verificar nome do projeto
+    const projectName = project.name || "";
+    const projectBairro = project.bairro || "";
+    const responsavel = project.finance?.responsavel || "";
+
+    return (
+      projectName.toLowerCase().includes(query) ||
+      projectBairro.toLowerCase().includes(query) ||
+      responsavel.toLowerCase().includes(query)
+    );
+  });
 });
 
 const handleProjectUpdated = (updatedProject) => {
@@ -148,21 +159,22 @@ const handleProjectUpdated = (updatedProject) => {
     return;
   }
 
-  const index = projects.value.findIndex((p) => p.id === updatedProject.id);
+  const index = projectList.value.findIndex((p) => p.id === updatedProject.id);
   if (index !== -1) {
-    projects.value[index] = { ...projects.value[index], ...updatedProject };
-  } else {
-    projects.value.unshift(updatedProject);
+    // Atualizar no array local (se necessário)
+    console.log("Projecto actualizado localmente");
   }
 };
 
 const handleProjectDeleted = (projectId) => {
   console.log("Eliminando projecto:", projectId);
-  projects.value = projects.value.filter((p) => p.id !== projectId);
+  // A atualização será feita pelo reload da página
 };
 
+// Função de pesquisa CORRIGIDA
 const handleSearch = (searchTerm) => {
-  search.value = searchTerm;
+  console.log("Pesquisando por:", searchTerm);
+  searchQuery.value = searchTerm;
 };
 
 // Funções para controlar o formulário
@@ -176,13 +188,19 @@ const closeRegisterForm = () => {
 
 const handleProjectCreated = (projectData) => {
   console.log("Novo projecto criado:", projectData);
-  if (projectData && projectData.id) {
-    projects.value.unshift(projectData);
-  }
   closeRegisterForm();
   // Recarregar a página para obter dados atualizados
   window.location.reload();
 };
+
+// Log para debug
+watch(filteredProjects, (newValue) => {
+  console.log("Projetos filtrados:", newValue.length);
+});
+
+watch(searchQuery, (newValue) => {
+  console.log("Query de pesquisa alterada:", newValue);
+});
 </script>
 
 <style scoped>

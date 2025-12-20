@@ -114,9 +114,9 @@
               </button>
               <button
                 @click="submitRejection"
-                :disabled="loading"
+                :disabled="loading || !isFormValid"
                 :class="[
-                  'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center gap-2',
+                  'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 min-w-32',
                   loading || !isFormValid
                     ? 'bg-red-400 dark:bg-red-800 cursor-not-allowed'
                     : 'bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800',
@@ -170,6 +170,7 @@ const emit = defineEmits(["close", "submit"]);
 // Estados do formulário
 const selectedReason = ref("");
 const comment = ref("");
+const localLoading = ref(false);
 
 // Erros de validação
 const errors = ref({
@@ -217,6 +218,10 @@ const isFormValid = computed(() => {
   );
 });
 
+const isLoading = computed(() => {
+  return props.loading || localLoading.value;
+});
+
 // Métodos
 const closeModal = () => {
   resetForm();
@@ -226,6 +231,7 @@ const closeModal = () => {
 const resetForm = () => {
   selectedReason.value = "";
   comment.value = "";
+  localLoading.value = false;
   errors.value = {
     reason: "",
     comment: "",
@@ -255,10 +261,13 @@ const validateForm = () => {
   return isValid;
 };
 
-const submitRejection = () => {
-  if (!validateForm()) {
+const submitRejection = async () => {
+  if (!validateForm() || isLoading.value) {
     return;
   }
+
+  // Ativar loading
+  localLoading.value = true;
 
   // Encontrar o motivo selecionado
   const selectedReasonObj = rejectionReasons.find(
@@ -273,7 +282,12 @@ const submitRejection = () => {
     internal_comment: comment.value, // Para compatibilidade
   };
 
-  emit("submit", formData);
+  try {
+    emit("submit", formData);
+  } catch (error) {
+    console.error("Erro ao submeter rejeição:", error);
+    localLoading.value = false;
+  }
 };
 
 // Limpar erros quando o usuário começa a digitar/selecionar
@@ -295,6 +309,17 @@ watch(
   (isOpen) => {
     if (!isOpen) {
       resetForm();
+    }
+  }
+);
+
+watch(
+  () => props.loading,
+  (newLoading) => {
+    if (!newLoading) {
+      setTimeout(() => {
+        localLoading.value = false;
+      }, 100);
     }
   }
 );

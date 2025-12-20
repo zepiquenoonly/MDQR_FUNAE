@@ -19,6 +19,7 @@ use App\Http\Controllers\DirectorComplaintsController;
 use App\Http\Controllers\DirectorTeamController;
 use App\Http\Controllers\StatisticsController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 // Rotas públicas
 Route::get('/', [GuestController::class, 'home'])->name('home.public');
@@ -123,14 +124,13 @@ Route::middleware('auth')->group(function () {
         Route::patch('/{grievance}/update-priority', [ManagerGrievanceController::class, 'updatePriority'])->name('update-priority');
 
         // ROTA PARA MARCAR COMO VISTO
-        Route::post('/grievances/{id}/mark-as-seen', [DirectorComplaintsController::class, 'markAsSeen'])->name('grievances.mark-as-seen');
+       // Route::post('/grievances/{id}/mark-as-seen', [DirectorComplaintsController::class, 'markAsSeen'])->name('grievances.mark-as-seen');
         
         Route::get('/interventions', [DirectorComplaintsController::class, 'getInterventions'])->name('interventions');
         Route::get('/manager-requests', [DirectorComplaintsController::class, 'getManagerRequests'])->name('manager-requests');
 
         // Funcionalidades de validação
         Route::post('/complaints/{id}/validate-case', [DirectorComplaintsController::class, 'validateCase'])->name('director.complaints.validate-case');
-       //127.0.0.1:8000/director/complaints/7/validate-case 500 (Internal Server Error)
     
         Route::put('/complaints/{id}/validate/{validationId?}', [DirectorComplaintsController::class, 'updateValidation'])->name('director.complaints.update-validation');
         
@@ -139,7 +139,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/complaints/{id}/analyze', [DirectorComplaintsController::class, 'analyzeCase'])->name('complaints.analyze');
 
         // Gestão de funcionários (equipe)
-        Route::get('/managers', [ManagerDashboardController::class, 'index'])->name('managers.index');
+        /*Route::get('/employees', [ManagerDashboardController::class, 'indexTechnicians'])->name('manager.technicians.index');*/
+        Route::get('/employees', [DirectorDashboardController::class, 'employees'])->name('employees.show');
+
+         Route::get('/employees/{user}', [DirectorDashboardController::class, 'employeeDetails'])->name('director.employees.show');
+
         Route::get('/team/{id}', [DirectorTeamController::class, 'show'])->name('team.show');
         Route::get('/team/{id}/edit', [DirectorTeamController::class, 'edit'])->name('team.edit');
         Route::post('/team', [DirectorTeamController::class, 'store'])->name('team.store');
@@ -191,8 +195,10 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('director.projects.destroy');
         });
 
-        Route::get('/estatisticas', [StatisticsController::class, 'index'])->name('statistics.index');
-
+         Route::get('/estatisticas', function () {return Inertia::render('Common/StatisticsPage');})->name('statistics.page');
+         Route::get('/export', [StatisticsController::class,'index']);
+         Route::post('/export/async', [StatisticsController::class,'exportAsync'])->name('statistics.export.async');
+         Route::get('/export/status', [StatisticsController::class,'exportStatus'])->name('statistics.export.status');
     });
 
     Route::get('/statistics/export', [ManagerGrievanceController::class, 'exportStatistics'])->name('statistics.export.get');
@@ -237,6 +243,7 @@ Route::middleware('auth')->group(function () {
         
         Route::get('/my-submissions-to-director', [ManagerGrievanceController::class, 'getMySubmissionsToDirectorApi']) ->name('my-submissions-to-director');
 
+        Route::get('/technicians/{user}', [ManagerDashboardController::class, 'showTechnician'])->name('manager.technicians.show');
 
          // Indicadores
         Route::get('/indicators', [DepartmentIndicatorController::class, 'directorDashboard'])->name('indicators');
@@ -501,8 +508,6 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/check-director-interventions', [App\Http\Controllers\ManagerGrievanceController::class, 'checkDirectorInterventions'])
     ->middleware(['auth', 'verified']);
-
-    Route::get('/technicians/{technician}', [ManagerDashboardController::class, 'showTechnician'])->name('manager.technicians.show');
     
     Route::post('/api/technician/comments/{grievance}/add', [App\Http\Controllers\TechnicianGrievanceController::class, 'addComment']);
 

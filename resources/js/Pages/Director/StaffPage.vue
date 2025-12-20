@@ -11,13 +11,6 @@
             Adicione, remova e atualize funcionários do departamento
           </p>
         </div>
-        <button
-          @click="openCreateModal"
-          class="px-4 py-2 bg-brand text-white rounded-lg hover:bg-brand/90 flex items-center gap-2"
-        >
-          <UserPlusIcon class="h-5 w-5" />
-          Novo Funcionário
-        </button>
       </div>
 
       <!-- Estatísticas -->

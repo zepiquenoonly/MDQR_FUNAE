@@ -6,6 +6,8 @@ use App\Models\Grievance;
 use App\Models\User;
 use App\Models\Project;
 use Illuminate\Http\Request;
+use App\Jobs\ExportStatisticsJob;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
 use Carbon\Carbon;
@@ -21,39 +23,28 @@ class StatisticsController extends Controller
      * Display general statistics dashboard
      */
     // StatisticsController.php - Atualize o método index
-public function index(Request $request): Response
+    public function index(Request $request): Response
     {
         try {
             $user = Auth::user();
-            
-            // Verificar permissão - corrigido
-            if (!$user || (!$user->hasRole('Director') && !$user->hasRole('Gestor') && !$user->hasRole('PCA'))) {
+
+            if (!$user || !$user->hasAnyRole(['Director', 'Gestor', 'PCA'])) {
                 abort(403, 'Acesso não autorizado');
             }
 
-            \Log::info('Acessando estatísticas - Usuário: ' . $user->id . ', Role: ' . $user->getRoleNames()->first());
-            
-            // Período para filtro
+            Log::info('Acessando estatísticas - Usuário: ' . $user->id . ', Role: ' . $user->getRoleNames()->first());
+
             $period = $request->input('period', '12months');
-            
-            // Validar período
             $validPeriods = ['today', 'week', 'month', '3months', '6months', 'year', '12months'];
-            if (!in_array($period, $validPeriods)) {
-                $period = '12months';
-            }
-            
+            if (!in_array($period, $validPeriods)) $period = '12months';
+
             $startDate = $this->getStartDate($period);
             $endDate = now();
 
-            \Log::info('Período selecionado: ' . $period);
-            
-            // 1. ESTATÍSTICAS GERAIS
             $generalStats = $this->getGeneralStats($startDate, $endDate);
-            
-            // 2. ESTATÍSTICAS DE FUNCIONÁRIOS
             $employeeStats = $this->getEmployeeStats();
-            
-            // 3. DADOS ADICIONAIS (com try-catch para evitar erros)
+            $submissionStats = $this->getSubmissionStats($startDate, $endDate);
+
             try {
                 $chartData = $this->getChartData($startDate, $endDate);
                 $topPerformers = $this->getTopPerformers($startDate, $endDate);
@@ -61,14 +52,14 @@ public function index(Request $request): Response
                 $timeSeriesData = $this->getTimeSeriesData($startDate, $endDate);
                 $performanceStats = $this->getPerformanceStats($startDate, $endDate);
             } catch (\Exception $e) {
-                \Log::warning('Erro ao calcular dados adicionais: ' . $e->getMessage());
+                Log::warning('Erro ao calcular dados adicionais: ' . $e->getMessage());
                 $chartData = [];
                 $topPerformers = [];
                 $geographicDistribution = [];
                 $timeSeriesData = [];
                 $performanceStats = ['technician_performance' => []];
             }
-            
+
             return Inertia::render('Common/StatisticsPage', [
                 'user' => [
                     'name' => $user->name,
@@ -80,6 +71,7 @@ public function index(Request $request): Response
                 'end_date' => $endDate->format('Y-m-d'),
                 'general_stats' => $generalStats,
                 'employee_stats' => $employeeStats,
+                'submission_stats' => $submissionStats,
                 'chart_data' => $chartData,
                 'top_performers' => $topPerformers,
                 'geographic_distribution' => $geographicDistribution,
@@ -87,12 +79,11 @@ public function index(Request $request): Response
                 'performance_stats' => $performanceStats,
                 'canExport' => $user->hasAnyRole(['Gestor', 'Director', 'PCA']),
             ]);
-            
+
         } catch (\Exception $e) {
-            \Log::error('Erro no StatisticsController: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            
-            // Retornar página de erro
+            Log::error('Erro no StatisticsController: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+
             return Inertia::render('Error', [
                 'message' => 'Erro ao carregar estatísticas',
                 'error' => $e->getMessage()
@@ -103,7 +94,7 @@ public function index(Request $request): Response
     /**
      * Get start date based on period
      */
-     private function getStartDate(string $period): Carbon
+   private function getStartDate(string $period): Carbon
     {
         return match($period) {
             'today' => now()->startOfDay(),
@@ -119,43 +110,33 @@ public function index(Request $request): Response
     /**
      * Get general statistics
      */
-    private function getGeneralStats(Carbon $startDate, Carbon $endDate): array
+     private function getGeneralStats(Carbon $startDate, Carbon $endDate): array
     {
         try {
-            // Total de submissões
             $totalSubmissions = Grievance::whereBetween('created_at', [$startDate, $endDate])->count();
-            
-            // Total resolvidas
             $totalResolved = Grievance::whereBetween('resolved_at', [$startDate, $endDate])
                 ->where('status', 'resolved')
                 ->count();
-            
-            // Taxa de resolução
-            $resolutionRate = $totalSubmissions > 0 ? round(($totalResolved / $totalSubmissions) * 100, 2) : 0;
-            
-            // Tempo médio de resolução
+            $resolutionRate = $totalSubmissions ? round(($totalResolved / $totalSubmissions) * 100, 2) : 0;
+
             $avgResolutionTime = Grievance::where('status', 'resolved')
                 ->whereNotNull('resolved_at')
                 ->whereNotNull('assigned_at')
                 ->whereBetween('resolved_at', [$startDate, $endDate])
                 ->avg(DB::raw('TIMESTAMPDIFF(HOUR, assigned_at, resolved_at)')) ?? 0;
-            
-            // Submissões pendentes
+
             $pendingSubmissions = Grievance::whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress', 'pending_approval'])
                 ->whereBetween('created_at', [$startDate, $endDate])
                 ->count();
-            
-            // Taxa de crescimento
+
             $previousPeriod = clone $startDate;
             $previousStartDate = $previousPeriod->sub($endDate->diff($startDate));
             $previousEndDate = $startDate->copy();
-            
-            $currentPeriodSubmissions = $totalSubmissions;
             $previousPeriodSubmissions = Grievance::whereBetween('created_at', [$previousStartDate, $previousEndDate])->count();
-            
-            $growthRate = $previousPeriodSubmissions > 0 
-                ? round((($currentPeriodSubmissions - $previousPeriodSubmissions) / $previousPeriodSubmissions) * 100, 2)
-                : ($currentPeriodSubmissions > 0 ? 100 : 0);
+
+            $growthRate = $previousPeriodSubmissions
+                ? round((($totalSubmissions - $previousPeriodSubmissions) / $previousPeriodSubmissions) * 100, 2)
+                : ($totalSubmissions ? 100 : 0);
 
             return [
                 'total_submissions' => $totalSubmissions,
@@ -169,18 +150,11 @@ public function index(Request $request): Response
                 'submissions_this_month' => Grievance::whereBetween('created_at', [now()->startOfMonth(), now()->endOfMonth()])->count(),
             ];
         } catch (\Exception $e) {
-            \Log::error('Erro em getGeneralStats: ' . $e->getMessage());
-            return [
-                'total_submissions' => 0,
-                'total_resolved' => 0,
-                'resolution_rate' => 0,
-                'avg_resolution_time' => 0,
-                'pending_submissions' => 0,
-                'growth_rate' => 0,
-                'submissions_today' => 0,
-                'submissions_this_week' => 0,
-                'submissions_this_month' => 0,
-            ];
+            Log::error('Erro em getGeneralStats: ' . $e->getMessage());
+            return array_fill_keys([
+                'total_submissions','total_resolved','resolution_rate','avg_resolution_time','pending_submissions','growth_rate',
+                'submissions_today','submissions_this_week','submissions_this_month'
+            ], 0);
         }
     }
 
@@ -188,61 +162,23 @@ public function index(Request $request): Response
     /**
      * Get submission statistics
      */
-    private function getSubmissionStats(Carbon $startDate, Carbon $endDate): array
+     private function getSubmissionStats(Carbon $startDate, Carbon $endDate): array
     {
-        // Por tipo
         $byType = Grievance::whereBetween('created_at', [$startDate, $endDate])
-            ->selectRaw('type, COUNT(*) as count')
-            ->groupBy('type')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->type => $item->count];
-            })
-            ->toArray();
+            ->selectRaw('type, COUNT(*) as count')->groupBy('type')->pluck('count','type')->toArray();
 
-        // Por status
         $byStatus = Grievance::whereBetween('created_at', [$startDate, $endDate])
-            ->selectRaw('status, COUNT(*) as count')
-            ->groupBy('status')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->status => $item->count];
-            })
-            ->toArray();
+            ->selectRaw('status, COUNT(*) as count')->groupBy('status')->pluck('count','status')->toArray();
 
-        // Por prioridade
         $byPriority = Grievance::whereBetween('created_at', [$startDate, $endDate])
-            ->selectRaw('priority, COUNT(*) as count')
-            ->groupBy('priority')
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->priority => $item->count];
-            })
-            ->toArray();
+            ->selectRaw('priority, COUNT(*) as count')->groupBy('priority')->pluck('count','priority')->toArray();
 
-        // Por categoria
         $byCategory = Grievance::whereBetween('created_at', [$startDate, $endDate])
-            ->selectRaw('category, COUNT(*) as count')
-            ->groupBy('category')
-            ->orderByDesc('count')
-            ->limit(10)
-            ->get()
-            ->map(function ($item) {
-                return [
-                    'category' => $item->category,
-                    'count' => $item->count,
-                ];
-            })
-            ->toArray();
+            ->selectRaw('category, COUNT(*) as count')->groupBy('category')->orderByDesc('count')->limit(10)
+            ->get()->map(fn($item) => ['category'=>$item->category,'count'=>$item->count])->toArray();
 
-        // Submissões anónimas vs identificadas
-        $anonymousCount = Grievance::whereBetween('created_at', [$startDate, $endDate])
-            ->where('is_anonymous', true)
-            ->count();
-        
-        $identifiedCount = Grievance::whereBetween('created_at', [$startDate, $endDate])
-            ->where('is_anonymous', false)
-            ->count();
+        $anonymousCount = Grievance::whereBetween('created_at', [$startDate, $endDate])->where('is_anonymous', true)->count();
+        $identifiedCount = Grievance::whereBetween('created_at', [$startDate, $endDate])->where('is_anonymous', false)->count();
 
         return [
             'by_type' => $byType,
@@ -254,78 +190,46 @@ public function index(Request $request): Response
                 'identified' => $identifiedCount,
                 'total' => $anonymousCount + $identifiedCount,
             ],
-            'escalated_count' => Grievance::whereBetween('created_at', [$startDate, $endDate])
-                ->where('escalated', true)
-                ->count(),
-            'high_priority_count' => Grievance::whereBetween('created_at', [$startDate, $endDate])
-                ->where('priority', 'high')
-                ->count(),
+            'escalated_count' => Grievance::whereBetween('created_at', [$startDate, $endDate])->where('escalated', true)->count(),
+            'high_priority_count' => Grievance::whereBetween('created_at', [$startDate, $endDate])->where('priority', 'high')->count(),
         ];
     }
 
     /**
      * Get employee statistics
      */
+    
     private function getEmployeeStats(): array
     {
         try {
-            // Total de funcionários por role
-            $byRole = [
-                'Gestor' => User::role('Gestor')->count(),
-                'Técnico' => User::role('Técnico')->count(),
-            ];
-
-            // Totais
+            $roles = ['Gestor','Técnico'];
             $managers = User::role('Gestor')->get();
             $technicians = User::role('Técnico')->get();
-            
-            $activeTechnicians = $technicians->where('is_available', true)->count();
             $activeManagers = $managers->where('is_available', true)->count();
-            
-            // Média de tarefas por técnico
-            $avgTasksPerTechnician = $activeTechnicians > 0 
-                ? round(Grievance::whereNotNull('assigned_to')->count() / $activeTechnicians, 1)
-                : 0;
+            $activeTechnicians = $technicians->where('is_available', true)->count();
+            $avgTasksPerTechnician = $activeTechnicians ? round(Grievance::whereNotNull('assigned_to')->count() / $activeTechnicians,1):0;
 
             return [
-                'by_role' => $byRole,
-                'total_employees' => $managers->count() + $technicians->count(),
-                'managers' => [
-                    'total' => $managers->count(),
-                    'active' => $activeManagers,
-                    'inactive' => $managers->count() - $activeManagers,
-                    'availability_rate' => $managers->count() > 0 
-                        ? round(($activeManagers / $managers->count()) * 100, 2)
-                        : 0,
-                ],
-                'technicians' => [
-                    'total' => $technicians->count(),
-                    'active' => $activeTechnicians,
-                    'inactive' => $technicians->count() - $activeTechnicians,
-                    'availability_rate' => $technicians->count() > 0 
-                        ? round(($activeTechnicians / $technicians->count()) * 100, 2)
-                        : 0,
-                ],
-                'avg_tasks_per_technician' => $avgTasksPerTechnician,
-                'new_employees' => User::role(['Gestor', 'Técnico'])
-                    ->where('created_at', '>=', now()->subDays(30))
-                    ->count(),
-                'online_employees' => User::role(['Gestor', 'Técnico'])
-                    ->where('is_available', true)
-                    ->count(),
-                'employee_growth' => $this->getEmployeeGrowth(['Gestor', 'Técnico']),
+                'by_role'=>['Gestor'=>$managers->count(),'Técnico'=>$technicians->count()],
+                'total_employees'=>$managers->count()+$technicians->count(),
+                'managers'=>['total'=>$managers->count(),'active'=>$activeManagers,'inactive'=>$managers->count()-$activeManagers,'availability_rate'=>$managers->count()?round($activeManagers/$managers->count()*100,2):0],
+                'technicians'=>['total'=>$technicians->count(),'active'=>$activeTechnicians,'inactive'=>$technicians->count()-$activeTechnicians,'availability_rate'=>$technicians->count()?round($activeTechnicians/$technicians->count()*100,2):0],
+                'avg_tasks_per_technician'=>$avgTasksPerTechnician,
+                'new_employees'=>User::role($roles)->where('created_at','>=',now()->subDays(30))->count(),
+                'online_employees'=>User::role($roles)->where('is_available',true)->count(),
+                'employee_growth'=>$this->getEmployeeGrowth($roles),
             ];
         } catch (\Exception $e) {
-            \Log::error('Erro em getEmployeeStats: ' . $e->getMessage());
+            Log::error('Erro em getEmployeeStats: '.$e->getMessage());
             return [
-                'by_role' => ['Gestor' => 0, 'Técnico' => 0],
-                'total_employees' => 0,
-                'managers' => ['total' => 0, 'active' => 0, 'inactive' => 0, 'availability_rate' => 0],
-                'technicians' => ['total' => 0, 'active' => 0, 'inactive' => 0, 'availability_rate' => 0],
-                'avg_tasks_per_technician' => 0,
-                'new_employees' => 0,
-                'online_employees' => 0,
-                'employee_growth' => [],
+                'by_role'=>['Gestor'=>0,'Técnico'=>0],
+                'total_employees'=>0,
+                'managers'=>['total'=>0,'active'=>0,'inactive'=>0,'availability_rate'=>0],
+                'technicians'=>['total'=>0,'active'=>0,'inactive'=>0,'availability_rate'=>0],
+                'avg_tasks_per_technician'=>0,
+                'new_employees'=>0,
+                'online_employees'=>0,
+                'employee_growth'=>[],
             ];
         }
     }
@@ -334,33 +238,22 @@ public function index(Request $request): Response
     /**
      * Get employee growth trend
      */
-    private function getEmployeeGrowth(array $roles = ['Gestor', 'Técnico']): array
-{
-    $growth = [];
-    $now = now();
-    
-    for ($i = 5; $i >= 0; $i--) {
-        $month = $now->copy()->subMonths($i);
-        $startDate = $month->copy()->startOfMonth();
-        $endDate = $month->copy()->endOfMonth();
-        
-        $newEmployees = User::role($roles)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->count();
-        
-        $totalEmployees = User::role($roles)
-            ->where('created_at', '<=', $endDate)
-            ->count();
-        
-        $growth[] = [
-            'month' => $month->format('M/Y'),
-            'new_employees' => $newEmployees,
-            'total_employees' => $totalEmployees,
-        ];
+    private function getEmployeeGrowth(array $roles): array
+    {
+        $growth=[];
+        $now=now();
+        for($i=5;$i>=0;$i--){
+            $month=$now->copy()->subMonths($i);
+            $start=$month->copy()->startOfMonth();
+            $end=$month->copy()->endOfMonth();
+            $growth[]= [
+                'month'=>$month->format('M/Y'),
+                'new_employees'=>User::role($roles)->whereBetween('created_at',[$start,$end])->count(),
+                'total_employees'=>User::role($roles)->where('created_at','<=',$end)->count()
+            ];
+        }
+        return $growth;
     }
-    
-    return $growth;
-}
     /**
      * Get performance statistics
      */
@@ -823,12 +716,8 @@ public function index(Request $request): Response
     public function export(Request $request)
     {
         $user = $request->user();
-        abort_if(!$user || !$user->hasAnyRole(['Gestor', 'Director', 'PCA']), 403);
-        
-        // Implementar lógica de exportação aqui
-        // Pode usar Maatwebsite/Laravel-Excel ou DomPDF
-        
-        return response()->json(['message' => 'Export functionality to be implemented']);
+        abort_if(!$user || !$user->hasAnyRole(['Gestor', 'Director', 'PCA']),403);
+        return response()->json(['message'=>'Export functionality to be implemented']);
     }
 
     /**
@@ -836,17 +725,34 @@ public function index(Request $request): Response
      */
     public function apiStats(Request $request)
     {
-        $period = $request->input('period', 'month');
-        $startDate = $this->getStartDate($period);
-        $endDate = now();
-        
-        $stats = [
-            'general' => $this->getGeneralStats($startDate, $endDate),
-            'submissions' => $this->getSubmissionStats($startDate, $endDate),
-            'employees' => $this->getEmployeeStats(),
-            'period' => $period,
+        $period = $request->input('period','month');
+        $startDate=$this->getStartDate($period);
+        $endDate=now();
+        $stats=[
+            'general'=>$this->getGeneralStats($startDate,$endDate),
+            'submissions'=>$this->getSubmissionStats($startDate,$endDate),
+            'employees'=>$this->getEmployeeStats(),
+            'period'=>$period,
         ];
-        
         return response()->json($stats);
+    }
+
+
+     public function exportAsync(Request $request)
+    {
+        $request->validate(['period'=>'required|string','format'=>'required|in:xlsx,csv']);
+        ExportStatisticsJob::dispatch($request->period,$request->format,auth()->id());
+        return response()->json(['status'=>'queued','message'=>'Exportação enviada para fila']);
+    }
+
+    // ✔ NOVO — listar exportações prontas
+    public function exportStatus()
+    {
+        $files=Storage::disk('public')->files('exports');
+        return collect($files)->map(fn($file)=>[
+            'filename'=>basename($file),
+            'url'=>Storage::disk('public')->url($file),
+            'created_at'=>Storage::disk('public')->lastModified($file),
+        ])->sortByDesc('created_at')->values();
     }
 }

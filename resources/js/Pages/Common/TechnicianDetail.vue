@@ -6,7 +6,7 @@
         <ol class="flex items-center space-x-2 text-sm">
           <li>
             <Link
-              href="/gestor/dashboard"
+              :href="getDashboardLink()"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
               Dashboard
@@ -15,10 +15,10 @@
           <li class="text-gray-400 dark:text-gray-500">/</li>
           <li>
             <Link
-              href="/gestor/technicians"
+              :href="getBackLink()"
               class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
             >
-              Técnicos
+              {{ getBackLabel() }}
             </Link>
           </li>
           <li class="text-gray-400 dark:text-gray-500">/</li>
@@ -33,20 +33,44 @@
         <div class="flex items-center gap-4">
           <div class="flex-shrink-0">
             <div
-              class="h-16 w-16 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center"
+              :class="[
+                'h-16 w-16 rounded-full flex items-center justify-center',
+                technician.role === 'manager'
+                  ? 'bg-purple-100 dark:bg-purple-900/20'
+                  : 'bg-blue-100 dark:bg-blue-900/20',
+              ]"
             >
-              <span class="text-blue-600 dark:text-blue-400 text-2xl font-bold">
+              <span
+                :class="[
+                  'text-2xl font-bold',
+                  technician.role === 'manager'
+                    ? 'text-purple-600 dark:text-purple-400'
+                    : 'text-blue-600 dark:text-blue-400',
+                ]"
+              >
                 {{ getInitials(technician.name) }}
               </span>
             </div>
           </div>
           <div>
-            <h1
-              class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary"
-            >
-              {{ technician.name }}
-            </h1>
-            <div class="flex items-center gap-3 mt-2">
+            <div class="flex items-center gap-3 mb-2">
+              <h1
+                class="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-dark-text-primary"
+              >
+                {{ technician.name }}
+              </h1>
+              <span
+                :class="[
+                  'px-3 py-1 text-xs font-semibold rounded-full',
+                  technician.role === 'manager'
+                    ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/20 dark:text-purple-300'
+                    : 'bg-blue-100 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300',
+                ]"
+              >
+                {{ getRoleLabel(technician.role) }}
+              </span>
+            </div>
+            <div class="flex items-center gap-3">
               <span
                 :class="[
                   'px-3 py-1 text-sm font-semibold rounded-full',
@@ -58,7 +82,8 @@
                 {{ technician.is_available ? "Disponível" : "Indisponível" }}
               </span>
               <span class="text-gray-500 dark:text-gray-400 text-sm">
-                Técnico desde {{ formatDate(technician.created_at) }}
+                {{ technician.role === "manager" ? "Gestor" : "Técnico" }} desde
+                {{ formatDate(technician.created_at) }}
               </span>
             </div>
           </div>
@@ -66,7 +91,11 @@
 
         <div class="flex gap-2">
           <Link
-            href="/gestor/technicians"
+            :href="
+              technician.role === 'manager'
+                ? '/gestor/technicians?role=Gestor'
+                : '/gestor/technicians'
+            "
             class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-300 rounded-lg transition-colors font-medium"
           >
             <ArrowLeftIcon class="w-5 h-5 mr-2" />
@@ -75,80 +104,61 @@
         </div>
       </div>
 
-      <!-- Stats Cards -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <!-- Total de Tarefas -->
-        <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-4">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-blue-100 dark:bg-blue-900/20 rounded-lg p-3">
-              <ClipboardDocumentListIcon
-                class="h-6 w-6 text-blue-600 dark:text-blue-400"
-              />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total de Tarefas
-              </p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ stats.total_assigned }}
-              </p>
-            </div>
-          </div>
-        </div>
+      <!-- Stats Cards - Usando KpiCard moderno -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- Total de Tarefas/Reclamações -->
+        <KpiCard
+          :title="
+            technician.role === 'manager' ? 'Total de Reclamações' : 'Total de Tarefas'
+          "
+          :value="stats.total_assigned || 0"
+          :description="
+            technician.role === 'manager'
+              ? 'Total atribuído ao departamento'
+              : 'Total de tarefas atribuídas'
+          "
+          icon="DocumentTextIcon"
+          :trend="stats.total_assigned_trend || 'stable'"
+        />
 
         <!-- Concluídas -->
-        <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-4">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-green-100 dark:bg-green-900/20 rounded-lg p-3">
-              <CheckCircleIcon class="h-6 w-6 text-green-600 dark:text-green-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Concluídas
-              </p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ stats.completed }}
-                <span class="text-sm text-green-600 dark:text-green-400 ml-1">
-                  ({{ stats.completion_rate }}%)
-                </span>
-              </p>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          :title="
+            technician.role === 'manager'
+              ? 'Reclamações Concluídas'
+              : 'Tarefas Concluídas'
+          "
+          :value="stats.completed || 0"
+          :description="`${stats.completion_rate || 0}% de taxa de conclusão`"
+          icon="CheckCircleIcon"
+          :trend="stats.completion_trend || 'up'"
+        />
 
         <!-- Pendentes -->
-        <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-4">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-yellow-100 dark:bg-yellow-900/20 rounded-lg p-3">
-              <ClockIcon class="h-6 w-6 text-yellow-600 dark:text-yellow-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Pendentes
-              </p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ stats.pending }}
-              </p>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          :title="
+            technician.role === 'manager' ? 'Reclamações Pendentes' : 'Tarefas Pendentes'
+          "
+          :value="stats.pending || 0"
+          :description="
+            technician.role === 'manager'
+              ? 'Aguardando resolução'
+              : 'Em progresso ou atribuídas'
+          "
+          icon="ClockIcon"
+          :trend="stats.pending_trend || 'stable'"
+        />
 
         <!-- Tempo Médio -->
-        <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-4">
-          <div class="flex items-center">
-            <div class="flex-shrink-0 bg-purple-100 dark:bg-purple-900/20 rounded-lg p-3">
-              <ChartBarIcon class="h-6 w-6 text-purple-600 dark:text-purple-400" />
-            </div>
-            <div class="ml-4">
-              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Tempo Médio
-              </p>
-              <p class="text-2xl font-semibold text-gray-900 dark:text-white">
-                {{ stats.average_resolution_time }}h
-              </p>
-            </div>
-          </div>
-        </div>
+        <KpiCard
+          :title="technician.role === 'manager' ? 'Tempo Médio Resolução' : 'Tempo Médio'"
+          :value="stats.average_resolution_time || 0"
+          :description="`Horas por ${
+            technician.role === 'manager' ? 'reclamação' : 'tarefa'
+          }`"
+          icon="ExclamationCircleIcon"
+          :trend="stats.time_trend || 'down'"
+        />
       </div>
 
       <!-- Main Content -->
@@ -223,6 +233,26 @@
                   {{ formatDate(technician.updated_at) }}
                 </p>
               </div>
+              <div v-if="technician.role === 'manager' && manager_info?.department">
+                <label
+                  class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
+                >
+                  Departamento Gerido
+                </label>
+                <p class="text-gray-800 dark:text-dark-text-primary">
+                  {{ manager_info.department.name }}
+                </p>
+              </div>
+              <div v-if="technician.role === 'manager' && manager_info?.department">
+                <label
+                  class="block text-sm font-medium text-gray-500 dark:text-gray-400 mb-1"
+                >
+                  Descrição do Departamento
+                </label>
+                <p class="text-gray-800 dark:text-dark-text-primary">
+                  {{ manager_info.department.description || "N/A" }}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -277,69 +307,157 @@
             </div>
           </div>
 
-          <!-- Tarefas Recentes -->
-          <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6">
-            <h2
-              class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4"
+          <!-- Tarefas Recentes (apenas para técnicos) -->
+          <div
+            v-if="technician.role === 'technician'"
+            class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm overflow-hidden"
+          >
+            <!-- Cabeçalho fixo -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary">
+                Tarefas Recentes
+              </h2>
+            </div>
+
+            <!-- Conteúdo com scroll -->
+            <div
+              class="overflow-y-auto"
+              style="max-height: calc(100vh - 82px); min-height: 200px"
             >
-              Tarefas Recentes
-            </h2>
-            <div class="space-y-3">
-              <div
-                v-for="task in recent_tasks"
-                :key="task.id"
-                class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-              >
-                <div class="flex justify-between items-start">
-                  <div class="flex-1">
-                    <h3
-                      class="font-medium text-gray-800 dark:text-dark-text-primary mb-1"
-                    >
-                      {{ task.title }}
-                    </h3>
-                    <div class="flex flex-wrap gap-2 mb-2">
-                      <span
-                        :class="[
-                          'px-2 py-1 text-xs font-semibold rounded-full',
-                          getStatusClass(task.status),
-                        ]"
-                      >
-                        {{ getStatusLabel(task.status) }}
-                      </span>
-                      <span
-                        :class="[
-                          'px-2 py-1 text-xs font-semibold rounded-full',
-                          getPriorityClass(task.priority),
-                        ]"
-                      >
-                        {{ capitalizePriority(task.priority) || "Normal" }}
-                      </span>
-                    </div>
-                    <div class="text-sm text-gray-600 dark:text-gray-400">
-                      Criada em {{ formatDateTime(task.created_at) }}
-                      <span v-if="task.completed_at" class="ml-2">
-                        • Concluída em {{ formatDateTime(task.completed_at) }}
-                      </span>
-                    </div>
-                    <div
-                      v-if="task.user"
-                      class="text-sm text-gray-500 dark:text-gray-500 mt-1"
-                    >
-                      Por: {{ task.user.name }}
+              <div class="p-6 pt-4">
+                <div class="space-y-3">
+                  <div
+                    v-for="task in recent_tasks"
+                    :key="task.id"
+                    class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  >
+                    <div class="flex justify-between items-start">
+                      <div class="flex-1">
+                        <h3
+                          class="font-medium text-gray-800 dark:text-dark-text-primary mb-1"
+                        >
+                          {{ task.title }}
+                        </h3>
+                        <div class="flex flex-wrap gap-2 mb-2">
+                          <span
+                            :class="[
+                              'px-2 py-1 text-xs font-semibold rounded-full',
+                              getStatusClass(task.status),
+                            ]"
+                          >
+                            {{ getStatusLabel(task.status) }}
+                          </span>
+                          <span
+                            :class="[
+                              'px-2 py-1 text-xs font-semibold rounded-full',
+                              getPriorityClass(task.priority),
+                            ]"
+                          >
+                            {{ capitalizePriority(task.priority) || "Normal" }}
+                          </span>
+                        </div>
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                          Criada em {{ formatDateTime(task.created_at) }}
+                          <span v-if="task.completed_at" class="ml-2">
+                            • Concluída em {{ formatDateTime(task.completed_at) }}
+                          </span>
+                        </div>
+                        <div
+                          v-if="task.user"
+                          class="text-sm text-gray-500 dark:text-gray-500 mt-1"
+                        >
+                          Por: {{ task.user.name }}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div v-if="recent_tasks.length === 0" class="text-center py-8">
+                  <div
+                    class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 mb-3"
+                  >
+                    <ClipboardDocumentListIcon
+                      class="w-6 h-6 text-gray-400 dark:text-gray-500"
+                    />
+                  </div>
+                  <p class="text-gray-500 dark:text-gray-400">Nenhuma tarefa recente</p>
+                </div>
               </div>
             </div>
-            <div v-if="recent_tasks.length === 0" class="text-center py-8">
-              <div
-                class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 mb-3"
+          </div>
+
+          <!-- Técnicos Geridos (apenas para gestores) -->
+          <div
+            v-if="
+              technician.role === 'manager' &&
+              manager_info?.managed_technicians?.length > 0
+            "
+            class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm overflow-hidden"
+          >
+            <!-- Cabeçalho fixo -->
+            <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2
+                class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4"
               >
-                <ClipboardDocumentListIcon
-                  class="w-6 h-6 text-gray-400 dark:text-gray-500"
-                />
+                Técnicos Geridos
+              </h2>
+            </div>
+
+            <!-- Conteúdo com scroll -->
+            <div
+              class="overflow-y-auto"
+              style="max-height: calc(100vh - 500px); min-height: 200px"
+            >
+              <div class="p-6 pt-0">
+                <div class="space-y-3">
+                  <div
+                    v-for="technician in manager_info.managed_technicians"
+                    :key="technician.id"
+                    class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                  >
+                    <div class="flex items-center justify-between">
+                      <div class="flex items-center">
+                        <div
+                          class="flex-shrink-0 h-10 w-10 bg-blue-100 dark:bg-blue-900/20 rounded-full flex items-center justify-center"
+                        >
+                          <span class="text-blue-600 dark:text-blue-400 font-medium">
+                            {{ getInitials(technician.name) }}
+                          </span>
+                        </div>
+                        <div class="ml-4">
+                          <h3
+                            class="font-medium text-gray-800 dark:text-dark-text-primary"
+                          >
+                            {{ technician.name }}
+                          </h3>
+                          <p class="text-sm text-gray-600 dark:text-gray-400">
+                            {{ technician.email }}
+                          </p>
+                        </div>
+                      </div>
+                      <Link
+                        :href="`/technicians/${technician.id}`"
+                        class="inline-flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded text-xs font-medium transition-colors"
+                      >
+                        <EyeIcon class="w-4 h-4 mr-1" /> Ver
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  v-if="manager_info.managed_technicians.length === 0"
+                  class="text-center py-8"
+                >
+                  <div
+                    class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 mb-3"
+                  >
+                    <UserGroupIcon class="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <p class="text-gray-500 dark:text-gray-400">
+                    Nenhum técnico gerenciado
+                  </p>
+                </div>
               </div>
-              <p class="text-gray-500 dark:text-gray-400">Nenhuma tarefa recente</p>
             </div>
           </div>
         </div>
@@ -351,14 +469,22 @@
             <h2
               class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4"
             >
-              Performance
+              {{
+                technician.role === "manager"
+                  ? "Performance do Departamento"
+                  : "Performance"
+              }}
             </h2>
             <div class="space-y-4">
               <!-- Taxa de Conclusão -->
               <div>
                 <div class="flex justify-between items-center mb-1">
                   <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Taxa de Conclusão
+                    {{
+                      technician.role === "manager"
+                        ? "Taxa de Conclusão do Dept."
+                        : "Taxa de Conclusão"
+                    }}
                   </span>
                   <span class="text-sm font-bold text-gray-900 dark:text-white">
                     {{ stats.completion_rate }}%
@@ -379,8 +505,8 @@
                 </div>
               </div>
 
-              <!-- Tarefas por Status -->
-              <div>
+              <!-- Tarefas/Reclamações por Status (apenas para técnicos) -->
+              <div v-if="technician.role === 'technician' && tasks_by_status.length > 0">
                 <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Distribuição de Tarefas
                 </h3>
@@ -408,11 +534,59 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Técnicos no Departamento (apenas para gestores) -->
+              <div v-if="technician.role === 'manager'">
+                <h3 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Equipa no Departamento
+                </h3>
+                <div class="space-y-2">
+                  <div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600 dark:text-gray-400">
+                        Técnicos Ativos
+                      </span>
+                      <span class="font-medium text-gray-900 dark:text-white">
+                        {{ stats.tecnicos_ativos || 0 }}
+                      </span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                      <div
+                        class="h-1.5 rounded-full bg-green-500"
+                        :style="{
+                          width: '100%',
+                        }"
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-gray-600 dark:text-gray-400">
+                        Técnicos Inativos
+                      </span>
+                      <span class="font-medium text-gray-900 dark:text-white">
+                        {{ stats.tecnicos_inativos || 0 }}
+                      </span>
+                    </div>
+                    <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
+                      <div
+                        class="h-1.5 rounded-full bg-red-500"
+                        :style="{
+                          width: '100%',
+                        }"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Performance Mensal -->
-          <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6">
+          <!-- Performance Mensal (apenas para técnicos) -->
+          <div
+            v-if="technician.role === 'technician' && performance_by_month.length > 0"
+            class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6"
+          >
             <h2
               class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4"
             >
@@ -450,8 +624,11 @@
             </div>
           </div>
 
-          <!-- Tarefas por Prioridade -->
-          <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6">
+          <!-- Tarefas por Prioridade (apenas para técnicos) -->
+          <div
+            v-if="technician.role === 'technician' && tasks_by_priority.length > 0"
+            class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6"
+          >
             <h2
               class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4"
             >
@@ -486,18 +663,26 @@
             <h2
               class="text-xl font-semibold text-gray-800 dark:text-dark-text-primary mb-4"
             >
-              Estatísticas Detalhadas
+              {{
+                technician.role === "manager"
+                  ? "Estatísticas do Departamento"
+                  : "Estatísticas Detalhadas"
+              }}
             </h2>
             <div class="space-y-3">
               <div class="flex justify-between">
                 <span class="text-sm text-gray-600 dark:text-gray-400">
-                  Total Atribuído
+                  {{
+                    technician.role === "manager"
+                      ? "Total de Reclamações"
+                      : "Total Atribuído"
+                  }}
                 </span>
                 <span class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ stats.total_assigned }}
                 </span>
               </div>
-              <div class="flex justify-between">
+              <div v-if="technician.role === 'technician'" class="flex justify-between">
                 <span class="text-sm text-gray-600 dark:text-gray-400">
                   Em Progresso
                 </span>
@@ -506,17 +691,43 @@
                 </span>
               </div>
               <div class="flex justify-between">
-                <span class="text-sm text-gray-600 dark:text-gray-400"> Canceladas </span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  {{
+                    technician.role === "manager"
+                      ? "Reclamações Canceladas"
+                      : "Canceladas"
+                  }}
+                </span>
                 <span class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ stats.cancelled }}
                 </span>
               </div>
               <div class="flex justify-between">
                 <span class="text-sm text-gray-600 dark:text-gray-400">
-                  Tempo Médio Resolução
+                  {{
+                    technician.role === "manager"
+                      ? "Tempo Médio Resolução"
+                      : "Tempo Médio Resolução"
+                  }}
                 </span>
                 <span class="text-sm font-medium text-gray-900 dark:text-white">
                   {{ stats.average_resolution_time }}h
+                </span>
+              </div>
+              <div v-if="technician.role === 'manager'" class="flex justify-between">
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  Técnicos Ativos
+                </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ stats.tecnicos_ativos || 0 }}
+                </span>
+              </div>
+              <div v-if="technician.role === 'manager'" class="flex justify-between">
+                <span class="text-sm text-gray-600 dark:text-gray-400">
+                  Técnicos Inativos
+                </span>
+                <span class="text-sm font-medium text-gray-900 dark:text-white">
+                  {{ stats.tecnicos_inativos || 0 }}
                 </span>
               </div>
             </div>
@@ -531,15 +742,17 @@
 import { Link } from "@inertiajs/vue3";
 import { computed } from "vue";
 import UnifiedLayout from "@/Layouts/UnifiedLayout.vue";
+import KpiCard from "@/Components/GestorReclamacoes/KpiCard.vue";
 import { useAuth, usePermissions } from "@/Composables/useAuth";
 
 import {
   ArrowLeftIcon,
-  ArrowPathIcon,
   ClipboardDocumentListIcon,
   CheckCircleIcon,
   ClockIcon,
   ChartBarIcon,
+  UserGroupIcon,
+  EyeIcon,
 } from "@heroicons/vue/24/outline";
 
 const { role, checkRole } = useAuth();
@@ -552,6 +765,7 @@ const props = defineProps({
   tasks_by_status: Array,
   tasks_by_priority: Array,
   resolution_by_month: Array,
+  manager_info: Object,
 });
 
 const canEdit = computed(() => {
@@ -566,6 +780,19 @@ const getInitials = (name) => {
     .join("")
     .toUpperCase()
     .slice(0, 2);
+};
+
+const getRoleLabel = (role) => {
+  const labels = {
+    technician: "Técnico",
+    manager: "Gestor",
+    director: "Director",
+    admin: "Administrador",
+    pca: "PCA",
+    utente: "Utente",
+  };
+
+  return labels[role] || role;
 };
 
 const formatDate = (dateString) => {
@@ -715,5 +942,35 @@ const getPriorityDotClass = (priority) => {
   };
 
   return classes[priorityKey] || "bg-gray-400";
+};
+
+const getDashboardLink = () => {
+  const userRole = role.value || "manager";
+  if (userRole === "director") {
+    return "/director/dashboard";
+  } else if (userRole === "manager") {
+    return "/gestor/dashboard";
+  }
+  return "/dashboard";
+};
+
+const getBackLink = () => {
+  const userRole = role.value || "manager";
+  if (userRole === "director") {
+    return "/director/employees";
+  } else if (userRole === "manager") {
+    return "/gestor/technicians";
+  }
+  return "/";
+};
+
+const getBackLabel = () => {
+  const userRole = role.value || "manager";
+  if (userRole === "director") {
+    return "Equipa";
+  } else if (userRole === "manager") {
+    return "Técnicos";
+  }
+  return "Voltar";
 };
 </script>

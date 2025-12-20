@@ -491,4 +491,25 @@ class StatisticsExport
         
         return $labels[$status] ?? $status;
     }
+
+    public function store(string $format, string $path): void
+{
+    $excel = app('excel');
+
+    $excel->create(pathinfo($path, PATHINFO_FILENAME), function (LaravelExcelWriter $excel) {
+
+        $excel->sheet('Resumo Geral', function (LaravelExcelWorksheet $sheet) {
+            $this->buildSummarySheet($sheet);
+        });
+
+        $excel->sheet('Submissões', function (LaravelExcelWorksheet $sheet) {
+            $this->buildSubmissionsSheet($sheet);
+        });
+
+        $excel->sheet('Desempenho', function (LaravelExcelWorksheet $sheet) {
+            $this->buildPerformanceSheet($sheet);
+        });
+
+    })->store($format, dirname($path), 'public');
+}
 }
