@@ -107,22 +107,22 @@
             >
               <button
                 @click="closeModal"
-                :disabled="loading"
+                :disabled="isLoading"
                 class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancelar
               </button>
               <button
                 @click="submitRejection"
-                :disabled="loading || !isFormValid"
+                :disabled="isLoading || !isFormValid"
                 :class="[
                   'px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors flex items-center justify-center gap-2 min-w-32',
-                  loading || !isFormValid
+                  isLoading || !isFormValid
                     ? 'bg-red-400 dark:bg-red-800 cursor-not-allowed'
                     : 'bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800',
                 ]"
               >
-                <template v-if="loading">
+                <template v-if="isLoading">
                   <div
                     class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"
                   ></div>
@@ -160,6 +160,7 @@ const props = defineProps({
     required: true,
   },
   loading: {
+    // ← Prop para controlar loading externamente
     type: Boolean,
     default: false,
   },
@@ -167,10 +168,12 @@ const props = defineProps({
 
 const emit = defineEmits(["close", "submit"]);
 
+// Estado interno para loading (começa com valor da prop)
+const isLoading = ref(props.loading);
+
 // Estados do formulário
 const selectedReason = ref("");
 const comment = ref("");
-const localLoading = ref(false);
 
 // Erros de validação
 const errors = ref({
@@ -218,12 +221,9 @@ const isFormValid = computed(() => {
   );
 });
 
-const isLoading = computed(() => {
-  return props.loading || localLoading.value;
-});
-
 // Métodos
 const closeModal = () => {
+  if (isLoading.value) return; // Prevenir fechar durante loading
   resetForm();
   emit("close");
 };
@@ -231,7 +231,6 @@ const closeModal = () => {
 const resetForm = () => {
   selectedReason.value = "";
   comment.value = "";
-  localLoading.value = false;
   errors.value = {
     reason: "",
     comment: "",
@@ -262,32 +261,58 @@ const validateForm = () => {
 };
 
 const submitRejection = async () => {
-  if (!validateForm() || isLoading.value) {
-    return;
-  }
+  // 1. Validar formulário
+  if (!validateForm()) return;
 
-  // Ativar loading
-  localLoading.value = true;
+  // 2. Prevenir múltiplos envios
+  if (isLoading.value) return;
 
-  // Encontrar o motivo selecionado
+  // 3. Iniciar loading
+  isLoading.value = true;
+
+  // 4. Timeout de segurança (máximo 30 segundos)
+  const safetyTimeout = setTimeout(() => {
+    if (isLoading.value) {
+      console.warn("Timeout de segurança ativado após 30 segundos");
+      isLoading.value = false;
+      showToast(
+        "A operação está demorando mais que o esperado. Tente novamente.",
+        "warning"
+      );
+    }
+  }, 30000);
+
+  // 5. Preparar dados
   const selectedReasonObj = rejectionReasons.find(
     (r) => r.value === selectedReason.value
   );
 
   const formData = {
-    reason: selectedReason.value, // Para validação e lógica interna
-    reason_label: selectedReasonObj?.label, // Para mostrar ao utente
+    reason: selectedReason.value,
+    reason_label: selectedReasonObj?.label,
     comment: comment.value,
-    rejection_type: selectedReason.value, // Para compatibilidade com o backend
-    internal_comment: comment.value, // Para compatibilidade
+    rejection_type: selectedReason.value,
+    internal_comment: comment.value,
   };
 
   try {
+    // 6. Emitir evento
     emit("submit", formData);
   } catch (error) {
     console.error("Erro ao submeter rejeição:", error);
-    localLoading.value = false;
+    clearTimeout(safetyTimeout);
+    isLoading.value = false;
   }
+
+  // 7. Limpar timeout quando loading terminar (via watcher)
+  watch(
+    () => isLoading.value,
+    (newVal) => {
+      if (!newVal) {
+        clearTimeout(safetyTimeout);
+      }
+    }
+  );
 };
 
 // Limpar erros quando o usuário começa a digitar/selecionar
@@ -303,23 +328,31 @@ watch(comment, () => {
   }
 });
 
-// Limpar formulário quando modal fecha
+// Sincronizar isLoading com a prop loading do pai
+watch(
+  () => props.loading,
+  (newLoading) => {
+    // Quando o pai diz que loading acabou, podemos parar também
+    if (!newLoading && isLoading.value) {
+      // Pequeno delay para animação visual
+      setTimeout(() => {
+        isLoading.value = false;
+      }, 300);
+    }
+  },
+  { immediate: true }
+);
+
+// Resetar formulário quando modal fecha
 watch(
   () => props.isOpen,
   (isOpen) => {
     if (!isOpen) {
       resetForm();
-    }
-  }
-);
-
-watch(
-  () => props.loading,
-  (newLoading) => {
-    if (!newLoading) {
-      setTimeout(() => {
-        localLoading.value = false;
-      }, 100);
+      isLoading.value = false; // Resetar loading quando modal fecha
+    } else {
+      // Quando modal abre, sincronizar com prop
+      isLoading.value = props.loading;
     }
   }
 );

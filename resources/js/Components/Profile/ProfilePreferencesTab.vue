@@ -1,29 +1,47 @@
 <template>
     <div class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm p-6">
-        <h3 class="text-2xl font-semibold text-gray-800 dark:text-dark-text-primary mb-6">Preferências do Sistema</h3>
+        <h3 class="text-2xl font-semibold text-gray-800 dark:text-dark-text-primary mb-6">
+            {{ t("system_preferences") }}
+        </h3>
 
-        <div class="space-y-6">
+        <form @submit.prevent="savePreferences" class="space-y-6">
             <!-- Idioma e Região -->
             <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                <h4 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-4">Idioma e Região</h4>
+                <h4 class="text-lg font-semibold mb-4">
+                    {{ t("language_region") }}
+                </h4>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Idioma -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Idioma</label>
+                        <label class="block text-sm font-medium mb-2">
+                            {{ t("language") }}
+                        </label>
+
                         <select v-model="preferences.language"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-0 focus:ring-orange-500 focus:border-brand transition-colors dark:bg-dark-accent dark:text-dark-text-primary">
+                            class="w-full px-4 py-3 border rounded-lg dark:bg-dark-accent">
                             <option value="pt">Português (PT)</option>
-                            <option value="en">English (EN)</option>
+                            <option value="pt_MZ">Português (Moçambique)</option>
+                            <option value="en">English</option>
+                            <option value="en_US">English (US)</option>
                         </select>
+
+                        <p class="mt-1 text-sm text-gray-500">
+                            {{ t("language_change_hint") }}
+                        </p>
                     </div>
 
+                    <!-- Timezone -->
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Fuso
-                            Horário</label>
+                        <label class="block text-sm font-medium mb-2">
+                            {{ t("timezone") }}
+                        </label>
+
                         <select v-model="preferences.timezone"
-                            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-0 focus:ring-orange-500 focus:border-brand transition-colors dark:bg-dark-accent dark:text-dark-text-primary">
+                            class="w-full px-4 py-3 border rounded-lg dark:bg-dark-accent">
                             <option value="Africa/Maputo">Africa/Maputo (UTC+2)</option>
                             <option value="UTC">UTC</option>
-                            <option value="Europe/Lisbon">Europe/Lisbon (UTC+1)</option>
+                            <option value="Europe/Lisbon">Europe/Lisbon</option>
                         </select>
                     </div>
                 </div>
@@ -31,89 +49,118 @@
 
             <!-- Aparência -->
             <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-6">
-                <h4 class="text-lg font-semibold text-gray-800 dark:text-dark-text-primary mb-4">Aparência</h4>
-                <div class="flex space-x-4">
-                    <button @click="preferences.theme = 'light'" :class="[
-                        'flex items-center space-x-2 px-4 py-2 border-2 rounded-lg font-medium transition-colors',
-                        preferences.theme === 'light'
-                            ? 'border-orange-500 text-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                            : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500'
-                    ]">
-                        <SunIcon class="w-4 h-4" />
-                        <span>Claro</span>
-                    </button>
+                <h4 class="text-lg font-semibold mb-4">
+                    {{ t("appearance") }}
+                </h4>
 
-                    <button @click="preferences.theme = 'dark'" :class="[
-                        'flex items-center space-x-2 px-4 py-2 border-2 rounded-lg font-medium transition-colors',
-                        preferences.theme === 'dark'
-                            ? 'border-orange-500 text-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                            : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500'
-                    ]">
-                        <MoonIcon class="w-4 h-4" />
-                        <span>Escuro</span>
-                    </button>
-
-                    <button @click="preferences.theme = 'auto'" :class="[
-                        'flex items-center space-x-2 px-4 py-2 border-2 rounded-lg font-medium transition-colors',
-                        preferences.theme === 'auto'
-                            ? 'border-orange-500 text-orange-500 bg-orange-50 dark:bg-orange-900/20'
-                            : 'border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500'
-                    ]">
-                        <ComputerDesktopIcon class="w-4 h-4" />
-                        <span>Automático</span>
+                <div class="flex gap-4">
+                    <button v-for="option in themes" :key="option.value" type="button"
+                        @click="preferences.theme = option.value" :class="themeButtonClass(option.value)">
+                        {{ t(option.label) }}
                     </button>
                 </div>
             </div>
 
-            <!-- Zona Perigosa -->
-            <div class="border border-red-200 dark:border-red-800 rounded-lg p-6 bg-red-50 dark:bg-red-900/20">
-                <h4 class="text-lg font-semibold text-red-800 dark:text-red-300 mb-4">Zona Perigosa</h4>
-                <div class="space-y-4">
-                    <p class="text-red-700 dark:text-red-300">Uma vez que apague a sua conta, não há retorno. Por favor,
-                        tenha certeza.
-                    </p>
-                    <button @click="confirmAccountDeletion"
-                        class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                        Apagar Conta
-                    </button>
-                </div>
-            </div>
-
-            <!-- Botão de Salvar -->
+            <!-- Guardar -->
             <div class="flex justify-end">
-                <button @click="savePreferences"
-                    class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-                    Guardar Preferências
+                <button type="submit" :disabled="saving"
+                    class="bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg">
+                    {{ saving ? t("saving") : t("save_preferences") }}
                 </button>
             </div>
-        </div>
+        </form>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { router } from '@inertiajs/vue3'
-import {
-    SunIcon,
-    MoonIcon,
-    ComputerDesktopIcon
-} from '@heroicons/vue/24/outline'
+import { ref, watch, onMounted } from "vue";
+import { usePage, router } from "@inertiajs/vue3";
+import { useI18n } from "vue-i18n";
 
-// Dados de exemplo para preferências
+const { t, locale } = useI18n();
+const page = usePage();
+
+const saving = ref(false);
+
 const preferences = ref({
-    language: 'pt',
-    timezone: 'Africa/Maputo',
-    theme: 'light'
-})
+    language: page.props.auth.user?.locale ?? page.props.locale,
+    timezone: "Africa/Maputo",
+    theme: localStorage.getItem("theme") || "light",
+});
 
+const themes = [
+    { value: "light", label: "light" },
+    { value: "dark", label: "dark" },
+    { value: "auto", label: "auto" },
+];
+
+const themeButtonClass = (value) => [
+    "px-4 py-2 border rounded-lg font-medium",
+    preferences.value.theme === value
+        ? "border-orange-500 text-orange-500"
+        : "border-gray-300 text-gray-500",
+];
+
+// Guardar preferências
 const savePreferences = () => {
-    // Aqui você pode implementar a lógica para salvar as preferências
-    console.log('Preferências guardadas!')
-    // Em produção, você faria uma chamada API para salvar estas configurações
+    saving.value = true;
+
+    router.patch(
+        "/profile/info",
+        {
+            locale: preferences.value.language,
+            timezone: preferences.value.timezone,
+            theme: preferences.value.theme,
+        },
+        {
+            preserveScroll: true,
+            onSuccess: (page) => {
+                // 🔥 Atualiza idioma global sem reload
+                locale.value = page.props.locale;
+
+                localStorage.setItem("theme", preferences.value.theme);
+            },
+            onFinish: () => {
+                saving.value = false;
+            },
+        }
+    );
+};
+
+// Tema
+const applyTheme = (theme) => {
+    const html = document.documentElement;
+
+    if (
+        theme === "dark" ||
+        (theme === "auto" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches)
+    ) {
+        html.classList.add("dark");
+    } else {
+        html.classList.remove("dark");
+    }
+};
+
+watch(
+    () => preferences.value.theme,
+    (newTheme) => {
+        localStorage.setItem("theme", newTheme);
+        applyTheme(newTheme);
+    }
+);
+
+onMounted(() => {
+    applyTheme(preferences.value.theme);
+});
+</script>
+
+<style scoped>
+.dark\:bg-dark-secondary {
+    background-color: var(--dark-secondary);
 }
 
-const confirmAccountDeletion = () => {
-    console.log('Confirmando exclusão da conta')
-    router.delete($route('profile.destroy'))
+.dark\:bg-dark-accent {
+    background-color: var(--dark-accent);
 }
-</script>
+</style>

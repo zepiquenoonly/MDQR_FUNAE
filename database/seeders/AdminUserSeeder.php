@@ -34,6 +34,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'admin@funae.co.mz',
                 'role' => 'Admin',
                 'needs_department' => false,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
             [
                 'name' => 'Super Admin',
@@ -41,6 +42,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'superadmin@funae.co.mz',
                 'role' => 'Super Admin',
                 'needs_department' => false,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
             [
                 'name' => 'Gestor de Reclamações',
@@ -48,6 +50,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'gestor@funae.co.mz',
                 'role' => 'Gestor',
                 'needs_department' => true,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
             [
                 'name' => 'Técnico de Suporte',
@@ -55,6 +58,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'tecnico@funae.co.mz',
                 'role' => 'Técnico',
                 'needs_department' => true,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
             [
                 'name' => 'PCA',
@@ -62,6 +66,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'pca@funae.co.mz',
                 'role' => 'PCA',
                 'needs_department' => false,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
             [
                 'name' => 'Utente',
@@ -69,6 +74,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'utente@gmail.com',
                 'role' => 'Utente',
                 'needs_department' => false,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
             [
                 'name' => 'Técnico de Suporte 2',
@@ -76,6 +82,7 @@ class AdminUserSeeder extends Seeder
                 'email' => 'tecnico2@funae.co.mz',
                 'role' => 'Técnico',
                 'needs_department' => true,
+                'locale' => 'en', // ← TÉCNICO 2 EM INGLÊS PARA TESTE
             ],
             [
                 'name' => 'Director de Departamento',
@@ -84,6 +91,7 @@ class AdminUserSeeder extends Seeder
                 'phone' => '+258846789012',
                 'role' => 'Director',
                 'needs_department' => true,
+                'locale' => 'pt', // ← ADICIONAR LOCALE
             ],
         ];
 
@@ -96,6 +104,7 @@ class AdminUserSeeder extends Seeder
                     'password' => Hash::make('password'),
                     'phone' => $userData['phone'] ?? null,
                     'department_id' => ($userData['needs_department'] && $defaultDepartmentId) ? $defaultDepartmentId : null,
+                    'locale' => $userData['locale'] ?? 'pt', // ← ADICIONAR LOCALE
                 ]
             );
 
@@ -104,6 +113,11 @@ class AdminUserSeeder extends Seeder
             // Se já existe e precisa de department mas não tem, atualizar
             if ($userData['needs_department'] && !$user->department_id && $defaultDepartmentId) {
                 $user->update(['department_id' => $defaultDepartmentId]);
+            }
+            
+            // Atualizar locale se diferente
+            if ($user->locale !== $userData['locale']) {
+                $user->update(['locale' => $userData['locale']]);
             }
         }
 

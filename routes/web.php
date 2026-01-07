@@ -18,6 +18,7 @@ use App\Http\Controllers\DirectorDashboardController;
 use App\Http\Controllers\DirectorComplaintsController;
 use App\Http\Controllers\DirectorTeamController;
 use App\Http\Controllers\StatisticsController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -195,10 +196,27 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('director.projects.destroy');
         });
 
-         Route::get('/estatisticas', function () {return Inertia::render('Common/StatisticsPage');})->name('statistics.page');
-         Route::get('/export', [StatisticsController::class,'index']);
+         Route::get('/estatisticas', [StatisticsController::class, 'index'])->name('statistics.page');
          Route::post('/export/async', [StatisticsController::class,'exportAsync'])->name('statistics.export.async');
          Route::get('/export/status', [StatisticsController::class,'exportStatus'])->name('statistics.export.status');
+         Route::get('/exports/download/{filename}', [StatisticsController::class, 'downloadExport'])->name('exports.download');
+         Route::post('/exports/cleanup', [StatisticsController::class, 'cleanupExports'])->name('exports.cleanup');
+
+        
+         Route::get('/export/statistics', [DirectorComplaintsController::class, 'exportStatistics'])->name('director.export.statistics');
+    
+        Route::get('/export/pdf', [DirectorComplaintsController::class, 'exportToPdf'])->name('director.export.pdf');
+    
+        Route::get('/export/simple-list', [DirectorComplaintsController::class, 'exportSimpleList'])->name('director.export.simple-list');
+    
+        Route::get('/export/check', [DirectorComplaintsController::class, 'checkExport'])->name('director.export.check');
+
+        Route::get('/export/complete-report', [DirectorComplaintsController::class, 'exportCompleteReport'])->name('director.export.complete.report');
+    
+        Route::get('/export/check-export', [DirectorComplaintsController::class, 'checkExportData'])->name('director.export.check');
+
+        Route::get('/employees/export/pdf', [DirectorDashboardController::class, 'exportEmployeesToPdf'])->name('employees.export.pdf');
+        
     });
 
     Route::get('/statistics/export', [ManagerGrievanceController::class, 'exportStatistics'])->name('statistics.export.get');
@@ -269,6 +287,31 @@ Route::middleware('auth')->group(function () {
             Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('gestor.projects.destroy');
         });
 
+        Route::get('/grievances/export/pdf', [ManagerGrievanceController::class, 'exportToPdf'])->name('manager.grievances.export.pdf');
+        Route::post('/api/check-export', [ManagerGrievanceController::class, 'checkExport'])->name('manager.api.check-export');
+        Route::get('/debug-export', [ManagerGrievanceController::class, 'debugComplete'])->name('manager.debug-export');
+
+
+
+        Route::get('/export-all', [ManagerDashboardController::class, 'exportAllGrievances'])->name('manager.export.all');
+
+        Route::get('/export/complete-report', [ManagerDashboardController::class, 'exportEmployeesToPdf'])->name('manager.export.complete.report');
+    
+        Route::get('/export/complete-report/{period}', [ManagerDashboardController::class, 'exportEmployeesToPdf'])->name('manager.export.complete.report.period');
+
+        Route::get('/technicians/export/pdf', [ManagerDashboardController::class, 'exportEmployeesToPdf'])->name('manager.technicians.export.pdf');
+
+        
+        Route::get('/projects/export/pdf', [ProjectController::class, 'exportProjectsToPDF'])->name('manager.projects.export.pdf');
+    
+        Route::get('/projects/{project}/export/pdf', [ProjectController::class, 'exportProjectToPDF'])->name('manager.projects.single.export.pdf');
+
+        Route::get('/indicators/export/pdf', [ManagerDashboardController::class, 'exportIndicatorsToPdf'])->name('manager.indicators.export.pdf');
+
+        Route::get('/manager/test-pdf', [ManagerDashboardController::class, 'testPdfGeneration'])->name('manager.test.pdf');
+        Route::get('/manager/debug-pdf', [ManagerDashboardController::class, 'debugPdfRequest'])->name('manager.debug.pdf');
+        Route::get('/debug-export', [ManagerDashboardController::class, 'debugExport'])->name('manager.debug.export');
+        Route::get('/debug-pdf-data', [ManagerDashboardController::class, 'debugPdfData'])->name('manager.debug.pdf.data');
     });
 
     // Rota para marcar como visto (comum)
@@ -662,4 +705,30 @@ Route::middleware('auth')->prefix('api')->group(function () {
     // Comentários específicos para técnico
     Route::post('/technician/comments/{grievance}/add', [App\Http\Controllers\TechnicianGrievanceController::class, 'addComment'])
         ->name('api.technician.comments.add');
+});
+Route::post('/locale', [LocaleController::class, 'update'])->name('locale.change');
+Route::post('/api/locale', [LocaleController::class, 'updateApi'])->name('locale.update');
+Route::get('/api/translations', [LocaleController::class, 'translations'])->name('locale.translations');
+Route::get('/debug/locale', [ProfileController::class, 'debug'])->name('debug.locale');
+
+
+Route::get('/test-locale/{locale}', function ($locale) {
+    app()->setLocale($locale);
+    session()->put('locale', $locale);
+    
+    return response()->json([
+        'locale' => app()->getLocale(),
+        'translation' => __('auth.failed'),
+        'session' => session('locale'),
+    ]);
+    
+});Route::get('/test-locale/{locale}', function ($locale) {
+    app()->setLocale($locale);
+    session()->put('locale', $locale);
+    
+    return response()->json([
+        'locale' => app()->getLocale(),
+        'translation' => __('auth.failed'),
+        'session' => session('locale'),
+    ]);
 });

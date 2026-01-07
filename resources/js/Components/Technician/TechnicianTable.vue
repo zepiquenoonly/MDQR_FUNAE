@@ -28,6 +28,42 @@
         <XMarkIcon class="w-3 h-3" />
         Limpar Filtros
       </button>
+
+      <button
+        @click="exportToPdf"
+        :disabled="currentData.length === 0 || isLoading"
+        class="px-3 py-1.5 bg-orange-500 border dark:border-gray-600 rounded text-white dark:text-gray-300 text-xs font-medium hover:bg-orange-600 dark:hover:bg-dark-accent transition-all duration-200 flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <svg
+          v-if="isLoading"
+          class="w-3 h-3 animate-spin"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <svg v-else class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+          />
+        </svg>
+        {{ isLoading ? "A exportar..." : "Exportar PDF" }}
+      </button>
     </div>
 
     <!-- Indicador de filtros ativos -->
@@ -436,6 +472,8 @@ const props = defineProps({
 const searchQuery = ref("");
 const statusFilter = ref("");
 const roleFilter = ref("");
+const loading = ref(false);
+const isLoading = ref(false);
 
 // Inicializar filtros dos props
 onMounted(() => {
@@ -666,6 +704,91 @@ watch(
   },
   { immediate: true, deep: true }
 );
+
+const exportToPdf = async () => {
+  // CORREÇÃO: Usar currentData.value em vez de props.currentData
+  if (currentData.value.length === 0 || isLoading.value) return;
+
+  isLoading.value = true;
+
+  try {
+    // Construir URL usando os valores reativos locais, não props
+    const params = new URLSearchParams();
+
+    // Usar searchQuery.value em vez de props.searchQuery
+    if (searchQuery.value.trim() !== "") {
+      params.append("search", searchQuery.value.trim());
+    }
+
+    // Usar statusFilter.value em vez de props.statusFilter
+    if (statusFilter.value !== "") {
+      params.append("status", statusFilter.value);
+    }
+
+    // Usar roleFilter.value em vez de props.roleFilter
+    if (roleFilter.value !== "") {
+      params.append("role", roleFilter.value);
+    }
+
+    // Usar props.filters?.province
+    if (props.filters?.province) {
+      params.append("province", props.filters.province);
+    }
+
+    let baseUrl;
+    if (props.currentUserRole === "director") {
+      baseUrl = "/director/employees/export/pdf";
+    } else if (props.currentUserRole === "manager") {
+      baseUrl = "/gestor/technicians/export/pdf";
+    } else {
+      return;
+    }
+
+    const queryString = params.toString();
+    const url = queryString ? `${baseUrl}?${queryString}` : baseUrl;
+
+    // Fazer requisição fetch
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Erro ao exportar PDF");
+    }
+
+    // Obter blob do PDF
+    const blob = await response.blob();
+
+    // Criar URL temporária para download
+    const downloadUrl = window.URL.createObjectURL(blob);
+
+    // Extrair nome do arquivo do header ou criar um
+    const contentDisposition = response.headers.get("content-disposition");
+    let filename = "relatorio-funcionarios.pdf";
+
+    if (contentDisposition && contentDisposition.indexOf("filename=") !== -1) {
+      const matches = contentDisposition.match(/filename="(.+)"/);
+      if (matches && matches[1]) {
+        filename = matches[1];
+      }
+    }
+
+    // Criar link temporário para download
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Liberar URL
+    window.URL.revokeObjectURL(downloadUrl);
+  } catch (error) {
+    console.error("Erro ao exportar PDF:", error);
+    // Você pode adicionar uma notificação aqui
+    alert("Erro ao exportar PDF. Tente novamente.");
+  } finally {
+    isLoading.value = false;
+  }
+};
 
 // Watch para detectar mudanças nos filtros
 watch([searchQuery, statusFilter, roleFilter], () => {

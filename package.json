@@ -31,6 +31,7 @@
         "lodash": "^4.17.21",
         "lucide-react": "^0.555.0",
         "lucide-vue-next": "^0.555.0",
-        "pusher-js": "^8.4.0"
+        "pusher-js": "^8.4.0",
+        "vue-i18n": "^11.2.8"
     }
 }

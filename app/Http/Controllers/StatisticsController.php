@@ -435,10 +435,16 @@ class StatisticsController extends Controller
         $statusBackgroundColors = [];
         
         foreach ($statusData as $item) {
-            $statusLabels[] = $this->getStatusLabel($item->status);
+            $translatedStatus = $this->getStatusLabel($item->status);
+            $statusLabels[] = $translatedStatus;
             $statusValues[] = $item->count;
             $statusBackgroundColors[] = $statusColors[$item->status] ?? $colorPalette['primary'];
         }
+
+         $translatedStatusDistribution = [];
+    foreach ($statusData as $item) {
+        $translatedStatusDistribution[$this->getStatusLabel($item->status)] = $item->count;
+    }
         
         $statusDistributionChart = [
             'labels' => $statusLabels,
@@ -465,8 +471,10 @@ class StatisticsController extends Controller
         $typeValues = [];
         
         foreach ($typeData as $item) {
-            $typeLabels[] = $this->getTypeLabel($item->type);
+            $translatedType = $this->getTypeLabel($item->type);
+            $typeLabels[] = $translatedType;
             $typeValues[] = $item->count;
+            $translatedTypeDistribution[$translatedType] = $item->count;
         }
         
         $typeDistributionChart = [
@@ -563,8 +571,8 @@ class StatisticsController extends Controller
             
             // Mantenha os dados originais para compatibilidade
             'daily_submissions' => $this->getDailySubmissionsArray($startDate, $endDate),
-            'status_distribution' => $statusData->pluck('count', 'status')->toArray(),
-            'type_distribution' => $typeData->pluck('count', 'type')->toArray(),
+             'status_distribution' => $translatedStatusDistribution, // Já traduzido
+            'type_distribution' => $translatedTypeDistribution, 
         ];
     }
 
@@ -740,19 +748,155 @@ class StatisticsController extends Controller
 
      public function exportAsync(Request $request)
     {
-        $request->validate(['period'=>'required|string','format'=>'required|in:xlsx,csv']);
+        $request->validate(['period'=>'required|string','format' => 'required|string|in:xlsx,csv,pdf']);
         ExportStatisticsJob::dispatch($request->period,$request->format,auth()->id());
         return response()->json(['status'=>'queued','message'=>'Exportação enviada para fila']);
     }
 
     // ✔ NOVO — listar exportações prontas
-    public function exportStatus()
-    {
-        $files=Storage::disk('public')->files('exports');
-        return collect($files)->map(fn($file)=>[
-            'filename'=>basename($file),
-            'url'=>Storage::disk('public')->url($file),
-            'created_at'=>Storage::disk('public')->lastModified($file),
-        ])->sortByDesc('created_at')->values();
+   public function exportStatus()
+{
+    try {
+        $files = Storage::disk('public')->files('exports');
+        
+        usort($files, function($a, $b) {
+            $timeA = Storage::disk('public')->lastModified($a);
+            $timeB = Storage::disk('public')->lastModified($b);
+            return $timeB - $timeA;
+        });
+        
+        return collect($files)->map(function($file) {
+            $filename = basename($file);
+            
+            return [
+                'filename' => $filename,
+                'url' => Storage::disk('public')->url($file),
+                'download_url' => url("/director/exports/download/{$filename}"), // URL absoluta
+                'created_at' => Storage::disk('public')->lastModified($file),
+                'created_at_formatted' => date('d/m/Y H:i:s', Storage::disk('public')->lastModified($file)),
+                'size' => Storage::disk('public')->size($file),
+                'extension' => pathinfo($filename, PATHINFO_EXTENSION),
+            ];
+        })->values();
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro em exportStatus: ' . $e->getMessage());
+        return [];
     }
+}
+
+private function formatBytes($bytes, $precision = 2)
+{
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    
+    $bytes = max($bytes, 0);
+    $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+    $pow = min($pow, count($units) - 1);
+    
+    $bytes /= pow(1024, $pow);
+    
+    return round($bytes, $precision) . ' ' . $units[$pow];
+}
+
+public function downloadExport($filename)
+{
+    $path = "exports/{$filename}";
+    
+    if (!Storage::disk('public')->exists($path)) {
+        abort(404, 'Arquivo não encontrado');
+    }
+    
+    $fullPath = Storage::disk('public')->path($path);
+    $mimeType = mime_content_type($fullPath);
+    
+    return response()->download($fullPath, $filename, [
+        'Content-Type' => $mimeType,
+        'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+    ]);
+}
+
+
+public function cleanupExports(Request $request)
+{
+    try {
+        $files = Storage::disk('public')->files('exports');
+        $deletedCount = 0;
+        
+        foreach ($files as $file) {
+            $lastModified = Storage::disk('public')->lastModified($file);
+            $daysOld = (time() - $lastModified) / (60 * 60 * 24);
+            
+            // Excluir arquivos com mais de 7 dias
+            if ($daysOld > 7) {
+                Storage::disk('public')->delete($file);
+                $deletedCount++;
+            }
+        }
+        
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Limpeza concluída',
+            'deleted_count' => $deletedCount
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro em cleanupExports: ' . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Erro ao limpar arquivos'
+        ], 500);
+    }
+}
+
+private function getPriorityLabel(string $priority): string
+{
+    return match(strtolower($priority)) {
+        'low' => 'Baixa',
+        'medium' => 'Média',
+        'high' => 'Alta',
+        'critical' => 'Crítica',
+        default => ucfirst($priority),
+    };
+}
+
+/**
+ * Get translated status distribution for charts
+ */
+private function getTranslatedStatusDistribution(array $statusData): array
+{
+    $translated = [];
+    foreach ($statusData as $status => $count) {
+        $translated[$this->getStatusLabel($status)] = $count;
+    }
+    return $translated;
+}
+
+/**
+ * Get translated type distribution for charts
+ */
+private function getTranslatedTypeDistribution(array $typeData): array
+{
+    $translated = [];
+    foreach ($typeData as $type => $count) {
+        $translated[$this->getTypeLabel($type)] = $count;
+    }
+    return $translated;
+}
+
+/**
+ * Get translated submissions for export
+ */
+private function getTranslatedSubmissions($submissions)
+{
+    return $submissions->map(function ($submission) {
+        return [
+            'id' => $submission->id,
+            'reference_number' => $submission->reference_number,
+            'type' => $this->getTypeLabel($submission->type),
+            'priority' => $this->getPriorityLabel($submission->priority),
+            'status' => $this->getStatusLabel($submission->status),
+            'created_at' => $submission->created_at->format('d/m/Y'),
+        ];
+    });
+}
 }

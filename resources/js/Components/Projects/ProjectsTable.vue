@@ -196,16 +196,58 @@
       </p>
     </div>
   </div>
+
+  <div class="mt-8 flex justify-end">
+    <button
+      @click="exportToPDF"
+      :disabled="loading || safeProjects.length === 0 || isExporting"
+      class="flex items-center gap-2 bg-brand hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition-colors shadow-md hover:shadow-lg"
+    >
+      <!-- Spinner quando está exportando -->
+      <svg
+        v-if="isExporting"
+        class="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+
+      <!-- Ícone normal quando não está exportando -->
+      <DocumentArrowDownIcon v-else class="w-4 h-4 sm:w-5 sm:h-5" />
+
+      <!-- Texto do botão com estados diferentes -->
+      <span v-if="isExporting" class="hidden sm:inline">A exportar...</span>
+      <span v-else class="hidden sm:inline">Exportar PDF</span>
+
+      <span v-if="isExporting" class="sm:hidden">...</span>
+      <span v-else class="sm:hidden">PDF</span>
+    </button>
+  </div>
 </template>
 
 <script setup>
 import { Link } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import {
   EyeIcon,
   FolderIcon,
   MagnifyingGlassIcon,
   EyeSlashIcon,
+  DocumentArrowDownIcon,
 } from "@heroicons/vue/24/outline";
 
 const emit = defineEmits(["view-details"]);
@@ -375,6 +417,71 @@ const getStatusLabel = (category) => {
   };
   return labels[category] || category;
 };
+
+const isExporting = ref(false);
+
+const exportToPDF = async () => {
+  if (isExporting.value) return;
+
+  try {
+    // Ativar estado de loading
+    isExporting.value = true;
+
+    // Determinar a rota base
+    let baseRoute = "/gestor";
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes("/director")) {
+      baseRoute = "/director";
+    } else if (currentPath.includes("/admin")) {
+      baseRoute = "/admin";
+    }
+
+    // Preparar parâmetros
+    const params = new URLSearchParams();
+
+    if (props.search) {
+      params.append("search", props.search);
+    }
+
+    if (props.filters && Object.keys(props.filters).length > 0) {
+      Object.entries(props.filters).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          params.append(`filters[${key}]`, value);
+        }
+      });
+    }
+
+    // Adicionar timestamp para evitar cache
+    params.append("_t", Date.now());
+
+    // Construir URL
+    const queryString = params.toString();
+    const url = `${baseRoute}/projects/export/pdf${queryString ? "?" + queryString : ""}`;
+
+    // Criar link temporário para download
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.download = `projectos_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+    // Simular clique para iniciar download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Simular tempo de processamento (pode remover em produção)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  } catch (error) {
+    console.error("Erro ao exportar PDF:", error);
+
+    // Em produção, você pode usar um sistema de notificação
+    alert("Ocorreu um erro ao exportar o PDF. Por favor, tente novamente.");
+  } finally {
+    // Sempre desativar o loading
+    isExporting.value = false;
+  }
+};
 </script>
 
 <style scoped>
@@ -433,9 +540,9 @@ const getStatusLabel = (category) => {
     max-height: calc(100vh - 220px);
   }
 
-  .min-w-[600px] {
-    min-width: 700px; /* Aumentado para acomodar nova coluna */
-  }
+  /*.min-w-[600px] {
+    min-width: 700px; 
+  }*/
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {

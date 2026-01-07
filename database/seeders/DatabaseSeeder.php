@@ -34,6 +34,7 @@ class DatabaseSeeder extends Seeder
                 'name' => 'Test User',
                 'username' => 'testuser',
                 'password' => Hash::make('password'),
+                'locale' => 'en'
             ]
         );
 

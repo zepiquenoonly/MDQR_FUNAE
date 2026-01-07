@@ -1362,85 +1362,712 @@ private function getStatusLabel(?string $status): string
         }
     }
 
-    /**
-     * Exportar reclamações para CSV
-     */
-    public function export(Request $request)
-    {
-        $user = $request->user();
-        $this->checkAccess($user);
 
-        $query = Grievance::with(['user', 'assignedUser', 'project']);
-        $this->applyFilters($query, $request);
-
-        $submissions = $query->get();
-
-        $fileName = 'reclamacoes_director_' . date('Y-m-d_H-i-s') . '.csv';
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
-        ];
-
-        return response()->stream(function() use ($submissions) {
-            $file = fopen('php://output', 'w');
-            
-            // Cabeçalho em português
-            fputcsv($file, [
-                'ID',
-                'Número Referência',
-                'Tipo',
-                'Categoria',
-                'Subcategoria',
-                'Descrição',
-                'Província',
-                'Distrito',
-                'Status',
-                'Prioridade',
-                'Atribuído A',
-                'Data Submissão',
-                'Data Atribuição',
-                'Data Resolução',
-                'Projeto',
-                'Submetido Por',
-                'Email',
-                'Telefone',
-                'Anónimo'
-            ], ';');
-
-            // Dados
-            foreach ($submissions as $submission) {
-                fputcsv($file, [
-                    $submission->id,
-                    $submission->reference_number,
-                    $submission->type_label,
-                    $submission->category,
-                    $submission->subcategory ?? '',
-                    $submission->description,
-                    $submission->province ?? '',
-                    $submission->district ?? '',
-                    $submission->status_label,
-                    $submission->priority,
-                    $submission->assignedUser->name ?? '',
-                    $submission->submitted_at->format('d/m/Y H:i'),
-                    $submission->assigned_at?->format('d/m/Y H:i') ?? '',
-                    $submission->resolved_at?->format('d/m/Y H:i') ?? '',
-                    $submission->project?->name ?? '',
-                    $submission->display_name,
-                    $submission->effective_email ?? '',
-                    $submission->contact_phone ?? '',
-                    $submission->is_anonymous ? 'Sim' : 'Não'
-                ], ';');
-            }
-
-            fclose($file);
-        }, 200, $headers);
+public function exportStatistics(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    // Validar parâmetros
+    $validated = $request->validate([
+        'period' => ['required', 'string', 'in:today,week,month,3months,6months,year,12months'],
+        'format' => ['required', 'string', 'in:xlsx,csv,pdf'],
+    ]);
+    
+    $period = $validated['period'];
+    $format = $validated['format'];
+    
+    if ($format === 'pdf') {
+        return $this->exportToPdf($request);
     }
+    
+    // TODO: Implementar exportação para Excel/CSV
+    return response()->json([
+        'success' => false,
+        'message' => 'Formato não implementado ainda'
+    ], 400);
+}
 
-    /**
-     * ==============================================
-     * MÉTODOS AUXILIARES PRIVADOS
-     * ==============================================
-     */
+    public function exportToPdf(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    try {
+        \Log::info('=== EXPORTAÇÃO DE RELATÓRIO DO DIRECTOR ===');
+        \Log::info('Director: ' . $user->name . ' (ID: ' . $user->id . ')');
+        
+        // **1. OBTER DADOS DAS RECLAMAÇÕES**
+        $query = Grievance::with(['user', 'assignedUser', 'project', 'updates'])
+            ->latest('submitted_at');
+        
+        // Aplicar filtros
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        $totalGrievances = $grievances->count();
+        
+        \Log::info('Total de reclamações: ' . $totalGrievances);
+        
+        // **2. CALCULAR ESTATÍSTICAS COMPLETAS**
+        $stats = $this->calculateCompleteStatistics($grievances, $user);
+        
+        // **3. DADOS PARA TIMELINE/RESOLUÇÃO**
+        $resolutionStats = $this->calculateResolutionStats($grievances);
+        
+        // **4. DISTRIBUIÇÕES**
+        $distributions = $this->calculateDistributions($grievances);
+        
+        // **5. PREPARAR DADOS PARA PDF**
+        $data = [
+            'title' => 'Relatório Director - Todas as Submissões',
+            'subtitle' => 'Director: ' . $user->name . ' - ' . now()->format('F Y'),
+            'user' => $user,
+            'user_name' => $user->name,
+            'export_date' => now()->format('d/m/Y H:i'),
+            'period' => $this->getReportPeriod($request),
+            
+            // Seção de estatísticas
+            'statistics' => $stats,
+            'resolution_stats' => $resolutionStats,
+            'distributions' => $distributions,
+            
+            // Lista de reclamações
+            'total_grievances' => $totalGrievances,
+            'grievances' => $grievances->map(function ($grievance) {
+                return [
+                    'reference_number' => $grievance->reference_number,
+                    'description' => $grievance->description,
+                    'type' => $this->getTypeLabelForExport($grievance->type),
+                    'priority' => $this->getPriorityLabel($grievance->priority),
+                    'status' => $this->getStatusText($grievance->status),
+                    'category' => $grievance->category ?? 'N/A',
+                    'created_at' => $grievance->created_at->format('d/m/Y H:i'),
+                    'submitted_at' => $grievance->submitted_at ? $grievance->submitted_at->format('d/m/Y H:i') : 'N/A',
+                    'resolved_at' => $grievance->resolved_at ? $grievance->resolved_at->format('d/m/Y H:i') : 'N/A',
+                    'user_name' => $grievance->user ? $grievance->user->name : 'Anônimo',
+                    'technician' => $grievance->assignedUser ? $grievance->assignedUser->name : 'Não atribuído',
+                    'project' => $grievance->project ? $grievance->project->name : 'N/A',
+                    'escalated' => $grievance->escalated ? 'Sim' : 'Não',
+                    'escalation_reason' => $grievance->escalation_reason ?? 'N/A',
+                    'updates_count' => $grievance->updates->count(),
+                    'has_attachments' => $grievance->attachments->count() > 0,
+                    'has_director_intervention' => $this->hasDirectorIntervention($grievance),
+                ];
+            })->toArray(),
+            
+            // Filtros aplicados
+            'filters_applied' => $this->getAppliedFilters($request),
+            
+            // Flags específicas para director
+            'is_director_report' => true,
+            'role' => 'Director',
+        ];
+        
+        \Log::info('Relatório do Director preparado com ' . $totalGrievances . ' registros');
+        
+        // **6. GERAR PDF**
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.director-submissions-pdf', $data);
+        $pdf->setPaper('A4', 'landscape'); // Modo paisagem para mais colunas
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'Arial',
+            'dpi' => 150,
+        ]);
+        
+        $filename = 'relatorio-director-' . now()->format('Y-m-d-H-i') . '.pdf';
+        
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro ao exportar relatório do Director: ' . $e->getMessage());
+        return $this->createErrorPdf('Erro ao gerar relatório: ' . $e->getMessage(), $user);
+    }
+}
+
+
+private function applyReportFilters($query, Request $request): void
+{
+    // Filtro por período
+    if ($request->filled('period')) {
+        $period = $request->input('period');
+        $dateRange = $this->getDateRangeForPeriod($period);
+        
+        if ($dateRange) {
+            $query->whereBetween('created_at', [$dateRange['start'], $dateRange['end']]);
+        }
+    }
+    
+    // Filtros regulares
+    if ($request->filled('type') && $request->input('type') !== '') {
+        $query->where('type', $request->input('type'));
+    }
+    
+    if ($request->filled('status') && $request->input('status') !== '') {
+        $query->where('status', $request->input('status'));
+    }
+    
+    if ($request->filled('priority') && $request->input('priority') !== '') {
+        $query->where('priority', $request->input('priority'));
+    }
+    
+    if ($request->filled('category') && $request->input('category') !== '') {
+        $query->where('category', $request->input('category'));
+    }
+    
+    if ($request->filled('province') && $request->input('province') !== '') {
+        $query->where('province', $request->input('province'));
+    }
+    
+    // Filtro por tab específica
+    if ($request->filled('tab') && $request->input('tab') !== 'all') {
+        $tab = $request->input('tab');
+        
+        switch ($tab) {
+            case 'suggestions':
+                $query->where(function($q) {
+                    $q->where('type', 'suggestion')
+                      ->orWhere('type', 'like', '%sugest%');
+                });
+                break;
+                
+            case 'grievances':
+                $query->where(function($q) {
+                    $q->where('type', 'grievance')
+                      ->orWhere('type', 'like', '%queixa%');
+                });
+                break;
+                
+            case 'complaints':
+                $query->where(function($q) {
+                    $q->where('type', 'complaint')
+                      ->orWhere('type', 'like', '%reclam%');
+                });
+                break;
+                
+            case 'resolved':
+                $query->where('status', 'resolved');
+                break;
+                
+            case 'rejected':
+                $query->where('status', 'rejected');
+                break;
+                
+            case 'manager_requests':
+                $query->where('escalated', true);
+                break;
+                
+            case 'director_interventions':
+                $query->where(function($q) {
+                    $q->whereHas('updates', function($q2) {
+                        $q2->whereIn('action_type', [
+                            'director_comment',
+                            'director_validation_approved',
+                            'director_validation_rejected',
+                            'director_validation_needs_revision'
+                        ]);
+                    })
+                    ->orWhere(function($q2) {
+                        $q2->whereNotNull('metadata')
+                            ->whereJsonLength('metadata->director_validation', '>', 0);
+                    });
+                });
+                break;
+        }
+    }
+}
+
+
+private function calculateCompleteStatistics($grievances, $user): array
+{
+    $total = $grievances->count();
+    
+    // Contagem por status
+    $byStatus = $grievances->groupBy('status')->map->count();
+    
+    // Contagem por tipo
+    $byType = $grievances->groupBy('type')->map->count();
+    
+    // Contagem por prioridade
+    $byPriority = $grievances->groupBy('priority')->map->count();
+    
+    // Reclamações escaladas
+    $escalatedCount = $grievances->where('escalated', true)->count();
+    
+    // Reclamações com intervenção do director
+    $withDirectorIntervention = $grievances->filter(function($g) {
+        return $this->hasDirectorIntervention($g);
+    })->count();
+    
+    // Taxa de resolução
+    $resolvedCount = $grievances->whereIn('status', ['resolved', 'closed'])->count();
+    $resolutionRate = $total > 0 ? round(($resolvedCount / $total) * 100, 1) : 0;
+    
+    // Reclamações novas (últimos 7 dias)
+    $newLast7Days = $grievances->filter(function($g) {
+        return $g->created_at->greaterThan(now()->subDays(7));
+    })->count();
+    
+    // Reclamações pendentes
+    $pendingCount = $grievances->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])->count();
+    
+    // Reclamações atribuídas ao director
+    $assignedToDirector = $grievances->where('assigned_to', $user->id)->count();
+    
+    return [
+        'total' => $total,
+        'by_status' => $byStatus->toArray(),
+        'by_type' => $byType->toArray(),
+        'by_priority' => $byPriority->toArray(),
+        'escalated_count' => $escalatedCount,
+        'with_director_intervention' => $withDirectorIntervention,
+        'resolved_count' => $resolvedCount,
+        'resolution_rate' => $resolutionRate,
+        'new_last_7_days' => $newLast7Days,
+        'pending_count' => $pendingCount,
+        'assigned_to_director' => $assignedToDirector,
+        'average_updates_per_grievance' => $total > 0 ? 
+            round($grievances->sum(function($g) { return $g->updates->count(); }) / $total, 1) : 0,
+    ];
+}
+
+/**
+ * Calcular estatísticas de resolução
+ */
+private function calculateResolutionStats($grievances): array
+{
+    $resolvedGrievances = $grievances->whereIn('status', ['resolved', 'closed'])
+        ->whereNotNull('resolved_at')
+        ->whereNotNull('submitted_at');
+    
+    $totalResolved = $resolvedGrievances->count();
+    
+    if ($totalResolved === 0) {
+        return [
+            'average_resolution_time_hours' => 0,
+            'average_resolution_time_days' => 0,
+            'fastest_resolution_hours' => 0,
+            'slowest_resolution_hours' => 0,
+            'total_resolved' => 0,
+            'resolution_time_distribution' => [],
+        ];
+    }
+    
+    $resolutionTimes = [];
+    $totalHours = 0;
+    $fastest = PHP_INT_MAX;
+    $slowest = 0;
+    
+    foreach ($resolvedGrievances as $grievance) {
+        $hours = $grievance->submitted_at->diffInHours($grievance->resolved_at);
+        $resolutionTimes[] = $hours;
+        $totalHours += $hours;
+        
+        if ($hours < $fastest) $fastest = $hours;
+        if ($hours > $slowest) $slowest = $hours;
+    }
+    
+    // Distribuição de tempos
+    $timeDistribution = [
+        'menos_24h' => count(array_filter($resolutionTimes, fn($h) => $h <= 24)),
+        '1_3_dias' => count(array_filter($resolutionTimes, fn($h) => $h > 24 && $h <= 72)),
+        '3_7_dias' => count(array_filter($resolutionTimes, fn($h) => $h > 72 && $h <= 168)),
+        'mais_7_dias' => count(array_filter($resolutionTimes, fn($h) => $h > 168)),
+    ];
+    
+    return [
+        'average_resolution_time_hours' => round($totalHours / $totalResolved, 1),
+        'average_resolution_time_days' => round(($totalHours / $totalResolved) / 24, 1),
+        'fastest_resolution_hours' => $fastest,
+        'slowest_resolution_hours' => $slowest,
+        'total_resolved' => $totalResolved,
+        'resolution_time_distribution' => $timeDistribution,
+    ];
+}
+
+/**
+ * Calcular distribuições
+ */
+private function calculateDistributions($grievances): array
+{
+    // Distribuição por mês (últimos 6 meses)
+    $months = [];
+    for ($i = 5; $i >= 0; $i--) {
+        $month = now()->subMonths($i);
+        $monthStart = $month->copy()->startOfMonth();
+        $monthEnd = $month->copy()->endOfMonth();
+        
+        $count = $grievances->filter(function($g) use ($monthStart, $monthEnd) {
+            return $g->created_at->between($monthStart, $monthEnd);
+        })->count();
+        
+        $months[] = [
+            'month' => $month->format('M/Y'),
+            'count' => $count,
+        ];
+    }
+    
+    // Distribuição por gestor
+    $byManager = $grievances->groupBy('assigned_to')->map(function($items, $managerId) {
+        $manager = User::find($managerId);
+        return [
+            'manager_id' => $managerId,
+            'manager_name' => $manager ? $manager->name : 'Não atribuído',
+            'count' => $items->count(),
+            'resolved' => $items->whereIn('status', ['resolved', 'closed'])->count(),
+            'pending' => $items->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])->count(),
+            'escalated' => $items->where('escalated', true)->count(),
+        ];
+    })->sortByDesc('count')->take(10)->values();
+    
+    // Distribuição por projeto
+    $byProject = $grievances->groupBy('project_id')->map(function($items, $projectId) {
+        return [
+            'project_id' => $projectId,
+            'count' => $items->count(),
+            'project_name' => $items->first()->project->name ?? 'N/A',
+        ];
+    })->sortByDesc('count')->take(5)->values();
+    
+    // Distribuição por província
+    $byProvince = $grievances->whereNotNull('province')
+        ->groupBy('province')
+        ->map(function($items, $province) {
+            return [
+                'province' => $province,
+                'count' => $items->count(),
+            ];
+        })
+        ->sortByDesc('count')
+        ->values();
+    
+    return [
+        'by_month' => $months,
+        'by_manager' => $byManager->toArray(),
+        'by_project' => $byProject->toArray(),
+        'by_province' => $byProvince->toArray(),
+    ];
+}
+
+/**
+ * Obter período do relatório
+ */
+private function getReportPeriod(Request $request): string
+{
+    if ($request->filled('period')) {
+        $periods = [
+            'today' => 'Hoje',
+            'week' => 'Esta Semana',
+            'month' => 'Este Mês',
+            '3months' => 'Últimos 3 Meses',
+            '6months' => 'Últimos 6 Meses',
+            'year' => 'Este Ano',
+            '12months' => 'Últimos 12 Meses',
+        ];
+        
+        return $periods[$request->input('period')] ?? 'Período não especificado';
+    }
+    
+    return 'Todo o Período';
+}
+
+/**
+ * Obter filtros aplicados
+ */
+private function getAppliedFilters(Request $request): array
+{
+    $filters = [];
+    
+    if ($request->filled('period')) {
+        $filters['período'] = $this->getReportPeriod($request);
+    }
+    
+    if ($request->filled('type')) {
+        $filters['tipo'] = $this->getTypeLabelForExport($request->input('type'));
+    }
+    
+    if ($request->filled('status')) {
+        $filters['estado'] = $this->getStatusText($request->input('status'));
+    }
+    
+    if ($request->filled('priority')) {
+        $filters['prioridade'] = $this->getPriorityLabel($request->input('priority'));
+    }
+    
+    if ($request->filled('category')) {
+        $filters['categoria'] = $request->input('category');
+    }
+    
+    if ($request->filled('province')) {
+        $filters['província'] = $request->input('province');
+    }
+    
+    if ($request->filled('tab') && $request->input('tab') !== 'all') {
+        $tabLabels = [
+            'suggestions' => 'Sugestões',
+            'grievances' => 'Queixas',
+            'complaints' => 'Reclamações',
+            'resolved' => 'Resolvidas',
+            'rejected' => 'Rejeitadas',
+            'manager_requests' => 'Solicitações do Gestor',
+            'director_interventions' => 'Minhas Intervenções',
+        ];
+        
+        $filters['aba'] = $tabLabels[$request->input('tab')] ?? $request->input('tab');
+    }
+    
+    return $filters;
+}
+
+/**
+ * Obter intervalo de datas para período
+ */
+private function getDateRangeForPeriod($period): ?array
+{
+    $now = now();
+    
+    switch ($period) {
+        case 'today':
+            return [
+                'start' => $now->copy()->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        case 'week':
+            return [
+                'start' => $now->copy()->startOfWeek(),
+                'end' => $now->copy()->endOfWeek(),
+            ];
+            
+        case 'month':
+            return [
+                'start' => $now->copy()->startOfMonth(),
+                'end' => $now->copy()->endOfMonth(),
+            ];
+            
+        case '3months':
+            return [
+                'start' => $now->copy()->subMonths(3)->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        case '6months':
+            return [
+                'start' => $now->copy()->subMonths(6)->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        case 'year':
+            return [
+                'start' => $now->copy()->startOfYear(),
+                'end' => $now->copy()->endOfYear(),
+            ];
+            
+        case '12months':
+            return [
+                'start' => $now->copy()->subMonths(12)->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        default:
+            return null;
+    }
+}
+
+/**
+ * Obter label do tipo para exportação
+ */
+private function getTypeLabelForExport($type): string
+{
+    if (!$type) return 'Não especificado';
+    
+    $type = strtolower($type);
+    $labels = [
+        'suggestion' => 'Sugestão',
+        'sugestão' => 'Sugestão',
+        'sugestao' => 'Sugestão',
+        'grievance' => 'Queixa',
+        'queixa' => 'Queixa',
+        'complaint' => 'Reclamação',
+        'reclamação' => 'Reclamação',
+        'reclamacao' => 'Reclamação',
+    ];
+    
+    return $labels[$type] ?? ucfirst($type);
+}
+
+/**
+ * Obter label da prioridade
+ */
+private function getPriorityLabel($priority): string
+{
+    if (!$priority) return 'N/A';
+    
+    $labels = [
+        'low' => 'Baixa',
+        'medium' => 'Média',
+        'high' => 'Alta',
+        'critical' => 'Crítica',
+        'urgent' => 'Urgente',
+    ];
+    
+    return $labels[$priority] ?? $priority;
+}
+
+/**
+ * Criar PDF de erro
+ */
+private function createErrorPdf($errorMessage, $user)
+{
+    $data = [
+        'title' => 'Erro ao Exportar Relatório',
+        'subtitle' => 'Director: ' . $user->name,
+        'user' => $user,
+        'user_name' => $user->name,
+        'export_date' => now()->format('d/m/Y H:i'),
+        'error_message' => $errorMessage,
+        'is_error' => true,
+    ];
+    
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.director-submissions-pdf', $data);
+    $pdf->setPaper('A4', 'portrait');
+    
+    $filename = 'erro-exportacao-' . now()->format('Y-m-d-H-i') . '.pdf';
+    return $pdf->download($filename);
+}
+
+/**
+ * Método para verificar exportação (para debug)
+ */
+public function checkExport(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    try {
+        \Log::info('Director - Check export', [
+            'user_id' => $user->id,
+            'request_params' => $request->all()
+        ]);
+        
+        $query = Grievance::with(['user', 'assignedUser'])
+            ->latest();
+        
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        
+        return response()->json([
+            'success' => true,
+            'count' => $grievances->count(),
+            'filters' => $request->all(),
+            'sample_data' => $grievances->count() > 0 ? [
+                'first_grievance' => [
+                    'id' => $grievances->first()->id,
+                    'reference' => $grievances->first()->reference_number,
+                    'type' => $grievances->first()->type,
+                    'status' => $grievances->first()->status,
+                ]
+            ] : null
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro em checkExport do Director: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao verificar dados: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Exportar lista simples de submissões (sem estatísticas)
+ */
+/*public function exportSimpleList(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    try {
+        $query = Grievance::with(['user', 'assignedUser', 'project'])
+            ->latest();
+        
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        
+        $data = [
+            'title' => 'Lista de Submissões - Director',
+            'subtitle' => 'Director: ' . $user->name,
+            'user' => $user,
+            'user_name' => $user->name,
+            'export_date' => now()->format('d/m/Y H:i'),
+            'period' => $this->getReportPeriod($request),
+            'total_grievances' => $grievances->count(),
+            'grievances' => $grievances->map(function ($grievance) {
+                return [
+                    'reference_number' => $grievance->reference_number,
+                    'description' => $grievance->description,
+                    'type' => $this->getTypeLabelForExport($grievance->type),
+                    'priority' => $this->getPriorityLabel($grievance->priority),
+                    'status' => $this->getStatusText($grievance->status),
+                    'category' => $grievance->category ?? 'N/A',
+                    'created_at' => $grievance->created_at->format('d/m/Y H:i'),
+                    'user_name' => $grievance->user ? $grievance->user->name : 'Anônimo',
+                    'technician' => $grievance->assignedUser ? $grievance->assignedUser->name : 'Não atribuído',
+                    'project' => $grievance->project ? $grievance->project->name : 'N/A',
+                    'escalated' => $grievance->escalated ? 'Sim' : 'Não',
+                ];
+            })->toArray(),
+            'filters_applied' => $this->getAppliedFilters($request),
+            'is_simple_list' => true,
+        ];
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.director-submissions-pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+        
+        $filename = 'lista-submissoes-' . now()->format('Y-m-d-H-i') . '.pdf';
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro ao exportar lista simples: ' . $e->getMessage());
+        return $this->createErrorPdf('Erro ao gerar lista: ' . $e->getMessage(), $user);
+    }
+}*/
+
+
+/**
+ * Obter texto do status
+ */
+private function getStatusText($status): string
+{
+    if (empty($status)) return 'Não definido';
+    
+    $statusMap = [
+        'submitted' => 'Submetido',
+        'under_review' => 'Em Análise',
+        'assigned' => 'Atribuído',
+        'in_progress' => 'Em Progresso',
+        'completed' => 'Concluído',
+        'closed' => 'Fechado',
+        'reopened' => 'Reaberto',
+        'cancelled' => 'Cancelado',
+        'awaiting_approval' => 'Aguardando Aprovação',
+        'approved' => 'Aprovado',
+        'rejected' => 'Rejeitado',
+        'validated' => 'Validado',
+        'analyzed' => 'Analisado',
+        'awaiting_validation' => 'Aguardando Validação',
+        'awaiting_director_approval' => 'Aguardando Aprovação do Director',
+        'pending' => 'Pendente',
+        'resolved' => 'Resolvido',
+        'escalated' => 'Escalado',
+        'returned' => 'Devolvido',
+    ];
+    
+    return $statusMap[$status] ?? ucfirst(str_replace('_', ' ', $status));
+}
 
     /**
      * Aplicar filtros à query
@@ -3026,6 +3653,480 @@ private function sendApprovalRejectionNotifications(Grievance $grievance, array 
             'grievance_id' => $grievance->id,
             'reason' => substr($data['reason'], 0, 100) . '...',
         ]);
+    }
+}
+
+/**
+ * Exportar relatório completo (similar ao do gestor)
+ */
+public function exportCompleteReport(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    try {
+        \Log::info('=== DIRECTOR - EXPORTAÇÃO DE RELATÓRIO COMPLETO ===');
+        \Log::info('Director: ' . $user->name . ' (ID: ' . $user->id . ')');
+        
+        // **1. OBTER DADOS DAS RECLAMAÇÕES**
+        $query = Grievance::with(['user', 'assignedUser', 'project', 'updates'])
+            ->latest('submitted_at');
+        
+        // Aplicar filtros
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        $totalGrievances = $grievances->count();
+        
+        \Log::info('Total de reclamações para Director: ' . $totalGrievances);
+        
+        // **2. CALCULAR ESTATÍSTICAS COMPLETAS (ADAPTADAS PARA DIRECTOR)**
+        $stats = $this->calculateCompleteDirectorStatistics($grievances, $user);
+        
+        // **3. DADOS PARA TIMELINE/RESOLUÇÃO**
+        $resolutionStats = $this->calculateResolutionStats($grievances);
+        
+        // **4. DISTRIBUIÇÕES (ADAPTADAS PARA DIRECTOR)**
+        $distributions = $this->calculateDirectorDistributions($grievances, $user);
+        
+        // **5. OBTER PERÍODO CORRETAMENTE**
+        $periodValue = $request->filled('period') 
+            ? $this->getReportPeriod($request) 
+            : 'Todo o Período';
+        
+        // **6. DETERMINAR O TÍTULO BASEADO NA TAB ATIVA**
+        $tab = $request->input('tab', 'all');
+        $title = $this->getExportTitleForDirector($tab);
+        
+        // **7. PREPARAR DADOS PARA PDF**
+        $data = [
+            'title' => $title,
+            'subtitle' => 'Director: ' . $user->name . ' - ' . now()->format('F Y'),
+            'user' => $user,
+            'user_name' => $user->name, 
+            'export_date' => now()->format('d/m/Y H:i'),
+            'period' => $periodValue,
+            
+            // Seção de estatísticas
+            'statistics' => $stats,
+            'resolution_stats' => $resolutionStats,
+            'distributions' => $distributions,
+            
+            // Lista de reclamações
+            'total_grievances' => $totalGrievances,
+            'grievances' => $grievances->map(function ($grievance) use ($user) {
+                return [
+                    'reference_number' => $grievance->reference_number,
+                    'description' => $grievance->description,
+                    'type' => $this->getTypeLabelForExport($grievance->type),
+                    'priority' => $this->getPriorityLabel($grievance->priority),
+                    'status' => $this->getStatusText($grievance->status),
+                    'category' => $grievance->category ?? 'N/A',
+                    'created_at' => $grievance->created_at->format('d/m/Y H:i'),
+                    'submitted_at' => $grievance->submitted_at ? $grievance->submitted_at->format('d/m/Y H:i') : 'N/A',
+                    'resolved_at' => $grievance->resolved_at ? $grievance->resolved_at->format('d/m/Y H:i') : 'N/A',
+                    'user_name' => $grievance->user ? $grievance->user->name : 'Anônimo',
+                    'technician' => $grievance->assignedUser ? $grievance->assignedUser->name : 'Não atribuído',
+                    'project' => $grievance->project ? $grievance->project->name : 'N/A',
+                    'escalated' => $grievance->escalated ? 'Sim' : 'Não',
+                    'escalation_reason' => $grievance->escalation_reason ?? 'N/A',
+                    'updates_count' => $grievance->updates->count(),
+                    'has_attachments' => $grievance->attachments->count() > 0,
+                    'has_director_intervention' => $this->hasDirectorIntervention($grievance),
+                    'director_response_type' => $this->getDirectorResponseType($grievance, $user),
+                ];
+            })->toArray(),
+            
+            // Filtros aplicados
+            'filters_applied' => $this->getAppliedFilters($request),
+            'is_director_report' => true,
+        ];
+        
+        \Log::info('Relatório do Director preparado com ' . $totalGrievances . ' registros');
+        
+        // **8. GERAR PDF**
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.director-submissions-pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'Arial',
+            'dpi' => 150,
+        ]);
+        
+        $filename = 'relatorio-director-' . now()->format('Y-m-d-H-i') . '.pdf';
+        
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro ao exportar relatório do Director: ' . $e->getMessage());
+        return $this->createDirectorErrorPdf('Erro ao gerar relatório: ' . $e->getMessage(), $user);
+    }
+}
+
+/**
+ * Calcular estatísticas completas para Director
+ */
+private function calculateCompleteDirectorStatistics($grievances, $user): array
+{
+    $total = $grievances->count();
+    
+    // Contagem por status
+    $byStatus = $grievances->groupBy('status')->map->count();
+    
+    // Contagem por tipo
+    $byType = $grievances->groupBy('type')->map->count();
+    
+    // Contagem por prioridade
+    $byPriority = $grievances->groupBy('priority')->map->count();
+    
+    // Reclamações escaladas
+    $escalatedCount = $grievances->where('escalated', true)->count();
+    
+    // Reclamações com intervenção do director atual
+    $withMyIntervention = $grievances->filter(function($g) use ($user) {
+        return $this->hasDirectorInterventionByUser($g, $user);
+    })->count();
+    
+    // Reclamações atribuídas ao director atual
+    $assignedToMe = $grievances->where('assigned_to', $user->id)->count();
+    
+    // Solicitações do gestor (escaladas)
+    $managerRequests = $grievances->filter(function($g) {
+        return $g->escalated || 
+               ($g->metadata && isset($g->metadata['is_escalated_to_director']) && 
+                $g->metadata['is_escalated_to_director'] === true);
+    })->count();
+    
+    // Taxa de resolução
+    $resolvedCount = $grievances->whereIn('status', ['resolved', 'closed'])->count();
+    $resolutionRate = $total > 0 ? round(($resolvedCount / $total) * 100, 1) : 0;
+    
+    // Reclamações novas (últimos 7 dias)
+    $newLast7Days = $grievances->filter(function($g) {
+        return $g->created_at->greaterThan(now()->subDays(7));
+    })->count();
+    
+    // Reclamações pendentes
+    $pendingCount = $grievances->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])->count();
+    
+    // Reclamações com comentários do director
+    $withDirectorComments = $grievances->filter(function($g) use ($user) {
+        return $g->updates->contains(function($update) use ($user) {
+            return $update->user_id === $user->id && 
+                   $update->action_type === 'director_comment' &&
+                   !empty($update->comment);
+        });
+    })->count();
+    
+    return [
+        'total' => $total,
+        'by_status' => $byStatus->toArray(),
+        'by_type' => $byType->toArray(),
+        'by_priority' => $byPriority->toArray(),
+        'escalated_count' => $escalatedCount,
+        'with_my_intervention' => $withMyIntervention,
+        'assigned_to_me' => $assignedToMe,
+        'manager_requests' => $managerRequests,
+        'resolved_count' => $resolvedCount,
+        'resolution_rate' => $resolutionRate,
+        'new_last_7_days' => $newLast7Days,
+        'pending_count' => $pendingCount,
+        'with_director_comments' => $withDirectorComments,
+        'average_updates_per_grievance' => $total > 0 ? 
+            round($grievances->sum(function($g) { return $g->updates->count(); }) / $total, 1) : 0,
+    ];
+}
+
+/**
+ * Calcular distribuições para Director
+ */
+private function calculateDirectorDistributions($grievances, $user): array
+{
+    // Distribuição por mês (últimos 6 meses)
+    $months = [];
+    for ($i = 5; $i >= 0; $i--) {
+        $month = now()->subMonths($i);
+        $monthStart = $month->copy()->startOfMonth();
+        $monthEnd = $month->copy()->endOfMonth();
+        
+        $count = $grievances->filter(function($g) use ($monthStart, $monthEnd) {
+            return $g->created_at->between($monthStart, $monthEnd);
+        })->count();
+        
+        $months[] = [
+            'month' => $month->format('M/Y'),
+            'count' => $count,
+        ];
+    }
+    
+    // Distribuição por gestor (quem escalou)
+    $byManager = $grievances->where('escalated', true)
+        ->groupBy('escalated_by')
+        ->map(function($items, $managerId) {
+            $manager = User::find($managerId);
+            return [
+                'manager_id' => $managerId,
+                'manager_name' => $manager ? $manager->name : 'Desconhecido',
+                'count' => $items->count(),
+                'resolved' => $items->whereIn('status', ['resolved', 'closed'])->count(),
+                'pending' => $items->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])->count(),
+            ];
+        })
+        ->sortByDesc('count')
+        ->take(10)
+        ->values();
+    
+    // Distribuição por tipo de intervenção do director
+    $byInterventionType = [
+        'comentários' => $grievances->filter(function($g) use ($user) {
+            return $g->updates->contains(function($update) use ($user) {
+                return $update->user_id === $user->id && 
+                       $update->action_type === 'director_comment';
+            });
+        })->count(),
+        
+        'validações_aprovadas' => $grievances->filter(function($g) use ($user) {
+            return $g->updates->contains(function($update) use ($user) {
+                return $update->user_id === $user->id && 
+                       $update->action_type === 'director_validation_approved';
+            });
+        })->count(),
+        
+        'validações_rejeitadas' => $grievances->filter(function($g) use ($user) {
+            return $g->updates->contains(function($update) use ($user) {
+                return $update->user_id === $user->id && 
+                       $update->action_type === 'director_validation_rejected';
+            });
+        })->count(),
+        
+        'assumiu_caso' => $grievances->filter(function($g) use ($user) {
+            return $g->assigned_to === $user->id &&
+                   $g->updates->contains(function($update) use ($user) {
+                       return $update->user_id === $user->id && 
+                              $update->action_type === 'director_assumed_case';
+                   });
+        })->count(),
+    ];
+    
+    // Distribuição por província
+    $byProvince = $grievances->whereNotNull('province')
+        ->groupBy('province')
+        ->map(function($items, $province) {
+            return [
+                'province' => $province,
+                'count' => $items->count(),
+            ];
+        })
+        ->sortByDesc('count')
+        ->values();
+    
+    return [
+        'by_month' => $months,
+        'by_manager' => $byManager->toArray(),
+        'by_intervention_type' => $byInterventionType,
+        'by_province' => $byProvince->toArray(),
+    ];
+}
+
+/**
+ * Obter título da exportação baseado na tab
+ */
+private function getExportTitleForDirector($tab): string
+{
+    $titles = [
+        'all' => 'Relatório Completo - Todas as Submissões',
+        'suggestions' => 'Relatório de Sugestões',
+        'grievances' => 'Relatório de Queixas',
+        'complaints' => 'Relatório de Reclamações',
+        'resolved' => 'Relatório de Submissões Concluídas',
+        'rejected' => 'Relatório de Submissões Rejeitadas',
+        'manager_requests' => 'Relatório de Solicitações do Gestor',
+        'director_interventions' => 'Relatório das Minhas Intervenções',
+        'my_submissions_to_director' => 'Relatório de Submissões ao Director',
+    ];
+    
+    return $titles[$tab] ?? 'Relatório do Director';
+}
+
+/**
+ * Obter tipo de resposta do director
+ */
+private function getDirectorResponseType(Grievance $grievance, User $director): ?string
+{
+    $validation = $grievance->metadata['director_validation'] ?? null;
+    
+    if ($validation && isset($validation['validated_by']) && $validation['validated_by'] == $director->id) {
+        return match($validation['status'] ?? '') {
+            'approved' => 'Aprovado',
+            'rejected' => 'Rejeitado',
+            'needs_revision' => 'Revisão Solicitada',
+            'commented' => 'Comentado',
+            default => null
+        };
+    }
+    
+    // Verificar updates específicos do director
+    $directorUpdate = $grievance->updates
+        ->where('user_id', $director->id)
+        ->whereIn('action_type', [
+            'director_comment',
+            'director_validation_approved',
+            'director_validation_rejected',
+            'director_validation_needs_revision',
+            'director_assumed_case'
+        ])
+        ->first();
+    
+    if ($directorUpdate) {
+        return match($directorUpdate->action_type) {
+            'director_comment' => 'Comentário',
+            'director_validation_approved' => 'Aprovado',
+            'director_validation_rejected' => 'Rejeitado',
+            'director_validation_needs_revision' => 'Revisão Solicitada',
+            'director_assumed_case' => 'Assumiu o Caso',
+            default => 'Intervenção'
+        };
+    }
+    
+    return null;
+}
+
+/**
+ * Criar PDF de erro para Director
+ */
+private function createDirectorErrorPdf($errorMessage, $user)
+{
+    $data = [
+        'title' => 'Erro ao Exportar Relatório',
+        'subtitle' => 'Director: ' . $user->name,
+        'user' => $user,
+        'user_name' => $user->name,
+        'export_date' => now()->format('d/m/Y H:i'),
+        'error_message' => $errorMessage,
+        'is_error' => true,
+    ];
+    
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.director-submissions-pdf', $data);
+    $pdf->setPaper('A4', 'portrait');
+    
+    $filename = 'erro-exportacao-director-' . now()->format('Y-m-d-H-i') . '.pdf';
+    return $pdf->download($filename);
+}
+
+/**
+ * Verificar dados para exportação (para debug)
+ */
+public function checkExportData(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    try {
+        \Log::info('Director - Check export data', [
+            'user_id' => $user->id,
+            'request_params' => $request->all()
+        ]);
+        
+        $query = Grievance::with(['user', 'assignedUser'])
+            ->latest();
+        
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        
+        // Calcular estatísticas básicas
+        $stats = [
+            'total' => $grievances->count(),
+            'by_type' => $grievances->groupBy('type')->map->count()->toArray(),
+            'by_status' => $grievances->groupBy('status')->map->count()->toArray(),
+            'by_priority' => $grievances->groupBy('priority')->map->count()->toArray(),
+            'escalated_count' => $grievances->where('escalated', true)->count(),
+        ];
+        
+        return response()->json([
+            'success' => true,
+            'count' => $grievances->count(),
+            'statistics' => $stats,
+            'filters' => $request->all(),
+            'sample_data' => $grievances->count() > 0 ? [
+                'first_grievance' => [
+                    'id' => $grievances->first()->id,
+                    'reference' => $grievances->first()->reference_number,
+                    'type' => $grievances->first()->type,
+                    'status' => $grievances->first()->status,
+                    'priority' => $grievances->first()->priority,
+                    'escalated' => $grievances->first()->escalated,
+                ]
+            ] : null
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro em checkExportData do Director: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Erro ao verificar dados: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+/**
+ * Exportar lista simples de submissões (sem estatísticas)
+ */
+public function exportSimpleList(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+    
+    try {
+        $query = Grievance::with(['user', 'assignedUser', 'project'])
+            ->latest();
+        
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        
+        // Determinar título baseado na tab
+        $tab = $request->input('tab', 'all');
+        $title = $this->getExportTitleForDirector($tab);
+        
+        $data = [
+            'title' => $title,
+            'subtitle' => 'Director: ' . $user->name,
+            'user' => $user,
+            'user_name' => $user->name,
+            'export_date' => now()->format('d/m/Y H:i'),
+            'period' => $this->getReportPeriod($request),
+            'total_grievances' => $grievances->count(),
+            'grievances' => $grievances->map(function ($grievance) {
+                return [
+                    'reference_number' => $grievance->reference_number,
+                    'description' => $grievance->description,
+                    'type' => $this->getTypeLabelForExport($grievance->type),
+                    'priority' => $this->getPriorityLabel($grievance->priority),
+                    'status' => $this->getStatusText($grievance->status),
+                    'category' => $grievance->category ?? 'N/A',
+                    'created_at' => $grievance->created_at->format('d/m/Y H:i'),
+                    'user_name' => $grievance->user ? $grievance->user->name : 'Anônimo',
+                    'technician' => $grievance->assignedUser ? $grievance->assignedUser->name : 'Não atribuído',
+                    'project' => $grievance->project ? $grievance->project->name : 'N/A',
+                    'escalated' => $grievance->escalated ? 'Sim' : 'Não',
+                    'has_director_intervention' => $this->hasDirectorIntervention($grievance),
+                ];
+            })->toArray(),
+            'filters_applied' => $this->getAppliedFilters($request),
+            'is_simple_list' => true,
+        ];
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.director-submissions-pdf', $data);
+        $pdf->setPaper('A4', 'portrait');
+        
+        $filename = 'lista-submissoes-director-' . now()->format('Y-m-d-H-i') . '.pdf';
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro ao exportar lista simples do Director: ' . $e->getMessage());
+        return $this->createDirectorErrorPdf('Erro ao gerar lista: ' . $e->getMessage(), $user);
     }
 }
 }

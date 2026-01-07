@@ -19,6 +19,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $username
  * @property string $email
  * @property string $status
+ * @property string $locale
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -61,8 +62,9 @@ class User extends Authenticatable
         'workload_capacity',
         'current_workload',
         'is_available',
-        'status', // Adicionada coluna status
+        'status',
         'department_id',
+        'locale', // ← ADICIONAR AQUI
     ];
 
     /**
@@ -89,6 +91,7 @@ class User extends Authenticatable
             'workload_capacity' => 'integer',
             'current_workload' => 'integer',
             'status' => 'string',
+            'locale' => 'string', // ← ADICIONAR AQUI
         ];
     }
 
@@ -107,6 +110,11 @@ class User extends Authenticatable
             
             // Sincronizar is_available com status
             $user->is_available = $user->status === self::STATUS_ACTIVE;
+            
+            // Definir locale padrão se não especificado
+            if (empty($user->locale)) {
+                $user->locale = config('app.locale', 'pt');
+            }
         });
 
         // Sincronizar is_available sempre que status for atualizado
@@ -115,6 +123,41 @@ class User extends Authenticatable
                 $user->is_available = $user->status === self::STATUS_ACTIVE;
             }
         });
+    }
+
+    /**
+     * Set the user's preferred locale.
+     *
+     * @param string $locale
+     * @return bool
+     */
+    public function setLocale(string $locale): bool
+    {
+        if (!in_array($locale, config('app.available_locales', ['pt', 'en']),
+            ['pt_MZ'])) {
+            return false;
+        }
+        
+        $this->locale = $locale;
+        return $this->save();
+    }
+
+    /**
+     * Get the user's preferred locale.
+     *
+     * @return string
+     */
+    public function getLocale(): string
+    {
+        return $this->locale ?: config('app.locale', 'pt_MZ');
+    }
+
+    /**
+     * Scope para filtrar usuários por locale.
+     */
+    public function scopeByLocale($query, string $locale)
+    {
+        return $query->where('locale', $locale);
     }
 
     /**
@@ -324,5 +367,43 @@ class User extends Authenticatable
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+    
+    /**
+     * Get user's display name with locale indicator
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $flag = match($this->locale) {
+            'pt', 'pt_MZ' => '🇲🇿',
+            'en' => '🇺🇸',
+            default => '🌐'
+        };
+        
+        return "{$this->name} {$flag}";
+    }
+    
+    /**
+     * Get user's language name
+     */
+    public function getLanguageAttribute(): string
+    {
+        return match($this->locale) {
+            'pt', 'pt_MZ' => 'Português (MZ)',
+            'en' => 'English',
+            default => $this->locale
+        };
+    }
+
+     public function getNormalizedLocaleAttribute(): string
+    {
+        $locale = $this->locale;
+        
+        // Se for pt e estiver usando Lusophone, converter para pt_MZ
+        if ($locale === 'pt' && config('app.locale') === 'pt_MZ') {
+            return 'pt_MZ';
+        }
+        
+        return $locale;
     }
 }

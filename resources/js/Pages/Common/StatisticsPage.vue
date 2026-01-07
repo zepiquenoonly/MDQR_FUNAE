@@ -47,7 +47,7 @@
                 <button
                   v-if="canExport"
                   @click="showExportModal = true"
-                  :disabled="false"
+                  :disabled="loading"
                   class="inline-flex items-center px-3 py-1 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ArrowDownTrayIcon class="w-4 h-4 mr-1" />
@@ -55,108 +55,6 @@
                 </button>
               </div>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal de Exportação -->
-      <div
-        v-if="showExportModal"
-        class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50"
-      >
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              Exportar Estatísticas
-            </h3>
-            <button
-              @click="showExportModal = false"
-              class="text-gray-400 hover:text-gray-500"
-            >
-              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <p class="text-gray-600 dark:text-gray-300 mb-6">
-            Selecione o formato para exportação:
-          </p>
-
-          <div class="space-y-3">
-            <button
-              @click="handleExport('excel')"
-              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <div class="flex items-center">
-                <div
-                  class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-3"
-                >
-                  <span class="text-green-600 dark:text-green-300 font-bold">XLS</span>
-                </div>
-                <div class="text-left">
-                  <p class="font-medium text-gray-900 dark:text-white">Excel (.xlsx)</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Ideal para análise e edição
-                  </p>
-                </div>
-              </div>
-              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
-            </button>
-
-            <button
-              @click="handleExport('csv')"
-              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <div class="flex items-center">
-                <div
-                  class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3"
-                >
-                  <span class="text-blue-600 dark:text-blue-300 font-bold">CSV</span>
-                </div>
-                <div class="text-left">
-                  <p class="font-medium text-gray-900 dark:text-white">CSV (.csv)</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Formato simples e compatível
-                  </p>
-                </div>
-              </div>
-              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
-            </button>
-
-            <button
-              @click="handleExport('pdf')"
-              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <div class="flex items-center">
-                <div
-                  class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-3"
-                >
-                  <span class="text-red-600 dark:text-red-300 font-bold">PDF</span>
-                </div>
-                <div class="text-left">
-                  <p class="font-medium text-gray-900 dark:text-white">PDF (.pdf)</p>
-                  <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Para impressão e compartilhamento
-                  </p>
-                </div>
-              </div>
-              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
-            </button>
-          </div>
-
-          <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
-            <p>
-              Período selecionado:
-              <span class="font-medium"
-                >{{ formatDate(start_date) }} - {{ formatDate(end_date) }}</span
-              >
-            </p>
           </div>
         </div>
       </div>
@@ -685,9 +583,114 @@
       </div>
     </div>
   </UnifiedLayout>
+  <!-- Modal de Exportação -->
+  <div
+    v-if="showExportModal"
+    class="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50"
+  >
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+          Exportar Estatísticas
+        </h3>
+        <button
+          @click="showExportModal = false"
+          class="text-gray-400 hover:text-gray-500"
+        >
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
+
+      <p class="text-gray-600 dark:text-gray-300 mb-6">
+        Selecione o formato para exportação:
+      </p>
+
+      <div class="space-y-3">
+        <!--<button
+              @click="handleExport('xlsx')"
+              :disabled="loading"
+              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <span class="text-green-600 dark:text-green-300 font-bold">XLSX</span>
+                </div>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900 dark:text-white">Excel (.xlsx)</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Ideal para análise e edição
+                  </p>
+                </div>
+              </div>
+              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
+            </button>
+
+            <button
+              @click="handleExport('csv')"
+              :disabled="loading"
+              class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <div class="flex items-center">
+                <div
+                  class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mr-3"
+                >
+                  <span class="text-blue-600 dark:text-blue-300 font-bold">CSV</span>
+                </div>
+                <div class="text-left">
+                  <p class="font-medium text-gray-900 dark:text-white">CSV (.csv)</p>
+                  <p class="text-sm text-gray-500 dark:text-gray-400">
+                    Formato simples e compatível
+                  </p>
+                </div>
+              </div>
+              <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
+            </button>-->
+
+        <button
+          @click="handleExport('pdf')"
+          :disabled="loading"
+          class="w-full flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <div class="flex items-center">
+            <div
+              class="w-10 h-10 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mr-3"
+            >
+              <span class="text-red-600 dark:text-red-300 font-bold">PDF</span>
+            </div>
+            <div class="text-left">
+              <p class="font-medium text-gray-900 dark:text-white">PDF (.pdf)</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                Para impressão e compartilhamento
+              </p>
+            </div>
+          </div>
+          <ArrowDownTrayIcon class="w-5 h-5 text-gray-400" />
+        </button>
+      </div>
+
+      <div class="mt-6 text-sm text-gray-500 dark:text-gray-400">
+        <p>
+          Período selecionado:
+          <span class="font-medium"
+            >{{ formatDate(start_date) }} - {{ formatDate(end_date) }}</span
+          >
+        </p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
+import axios from "axios";
 import { ref, computed, onMounted, watch } from "vue";
 import { Link, router } from "@inertiajs/vue3";
 import UnifiedLayout from "@/Layouts/UnifiedLayout.vue";
@@ -725,6 +728,7 @@ const localData = ref({ ...props });
 const showExportModal = ref(false);
 const activeTypeChart = ref("doughnut");
 const activeTimelineChart = ref("line");
+const exportToast = ref(null);
 
 // Computed para verificar modo escuro
 const isDarkMode = computed(() => {
@@ -864,99 +868,175 @@ const changePeriod = () => {
   loadStatistics();
 };
 
-//const url = `/director/estatisticas/export?${params.toString()}`;
-
 const handleExport = async (format) => {
   showExportModal.value = false;
   loading.value = true;
 
   try {
-    // 1️⃣ Inicia export via POST
-    const response = await fetch(`/director/export/async`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ period: period.value, format }),
-    });
-
-    const data = await response.json();
-    const jobId = data.jobId;
-
-    // 2️⃣ Polling para verificar status
-    const checkStatus = async () => {
-      const statusResp = await fetch(`/director/export/status?jobId=${jobId}`);
-      const statusData = await statusResp.json();
-
-      if (statusData.ready) {
-        // 3️⃣ Baixa ficheiro
-        const link = document.createElement("a");
-        link.href = statusData.downloadUrl;
-        link.setAttribute("download", statusData.filename);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        showSuccessToast(`Exportação pronta (${format.toUpperCase()})`);
-        loading.value = false;
-      } else {
-        // Re-tenta em 2s
-        setTimeout(checkStatus, 2000);
-      }
+    const formatMapping = {
+      xlsx: "xlsx",
+      csv: "csv",
+      pdf: "pdf",
     };
 
-    checkStatus();
+    const backendFormat = formatMapping[format] || format;
+
+    console.log(`Iniciando exportação para ${backendFormat}...`);
+
+    const response = await axios.post("/director/export/async", {
+      period: period.value,
+      format: backendFormat,
+    });
+
+    console.log("Resposta do servidor:", response.data);
+
+    if (response.data.status === "queued") {
+      showToast("Exportação em processamento. Aguarde alguns instantes...", "info");
+
+      // Iniciar verificação do status
+      startExportPolling(backendFormat);
+    } else {
+      showToast("Resposta inesperada do servidor.", "error");
+      loading.value = false;
+    }
   } catch (error) {
-    console.error("Erro na exportação:", error);
-    showErrorToast("Erro ao exportar estatísticas.");
+    console.error("Erro:", error.response?.data || error.message);
+    showToast(
+      "Erro ao exportar: " + (error.response?.data?.message || error.message),
+      "error"
+    );
     loading.value = false;
   }
 };
 
-// Função para verificar se o ficheiro foi gerado
-const waitForExportFile = async (format) => {
-  const maxRetries = 20; // tenta 20 vezes
-  const delay = 1000; // 1 segundo entre tentativas
+const startExportPolling = (format) => {
+  let attempts = 0;
+  const maxAttempts = 30;
+  const checkInterval = 2000;
 
-  for (let i = 0; i < maxRetries; i++) {
-    try {
-      // Checar status do export no backend
-      const response = await fetch(`/director/estatisticas/export/status`);
-      const files = await response.json();
+  const poll = async () => {
+    attempts++;
 
-      const file = files.find((f) => f.format === format);
-      if (file && file.url) {
-        // ficheiro pronto → criar link de download
-        const link = document.createElement("a");
-        link.href = file.url;
-        link.setAttribute("download", "");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        showSuccessToast(`Exportação pronta: ${format.toUpperCase()}`);
-        return;
-      }
-    } catch (error) {
-      console.error("Erro a verificar export:", error);
+    if (attempts > maxAttempts) {
+      showToast("Tempo limite excedido. A exportação está demorando muito.", "warning");
+      loading.value = false;
+      return;
     }
 
-    // esperar 1s antes da próxima tentativa
-    await new Promise((resolve) => setTimeout(resolve, delay));
+    console.log(`Verificando exportação (tentativa ${attempts}/${maxAttempts})...`);
+
+    try {
+      const response = await axios.get("/director/export/status");
+      const files = response.data;
+
+      // Encontrar o arquivo mais recente do formato correto
+      let targetFile = null;
+
+      // Procurar por extensão
+      const extension = format.toLowerCase();
+      targetFile = files.find(
+        (f) =>
+          f.filename.toLowerCase().endsWith(`.${extension}`) ||
+          (f.filename.toLowerCase().includes("estatisticas") &&
+            f.filename.toLowerCase().includes(extension))
+      );
+
+      // Se não encontrar, usar o mais recente
+      if (!targetFile && files.length > 0) {
+        targetFile = files[0];
+      }
+
+      if (targetFile) {
+        console.log("✅ Arquivo encontrado:", targetFile);
+        loading.value = false;
+
+        // Forçar download
+        await forceDownload(targetFile);
+
+        showToast(`Download iniciado: ${targetFile.filename}`, "success");
+        return;
+      } else {
+        setTimeout(poll, checkInterval);
+      }
+    } catch (error) {
+      console.error("Erro no polling:", error);
+      setTimeout(poll, checkInterval);
+    }
+  };
+
+  poll();
+};
+
+const forceDownload = async (file) => {
+  try {
+    // Usar download_url se disponível, senão usar url
+    const downloadUrl = file.download_url || file.url;
+
+    // Criar link invisível e clicar
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = file.filename;
+    link.target = "_blank";
+    link.style.display = "none";
+
+    document.body.appendChild(link);
+    link.click();
+
+    // Limpar após o clique
+    setTimeout(() => {
+      document.body.removeChild(link);
+    }, 100);
+
+    return true;
+  } catch (error) {
+    console.error("Erro ao forçar download:", error);
+    // Fallback: abrir em nova aba
+    window.open(file.url || file.download_url, "_blank");
+    return false;
+  }
+};
+
+// Sistema de notificações melhorado (sem alerts)
+const showToast = (message, type = "info") => {
+  // Remover toast anterior se existir
+  if (exportToast.value) {
+    exportToast.value.remove();
   }
 
-  showErrorToast("O ficheiro de exportação não ficou pronto a tempo. Tente novamente.");
-};
+  // Criar novo toast
+  const toast = document.createElement("div");
+  exportToast.value = toast;
 
-// Funções de toast (simplificadas)
-const showSuccessToast = (message) => {
-  // Você pode integrar com uma biblioteca de notificações
-  console.log("✅", message);
-  // Exemplo com alerta simples
-  alert(message);
-};
+  const colors = {
+    success: "bg-green-500",
+    error: "bg-red-500",
+    warning: "bg-yellow-500",
+    info: "bg-blue-500",
+  };
 
-const showErrorToast = (message) => {
-  console.error("❌", message);
-  alert("Erro: " + message);
+  toast.className = `fixed top-4 right-4 ${colors[type]} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-all duration-300 transform translate-x-0`;
+  toast.innerHTML = `
+    <div class="flex items-center">
+      <span class="font-medium">${message}</span>
+      <button class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.remove()">
+        ×
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(toast);
+
+  // Auto-remover após 5 segundos
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.classList.add("opacity-0", "translate-x-full");
+      setTimeout(() => {
+        if (toast.parentNode) {
+          toast.remove();
+        }
+      }, 300);
+    }
+  }, 5000);
 };
 
 // Observar mudanças no modo escuro para atualizar gráficos
@@ -966,7 +1046,6 @@ watch(isDarkMode, () => {
 
 // Inicializar quando o componente é montado
 onMounted(() => {
-  // Sempre carregar dados ao montar
   loadStatistics();
 });
 

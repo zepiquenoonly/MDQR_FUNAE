@@ -2327,4 +2327,126 @@ private function getResolutionByMonth($technicianId): array
     
     return $months;
 }
+
+public function exportEmployeesToPdf(Request $request)
+{
+    $user = $request->user();
+    $this->checkAccess($user);
+
+    // Obter filtros
+    $role = $request->query('role', 'all');
+    $search = $request->query('search', '');
+    $province = $request->query('province', '');
+    $status = $request->query('status', '');
+    
+    // Query para dados
+    $employeesQuery = User::query()
+        ->whereHas('roles', function ($query) use ($role) {
+            if ($role !== 'all') {
+                $roleName = $role === 'manager' ? 'Gestor' : 'Técnico';
+                $query->where('name', $roleName);
+            } else {
+                $query->whereIn('name', ['Gestor', 'Técnico']);
+            }
+        })
+        ->with(['roles'])
+        ->orderBy('name');
+
+    // Aplicar filtros
+    if ($search) {
+        $employeesQuery->where(function ($q) use ($search) {
+            $q->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%")
+              ->orWhere('username', 'like', "%{$search}%");
+        });
+    }
+
+    if ($province) {
+        $employeesQuery->where('province', $province);
+    }
+
+    if ($status === 'active') {
+        $employeesQuery->where('status', 'active');
+    } elseif ($status === 'inactive') {
+        $employeesQuery->where('status', 'inactive');
+    }
+
+    // Obter dados
+    $employees = $employeesQuery->get()->map(function ($employee) {
+        $roleName = $employee->roles->first()->name ?? 'Técnico';
+        $stats = $this->getEmployeeStats($employee);
+        
+        return [
+            'name' => $employee->name ?? 'N/A',
+            'username' => $employee->username ?? 'N/A',
+            'email' => $employee->email ?? 'N/A',
+            'phone' => $employee->phone ?: '--',
+            'province' => $employee->province ?: '--',
+            'district' => $employee->district ?: '--',
+            'neighborhood' => $employee->neighborhood ?: '--',
+            'role' => $roleName === 'Técnico' ? 'technician' : 'manager',
+            'status' => $employee->status ?? 'active',
+            'tasks_assigned' => $stats['total_assigned'],
+            'tasks_pending' => $stats['pending'],
+            'tasks_completed' => $stats['completed'],
+            'tasks_in_progress' => $stats['in_progress'],
+            'tasks_cancelled' => $stats['cancelled'],
+            'completion_rate' => $stats['completion_rate'],
+            'average_resolution_time' => $stats['average_resolution_time']
+        ];
+    });
+
+
+    $fileName = 'relatorio-tecnicos-' . now()->format('Y-m-d-H-i') . '.pdf';
+    
+    // Dados para a view
+    $data = [
+        'employees' => $employees,
+        'user' => $user,
+        'generated_by' => $user->name,
+        'filters_applied' => [
+            'cargo' => 'Técnico',
+            'status' => $status ?: 'Todos',
+            'província' => $province ?: 'Todas',
+            'pesquisa' => $search ?: 'Nenhum'
+        ]
+    ];
+
+    // MÉTODO ALTERNATIVO: Usar DomPDF diretamente
+    $dompdf = new \Dompdf\Dompdf();
+    
+    // Carregar o HTML
+    $html = view('exports.employees', $data)->render();
+    $dompdf->loadHtml($html);
+    
+    // FORÇAR A3 LANDSCAPE de forma explícita
+    $dompdf->setPaper('A3', 'landscape');
+    
+    // Configurações adicionais
+    $dompdf->set_option('defaultFont', 'dejavusanscondensed');
+    $dompdf->set_option('isHtml5ParserEnabled', true);
+    $dompdf->set_option('isRemoteEnabled', false);
+    $dompdf->set_option('dpi', 120);
+    $dompdf->set_option('fontHeightRatio', 0.8);
+    
+    // Renderizar
+    $dompdf->render();
+    
+    // Baixar
+    return $dompdf->stream($fileName);
+}
+
+
+private function getDefaultStats(): array
+{
+    return [
+        'total_assigned' => 0,
+        'pending' => 0,
+        'completed' => 0,
+        'cancelled' => 0,
+        'in_progress' => 0,
+        'completion_rate' => 0,
+        'average_resolution_time' => 0,
+    ];
+}
 }
