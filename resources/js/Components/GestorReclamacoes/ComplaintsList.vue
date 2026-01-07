@@ -1,4 +1,3 @@
-<!-- ComplaintsList.vue - template atualizado -->
 <template>
   <div
     class="bg-white dark:bg-dark-secondary rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-6"
@@ -284,7 +283,9 @@
                 <DocumentMagnifyingGlassIcon
                   class="w-12 h-12 text-gray-400 dark:text-gray-600 mx-auto mb-4"
                 />
-                <p class="text-gray-500 dark:text-gray-400">Nenhuma submissão encontrada</p>
+                <p class="text-gray-500 dark:text-gray-400">
+                  Nenhuma submissão encontrada
+                </p>
               </div>
             </div>
           </div>
@@ -855,6 +856,33 @@
               >
                 Atribuição Auto.
               </button>
+
+              <button
+                v-if="showAllComplaints"
+                @click="exportToPdf"
+                class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded text-xs font-medium flex items-center gap-1.5 transition-all duration-200"
+                :disabled="loading || filteredComplaints.length === 0"
+                :title="
+                  filteredComplaints.length === 0
+                    ? 'Não há dados para exportar'
+                    : 'Exportar todas as submissões para PDF'
+                "
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Exportar PDF ({{ filteredComplaints.length }})
+              </button>
             </div>
           </div>
         </div>
@@ -1164,9 +1192,57 @@ const getTabData = (tab) => {
     );
   };
 
+  // **TAB ESPECÍFICA PARA GESTOR: Intervenções do Director**
+  if (isManager.value && tab === "director_interventions") {
+    // Se temos os dados específicos do props, usamos
+    if (props.director_interventions && props.director_interventions.length > 0) {
+      console.log(
+        "📋 Usando props.director_interventions:",
+        props.director_interventions.length
+      );
+      return props.director_interventions;
+    }
+
+    // Caso contrário, filtramos da base de dados
+    const interventions = baseData.filter((item) => {
+      // **CRÍTICO: Apenas onde o Director JÁ RESPONDEU**
+      return (
+        item.has_director_intervention === true &&
+        item.director_response_type !== null &&
+        item.director_response_date !== null
+      );
+    });
+
+    console.log("📋 Filtrado da base:", interventions.length);
+    return excludeResolvedRejected(interventions);
+  }
+
+  // **TAB ESPECÍFICA PARA GESTOR: Minhas Submissões ao Director**
+  if (isManager.value && tab === "my_submissions_to_director") {
+    // Se temos os dados específicos do props, usamos
+    if (props.my_submissions_to_director && props.my_submissions_to_director.length > 0) {
+      console.log(
+        "📋 Usando props.my_submissions_to_director:",
+        props.my_submissions_to_director.length
+      );
+      return props.my_submissions_to_director;
+    }
+
+    // Caso contrário, filtramos da base de dados
+    const mySubmissions = baseData.filter((item) => {
+      // **CRÍTICO: Todas as submissões que o gestor enviou ao Director**
+      return (
+        (item.escalated === true || item.is_escalated_to_director === true) &&
+        (item.escalated_by_me === true || item.assigned_to === props.user?.id)
+      );
+    });
+
+    console.log("📋 Filtrado da base:", mySubmissions.length);
+    return excludeResolvedRejected(mySubmissions);
+  }
+
   // Para Director: Solicitações do Gestor
   if (isDirector.value && tab === "manager_requests") {
-    // Filtrar primeiro, depois excluir resolved/rejected
     const filtered = getManagerRequests();
     return excludeResolvedRejected(filtered);
   }
@@ -1174,18 +1250,6 @@ const getTabData = (tab) => {
   // Para Director: Minhas Intervenções
   if (isDirector.value && tab === "director_interventions") {
     const filtered = getDirectorInterventions();
-    return excludeResolvedRejected(filtered);
-  }
-
-  // Para Manager: Intervenções do Director
-  if (isManager.value && tab === "director_interventions") {
-    const filtered = getDirectorInterventions();
-    return excludeResolvedRejected(filtered);
-  }
-
-  // Para Manager: Minhas Submissões ao Director
-  if (isManager.value && tab === "my_submissions_to_director") {
-    const filtered = getMySubmissionsToDirector();
     return excludeResolvedRejected(filtered);
   }
 
@@ -1705,20 +1769,6 @@ const handleRowClick = async (item) => {
   router.get(url);
 };
 
-const handleExport = () => {
-  if (loading.value) return;
-
-  // Determinar qual tab está ativa para exportar
-  let exportType = activeTab.value;
-  let label = getExportLabel();
-
-  // Filtrar dados para exportação
-  const dataToExport = currentTabData.value;
-  // Implementar lógica de exportação
-  console.log(`Exportando ${dataToExport.length} registros de ${label}...`);
-  alert(`Exportando ${dataToExport.length} registros de ${label}...`);
-};
-
 const handleBulkAssign = () => {
   if (loading.value) return;
   // Filtrar apenas submissões que não estão resolved/rejected
@@ -2096,9 +2146,231 @@ onMounted(() => {
   // Calcular contadores não vistos
   calculateUnseenCounts();
 });
+
+const exportToPdf = () => {
+  if (loading.value) return;
+
+  try {
+    loading.value = true;
+
+    console.log("=== EXPORTAÇÃO DE RELATÓRIO COMPLETO ===");
+    console.log("Role:", props.role);
+    console.log("Tab ativa:", activeTab.value);
+    console.log("Filtros locais:", localFilters.value);
+
+    // Preparar parâmetros
+    const params = new URLSearchParams();
+
+    // Usar tab atual (somente se não for "all")
+    if (activeTab.value && activeTab.value !== "all") {
+      params.append("tab", activeTab.value);
+      console.log("Adicionando tab aos parâmetros:", activeTab.value);
+    }
+
+    // Adicionar filtros atuais APENAS se não forem vazios
+    if (localFilters.value.type && localFilters.value.type.trim() !== "") {
+      params.append("type", localFilters.value.type);
+      console.log("Adicionando type:", localFilters.value.type);
+    }
+
+    if (localFilters.value.status && localFilters.value.status.trim() !== "") {
+      params.append("status", localFilters.value.status);
+      console.log("Adicionando status:", localFilters.value.status);
+    }
+
+    if (localFilters.value.priority && localFilters.value.priority.trim() !== "") {
+      params.append("priority", localFilters.value.priority);
+      console.log("Adicionando priority:", localFilters.value.priority);
+    }
+
+    if (localFilters.value.category && localFilters.value.category.trim() !== "") {
+      params.append("category", localFilters.value.category);
+      console.log("Adicionando category:", localFilters.value.category);
+    }
+
+    // Adicionar período fixo (opcional)
+    // params.append('period', 'month'); // Descomente se quiser período fixo
+
+    // Adicionar data para evitar cache
+    params.append("_", Date.now());
+
+    // DETERMINAR URL BASEADA NO ROLE
+    let baseUrl;
+    let roleName;
+
+    if (isDirector.value) {
+      baseUrl = "/director/export/complete-report";
+      roleName = "Director";
+    } else if (isManager.value) {
+      baseUrl = "/gestor/export/complete-report";
+      roleName = "Gestor";
+    } else {
+      baseUrl = "/export/complete-report";
+      roleName = "Usuário";
+    }
+
+    const url = `${baseUrl}${params.toString() ? "?" + params.toString() : ""}`;
+
+    console.log(`📤 URL de exportação para ${roleName}:`, url);
+    console.log("Parâmetros:", params.toString());
+
+    // Verificar se há dados para exportar
+    const hasData = currentTabData.value.length > 0;
+    if (!hasData) {
+      showToast(
+        `Não há dados disponíveis na tab "${activeTab.value}" para exportar`,
+        "warning"
+      );
+      loading.value = false;
+      return;
+    }
+
+    // Mostrar mensagem informativa
+    let tabName = "";
+    switch (activeTab.value) {
+      case "suggestions":
+        tabName = "Sugestões";
+        break;
+      case "grievances":
+        tabName = "Queixas";
+        break;
+      case "complaints":
+        tabName = "Reclamações";
+        break;
+      case "resolved":
+        tabName = "Concluídos";
+        break;
+      case "rejected":
+        tabName = "Rejeitados";
+        break;
+      case "manager_requests":
+        tabName = "Solicitações do Gestor";
+        break;
+      case "director_interventions":
+        tabName = "Intervenções do Director";
+        break;
+      case "my_submissions_to_director":
+        tabName = "Minhas Submissões ao Director";
+        break;
+      default:
+        tabName = "Todas as Submissões";
+    }
+
+    const itemCount = currentTabData.value.length;
+    const message = `Exportando ${itemCount} ${
+      itemCount === 1 ? "item" : "itens"
+    } da tab "${tabName}" para ${roleName}...`;
+
+    showToast(message, "info");
+
+    // Criar link temporário para download
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+
+    // Adicionar ao DOM, clicar e remover
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Mostrar mensagem de sucesso após um tempo
+    setTimeout(() => {
+      loading.value = false;
+      const successMsg = `Relatório de ${tabName} exportado com sucesso! ${itemCount} ${
+        itemCount === 1 ? "registro" : "registros"
+      }.`;
+      showToast(successMsg, "success");
+
+      // Log adicional para debug
+      console.log("✅ Exportação concluída com sucesso");
+      console.log(`📊 Dados exportados: ${itemCount} itens`);
+      console.log(`🏷️ Tab: ${tabName}`);
+      console.log(`👤 Role: ${roleName}`);
+    }, 2000);
+  } catch (error) {
+    console.error("❌ Erro ao exportar relatório:", error);
+
+    // Mensagem de erro específica
+    let errorMessage = "Erro ao gerar relatório";
+    if (isDirector.value) {
+      errorMessage = "Erro ao gerar relatório do Director";
+    } else if (isManager.value) {
+      errorMessage = "Erro ao gerar relatório do Gestor";
+    }
+
+    showToast(`${errorMessage}: ${error.message}`, "error");
+    loading.value = false;
+  }
+};
+
+const showToast = (message, type = "info") => {
+  // Remover toast anterior se existir
+  const existingToast = document.querySelector(".custom-toast");
+  if (existingToast) {
+    existingToast.remove();
+  }
+
+  // Criar novo toast
+  const toast = document.createElement("div");
+  toast.className = `custom-toast fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg transform transition-all duration-300 ${
+    type === "success"
+      ? "bg-green-500 text-white"
+      : type === "error"
+      ? "bg-red-500 text-white"
+      : type === "warning"
+      ? "bg-yellow-500 text-white"
+      : "bg-blue-500 text-white"
+  }`;
+
+  toast.innerHTML = `
+        <div class="flex items-center gap-2">
+            ${
+              type === "success"
+                ? "✓"
+                : type === "error"
+                ? "✗"
+                : type === "warning"
+                ? "⚠"
+                : "ℹ"
+            }
+            <span>${message}</span>
+        </div>
+    `;
+
+  document.body.appendChild(toast);
+
+  // Mostrar toast
+  setTimeout(() => {
+    toast.classList.add("opacity-100", "translate-y-0");
+  }, 10);
+
+  // Remover após 5 segundos
+  setTimeout(() => {
+    toast.classList.remove("opacity-100", "translate-y-0");
+    toast.classList.add("opacity-0", "translate-y-2");
+
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.remove();
+      }
+    }, 300);
+  }, 5000);
+};
 </script>
 
 <style scoped>
+.custom-toast {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: all 0.3s ease;
+}
+
+.custom-toast.opacity-100 {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Container principal da tabela */
 .table-wrapper {
   position: relative;

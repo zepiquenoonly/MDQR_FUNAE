@@ -744,40 +744,46 @@ export const useGrievanceDetail = props => {
     }
 
     const rejectSubmission = async formData => {
-        loading.reject = true
+    loading.reject = true
 
-        try {
-            let url = ''
+    try {
+        let url = ''
 
-            // URLs diretas baseadas no papel do usuário
-            if (isManager.value) {
-                url = `/gestor/complaints/${complaint.value.id}/reject-submission`
-            } else if (isDirector.value) {
-                url = `/director/complaints/${complaint.value.id}/reject-submission`
-            } else {
-                throw new Error(
-                    'Usuário não autorizado para rejeitar submissões'
-                )
-            }
+        if (isManager.value) {
+            url = `/gestor/complaints/${complaint.value.id}/reject-submission`
+        } else if (isDirector.value) {
+            url = `/director/complaints/${complaint.value.id}/reject-submission`
+        } else {
+            throw new Error('Usuário não autorizado para rejeitar submissões')
+        }
 
-            const data = {
-                reason: formData.reason_label || formData.reason, // Priorizar label para usuário
-                reason_value: formData.reason, // Manter o valor para lógica interna
-                comment: formData.comment,
-                internal_comment: formData.comment, // Para o backend
-                rejection_type: formData.reason, // Usar o value para compatibilidade
-                notify_user: true, // Sempre notificar para rejeição
-                notify_technician: true,
-                status: 'rejected',
-                _method: 'POST'
-            }
+        const data = {
+            reason: formData.reason_label || formData.reason,
+            reason_value: formData.reason,
+            comment: formData.comment,
+            internal_comment: formData.comment,
+            rejection_type: formData.reason,
+            notify_user: true,
+            notify_technician: true,
+            status: 'rejected',
+            _method: 'POST'
+        }
 
-            console.log('Enviando dados de rejeição:', data)
+        console.log('Enviando dados de rejeição:', data)
 
-            // USAR ROUTER.POST PARA CONSISTÊNCIA
-            await router.post(url, data, {
+        // Criar uma Promise wrapper para o router.post
+        await new Promise((resolve, reject) => {
+            router.post(url, data, {
                 preserveScroll: true,
+                preserveState: true,
+                onBefore: () => {
+                    console.log('Iniciando envio...')
+                },
+                onStart: () => {
+                    console.log('Envio em progresso...')
+                },
                 onSuccess: page => {
+                    // Sucesso - atualizar dados locais
                     complaint.value.status = 'rejected'
                     complaint.value.rejection_reason =
                         formData.reason_label || formData.reason
@@ -787,9 +793,8 @@ export const useGrievanceDetail = props => {
                     showRejectModal.value = false
                     showToast('Submissão rejeitada com sucesso!', 'success')
 
-                    setTimeout(() => {
-                        refreshComplaintData()
-                    }, 1000)
+                    // Resolver a Promise
+                    resolve(page)
                 },
                 onError: errors => {
                     const errorMessage =
@@ -797,15 +802,32 @@ export const useGrievanceDetail = props => {
                         errors?.error ||
                         'Erro ao rejeitar submissão'
                     showToast(errorMessage, 'error')
+                    reject(new Error(errorMessage))
+                },
+                onFinish: () => {
+                    console.log('Envio concluído')
+                    // Não resolver aqui, pois já resolvemos em onSuccess/onError
                 }
             })
-        } catch (error) {
-            console.error('Erro na rejeição:', error)
-            showToast('Erro ao processar rejeição: ' + error.message, 'error')
-        } finally {
+        })
+
+        // Aguardar um pouco antes de recarregar para mostrar o toast
+        await new Promise(resolve => setTimeout(resolve, 1000))
+
+        // Recarregar dados
+        refreshComplaintData()
+    } catch (error) {
+        console.error('Erro na rejeição:', error)
+        // Erro já foi tratado no onError
+    } finally {
+        // Dar um pequeno delay antes de remover o loading
+        setTimeout(() => {
             loading.reject = false
-        }
+        }, 300)
     }
+}
+
+
 
     const reopenSubmission = async formData => {
         loading.reopen = true
@@ -953,7 +975,6 @@ export const useGrievanceDetail = props => {
 
     const markCompleteAsDirector = async () => {
         loading.markComplete = true
-
         try {
             const url = `/director/${complaint.value.id}/mark-complete`
 

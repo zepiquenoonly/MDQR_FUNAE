@@ -18,6 +18,8 @@ class AuthenticatedSessionController extends Controller
      */
     public function create(): Response
     {
+        $this->shareCommonData();
+        
         return Inertia::render('Auth/Login', [
             'canResetPassword' => Route::has('password.request'),
             'status' => session('status'),
@@ -32,6 +34,13 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
 
         $request->session()->regenerate();
+        
+        // Set user's preferred locale after login
+        if (Auth::check()) {
+            $user = Auth::user();
+            app()->setLocale($user->locale);
+            session()->put('locale', $user->locale);
+        }
 
         return redirect()->intended(route('dashboard', absolute: false));
     }
@@ -44,7 +53,6 @@ class AuthenticatedSessionController extends Controller
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

@@ -1,246 +1,250 @@
 <template>
   <transition name="modal-fade">
-    <div
-      v-if="isOpen"
-      class="fixed inset-0 z-50 flex items-end justify-end sm:items-center"
-    >
-      <!-- Overlay -->
+    <div v-if="isOpen" class="fixed inset-0 z-50">
+      <!-- Overlay que cobre toda a tela -->
       <div
-        class="absolute inset-0 bg-black bg-opacity-40 backdrop-blur-sm"
-        @click="handleClose"
+        class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm z-40"
+        @click.self="handleClose"
       ></div>
 
-      <!-- Modal Container -->
+      <!-- Container do modal -->
       <div
-        class="relative w-full sm:w-[500px] h-full sm:h-[85vh] bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-l-2xl shadow-2xl flex flex-col overflow-hidden transform transition-all duration-300 ease-out modal-right"
-        :class="{
-          'translate-y-0 opacity-100': isOpen,
-          'translate-y-full sm:translate-x-full opacity-0': !isOpen,
-        }"
+        class="fixed inset-0 z-50 flex items-end justify-end sm:items-center pointer-events-none"
       >
-        <!-- Header minimalista -->
+        <!-- Modal -->
         <div
-          class="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+          class="pointer-events-auto relative w-full sm:w-[500px] h-full sm:h-[85vh] bg-white dark:bg-gray-900 rounded-t-2xl sm:rounded-l-2xl shadow-2xl flex flex-col overflow-hidden transform transition-all duration-300 ease-out modal-right"
+          :class="{
+            'translate-y-0 opacity-100': isOpen,
+            'translate-y-full sm:translate-x-full opacity-0': !isOpen,
+          }"
         >
-          <div class="flex items-center gap-3">
-            <div
-              class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center"
-            >
-              <ChatBubbleLeftIcon class="h-5 w-5 text-orange-600 dark:text-orange-400" />
-            </div>
-            <div>
-              <h3 class="font-semibold text-gray-900 dark:text-white text-lg">
-                Comentários da Submissão
-              </h3>
-              <p class="text-sm text-gray-500 dark:text-gray-400">
-                {{ filteredComments.length }} comentários
-              </p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2">
-            <!-- Botão para recarregar comentários -->
-            <button
-              @click="refreshComments"
-              class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-              :title="loadingRefresh ? 'Recarregando...' : 'Recarregar comentários'"
-              :disabled="loadingRefresh"
-            >
-              <ArrowPathIcon
-                class="h-5 w-5 text-gray-500 dark:text-gray-400"
-                :class="{ 'animate-spin': loadingRefresh }"
-              />
-            </button>
-            <button
-              @click="handleClose"
-              class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
-              aria-label="Fechar"
-            >
-              <XMarkIcon class="h-5 w-5 text-gray-500 dark:text-gray-400" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Área de mensagens -->
-        <div
-          v-if="filteredComments.length > 0"
-          class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-gray-50 dark:bg-gray-800/50"
-          ref="messagesContainer"
-        >
-          <!-- Mensagens -->
-          <div class="space-y-3">
-            <div
-              v-for="comment in sortedComments"
-              :key="comment.id"
-              class="flex items-start gap-3"
-              :class="{
-                'justify-end': isCurrentUserComment(comment),
-              }"
-            >
-              <!-- Avatar do remetente -->
+          <!-- Header minimalista -->
+          <div
+            class="sticky top-0 z-10 flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+          >
+            <div class="flex items-center gap-3">
               <div
-                v-if="!isCurrentUserComment(comment)"
-                class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                :class="getUserAvatarClass(comment)"
-                :title="getUserDisplayName(comment)"
+                class="w-10 h-10 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center"
               >
-                {{ getUserInitials(comment.user?.name) }}
+                <ChatBubbleLeftIcon
+                  class="h-5 w-5 text-orange-600 dark:text-orange-400"
+                />
               </div>
-
-              <!-- Mensagem -->
-              <div
-                :class="[
-                  'max-w-[70%]',
-                  isCurrentUserComment(comment) ? 'order-first' : '',
-                ]"
+              <div>
+                <h3 class="font-semibold text-gray-900 dark:text-white text-lg">
+                  Comentários da Submissão
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  {{ filteredComments.length }} comentários
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <!-- Botão para recarregar comentários -->
+              <button
+                @click="refreshComments"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                :title="loadingRefresh ? 'Recarregando...' : 'Recarregar comentários'"
+                :disabled="loadingRefresh"
               >
-                <!-- Cabeçalho da mensagem -->
+                <ArrowPathIcon
+                  class="h-5 w-5 text-gray-500 dark:text-gray-400"
+                  :class="{ 'animate-spin': loadingRefresh }"
+                />
+              </button>
+              <button
+                @click.stop="handleClose"
+                class="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+                aria-label="Fechar"
+              >
+                <XMarkIcon class="h-5 w-5 text-gray-500 dark:text-gray-400" />
+              </button>
+            </div>
+          </div>
+
+          <!-- Área de mensagens -->
+          <div
+            v-if="filteredComments.length > 0"
+            class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-gray-50 dark:bg-gray-800/50"
+            ref="messagesContainer"
+          >
+            <!-- Mensagens -->
+            <div class="space-y-3">
+              <div
+                v-for="comment in sortedComments"
+                :key="comment.id"
+                class="flex items-start gap-3"
+                :class="{
+                  'justify-end': isCurrentUserComment(comment),
+                }"
+              >
+                <!-- Avatar do remetente -->
                 <div
                   v-if="!isCurrentUserComment(comment)"
-                  class="flex items-center gap-2 mb-1"
+                  class="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                  :class="getUserAvatarClass(comment)"
+                  :title="getUserDisplayName(comment)"
                 >
-                  <span class="font-medium text-sm text-gray-700 dark:text-gray-300">
-                    {{ getUserDisplayName(comment) }}
-                  </span>
-                  <span
-                    v-if="comment.user?.role"
-                    class="text-xs text-gray-500 dark:text-gray-400"
-                  >
-                    ({{ getRoleLabel(comment.user.role) }})
-                  </span>
+                  {{ getUserInitials(comment.user?.name) }}
                 </div>
 
-                <!-- Conteúdo da mensagem -->
+                <!-- Mensagem -->
                 <div
                   :class="[
-                    'rounded-2xl px-4 py-3 shadow-sm',
-                    isCurrentUserComment(comment)
-                      ? 'bg-orange-500 text-white rounded-tr-sm'
-                      : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-sm',
+                    'max-w-[70%]',
+                    isCurrentUserComment(comment) ? 'order-first' : '',
                   ]"
                 >
-                  <!-- Conteúdo do comentário -->
-                  <p class="text-sm whitespace-pre-line break-words">
-                    {{ comment.content || comment.comment }}
-                  </p>
-
-                  <!-- Anexos (se houver) -->
+                  <!-- Cabeçalho da mensagem -->
                   <div
-                    v-if="comment.attachments && comment.attachments.length > 0"
-                    class="mt-2 pt-2 border-t border-opacity-20"
-                    :class="
-                      isCurrentUserComment(comment)
-                        ? 'border-white'
-                        : 'border-gray-300 dark:border-gray-600'
-                    "
+                    v-if="!isCurrentUserComment(comment)"
+                    class="flex items-center gap-2 mb-1"
                   >
-                    <p class="text-xs mb-1">Anexos:</p>
-                    <div class="flex flex-wrap gap-2">
-                      <div
-                        v-for="attachment in comment.attachments"
-                        :key="attachment.id"
-                        class="flex items-center gap-1 text-xs p-1 bg-black bg-opacity-10 rounded"
-                      >
-                        <PaperClipIcon class="h-3 w-3" />
-                        <a
-                          :href="attachment.url"
-                          target="_blank"
-                          class="hover:underline truncate max-w-[100px]"
-                          @click.prevent="downloadAttachment(attachment)"
+                    <span class="font-medium text-sm text-gray-700 dark:text-gray-300">
+                      {{ getUserDisplayName(comment) }}
+                    </span>
+                    <span
+                      v-if="comment.user?.role"
+                      class="text-xs text-gray-500 dark:text-gray-400"
+                    >
+                      ({{ getRoleLabel(comment.user.role) }})
+                    </span>
+                  </div>
+
+                  <!-- Conteúdo da mensagem -->
+                  <div
+                    :class="[
+                      'rounded-2xl px-4 py-3 shadow-sm',
+                      isCurrentUserComment(comment)
+                        ? 'bg-orange-500 text-white rounded-tr-sm'
+                        : 'bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-tl-sm',
+                    ]"
+                  >
+                    <!-- Conteúdo do comentário -->
+                    <p class="text-sm whitespace-pre-line break-words">
+                      {{ comment.content || comment.comment }}
+                    </p>
+
+                    <!-- Anexos (se houver) -->
+                    <div
+                      v-if="comment.attachments && comment.attachments.length > 0"
+                      class="mt-2 pt-2 border-t border-opacity-20"
+                      :class="
+                        isCurrentUserComment(comment)
+                          ? 'border-white'
+                          : 'border-gray-300 dark:border-gray-600'
+                      "
+                    >
+                      <p class="text-xs mb-1">Anexos:</p>
+                      <div class="flex flex-wrap gap-2">
+                        <div
+                          v-for="attachment in comment.attachments"
+                          :key="attachment.id"
+                          class="flex items-center gap-1 text-xs p-1 bg-black bg-opacity-10 rounded"
                         >
-                          {{ attachment.name || attachment.file_name }}
-                        </a>
-                        <span class="text-xs opacity-75">
-                          ({{ formatFileSize(attachment.size) }})
-                        </span>
+                          <PaperClipIcon class="h-3 w-3" />
+                          <a
+                            :href="attachment.url"
+                            target="_blank"
+                            class="hover:underline truncate max-w-[100px]"
+                            @click.prevent="downloadAttachment(attachment)"
+                          >
+                            {{ attachment.name || attachment.file_name }}
+                          </a>
+                          <span class="text-xs opacity-75">
+                            ({{ formatFileSize(attachment.size) }})
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
+
+                  <!-- Data e hora -->
+                  <p
+                    class="text-xs mt-1"
+                    :class="
+                      isCurrentUserComment(comment)
+                        ? 'text-right text-gray-500 dark:text-gray-400'
+                        : 'ml-1 text-gray-500 dark:text-gray-400'
+                    "
+                  >
+                    {{ formatCommentTime(comment.created_at) }}
+                  </p>
                 </div>
 
-                <!-- Data e hora -->
-                <p
-                  class="text-xs mt-1"
-                  :class="
-                    isCurrentUserComment(comment)
-                      ? 'text-right text-gray-500 dark:text-gray-400'
-                      : 'ml-1 text-gray-500 dark:text-gray-400'
-                  "
-                >
-                  {{ formatCommentTime(comment.created_at) }}
-                </p>
-              </div>
-
-              <!-- Avatar do usuário atual -->
-              <div
-                v-if="isCurrentUserComment(comment)"
-                class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
-                :title="currentUserName"
-              >
-                {{ currentUserInitials }}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mensagem quando não há comentários -->
-        <div
-          v-else
-          class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-800/50"
-        >
-          <ChatBubbleLeftIcon class="h-12 w-12 text-gray-400 dark:text-gray-500 mb-3" />
-          <p class="text-gray-500 dark:text-gray-400 text-center">
-            Ainda não há comentários neste caso.<br />
-            Seja o primeiro a comentar!
-          </p>
-        </div>
-
-        <!-- Campo de entrada de mensagem -->
-        <div
-          class="sticky bottom-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
-        >
-          <div class="flex items-end gap-3">
-            <!-- Área de texto -->
-            <div class="flex-1 relative">
-              <textarea
-                v-model="form.comment"
-                ref="textareaRef"
-                rows="1"
-                @input="autoResize"
-                @keydown.enter.exact.prevent="handleEnter"
-                class="w-full px-4 py-3 pr-12 text-base border border-gray-300 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none max-h-32 overflow-y-auto"
-                placeholder="Digite sua mensagem..."
-                :class="{ 'border-red-500': errors.comment }"
-              ></textarea>
-            </div>
-
-            <!-- Botão de envio -->
-            <button
-              @click="submit"
-              :disabled="loading || !form.comment.trim()"
-              class="p-3 bg-orange-500 text-white rounded-full hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-700 transition-colors flex-shrink-0"
-              :class="{
-                'animate-pulse': loading,
-              }"
-              aria-label="Enviar mensagem"
-            >
-              <template v-if="loading">
+                <!-- Avatar do usuário atual -->
                 <div
-                  class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"
-                ></div>
-              </template>
-              <template v-else>
-                <PaperAirplaneIcon class="h-5 w-5" />
-              </template>
-            </button>
+                  v-if="isCurrentUserComment(comment)"
+                  class="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0"
+                  :title="currentUserName"
+                >
+                  {{ currentUserInitials }}
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Erro de validação -->
-          <p
-            v-if="errors.comment"
-            class="mt-2 text-sm text-red-600 dark:text-red-400 px-1"
+          <!-- Mensagem quando não há comentários -->
+          <div
+            v-else
+            class="flex-1 flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-800/50"
           >
-            {{ errors.comment }}
-          </p>
+            <ChatBubbleLeftIcon class="h-12 w-12 text-gray-400 dark:text-gray-500 mb-3" />
+            <p class="text-gray-500 dark:text-gray-400 text-center">
+              Ainda não há comentários neste caso.<br />
+              Seja o primeiro a comentar!
+            </p>
+          </div>
+
+          <!-- Campo de entrada de mensagem -->
+          <div
+            class="sticky bottom-0 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4"
+          >
+            <div class="flex items-end gap-3">
+              <!-- Área de texto -->
+              <div class="flex-1 relative">
+                <textarea
+                  v-model="form.comment"
+                  ref="textareaRef"
+                  rows="1"
+                  @input="autoResize"
+                  @keydown.enter.exact.prevent="handleEnter"
+                  class="w-full px-4 py-3 pr-12 text-base border border-gray-300 dark:border-gray-600 rounded-2xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none max-h-32 overflow-y-auto"
+                  placeholder="Digite sua mensagem..."
+                  :class="{ 'border-red-500': errors.comment }"
+                ></textarea>
+              </div>
+
+              <!-- Botão de envio -->
+              <button
+                @click="submit"
+                :disabled="loading || !form.comment.trim()"
+                class="p-3 bg-orange-500 text-white rounded-full hover:bg-orange-600 disabled:bg-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-700 transition-colors flex-shrink-0"
+                :class="{
+                  'animate-pulse': loading,
+                }"
+                aria-label="Enviar mensagem"
+              >
+                <template v-if="loading">
+                  <div
+                    class="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent"
+                  ></div>
+                </template>
+                <template v-else>
+                  <PaperAirplaneIcon class="h-5 w-5" />
+                </template>
+              </button>
+            </div>
+
+            <!-- Erro de validação -->
+            <p
+              v-if="errors.comment"
+              class="mt-2 text-sm text-red-600 dark:text-red-400 px-1"
+            >
+              {{ errors.comment }}
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -287,6 +291,7 @@ const selectedFiles = ref([]);
 
 // Armazenar comentários localmente
 const localComments = ref([]);
+const isClosing = ref(false);
 
 // Inicializar comentários locais
 watch(
@@ -547,13 +552,26 @@ const downloadAttachment = (attachment) => {
 
 // Fechar modal
 const handleClose = () => {
-  // Limpar arquivos selecionados
+  if (isClosing.value) return;
+
+  isClosing.value = true;
+
   selectedFiles.value = [];
   showAttachments.value = false;
 
-  // Emitir evento para marcar como lido
+  // Emitir eventos
   emit("mark-read");
   emit("close");
+
+  setTimeout(() => {
+    isClosing.value = false;
+  }, 300);
+};
+
+const handleOverlayClick = (event) => {
+  if (event.target === event.currentTarget) {
+    handleClose();
+  }
 };
 
 // Recarregar comentários

@@ -15,6 +15,7 @@ use App\Observers\ReportObserver;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
 
@@ -72,10 +73,31 @@ class AppServiceProvider extends ServiceProvider
                 'environment' => config('app.env'),
             ],
             'auth' => fn () => auth()->check() ? [
-                'user' => auth()->user()->only(['id', 'name', 'email', 'role']),
+                'user' => auth()->user()->only(['id', 'name', 'email', 'role', 'locale']),
                 'permissions' => auth()->user()->getAllPermissions()->pluck('name'),
                 'roles' => auth()->user()->getRoleNames(),
             ] : null,
+             'locale' => fn () => auth()->check()? auth()->user()->locale: App::getLocale(),
+
+    // Idiomas disponíveis no sistema
+    'availableLocales' => [
+        'pt',
+        'pt_MZ',
+        'en',
+        'en_US',
+    ],
+
+    // Traduções carregadas dinamicamente
+    'translations' => fn () => [app()->getLocale() => trans('messages'),],
+
+    /* ================= RESTO DO TEU CÓDIGO ================= */
+
+    'flash' => fn () => [
+        'success' => session('success'),
+        'error' => session('error'),
+        'warning' => session('warning'),
+        'info' => session('info'),
+    ],
             'indicators' => fn () => [
         'routes' => [
             'dashboard' => route('dashboard.indicadores'),
@@ -117,12 +139,6 @@ class AppServiceProvider extends ServiceProvider
                     'categories' => 'Categorias',
                     'timeline' => 'Timeline'
                 ]
-            ],
-            'flash' => fn () => [
-                'success' => session('success'),
-                'error' => session('error'),
-                'warning' => session('warning'),
-                'info' => session('info'),
             ],
         ]);
     }

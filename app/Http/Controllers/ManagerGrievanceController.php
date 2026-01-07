@@ -675,17 +675,22 @@ private function formatBytes($bytes, $precision = 2): string
 /**
  * Verificar se tem intervenção do director
  */
-private function hasDirectorIntervention($grievance): bool
+private function hasDirectorIntervention(Grievance $grievance): bool
 {
-    return $grievance->escalated === true ||
-           ($grievance->metadata && isset($grievance->metadata['is_escalated_to_director']) && 
-            $grievance->metadata['is_escalated_to_director'] === true) ||
-           $grievance->updates->contains(function ($update) {
-               return $update->user && $update->user->hasRole('Director');
-           }) ||
-           ($grievance->metadata && isset($grievance->metadata['director_validation']));
+    // Verificar no metadata (já é array)
+    $hasDirectorValidation = false;
+    if ($grievance->metadata && is_array($grievance->metadata)) {
+        $hasDirectorValidation = isset($grievance->metadata['director_validation']) && 
+                                 !empty($grievance->metadata['director_validation']);
+    }
+    
+    // Verificar updates do director
+    $hasDirectorUpdates = $grievance->updates->contains(function($update) {
+        return $update->user && $update->user->hasRole('Director');
+    });
+    
+    return $hasDirectorValidation || $hasDirectorUpdates;
 }
-
 
 
 public function getRecentSubmissions(Request $request)
@@ -767,187 +772,96 @@ public function getAllSubmissions(Request $request)
     /**
      * Format grievance data for the list view
      */
-   private function formatGrievanceForList(Grievance $grievance): array
+  private function formatGrievanceForList(Grievance $grievance): array
 {
-    \Log::info("📋 Formatting grievance for list: {$grievance->id}");
-    
-    // **CRÍTICO: Garantir que updates sejam carregados**
-    if (!$grievance->relationLoaded('updates')) {
-        $grievance->load(['updates.user.roles']);
-    }
-    
-    // Inicializar variáveis
-    $hasDirectorIntervention = false;
-    $directorUpdates = [];
-    $directorCommentsCount = 0;
-    $directorInterventions = [];
+    // Extrair director_validation do metadata - JÁ É ARRAY
     $directorValidation = null;
-    
-    // **1. Verificar se foi escalado para director**
-    $isEscalatedToDirector = $grievance->escalated || 
-                            ($grievance->metadata && 
-                             isset($grievance->metadata['is_escalated_to_director']) && 
-                             $grievance->metadata['is_escalated_to_director'] === true);
-    
-    if ($isEscalatedToDirector) {
-        $hasDirectorIntervention = true;
-        
-        $directorInterventions[] = [
-            'type' => 'escalation',
-            'action_type' => 'escalated_to_director',
-            'escalated_at' => $grievance->escalated_at?->toISOString(),
-            'escalated_by' => $grievance->escalatedBy ? [
-                'name' => $grievance->escalatedBy->name,
-                'role' => 'Gestor',
-            ] : null,
-            'escalation_reason' => $grievance->escalation_reason,
-            'metadata' => [
-                'escalated' => true,
-                'escalation_reason' => $grievance->escalation_reason,
-            ],
-        ];
-        
-        \Log::info("  - É escalado para director");
+    if ($grievance->metadata && is_array($grievance->metadata)) {
+        $directorValidation = $grievance->metadata['director_validation'] ?? null;
     }
     
-    // **2. Verificar updates do director**
-    foreach ($grievance->updates as $update) {
-        $isDirectorUpdate = false;
-        
-        // Verificar pelo action_type
-        $directorActionTypes = [
-            'director_comment',
-            'director_validation_approved', 
-            'director_validation_rejected',
-            'director_validation_needs_revision',
-            'escalated_to_director'
-        ];
-        
-        if (in_array($update->action_type, $directorActionTypes)) {
-            $isDirectorUpdate = true;
-        }
-        
-        // Verificar se o usuário é director
-        if ($update->user && $update->user->hasRole('Director')) {
-            $isDirectorUpdate = true;
-        }
-        
-        // Verificar metadados
-        if ($update->metadata) {
-            if (isset($update->metadata['created_by_director']) && $update->metadata['created_by_director'] === true) {
-                $isDirectorUpdate = true;
-            }
-            
-            if (isset($update->metadata['director_intervention']) && $update->metadata['director_intervention'] === true) {
-                $isDirectorUpdate = true;
-            }
-        }
-        
-        if ($isDirectorUpdate) {
-            $hasDirectorIntervention = true;
-            
-            $directorUpdates[] = [
-                'id' => $update->id,
-                'action_type' => $update->action_type,
-                'description' => $update->description,
-                'comment' => $update->comment,
-                'created_at' => $update->created_at->toISOString(),
-                'user' => $update->user ? [
-                    'name' => $update->user->name,
-                    'role' => $update->user->getRoleNames()->first(),
-                ] : null,
-                'metadata' => $update->metadata ?? [],
-            ];
-            
-            if (!empty($update->comment)) {
-                $directorCommentsCount++;
-            }
-            
-            \Log::info("  - Tem update do director: {$update->action_type}");
-        }
-    }
-    
-    // **3. Verificar validação do director no metadata**
-    if ($grievance->metadata && isset($grievance->metadata['director_validation'])) {
-        $hasDirectorIntervention = true;
-        $directorValidation = $grievance->metadata['director_validation'];
-        
-        $directorInterventions[] = [
-            'type' => 'validation',
-            'action_type' => 'director_validation',
-            'status' => $directorValidation['status'] ?? null,
-            'comment' => $directorValidation['comment'] ?? null,
-            'validated_by' => $directorValidation['validated_by_name'] ?? null,
-            'validated_at' => $directorValidation['validated_at'] ?? null,
-            'metadata' => $directorValidation ?? [],
-        ];
-        
-        \Log::info("  - Tem validação do director");
-    }
-    
-    // Formatar os dados básicos da reclamação
-    $formatted = [
+    return [
         'id' => $grievance->id,
         'reference_number' => $grievance->reference_number,
-        'title' => $grievance->description ? (strlen($grievance->description) > 50 ? substr($grievance->description, 0, 50) . '...' : $grievance->description) : 'Sem título',
+        'title' => $grievance->title ?? $grievance->description,
         'description' => $grievance->description,
         'type' => $grievance->type,
+        'category' => $grievance->category,
         'priority' => $grievance->priority,
         'status' => $grievance->status,
-        'category' => $grievance->category,
-        'created_at' => $grievance->created_at->toISOString(),
-        'submitted_at' => $grievance->submitted_at?->toISOString(),
-        'province' => $grievance->province,
-        'district' => $grievance->district,
-        'assigned_to' => $grievance->assigned_to,
+        'created_at' => $grievance->created_at?->toISOString(),
+        'updated_at' => $grievance->updated_at?->toISOString(),
         
-        // **CAMPOS CRÍTICOS - INICIALIZAR COM VALORES PADRÃO**
-        'has_director_intervention' => false, // Default
-        'escalated' => (bool) $grievance->escalated,
-        'is_escalated_to_director' => (bool) $grievance->escalated,
-        'escalation_reason' => $grievance->escalation_reason,
-        'escalated_at' => $grievance->escalated_at?->toISOString(),
+        // Campos para intervenções do director
+        'has_director_intervention' => $this->hasDirectorIntervention($grievance),
+        
+        'director_updates' => $grievance->updates
+            ->where('user.roles', function($query) {
+                $query->where('name', 'Director');
+            })
+            ->map(function($update) {
+                return [
+                    'id' => $update->id,
+                    'action_type' => $update->action_type,
+                    'description' => $update->description,
+                    'comment' => $update->comment,
+                    'created_at' => $update->created_at?->toISOString(),
+                    'user' => $update->user ? [
+                        'id' => $update->user->id,
+                        'name' => $update->user->name,
+                        'role' => $update->user->roles->first()->name ?? 'User'
+                    ] : null
+                ];
+            })->values()->toArray(),
+        
+        // Campos para escalamento
+        'escalated' => $grievance->escalated ?? false,
+        'is_escalated_to_director' => $grievance->escalated ?? false,
         'escalated_by' => $grievance->escalated_by,
+        'escalated_at' => $grievance->escalated_at?->toISOString(),
+        'escalation_reason' => $grievance->escalation_reason,
         
-        // Arrays
-        'director_updates' => [],
-        'director_interventions' => [],
-        'director_comments_count' => 0,
-        'director_validation' => null,
+        // Contagem de comentários
+        'director_comments_count' => $grievance->updates
+            ->where('user.roles', function($query) {
+                $query->where('name', 'Director');
+            })
+            ->where('action_type', 'director_comment')
+            ->count(),
         
-        'metadata' => $grievance->metadata ?? [],
-        
-        // Relacionamentos
+        // Dados do usuário
         'user' => $grievance->user ? [
+            'id' => $grievance->user->id,
             'name' => $grievance->user->name,
-            'email' => $grievance->user->email,
+            'email' => $grievance->user->email
         ] : null,
         
+        // Dados do técnico atribuído
+        'assigned_to' => $grievance->assigned_to,
         'technician' => $grievance->assignedUser ? [
             'id' => $grievance->assignedUser->id,
             'name' => $grievance->assignedUser->name,
-            'email' => $grievance->assignedUser->email,
+            'email' => $grievance->assignedUser->email
         ] : null,
         
-        'assigned_to_user' => $grievance->assignedUser ? [
-            'id' => $grievance->assignedUser->id,
-            'name' => $grievance->assignedUser->name,
-        ] : null,
+        // Validação do director
+        'director_validation' => $directorValidation, // Extraído do metadata
+        'metadata' => $grievance->metadata,
         
-        // Campos para compatibilidade
-        'updates' => [],
-        'activities' => [],
+        // Contagem de updates
+        'updates_count' => $grievance->updates->count(),
+        
+        // Flag para debug
+        '_debug' => [
+            'has_director_validation_field' => !empty($directorValidation),
+            'has_director_validation_in_metadata' => !empty($directorValidation),
+            'director_updates_count' => $grievance->updates
+                ->where('user.roles', function($query) {
+                    $query->where('name', 'Director');
+                })
+                ->count()
+        ]
     ];
-    
-    
-    \Log::info("  - Resultado final:", [
-        'has_director_intervention' => $hasDirectorIntervention,
-        'director_updates_count' => count($directorUpdates),
-        'director_interventions_count' => count($directorInterventions),
-        'is_escalated_to_director' => $isEscalatedToDirector
-    ]);
-    
-    return $formatted;
 }
 
 
@@ -2364,47 +2278,42 @@ public function getDirectorInterventions(Request $request)
     $user = auth()->user();
     $this->ensureManager($user);
     
-    // Buscar reclamações atribuídas ao gestor OU que foram escaladas por ele
+    \Log::info("=== 🎯 getDirectorInterventions para Gestor ===");
+    \Log::info("Gestor ID: {$user->id}, Nome: {$user->name}");
+    
+    // **CORREÇÃO: Usar where no metadata em vez de campo direto**
     $query = Grievance::with([
         'user',
         'assignedUser',
         'escalatedBy',
-        'updates.user.roles'  // Carregar updates com usuários e roles
+        'updates.user.roles'
     ])
-    ->where(function($q) use ($user) {
-        // Reclamações atribuídas ao gestor
-        $q->where('assigned_to', $user->id)
-          ->orWhereHas('updates', function($q2) use ($user) {
-              $q2->where('user_id', $user->id)
-                 ->whereIn('action_type', ['manager_comment', 'manager_approved', 'manager_rejected']);
-          });
+    ->where('assigned_to', $user->id)
+    ->where(function($q) {
+        // **CORREÇÃO: Critérios corrigidos**
+        $q->where(function($q2) {
+            $q2->whereNotNull('metadata')
+               ->whereJsonLength('metadata->director_validation', '>', 0);
+        })
+        ->orWhereHas('updates', function($q2) {
+            $q2->where(function($q3) {
+                $q3->whereHas('user', function($q4) {
+                    $q4->role('Director');
+                })
+                ->orWhereIn('action_type', [
+                    'director_comment',
+                    'director_validation_approved',
+                    'director_validation_rejected',
+                    'director_validation_needs_revision'
+                ]);
+            });
+        });
     })
     ->latest();
     
-    // Filtrar apenas as que têm intervenção do director
-    $query->where(function($q) {
-        $q->where('escalated', true)
-          ->orWhereJsonContains('metadata->is_escalated_to_director', true)
-          ->orWhereHas('updates', function($q2) {
-              $q2->where(function($q3) {
-                  $q3->whereIn('action_type', [
-                      'director_comment',
-                      'director_validation_approved',
-                      'director_validation_rejected',
-                      'director_validation_needs_revision'
-                  ])
-                  ->orWhereHas('user', function($q4) {
-                      $q4->role('Director');
-                  });
-              });
-          })
-          ->orWhere(function($q2) {
-              $q2->whereNotNull('metadata')
-                  ->whereJsonLength('metadata->director_validation', '>', 0);
-          });
-    });
-    
     $grievances = $query->get();
+    
+    \Log::info("Casos com intervenção do director encontrados: {$grievances->count()}");
     
     // Formatar os dados
     $formattedGrievances = $grievances->map(function ($grievance) {
@@ -2415,7 +2324,6 @@ public function getDirectorInterventions(Request $request)
     $filteredGrievances = $formattedGrievances->filter(function ($grievance) {
         return $grievance['has_director_intervention'] === true;
     })->values();
-    
     
     return response()->json([
         'success' => true,
@@ -2487,68 +2395,160 @@ private function getDirectorInterventionsData(User $user): array
 }
 
 
-private function getMySubmissionsToDirectorData(User $user): array
+private function getDirectorResponseStatus($responseType): string
 {
-    \Log::info("=== 📤 getMySubmissionsToDirectorData para Gestor ===");
-    \Log::info("Gestor ID: {$user->id}, Nome: {$user->name}");
+    if (!$responseType) return 'unknown';
     
-    // **CRÍTICO: Buscar casos que foram escalados por ESTE gestor específico**
-    $query = Grievance::with([
-            'user', 
-            'assignedUser',
-            'escalatedBy',
-            'updates.user.roles'
-        ])
-        ->where('escalated_by', $user->id) // Apenas casos escalados por este gestor
-        ->where('escalated', true)
-        ->latest();
+    $responseType = strtolower($responseType);
     
-    $myEscalatedGrievances = $query->get();
-    
-    \Log::info("Casos escalados por {$user->name}: {$myEscalatedGrievances->count()}");
-    
-    // **ALTERNATIVA: Se não encontrar por escalated_by, buscar por assigned_to**
-    if ($myEscalatedGrievances->isEmpty()) {
-        \Log::info("Buscando casos atribuídos ao gestor que estão escalados...");
-        
-        $myEscalatedGrievances = Grievance::with([
-                'user', 
-                'assignedUser',
-                'escalatedBy',
-                'updates.user.roles'
-            ])
-            ->where('assigned_to', $user->id)
-            ->where('escalated', true)
-            ->latest()
-            ->get();
-            
-        \Log::info("Casos atribuídos e escalados: {$myEscalatedGrievances->count()}");
+    if (str_contains($responseType, 'approved') || 
+        str_contains($responseType, 'assumed') ||
+        $responseType === 'approved') {
+        return 'approved';
     }
     
-    // **CRÍTICO: Garantir que os dados são formatados corretamente**
-    $formatted = $myEscalatedGrievances->map(function ($grievance) {
+    if (str_contains($responseType, 'comment') || 
+        str_contains($responseType, 'revision') ||
+        str_contains($responseType, 'needs_revision') ||
+        $responseType === 'commented') {
+        return 'commented';
+    }
+    
+    if (str_contains($responseType, 'rejected')) {
+        return 'rejected';
+    }
+    
+    return 'unknown';
+}
+
+
+public function getMySubmissionsToDirectorData(Request $request)
+{
+    $user = auth()->user();
+    $this->ensureManager($user);
+    
+    \Log::info("=== 📤 getMySubmissionsToDirector para Gestor ===");
+    \Log::info("Gestor ID: {$user->id}, Nome: {$user->name}");
+    
+    // **CRÍTICO: Buscar TODOS os casos que o gestor enviou ao Director**
+    $query = Grievance::with([
+        'user',
+        'assignedUser',
+        'escalatedBy',
+        'updates' => function($query) use ($user) {
+            $query->where('user_id', $user->id)
+                  ->where('action_type', 'escalated_to_director')
+                  ->latest();
+        },
+        'updates.user.roles'
+    ])
+    ->where(function($q) use ($user) {
+        // Casos onde o gestor é o assigned_to E foram escalados
+        $q->where('assigned_to', $user->id)
+          ->where('escalated', true);
+    })
+    ->orWhere(function($q) use ($user) {
+        // OU casos onde o gestor fez o escalamento (escalated_by)
+        $q->where('escalated_by', $user->id)
+          ->where('escalated', true);
+    })
+    ->orWhereHas('updates', function($q) use ($user) {
+        // OU casos onde há registro de escalamento pelo gestor
+        $q->where('user_id', $user->id)
+          ->where('action_type', 'escalated_to_director');
+    })
+    ->latest();
+    
+    $mySubmissions = $query->get();
+    
+    \Log::info("Submissões do gestor ao Director: {$mySubmissions->count()}");
+    
+    // Formatar os dados
+    $formattedSubmissions = $mySubmissions->map(function ($grievance) use ($user) {
         $data = $this->formatGrievanceForList($grievance);
         
-        // **CRÍTICO: Forçar campos que o frontend espera**
+        // **CRÍTICO: Verificar se foi realmente escalado por este gestor**
+        $escalatedByMe = false;
+        $escalationDetails = null;
+        
+        // Verificar campo escalated_by
+        if ($grievance->escalated_by == $user->id) {
+            $escalatedByMe = true;
+            $escalationDetails = [
+                'type' => 'direct_field',
+                'date' => $grievance->escalated_at,
+                'reason' => $grievance->escalation_reason
+            ];
+        }
+        
+        // Verificar nos updates
+        if (!$escalatedByMe && $grievance->updates) {
+            $myEscalationUpdates = $grievance->updates->filter(function($update) use ($user) {
+                return $update->user_id == $user->id && 
+                       $update->action_type == 'escalated_to_director';
+            });
+            
+            if ($myEscalationUpdates->count() > 0) {
+                $escalatedByMe = true;
+                $latestUpdate = $myEscalationUpdates->sortByDesc('created_at')->first();
+                $escalationDetails = [
+                    'type' => 'update_record',
+                    'date' => $latestUpdate->created_at,
+                    'reason' => $latestUpdate->metadata['reason'] ?? null,
+                    'comment' => $latestUpdate->comment
+                ];
+            }
+        }
+        
+        // **Só incluir se foi escalado por este gestor**
+        if (!$escalatedByMe && $grievance->assigned_to != $user->id) {
+            return null;
+        }
+        
+        // Adicionar campos específicos
         $data['escalated'] = true;
         $data['is_escalated_to_director'] = true;
-        $data['has_director_intervention'] = true; // Porque foi enviado ao director
+        $data['escalated_by_me'] = $escalatedByMe;
+        $data['escalation_details'] = $escalationDetails;
         $data['escalated_by'] = $grievance->escalated_by;
         $data['escalated_at'] = $grievance->escalated_at?->toISOString();
         $data['escalation_reason'] = $grievance->escalation_reason;
         
-        // Garantir que arrays não sejam null
-        $data['director_updates'] = $data['director_updates'] ?? [];
-        $data['director_interventions'] = $data['director_interventions'] ?? [];
+        // Verificar se já tem resposta do director
+        $hasDirectorResponse = false;
+        if ($grievance->director_validation) {
+            $hasDirectorResponse = true;
+        } elseif ($grievance->metadata) {
+            $metadata = json_decode($grievance->metadata, true);
+            if (isset($metadata['director_validation'])) {
+                $hasDirectorResponse = true;
+            }
+        } elseif ($grievance->updates) {
+            $directorUpdates = $grievance->updates->filter(function($update) {
+                return $update->user && $update->user->hasRole('Director');
+            });
+            $hasDirectorResponse = $directorUpdates->count() > 0;
+        }
+        
+        $data['has_director_response'] = $hasDirectorResponse;
+        $data['awaiting_director_response'] = !$hasDirectorResponse;
         
         return $data;
-    })->values()->toArray();
+    })->filter()->values();
     
-    \Log::info("📤 Retornando " . count($formatted) . " casos formatados");
+    \Log::info("📤 Retornando " . $formattedSubmissions->count() . " submissões formatadas");
     
-    return $formatted;
+    return response()->json([
+        'success' => true,
+        'data' => $formattedSubmissions,
+        'count' => $formattedSubmissions->count(),
+        'debug' => [
+            'total_found' => $mySubmissions->count(),
+            'filtered' => $formattedSubmissions->count(),
+            'sample' => $formattedSubmissions->count() > 0 ? $formattedSubmissions->first() : null
+        ]
+    ]);
 }
-
 
 
     public function revokeEscalation(Request $request, Grievance $grievance)
@@ -2811,15 +2811,6 @@ private function sendValidationNotificationToTechnician(Grievance $grievance, st
         return back()->with('info', 'Atribuição automática ainda não está disponível.');
     }
 
-    /**
-     * Placeholder for export feature.
-     */
-    public function export(Request $request): RedirectResponse
-    {
-        $this->ensureManager($request->user());
-
-        return back()->with('info', 'Exportação será disponibilizada numa próxima versão.');
-    }
 
     /**
      * Ensure authenticated user is a manager.
@@ -3417,28 +3408,6 @@ public function exportStatistics(Request $request)
     return $export->exportExcel();
 }
 
-private function exportToPdf($period, $user)
-{
-    // Se DomPDF estiver instalado
-    if (class_exists('Barryvdh\DomPDF\Facade\Pdf')) {
-        $data = $this->gatherStatisticsData($period, $user);
-        $filename = 'estatisticas-' . $period . '-' . now()->format('Y-m-d') . '.pdf';
-        
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.statistics-pdf', [
-            'data' => $data,
-            'period' => $period,
-            'user' => $user,
-        ])->setPaper('A4', 'landscape');
-        
-        return $pdf->download($filename);
-    }
-    
-    // Se não tiver PDF, redirecionar para Excel
-    return redirect()->route('statistics.export', [
-        'period' => $period,
-        'format' => 'xlsx'
-    ]);
-}
 
 private function gatherStatisticsData($period, $user)
 {
@@ -3531,6 +3500,843 @@ private function processDirectorValidation($grievance, $data, $user)
     $grievance->save();
     
     return $validationData;
+}
+
+public function exportToPdf(Request $request)
+{
+    $user = auth()->user();
+    $this->ensureManager($user);
+    
+    try {
+        \Log::info('=== EXPORTAÇÃO DE RELATÓRIO COMPLETO ===');
+        \Log::info('Usuário: ' . $user->name . ' (ID: ' . $user->id . ')');
+        
+        // **1. OBTER DADOS DAS RECLAMAÇÕES**
+        $query = Grievance::with(['user', 'assignedUser', 'project', 'updates'])
+            ->latest('submitted_at');
+        
+        // Aplicar filtros
+        $this->applyReportFilters($query, $request);
+        
+        $grievances = $query->get();
+        $totalGrievances = $grievances->count();
+        
+        \Log::info('Total de reclamações: ' . $totalGrievances);
+        
+        // **2. CALCULAR ESTATÍSTICAS COMPLETAS**
+        $stats = $this->calculateCompleteStatistics($grievances, $user);
+        
+        // **3. DADOS PARA TIMELINE/RESOLUÇÃO**
+        $resolutionStats = $this->calculateResolutionStats($grievances);
+        
+        // **4. DISTRIBUIÇÕES**
+        $distributions = $this->calculateDistributions($grievances);
+        
+        // **CORREÇÃO: Obter o período corretamente**
+        $periodValue = $request->filled('period') 
+            ? $this->getReportPeriod($request) 
+            : 'Todo o Período';
+        
+        // **5. PREPARAR DADOS PARA PDF**
+        $data = [
+            'title' => 'Relatório Completo de Submissões',
+            'subtitle' => 'Gestor: ' . $user->name . ' - ' . now()->format('F Y'),
+            'user' => $user,
+            'user_name' => $user->name, 
+            'export_date' => now()->format('d/m/Y H:i'),
+            'period' => $periodValue, // <-- VARIÁVEL CORRIGIDA
+            
+            // Seção de estatísticas
+            'statistics' => $stats,
+            'resolution_stats' => $resolutionStats,
+            'distributions' => $distributions,
+            
+            // Lista de reclamações
+            'total_grievances' => $totalGrievances,
+            'grievances' => $grievances->map(function ($grievance) {
+                return [
+                    'reference_number' => $grievance->reference_number,
+                    'description' => $grievance->description,
+                    'type' => $this->getTypeLabelForExport($grievance->type),
+                    'priority' => $this->getPriorityLabel($grievance->priority),
+                    'status' => $this->getStatusText($grievance->status),
+                    'category' => $grievance->category ?? 'N/A',
+                    'created_at' => $grievance->created_at->format('d/m/Y H:i'),
+                    'submitted_at' => $grievance->submitted_at ? $grievance->submitted_at->format('d/m/Y H:i') : 'N/A',
+                    'resolved_at' => $grievance->resolved_at ? $grievance->resolved_at->format('d/m/Y H:i') : 'N/A',
+                    'user_name' => $grievance->user ? $grievance->user->name : 'Anônimo',
+                    'technician' => $grievance->assignedUser ? $grievance->assignedUser->name : 'Não atribuído',
+                    'project' => $grievance->project ? $grievance->project->name : 'N/A',
+                    'escalated' => $grievance->escalated ? 'Sim' : 'Não',
+                    'escalation_reason' => $grievance->escalation_reason ?? 'N/A',
+                    'updates_count' => $grievance->updates->count(),
+                    'has_attachments' => $grievance->attachments->count() > 0,
+                ];
+            })->toArray(),
+            
+            // Filtros aplicados
+            'filters_applied' => $this->getAppliedFilters($request),
+        ];
+        
+        \Log::info('Relatório completo preparado com ' . $totalGrievances . ' registros');
+        
+        // **6. GERAR PDF**
+        // **ATENÇÃO: Verifique qual view está sendo usada realmente**
+        // O erro mostra que está usando 'exports.manager-grievances-pdf.blade.php'
+        // Mas você mencionou 'exports.complete-report-pdf' no código
+        
+        $viewName = 'exports.manager-grievances-pdf'; 
+        
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView($viewName, $data);
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'Arial',
+            'dpi' => 150,
+        ]);
+        
+        $filename = 'relatorio-completo-' . now()->format('Y-m-d-H-i') . '.pdf';
+        
+        return $pdf->download($filename);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erro ao exportar relatório completo: ' . $e->getMessage());
+        return $this->createErrorPdf('Erro ao gerar relatório: ' . $e->getMessage());
+    }
+}
+
+private function applyDashboardFilters($query, Request $request): void
+{
+    // Aplicar mesmos filtros do dashboard
+    if ($request->filled('type') && $request->input('type') !== '') {
+        $query->where('type', $request->input('type'));
+    }
+    
+    if ($request->filled('priority') && $request->input('priority') !== '') {
+        $query->where('priority', $request->input('priority'));
+    }
+    
+    if ($request->filled('status') && $request->input('status') !== '') {
+        $query->where('status', $request->input('status'));
+    }
+    
+    if ($request->filled('category') && $request->input('category') !== '') {
+        $query->where('category', $request->input('category'));
+    }
+    
+    // Filtro de tab (se aplicável)
+    if ($request->filled('tab') && $request->input('tab') !== 'all') {
+        $tab = $request->input('tab');
+        
+        switch ($tab) {
+            case 'suggestions':
+                $query->where(function($q) {
+                    $q->where('type', 'suggestion')
+                      ->orWhere('type', 'like', '%sugest%');
+                });
+                break;
+                
+            case 'grievances':
+                $query->where(function($q) {
+                    $q->where('type', 'grievance')
+                      ->orWhere('type', 'like', '%queixa%');
+                });
+                break;
+                
+            case 'complaints':
+                $query->where(function($q) {
+                    $q->where('type', 'complaint')
+                      ->orWhere('type', 'like', '%reclam%');
+                });
+                break;
+                
+            case 'resolved':
+                $query->where('status', 'resolved');
+                break;
+                
+            case 'rejected':
+                $query->where('status', 'rejected');
+                break;
+        }
+    }
+}
+
+private function applyReportFilters($query, Request $request): void
+{
+    // Filtro por período
+    if ($request->filled('period')) {
+        $period = $request->input('period');
+        $dateRange = $this->getDateRangeForPeriod($period);
+        
+        if ($dateRange) {
+            $query->whereBetween('created_at', [$dateRange['start'], $dateRange['end']]);
+        }
+    }
+    
+    // Filtro por tipo
+    if ($request->filled('type') && $request->input('type') !== '') {
+        $query->where('type', $request->input('type'));
+    }
+    
+    // Filtro por status
+    if ($request->filled('status') && $request->input('status') !== '') {
+        $query->where('status', $request->input('status'));
+    }
+    
+    // Filtro por prioridade
+    if ($request->filled('priority') && $request->input('priority') !== '') {
+        $query->where('priority', $request->input('priority'));
+    }
+    
+    // Filtro por categoria
+    if ($request->filled('category') && $request->input('category') !== '') {
+        $query->where('category', $request->input('category'));
+    }
+    
+    // Filtro por tab
+    if ($request->filled('tab') && $request->input('tab') !== 'all') {
+        $tab = $request->input('tab');
+        
+        switch ($tab) {
+            case 'suggestions':
+                $query->where(function($q) {
+                    $q->where('type', 'suggestion')
+                      ->orWhere('type', 'like', '%sugest%');
+                });
+                break;
+                
+            case 'grievances':
+                $query->where(function($q) {
+                    $q->where('type', 'grievance')
+                      ->orWhere('type', 'like', '%queixa%');
+                });
+                break;
+                
+            case 'complaints':
+                $query->where(function($q) {
+                    $q->where('type', 'complaint')
+                      ->orWhere('type', 'like', '%reclam%');
+                });
+                break;
+                
+            case 'resolved':
+                $query->where('status', 'resolved');
+                break;
+                
+            case 'rejected':
+                $query->where('status', 'rejected');
+                break;
+                
+            case 'director_interventions':
+                $query->where(function($q) {
+                    $q->where('escalated', true)
+                      ->orWhereHas('updates', function($q2) {
+                          $q2->where('action_type', 'like', '%director%');
+                      });
+                });
+                break;
+                
+            case 'my_submissions_to_director':
+                $query->where('escalated', true)
+                      ->where('escalated_by', auth()->id());
+                break;
+        }
+    }
+}
+
+
+private function calculateCompleteStatistics($grievances, $user): array
+{
+    $total = $grievances->count();
+    
+    // Contagem por status
+    $byStatus = $grievances->groupBy('status')->map->count();
+    
+    // Contagem por tipo
+    $byType = $grievances->groupBy('type')->map->count();
+    
+    // Contagem por prioridade
+    $byPriority = $grievances->groupBy('priority')->map->count();
+    
+    // Reclamações escaladas
+    $escalatedCount = $grievances->where('escalated', true)->count();
+    
+    // Reclamações com intervenção do director
+    $withDirectorIntervention = $grievances->filter(function($g) {
+        return $g->updates->contains(function($update) {
+            return str_contains($update->action_type, 'director');
+        });
+    })->count();
+    
+    // Taxa de resolução
+    $resolvedCount = $grievances->whereIn('status', ['resolved', 'closed'])->count();
+    $resolutionRate = $total > 0 ? round(($resolvedCount / $total) * 100, 1) : 0;
+    
+    // Reclamações novas (últimos 7 dias)
+    $newLast7Days = $grievances->filter(function($g) {
+        return $g->created_at->greaterThan(now()->subDays(7));
+    })->count();
+    
+    // Reclamações pendentes
+    $pendingCount = $grievances->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])->count();
+    
+    return [
+        'total' => $total,
+        'by_status' => $byStatus->toArray(),
+        'by_type' => $byType->toArray(),
+        'by_priority' => $byPriority->toArray(),
+        'escalated_count' => $escalatedCount,
+        'with_director_intervention' => $withDirectorIntervention,
+        'resolved_count' => $resolvedCount,
+        'resolution_rate' => $resolutionRate,
+        'new_last_7_days' => $newLast7Days,
+        'pending_count' => $pendingCount,
+        'average_updates_per_grievance' => $total > 0 ? 
+            round($grievances->sum(function($g) { return $g->updates->count(); }) / $total, 1) : 0,
+    ];
+}
+
+
+private function calculateResolutionStats($grievances): array
+{
+    $resolvedGrievances = $grievances->whereIn('status', ['resolved', 'closed'])
+        ->whereNotNull('resolved_at')
+        ->whereNotNull('submitted_at');
+    
+    $totalResolved = $resolvedGrievances->count();
+    
+    if ($totalResolved === 0) {
+        return [
+            'average_resolution_time_hours' => 0,
+            'average_resolution_time_days' => 0,
+            'fastest_resolution_hours' => 0,
+            'slowest_resolution_hours' => 0,
+            'resolution_time_distribution' => [],
+        ];
+    }
+    
+    $resolutionTimes = [];
+    $totalHours = 0;
+    $fastest = PHP_INT_MAX;
+    $slowest = 0;
+    
+    foreach ($resolvedGrievances as $grievance) {
+        $hours = $grievance->submitted_at->diffInHours($grievance->resolved_at);
+        $resolutionTimes[] = $hours;
+        $totalHours += $hours;
+        
+        if ($hours < $fastest) $fastest = $hours;
+        if ($hours > $slowest) $slowest = $hours;
+    }
+    
+    // Distribuição de tempos
+    $timeDistribution = [
+        'menos_24h' => count(array_filter($resolutionTimes, fn($h) => $h <= 24)),
+        '1_3_dias' => count(array_filter($resolutionTimes, fn($h) => $h > 24 && $h <= 72)),
+        '3_7_dias' => count(array_filter($resolutionTimes, fn($h) => $h > 72 && $h <= 168)),
+        'mais_7_dias' => count(array_filter($resolutionTimes, fn($h) => $h > 168)),
+    ];
+    
+    return [
+        'average_resolution_time_hours' => round($totalHours / $totalResolved, 1),
+        'average_resolution_time_days' => round(($totalHours / $totalResolved) / 24, 1),
+        'fastest_resolution_hours' => $fastest,
+        'slowest_resolution_hours' => $slowest,
+        'total_resolved' => $totalResolved,
+        'resolution_time_distribution' => $timeDistribution,
+    ];
+}
+
+/**
+ * Calculate distributions
+ */
+private function calculateDistributions($grievances): array
+{
+    // Distribuição por mês (últimos 6 meses)
+    $months = [];
+    for ($i = 5; $i >= 0; $i--) {
+        $month = now()->subMonths($i);
+        $monthStart = $month->copy()->startOfMonth();
+        $monthEnd = $month->copy()->endOfMonth();
+        
+        $count = $grievances->filter(function($g) use ($monthStart, $monthEnd) {
+            return $g->created_at->between($monthStart, $monthEnd);
+        })->count();
+        
+        $months[] = [
+            'month' => $month->format('M/Y'),
+            'count' => $count,
+        ];
+    }
+    
+    // Distribuição por técnico
+    $byTechnician = $grievances->groupBy('assigned_to')->map(function($items, $technicianId) {
+        return [
+            'technician_id' => $technicianId,
+            'count' => $items->count(),
+            'resolved' => $items->whereIn('status', ['resolved', 'closed'])->count(),
+            'pending' => $items->whereIn('status', ['submitted', 'under_review', 'assigned', 'in_progress'])->count(),
+        ];
+    })->sortByDesc('count')->take(10)->values();
+    
+    // Distribuição por projeto
+    $byProject = $grievances->groupBy('project_id')->map(function($items, $projectId) {
+        return [
+            'project_id' => $projectId,
+            'count' => $items->count(),
+            'project_name' => $items->first()->project->name ?? 'N/A',
+        ];
+    })->sortByDesc('count')->take(5)->values();
+    
+    return [
+        'by_month' => $months,
+        'by_technician' => $byTechnician->toArray(),
+        'by_project' => $byProject->toArray(),
+    ];
+}
+
+/**
+ * Get date range for period filter
+ */
+private function getDateRangeForPeriod($period): ?array
+{
+    $now = now();
+    
+    switch ($period) {
+        case 'today':
+            return [
+                'start' => $now->copy()->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        case 'week':
+            return [
+                'start' => $now->copy()->startOfWeek(),
+                'end' => $now->copy()->endOfWeek(),
+            ];
+            
+        case 'month':
+            return [
+                'start' => $now->copy()->startOfMonth(),
+                'end' => $now->copy()->endOfMonth(),
+            ];
+            
+        case '3months':
+            return [
+                'start' => $now->copy()->subMonths(3)->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        case '6months':
+            return [
+                'start' => $now->copy()->subMonths(6)->startOfDay(),
+                'end' => $now->copy()->endOfDay(),
+            ];
+            
+        case 'year':
+            return [
+                'start' => $now->copy()->startOfYear(),
+                'end' => $now->copy()->endOfYear(),
+            ];
+            
+        default:
+            return null;
+    }
+}
+
+/**
+ * Get report period text
+ */
+private function getReportPeriod(Request $request): string
+{
+    if ($request->filled('period')) {
+        $periods = [
+            'today' => 'Hoje',
+            'week' => 'Esta Semana',
+            'month' => 'Este Mês',
+            '3months' => 'Últimos 3 Meses',
+            '6months' => 'Últimos 6 Meses',
+            'year' => 'Este Ano',
+        ];
+        
+        return $periods[$request->input('period')] ?? 'Período não especificado';
+    }
+    
+    return 'Todo o Período';
+}
+
+/**
+ * Get applied filters text
+ */
+private function getAppliedFilters(Request $request): array
+{
+    $filters = [];
+    
+    if ($request->filled('period')) {
+        $filters['period'] = $this->getReportPeriod($request);
+    }
+    
+    if ($request->filled('type')) {
+        $filters['type'] = $this->getTypeLabelForExport($request->input('type'));
+    }
+    
+    if ($request->filled('status')) {
+        $filters['status'] = $this->getStatusText($request->input('status'));
+    }
+    
+    if ($request->filled('priority')) {
+        $filters['priority'] = $this->getPriorityLabel($request->input('priority'));
+    }
+    
+    if ($request->filled('category')) {
+        $filters['category'] = $request->input('category');
+    }
+    
+    if ($request->filled('tab') && $request->input('tab') !== 'all') {
+        $filters['tab'] = $request->input('tab');
+    }
+    
+    return $filters;
+}
+
+private function formatPdfData($grievances, $user, Request $request): array
+{
+    $tab = $request->input('tab', 'all');
+    $tabTitles = [
+        'all' => 'Todas as Submissões',
+        'suggestions' => 'Sugestões',
+        'grievances' => 'Queixas',
+        'complaints' => 'Reclamações',
+        'resolved' => 'Submissões Concluídas',
+        'rejected' => 'Submissões Rejeitadas',
+        'director_interventions' => 'Intervenções do Director',
+        'my_submissions_to_director' => 'Minhas Submissões ao Director',
+    ];
+    
+    return [
+        'title' => 'Lista de Submissões - Gestor',
+        'subtitle' => $tabTitles[$tab] ?? 'Lista de Submissões',
+        'user' => $user->name,
+        'export_date' => now()->format('d/m/Y H:i'),
+        'total' => $grievances->count(),
+        'grievances' => $grievances->map(function ($grievance) {
+            return [
+                'reference_number' => $grievance->reference_number,
+                'description' => $grievance->description,
+                'type' => $this->getTypeLabelForExport($grievance->type),
+                'priority' => $this->getPriorityLabel($grievance->priority),
+                'status' => $this->getStatusText($grievance->status),
+                'category' => $grievance->category,
+                'created_at' => $grievance->created_at->format('d/m/Y H:i'),
+                'user_name' => $grievance->user->name ?? ($grievance->is_anonymous ? 'Anônimo' : 'Não especificado'),
+                'technician' => $grievance->assignedUser->name ?? 'Não atribuído',
+                'escalated' => $grievance->escalated ? 'Sim' : 'Não',
+            ];
+        })->toArray(),
+        'filters' => $request->all(),
+    ];
+}
+
+
+private function createEmptyPdf($user)
+{
+    $data = [
+        'title' => 'Lista de Submissões - Sem Dados',
+        'subtitle' => 'Não foram encontradas submissões para exportar',
+        'user' => $user->name,
+        'export_date' => now()->format('d/m/Y H:i'),
+        'total' => 0,
+        'grievances' => [],
+        'empty_message' => 'Não há submissões disponíveis para exportar com os filtros atuais.',
+    ];
+    
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.manager-grievances-pdf', $data);
+    $pdf->setPaper('A4', 'portrait');
+    
+    $filename = 'sem-dados-' . now()->format('Y-m-d-H-i') . '.pdf';
+    return $pdf->download($filename);
+}
+
+
+private function createErrorPdf($errorMessage)
+{
+    $data = [
+        'title' => 'Erro ao Exportar PDF',
+        'subtitle' => 'Ocorreu um erro durante a exportação',
+        'user' => 'Sistema',
+        'export_date' => now()->format('d/m/Y H:i'),
+        'total' => 0,
+        'grievances' => [],
+        'error_message' => $errorMessage,
+    ];
+    
+    $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('exports.manager-grievances-pdf', $data);
+    $pdf->setPaper('A4', 'portrait');
+    
+    $filename = 'erro-exportacao-' . now()->format('Y-m-d-H-i') . '.pdf';
+    return $pdf->download($filename);
+}
+
+
+private function getExportTitle(Request $request): string
+{
+    $title = 'Lista de Submissões';
+    
+    if ($request->filled('tab')) {
+        $tab = $request->input('tab');
+        $tabTitles = [
+            'all' => 'Todas as Submissões',
+            'suggestions' => 'Sugestões',
+            'grievances' => 'Queixas',
+            'complaints' => 'Reclamações',
+            'resolved' => 'Submissões Concluídas',
+            'rejected' => 'Submissões Rejeitadas',
+            'director_interventions' => 'Intervenções do Director',
+            'my_submissions_to_director' => 'Minhas Submissões ao Director',
+        ];
+        
+        $title = $tabTitles[$tab] ?? $title;
+    }
+    
+    return $title;
+}
+
+
+/**
+ * Get type label for export
+ */
+private function getTypeLabelForExport($type)
+{
+    if (!$type) return 'Não especificado';
+    
+    $type = strtolower($type);
+    $labels = [
+        'suggestion' => 'Sugestão',
+        'sugestão' => 'Sugestão',
+        'sugestao' => 'Sugestão',
+        'grievance' => 'Queixa',
+        'queixa' => 'Queixa',
+        'complaint' => 'Reclamação',
+        'reclamação' => 'Reclamação',
+        'reclamacao' => 'Reclamação',
+    ];
+    
+    return $labels[$type] ?? ucfirst($type);
+}
+
+public function checkExport(Request $request)
+{
+    try {
+        $user = auth()->user();
+        $this->ensureManager($user);
+        
+        \Log::info('Check export - Parâmetros recebidos:', $request->all());
+        
+        // Buscar reclamações do gestor atual
+        $query = Grievance::with(['user', 'assignedUser'])
+    ->where('assigned_to', $user->id);
+
+\Log::info('Query base - total: ' . $query->count());
+
+// Aplicar filtros de forma simples
+if ($request->filled('tab') && $request->input('tab') !== 'all') {
+    $tab = $request->input('tab');
+    \Log::info('Filtrando por tab: ' . $tab);
+    
+    switch ($tab) {
+        case 'suggestions':
+            $query->where(function($q) {
+                $q->where('type', 'suggestion')
+                  ->orWhere('type', 'like', '%sugest%');
+            });
+            break;
+            
+        case 'grievances':
+            $query->where(function($q) {
+                $q->where('type', 'grievance')
+                  ->orWhere('type', 'like', '%queixa%');
+            });
+            break;
+            
+        case 'complaints':
+            $query->where(function($q) {
+                $q->where('type', 'complaint')
+                  ->orWhere('type', 'like', '%reclam%');
+            });
+            break;
+            
+        case 'resolved':
+            $query->where('status', 'resolved');
+            break;
+            
+        case 'rejected':
+            $query->where('status', 'rejected');
+            break;
+            
+        case 'director_interventions':
+            // Filtro para intervenções do director
+            $query->where(function($q) {
+                $q->where('escalated', true)
+                  ->orWhereHas('updates', function($q2) {
+                      $q2->where('action_type', 'like', '%director%');
+                  });
+            });
+            break;
+            
+        case 'my_submissions_to_director':
+            $query->where('escalated', true)
+                  ->where('escalated_by', $user->id);
+            break;
+    }
+}
+
+        // Outros filtros simples (aplicam-se mesmo quando tab=all)
+        if ($request->filled('type') && $request->input('type') !== '') {
+            $query->where('type', $request->type);
+        }
+
+        if ($request->filled('priority') && $request->input('priority') !== '') {
+            $query->where('priority', $request->priority);
+        }
+
+        if ($request->filled('status') && $request->input('status') !== '') {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('category') && $request->input('category') !== '') {
+            $query->where('category', $request->category);
+        }
+
+        // Sempre ordenar por data mais recente
+        $query->latest();
+
+        $grievances = $query->get();
+
+        \Log::info('Total após filtros: ' . $grievances->count());
+        \Log::info('Primeiras 3 reclamações:', $grievances->take(3)->map(function($g) {
+            return [
+                'id' => $g->id,
+                'reference' => $g->reference_number,
+                'type' => $g->type,
+                'status' => $g->status,
+                'assigned_to' => $g->assigned_to,
+            ];
+        })->toArray());
+                
+            } catch (\Exception $e) {
+                \Log::error('Erro em checkExport: ' . $e->getMessage());
+                \Log::error('Stack trace: ' . $e->getTraceAsString());
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao verificar dados: ' . $e->getMessage(),
+                    'error_details' => [
+                        'file' => $e->getFile(),
+                        'line' => $e->getLine(),
+                    ]
+                ], 500);
+        }
+    }
+
+
+public function debugComplete(Request $request)
+{
+    $user = auth()->user();
+    
+    \Log::info('=== DEBUG COMPLETO DO SISTEMA ===');
+    
+    // 1. Informações do usuário
+    \Log::info('1. USUÁRIO:');
+    \Log::info('   ID: ' . $user->id);
+    \Log::info('   Nome: ' . $user->name);
+    \Log::info('   Email: ' . $user->email);
+    \Log::info('   Roles: ' . $user->getRoleNames()->implode(', '));
+    
+    // 2. Departamento do gestor
+    $department = \App\Models\Department::where('manager_id', $user->id)->first();
+    \Log::info('2. DEPARTAMENTO:');
+    \Log::info('   Tem departamento? ' . ($department ? 'SIM' : 'NÃO'));
+    if ($department) {
+        \Log::info('   ID: ' . $department->id);
+        \Log::info('   Nome: ' . $department->name);
+    }
+    
+    // 3. Projetos no departamento
+    if ($department) {
+        $projects = \App\Models\Project::where('department_id', $department->id)->get();
+        \Log::info('3. PROJETOS NO DEPARTAMENTO: ' . $projects->count());
+        foreach ($projects as $project) {
+            \Log::info('   - ' . $project->name . ' (ID: ' . $project->id . ')');
+        }
+    }
+    
+    // 4. Reclamações por projeto
+    if ($department) {
+        $grievancesByProject = Grievance::whereHas('project', function($q) use ($department) {
+            $q->where('department_id', $department->id);
+        })->get();
+        
+        \Log::info('4. RECLAMAÇÕES NO DEPARTAMENTO: ' . $grievancesByProject->count());
+        
+        // Agrupar por tipo
+        $byType = $grievancesByProject->groupBy('type');
+        foreach ($byType as $type => $items) {
+            \Log::info('   ' . $type . ': ' . $items->count());
+        }
+    }
+    
+    // 5. Todas as reclamações (para comparação)
+    $allGrievances = Grievance::all();
+    \Log::info('5. TODAS AS RECLAMAÇÕES NO SISTEMA: ' . $allGrievances->count());
+    
+    $allByType = $allGrievances->groupBy('type');
+    foreach ($allByType as $type => $items) {
+        \Log::info('   ' . $type . ': ' . $items->count());
+    }
+    
+    // 6. Reclamações atribuídas ao usuário
+    $assignedGrievances = Grievance::where('assigned_to', $user->id)->get();
+    \Log::info('6. RECLAMAÇÕES ATRIBUÍDAS DIRETAMENTE: ' . $assignedGrievances->count());
+    
+    return response()->json([
+        'success' => true,
+        'debug' => [
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'roles' => $user->getRoleNames(),
+            ],
+            'department' => $department ? [
+                'id' => $department->id,
+                'name' => $department->name,
+            ] : null,
+            'grievances_in_department' => $department ? Grievance::whereHas('project', function($q) use ($department) {
+                $q->where('department_id', $department->id);
+            })->count() : 0,
+            'grievances_assigned_directly' => Grievance::where('assigned_to', $user->id)->count(),
+            'all_grievances_count' => Grievance::count(),
+        ]
+    ]);
+}
+
+private function getExportSubtitle(Request $request): string
+{
+    if (!$request->filled('tab') || $request->input('tab') === 'all') {
+        return 'Todas as Submissões';
+    }
+    
+    $subtitles = [
+        'suggestions' => 'Sugestões',
+        'grievances' => 'Queixas',
+        'complaints' => 'Reclamações',
+        'resolved' => 'Submissões Concluídas',
+        'rejected' => 'Submissões Rejeitadas',
+        'director_interventions' => 'Intervenções do Director',
+        'my_submissions_to_director' => 'Minhas Submissões ao Director',
+    ];
+    
+    return $subtitles[$request->input('tab')] ?? 'Lista de Submissões';
 }
 }
 

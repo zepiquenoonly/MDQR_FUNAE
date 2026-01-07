@@ -67,59 +67,53 @@
 
 <script setup>
 import { Link, router } from "@inertiajs/vue3";
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-import Layout from '@/Layouts/UnifiedLayout.vue'
+import { ref } from "vue";
+import Layout from "@/Layouts/UnifiedLayout.vue";
 import ProfileInfoTab from "@/Components/Profile/ProfileInfoTab.vue";
 import ProfileSidebar from "@/Components/Profile/ProfileSidebar.vue";
 import ProfileSecurityTab from "@/Components/Profile/ProfileSecurityTab.vue";
 import ProfileNotificationsTab from "@/Components/Profile/ProfileNotificationsTab.vue";
 import ProfilePreferencesTab from "@/Components/Profile/ProfilePreferencesTab.vue";
-import {
-    ChevronRightIcon,
-    ArrowLeftIcon,
-    CheckCircleIcon,
-    XCircleIcon,
-} from "@heroicons/vue/24/outline";
 
 const props = defineProps({
-    user: Object,
-    stats: Object,
-    activeTab: String,
-    showStats: {
-        type: Boolean,
-        default: false,
-    },
+  user: Object,
+  stats: Object,
+  activeTab: String,
+  showStats: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const globalToast = ref({
-    show: false,
-    message: "",
-    type: "success",
+  show: false,
+  message: "",
+  type: "success",
 });
 
 router.on("success", (event) => {
-    const props = event.detail.page.props;
+  const props = event.detail.page.props;
 
-    if (props.flash?.success) {
-        showGlobalToast(props.flash.success, "success");
-    } else if (props.flash?.error) {
-        showGlobalToast(props.flash.error, "error");
-    }
+  if (props.flash?.success) {
+    showGlobalToast(props.flash.success, "success");
+  } else if (props.flash?.error) {
+    showGlobalToast(props.flash.error, "error");
+  }
 });
 
 const showGlobalToast = (message, type = "success") => {
-    globalToast.value = {
-        show: true,
-        message,
-        type,
-    };
+  globalToast.value = {
+    show: true,
+    message,
+    type,
+  };
 
-    setTimeout(() => {
-        globalToast.value.show = false;
-    }, 5000);
+  setTimeout(() => {
+    globalToast.value.show = false;
+  }, 5000);
 };
 
 const goBack = () => {
-    window.history.length > 1 ? router.visit("/home") : router.visit("/home");
+  window.history.length > 1 ? router.visit("/home") : router.visit("/home");
 };
 </script>

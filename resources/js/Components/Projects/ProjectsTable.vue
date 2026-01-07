@@ -33,12 +33,17 @@
             <th
               class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 sm:w-20 text-center"
             >
-              Recl.
+              Reclamações
             </th>
             <th
               class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 sm:w-20 text-center"
             >
-              Sug.
+              Sugestões
+            </th>
+            <th
+              class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-12 sm:w-20 text-center"
+            >
+              Queixas
             </th>
             <th
               class="py-2 px-1 sm:px-2 md:px-4 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider w-20 sm:w-28"
@@ -105,13 +110,31 @@
             <td
               class="py-2 px-1 sm:px-2 md:px-4 text-center text-xs sm:text-sm font-bold text-gray-700 dark:text-dark-text-primary"
             >
-              0
+              {{ getProjectReclamacoes(project) }}
             </td>
 
             <td
               class="py-2 px-1 sm:px-2 md:px-4 text-center text-xs sm:text-sm font-bold text-gray-700 dark:text-dark-text-primary"
             >
-              0
+              {{ getProjectSugestoes(project) }}
+            </td>
+
+            <td
+              class="py-2 px-1 sm:px-2 md:px-4 text-center text-xs sm:text-sm font-bold text-gray-700 dark:text-dark-text-primary"
+            >
+              <div class="flex flex-col items-center">
+                <!-- Total de Queixas -->
+                <span class="dark:text-red-400 font-bold">
+                  {{ getTotalQueixas(project) }}
+                </span>
+                <!-- Breakdown (opcional) -->
+                <div
+                  class="flex gap-1 text-xs text-gray-500 dark:text-gray-400"
+                  v-if="showQueixasBreakdown"
+                >
+                  <span>{{ getQueixasAbertas(project) }} aberta(s)</span>
+                </div>
+              </div>
             </td>
 
             <td class="py-2 px-1 sm:px-2 md:px-4">
@@ -173,16 +196,58 @@
       </p>
     </div>
   </div>
+
+  <div class="mt-8 flex justify-end">
+    <button
+      @click="exportToPDF"
+      :disabled="loading || safeProjects.length === 0 || isExporting"
+      class="flex items-center gap-2 bg-brand hover:bg-orange-700 disabled:bg-gray-400 disabled:cursor-not-allowed text-white px-3 sm:px-4 py-2 rounded text-xs sm:text-sm font-semibold transition-colors shadow-md hover:shadow-lg"
+    >
+      <!-- Spinner quando está exportando -->
+      <svg
+        v-if="isExporting"
+        class="animate-spin h-4 w-4 sm:h-5 sm:w-5 text-white"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+
+      <!-- Ícone normal quando não está exportando -->
+      <DocumentArrowDownIcon v-else class="w-4 h-4 sm:w-5 sm:h-5" />
+
+      <!-- Texto do botão com estados diferentes -->
+      <span v-if="isExporting" class="hidden sm:inline">A exportar...</span>
+      <span v-else class="hidden sm:inline">Exportar PDF</span>
+
+      <span v-if="isExporting" class="sm:hidden">...</span>
+      <span v-else class="sm:hidden">PDF</span>
+    </button>
+  </div>
 </template>
 
 <script setup>
 import { Link } from "@inertiajs/vue3";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import {
   EyeIcon,
   FolderIcon,
   MagnifyingGlassIcon,
   EyeSlashIcon,
+  DocumentArrowDownIcon,
 } from "@heroicons/vue/24/outline";
 
 const emit = defineEmits(["view-details"]);
@@ -199,6 +264,11 @@ const props = defineProps({
   search: {
     type: String,
     default: "",
+  },
+  // Nova prop para controlar se mostra breakdown das queixas
+  showQueixasBreakdown: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -245,6 +315,64 @@ const getProjectBairro = (project) => {
   return isValidProject(project) ? project.bairro || "N/A" : "N/A";
 };
 
+// Funções para obter dados de reclamações/sugestões
+const getProjectReclamacoes = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  // Dados podem vir de diferentes lugares:
+  // 1. Diretamente do projeto
+  // 2. De uma propriedade específica (ex: project.metrics)
+  // 3. De uma relação (ex: project.reclamacoes_count)
+
+  // Verifique qual estrutura o backend está enviando
+  console.log("Dados do projeto para reclamações:", project);
+
+  // Exemplo de possíveis estruturas:
+  // 1. project.reclamacoes_count
+  // 2. project.metrics?.reclamacoes
+  // 3. project.reclamacoes?.total
+
+  return (
+    project.reclamacoes_count ||
+    project.metrics?.reclamacoes ||
+    project.reclamacoes?.total ||
+    "0"
+  );
+};
+
+const getProjectSugestoes = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  return (
+    project.sugestoes_count ||
+    project.metrics?.sugestoes ||
+    project.sugestoes?.total ||
+    "0"
+  );
+};
+
+// Funções para Queixas (que podem incluir reclamações e/ou outras categorias)
+const getTotalQueixas = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  // Se o backend já envia total_queixas, use isso
+  if (project.total_queixas !== undefined) {
+    return project.total_queixas;
+  }
+
+  // Caso contrário, some reclamações e sugestões
+  const reclamacoes = parseInt(getProjectReclamacoes(project)) || 0;
+  const sugestoes = parseInt(getProjectSugestoes(project)) || 0;
+
+  return reclamacoes + sugestoes;
+};
+
+const getQueixasAbertas = (project) => {
+  if (!isValidProject(project)) return "0";
+
+  return project.queixas_abertas || project.metrics?.queixas_abertas || "0";
+};
+
 // Garantir que sempre temos um array válido
 const safeProjects = computed(() => {
   console.log("Projects recebidos:", props.projects);
@@ -275,7 +403,7 @@ const getStatusClass = (category) => {
     case "parados":
       return "bg-red-100 text-red-700 dark:bg-red-900/20 dark:text-red-300";
     default:
-      return "bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300";
+      return "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300";
   }
 };
 
@@ -288,6 +416,71 @@ const getStatusLabel = (category) => {
     parados: "Parado",
   };
   return labels[category] || category;
+};
+
+const isExporting = ref(false);
+
+const exportToPDF = async () => {
+  if (isExporting.value) return;
+
+  try {
+    // Ativar estado de loading
+    isExporting.value = true;
+
+    // Determinar a rota base
+    let baseRoute = "/gestor";
+    const currentPath = window.location.pathname;
+
+    if (currentPath.includes("/director")) {
+      baseRoute = "/director";
+    } else if (currentPath.includes("/admin")) {
+      baseRoute = "/admin";
+    }
+
+    // Preparar parâmetros
+    const params = new URLSearchParams();
+
+    if (props.search) {
+      params.append("search", props.search);
+    }
+
+    if (props.filters && Object.keys(props.filters).length > 0) {
+      Object.entries(props.filters).forEach(([key, value]) => {
+        if (value !== null && value !== undefined && value !== "") {
+          params.append(`filters[${key}]`, value);
+        }
+      });
+    }
+
+    // Adicionar timestamp para evitar cache
+    params.append("_t", Date.now());
+
+    // Construir URL
+    const queryString = params.toString();
+    const url = `${baseRoute}/projects/export/pdf${queryString ? "?" + queryString : ""}`;
+
+    // Criar link temporário para download
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.download = `projectos_${new Date().toISOString().slice(0, 10)}.pdf`;
+
+    // Simular clique para iniciar download
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    // Simular tempo de processamento (pode remover em produção)
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+  } catch (error) {
+    console.error("Erro ao exportar PDF:", error);
+
+    // Em produção, você pode usar um sistema de notificação
+    alert("Ocorreu um erro ao exportar o PDF. Por favor, tente novamente.");
+  } finally {
+    // Sempre desativar o loading
+    isExporting.value = false;
+  }
 };
 </script>
 
@@ -346,6 +539,10 @@ const getStatusLabel = (category) => {
   .table-scroll-container {
     max-height: calc(100vh - 220px);
   }
+
+  /*.min-w-[600px] {
+    min-width: 700px; 
+  }*/
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {

@@ -18,6 +18,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $name
  * @property string $username
  * @property string $email
+ * @property string $status
+ * @property string $locale
  * @property \Illuminate\Support\Carbon|null $email_verified_at
  * @property string $password
  * @property string|null $remember_token
@@ -28,6 +30,14 @@ class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
+
+    /**
+     * Status constants
+     */
+    const STATUS_ACTIVE = 'active';
+    const STATUS_INACTIVE = 'inactive';
+    const STATUS_SUSPENDED = 'suspended';
+    const STATUS_PENDING = 'pending';
 
     /**
      * The attributes that are mass assignable.
@@ -52,7 +62,9 @@ class User extends Authenticatable
         'workload_capacity',
         'current_workload',
         'is_available',
+        'status',
         'department_id',
+        'locale', // ← ADICIONAR AQUI
     ];
 
     /**
@@ -78,7 +90,138 @@ class User extends Authenticatable
             'is_available' => 'boolean',
             'workload_capacity' => 'integer',
             'current_workload' => 'integer',
+            'status' => 'string',
+            'locale' => 'string', // ← ADICIONAR AQUI
         ];
+    }
+
+    /**
+     * Boot the model.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        // Definir status padrão quando criar um novo usuário
+        static::creating(function ($user) {
+            if (empty($user->status)) {
+                $user->status = self::STATUS_ACTIVE;
+            }
+            
+            // Sincronizar is_available com status
+            $user->is_available = $user->status === self::STATUS_ACTIVE;
+            
+            // Definir locale padrão se não especificado
+            if (empty($user->locale)) {
+                $user->locale = config('app.locale', 'pt');
+            }
+        });
+
+        // Sincronizar is_available sempre que status for atualizado
+        static::updating(function ($user) {
+            if ($user->isDirty('status')) {
+                $user->is_available = $user->status === self::STATUS_ACTIVE;
+            }
+        });
+    }
+
+    /**
+     * Set the user's preferred locale.
+     *
+     * @param string $locale
+     * @return bool
+     */
+    public function setLocale(string $locale): bool
+    {
+        if (!in_array($locale, config('app.available_locales', ['pt', 'en']),
+            ['pt_MZ'])) {
+            return false;
+        }
+        
+        $this->locale = $locale;
+        return $this->save();
+    }
+
+    /**
+     * Get the user's preferred locale.
+     *
+     * @return string
+     */
+    public function getLocale(): string
+    {
+        return $this->locale ?: config('app.locale', 'pt_MZ');
+    }
+
+    /**
+     * Scope para filtrar usuários por locale.
+     */
+    public function scopeByLocale($query, string $locale)
+    {
+        return $query->where('locale', $locale);
+    }
+
+    /**
+     * Scope para usuários ativos
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', self::STATUS_ACTIVE);
+    }
+
+    /**
+     * Scope para usuários inativos
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('status', self::STATUS_INACTIVE);
+    }
+
+    /**
+     * Scope para usuários suspensos
+     */
+    public function scopeSuspended($query)
+    {
+        return $query->where('status', self::STATUS_SUSPENDED);
+    }
+
+    /**
+     * Scope para usuários pendentes
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', self::STATUS_PENDING);
+    }
+
+    /**
+     * Check if user is active
+     */
+    public function isActive(): bool
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    /**
+     * Check if user is inactive
+     */
+    public function isInactive(): bool
+    {
+        return $this->status === self::STATUS_INACTIVE;
+    }
+
+    /**
+     * Check if user is suspended
+     */
+    public function isSuspended(): bool
+    {
+        return $this->status === self::STATUS_SUSPENDED;
+    }
+
+    /**
+     * Check if user is pending
+     */
+    public function isPending(): bool
+    {
+        return $this->status === self::STATUS_PENDING;
     }
 
     /**
@@ -224,5 +367,43 @@ class User extends Authenticatable
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+    
+    /**
+     * Get user's display name with locale indicator
+     */
+    public function getDisplayNameAttribute(): string
+    {
+        $flag = match($this->locale) {
+            'pt', 'pt_MZ' => '🇲🇿',
+            'en' => '🇺🇸',
+            default => '🌐'
+        };
+        
+        return "{$this->name} {$flag}";
+    }
+    
+    /**
+     * Get user's language name
+     */
+    public function getLanguageAttribute(): string
+    {
+        return match($this->locale) {
+            'pt', 'pt_MZ' => 'Português (MZ)',
+            'en' => 'English',
+            default => $this->locale
+        };
+    }
+
+     public function getNormalizedLocaleAttribute(): string
+    {
+        $locale = $this->locale;
+        
+        // Se for pt e estiver usando Lusophone, converter para pt_MZ
+        if ($locale === 'pt' && config('app.locale') === 'pt_MZ') {
+            return 'pt_MZ';
+        }
+        
+        return $locale;
     }
 }

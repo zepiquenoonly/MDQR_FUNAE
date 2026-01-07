@@ -7,8 +7,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Log; 
 use Inertia\Inertia;
+use Carbon\Carbon;
 
 class ProjectController extends Controller
 {
@@ -224,6 +226,128 @@ class ProjectController extends Controller
         } catch (\Exception $e) {
             Log::error('Erro ao eliminar projecto: ' . $e->getMessage());
             return back()->with('error', 'Erro ao eliminar projecto.');
+        }
+    }
+
+
+    public function exportProjectsToPDF(Request $request)
+    {
+        try {
+            // Verificar autenticação e permissões
+            $user = Auth::user();
+            $allowedRoles = ['Gestor', 'Manager', 'Director', 'admin', 'PCA'];
+            
+            if (!$user->hasAnyRole($allowedRoles)) {
+                abort(403, 'Acesso não autorizado para exportar PDF');
+            }
+            
+            // Obter parâmetros de filtro
+            $search = $request->input('search', '');
+            $filters = $request->input('filters', []);
+            
+            // Construir query
+            $query = Project::query()
+                ->with(['objectives', 'finance', 'deadline'])
+                ->orderBy('created_at', 'desc');
+            
+            // Aplicar filtro de busca
+            if (!empty($search)) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('bairro', 'like', "%{$search}%")
+                      ->orWhere('description', 'like', "%{$search}%");
+                });
+            }
+            
+            // Aplicar filtros adicionais
+            if (!empty($filters)) {
+                if (isset($filters['category']) && !empty($filters['category'])) {
+                    $query->where('category', $filters['category']);
+                }
+                
+                if (isset($filters['bairro']) && !empty($filters['bairro'])) {
+                    $query->where('bairro', 'like', "%{$filters['bairro']}%");
+                }
+                
+                if (isset($filters['provincia']) && !empty($filters['provincia'])) {
+                    $query->where('provincia', $filters['provincia']);
+                }
+                
+                if (isset($filters['date_from']) && !empty($filters['date_from'])) {
+                    $query->whereDate('created_at', '>=', $filters['date_from']);
+                }
+                
+                if (isset($filters['date_to']) && !empty($filters['date_to'])) {
+                    $query->whereDate('created_at', '<=', $filters['date_to']);
+                }
+            }
+            
+            // Obter projetos com paginação para evitar memória excessiva
+            $projects = $query->get();
+            
+            // Dados para o PDF
+            $data = [
+                'projects' => $projects,
+                'user' => $user,
+                'filters' => [
+                    'search' => $search,
+                    'category' => $filters['category'] ?? null,
+                    'bairro' => $filters['bairro'] ?? null,
+                    'date_from' => $filters['date_from'] ?? null,
+                    'date_to' => $filters['date_to'] ?? null,
+                ],
+                'export_date' => Carbon::now()->format('d/m/Y H:i'),
+                'total_projects' => $projects->count(),
+                'stats' => [
+                    'finalizados' => $projects->where('category', 'finalizados')->count(),
+                    'andamento' => $projects->where('category', 'andamento')->count(),
+                    'parados' => $projects->where('category', 'parados')->count(),
+                ]
+            ];
+            
+            // DEBUG: Log dos dados
+            \Log::info('Exportando PDF com dados:', [
+                'total_projects' => $projects->count(),
+                'user' => $user->email,
+                'filters' => $data['filters']
+            ]);
+            
+            // Gerar PDF com configurações otimizadas
+            $pdf = Pdf::loadView('exports.projects-pdf', $data);
+            
+            // Configurações importantes
+            $pdf->setPaper('A4', 'landscape');
+            $pdf->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'isPhpEnabled' => false,
+                'defaultFont' => 'sans-serif',
+                'fontHeightRatio' => 0.9,
+                'dpi' => 150
+            ]);
+            
+            // Nome do arquivo
+            $filename = 'projectos_' . Carbon::now()->format('Y-m-d_H-i') . '.pdf';
+            
+            // Forçar download
+            return $pdf->stream($filename); // Use stream() em vez de download() para debug
+            
+        } catch (\Exception $e) {
+            \Log::error('Erro ao exportar PDF: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            // Se for API/JSON
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'error' => 'Erro ao gerar PDF',
+                    'message' => $e->getMessage(),
+                    'trace' => config('app.debug') ? $e->getTraceAsString() : null
+                ], 500);
+            }
+            
+            // Redirecionar com erro
+            return redirect()->back()
+                ->with('error', 'Erro ao exportar PDF: ' . $e->getMessage());
         }
     }
 }

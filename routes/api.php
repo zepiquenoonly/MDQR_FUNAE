@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\GrievanceController;
+use App\Http\Controllers\LocaleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -35,4 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+});
+
+Route::middleware('api')->group(function () {
+    Route::post('/locale', [LocaleController::class, 'update']);
+    Route::get('/translations', [LocaleController::class, 'translations']);
 });
